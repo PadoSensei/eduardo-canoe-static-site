@@ -1,0 +1,233 @@
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Typography */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Lora", serif;
+  }
+  body {
+    font-family: "Open Sans", sans-serif;
+  }
+}
+
+/* Video Container & Full Width Fix */
+.video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: -20;
+}
+
+.hero-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100vw;
+  min-height: 100vh;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+}
+
+/* Ken Burns Effect */
+@keyframes kenburns {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+.hero-video-ken-burns {
+  animation: kenburns 20s ease-out infinite alternate;
+}
+
+/* Enhanced Gradient Overlay */
+.gradient-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+}
+
+/* Text Animations */
+.hero-text {
+  animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Professional Text Shadows */
+.text-shadow-lg {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+}
+
+.text-shadow-md {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Carousel Styling */
+.carousel-container {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.carousel-container::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-item {
+  scroll-snap-align: center;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Carousel Navigation */
+.carousel-wrapper:not(:has(:target)) .nav-1 {
+  background-color: #ff6b6b;
+}
+
+.carousel-wrapper:has(#slide1:target) .nav-1,
+.carousel-wrapper:has(#slide2:target) .nav-2,
+.carousel-wrapper:has(#slide3:target) .nav-3 {
+  background-color: #ff6b6b;
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%,
+  43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+/* Card Hover Effects */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Button Animations */
+.btn-primary {
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+}
+
+/* Focus States */
+.focus-ring:focus {
+  outline: none;
+  ring: 2px solid #ff6b6b;
+  ring-offset: 2px;
+}
+
+/* Custom Styles for Deep Chat */
+deep-chat {
+  /*
+     * IMPORTANT: The `placement` attribute should handle the positioning for the most part.
+     * However, to ensure it's always fixed and at the bottom-right, we can apply these styles.
+     * Some components might override these, so we'll use higher specificity or !important if needed.
+     */
+  position: fixed !important; /* Force fixed positioning */
+  bottom: 20px !important; /* Adjust spacing from the bottom */
+  right: 20px !important; /* Adjust spacing from the right */
+  z-index: 1000 !important; /* Ensure it's above most other content */
+
+  /* Styling variables - these are correctly placed here */
+  --deep-chat-button-background-color: #ff6b6b;
+  --deep-chat-button-icon-color: #ffffff;
+  --deep-chat-header-background-color: #ff6b6b;
+  --deep-chat-title-text-color: #ffffff;
+  --deep-chat-primary-color: #ff6b6b;
+  --deep-chat-font-family: "Open Sans", sans-serif;
+  --deep-chat-panel-color: #ffffff;
+  --deep-chat-message-background-color: #e0e0e0;
+  --deep-chat-assistant-message-background-color: #f0f0f0;
+  --deep-chat-input-background-color: #f9f9f9;
+}
+
+/* Styling for the intro panel */
+deep-chat .intro-panel {
+  width: 280px !important;
+  background-color: #f3f3f3 !important;
+  border-radius: 10px !important;
+  padding: 15px !important;
+  font-family: "Open Sans", sans-serif;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+deep-chat .intro-panel b {
+  font-weight: 600;
+  color: #222;
+}
+deep-chat .intro-panel div:nth-of-type(2) {
+  font-size: 14px !important;
+  line-height: 20px !important;
+  color: #444;
+}

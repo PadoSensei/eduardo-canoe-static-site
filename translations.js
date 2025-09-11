@@ -1,4 +1,90 @@
-console.log("help");
+// Translation functionality
+function translatePage(lang) {
+  const language = translations[lang] ? lang : "en";
+  const content = translations[language];
+
+  console.log("Translating to:", language, "from hash:", window.location.hash); // Debug log
+
+  // Update all elements with data-key attributes
+  document.querySelectorAll("[data-key]").forEach((element) => {
+    const key = element.dataset.key;
+    if (content[key]) {
+      // Handle form inputs with placeholders
+      if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+        element.placeholder = content[key];
+      } else {
+        // Handle regular text content
+        element.textContent = content[key];
+      }
+    }
+  });
+
+  // Update language link styling
+  document.querySelectorAll("nav a").forEach((link) => {
+    link.classList.remove("opacity-100", "font-bold");
+    link.classList.add("opacity-70");
+  });
+
+  const activeLink = document.querySelector(`a[href="#${language}"]`);
+  if (activeLink) {
+    activeLink.classList.remove("opacity-70");
+    activeLink.classList.add("opacity-100", "font-bold");
+  }
+}
+
+function handleLanguageChange() {
+  let lang = window.location.hash.substring(1);
+  console.log("Hash detected:", window.location.hash, "Extracted lang:", lang);
+
+  // If no hash or empty hash, default to English
+  if (!lang || lang === "") {
+    lang = "en";
+  }
+
+  translatePage(lang);
+}
+
+// Initialize on page load
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Page loaded, initializing translations");
+  // Start with English by default
+  window.location.hash = "en";
+  handleLanguageChange();
+});
+
+window.addEventListener("hashchange", () => {
+  console.log("Hash changed to:", window.location.hash);
+  handleLanguageChange();
+});
+
+// Add click handlers for language links
+document.querySelectorAll('nav a[href^="#"]').forEach((link) => {
+  link.addEventListener("click", (e) => {
+    e.preventDefault(); // Prevent default link behavior
+    const href = e.target.getAttribute("href");
+    const lang = href.substring(1);
+    console.log("Language clicked:", lang, "Setting hash to:", href);
+
+    // Directly set the hash and translate
+    window.location.hash = href;
+    translatePage(lang);
+  });
+});
+
+// Smooth scrolling for anchor links
+document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+  anchor.addEventListener("click", function (e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute("href"));
+    if (target) {
+      target.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  });
+});
+
 const translations = {
   en: {
     inquireBtn: "Book Your Tour",
@@ -13,7 +99,7 @@ const translations = {
       "Paddle through the tranquil Guaraíras Lagoon, exploring the mysterious mangrove tunnels and discovering a hidden world.",
     card2Title: "Dolphin Bay Encounter",
     card2Text:
-      "Join the bay's most famous residents. A magical experience as you paddle alongside playful dolphins in their natural habitat. [1, 28]",
+      "Join the bay's most famous residents. A magical experience as you paddle alongside playful dolphins in their natural habitat.",
     card3Title: "Sunset Paddle",
     card3Text:
       "Witness the sky paint itself in incredible colors. A peaceful and breathtaking journey as the sun sets over the ocean.",
