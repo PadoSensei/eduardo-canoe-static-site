@@ -38,13 +38,48 @@
     <!-- Header -->
     <header class="absolute top-0 left-0 right-0 z-50 p-4 md:p-6">
       <div class="container mx-auto flex justify-between items-center">
-        <h1 class="text-2xl md:text-3xl font-bold text-white text-shadow-md">
-          Pipa Canoe
-        </h1>
-        <div
-          class="flex items-center space-x-4 bg-black/20 backdrop-blur-sm md:bg-transparent p-3 rounded-xl md:p-0"
+        <!-- Left Side: Logo/Title -->
+        <div class="flex items-center">
+          <h1 class="text-2xl md:text-3xl font-bold text-white text-shadow-md">
+            <a href="./index.html" data-key="home"> Pipa Canoe </a>
+          </h1>
+        </div>
+
+        <!-- Center: Main Navigation (visible on md+ screens) -->
+        <!-- Modified this nav element:
+             - Added `md:flex-grow` to make it take up available horizontal space.
+             - Added `md:justify-center` to center the navigation links within that space.
+        -->
+        <nav
+          aria-label="Main navigation"
+          class="hidden md:flex md:flex-grow md:justify-center space-x-6"
         >
-          <nav aria-label="Language selection">
+          <a
+            href="tours.html"
+            data-key="navTours"
+            class="text-white hover:text-gray-300 font-semibold transition-colors duration-200 focus-ring px-2 py-1"
+          >
+            Tours
+          </a>
+          <a
+            href="book.html"
+            data-key="navBook"
+            class="text-white hover:text-gray-300 font-semibold transition-colors duration-200 focus-ring px-2 py-1"
+          >
+            Book
+          </a>
+          <a
+            href="faq.html"
+            data-key="navFaq"
+            class="text-white hover:text-gray-300 font-semibold transition-colors duration-200 focus-ring px-2 py-1"
+          >
+            FAQ
+          </a>
+        </nav>
+
+        <!-- Right Side: Language & Inquire -->
+        <div class="flex items-center space-x-4">
+          <nav aria-label="Language selection" class="hidden md:flex">
             <div class="text-sm font-semibold flex space-x-4 text-white">
               <a
                 href="#en"
@@ -67,12 +102,89 @@
             </div>
           </nav>
           <a
-            href="#contact"
+            href="book.html"
             data-key="inquireBtn"
             class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring"
           >
+            Inquire
           </a>
+          <!-- Mobile Menu Button -->
+          <button
+            id="mobile-menu-button"
+            class="md:hidden text-white focus:outline-none"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              ></path>
+            </svg>
+          </button>
         </div>
+      </div>
+      <!-- Mobile Menu (hidden by default) -->
+      <div
+        id="mobile-menu"
+        class="md:hidden bg-black/20 backdrop-blur-sm p-4 rounded-xl mt-2 hidden"
+      >
+        <nav
+          aria-label="Mobile main navigation"
+          class="flex flex-col space-y-4 text-white"
+        >
+          <a
+            href="tours.html"
+            data-key="navTours"
+            class="hover:text-gray-300 font-semibold transition-colors duration-200"
+          >
+            Tours
+          </a>
+          <a
+            href="book.html"
+            data-key="navBook"
+            class="hover:text-gray-300 font-semibold transition-colors duration-200"
+          >
+            Book
+          </a>
+          <a
+            href="faq.html"
+            data-key="navFaq"
+            class="hover:text-gray-300 font-semibold transition-colors duration-200"
+          >
+            FAQ
+          </a>
+        </nav>
+        <nav aria-label="Mobile language selection" class="mt-4">
+          <div
+            class="text-sm font-semibold flex justify-center space-x-4 text-white"
+          >
+            <a
+              href="#en"
+              class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+              aria-label="Switch to English"
+              >EN</a
+            >
+            <a
+              href="#pt"
+              class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+              aria-label="Switch to Portuguese"
+              >PT</a
+            >
+            <a
+              href="#es"
+              class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+              aria-label="Switch to Spanish"
+              >ES</a
+            >
+          </div>
+        </nav>
       </div>
     </header>
 
@@ -116,7 +228,7 @@
           <!-- Call-to-Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="#contact"
+              href="book.html"
               class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white px-8 py-4 rounded-lg font-bold text-lg btn-primary focus-ring shadow-lg"
             >
               Book Your Adventure
@@ -140,7 +252,7 @@
         </div>
       </section>
 
-      <!-- Features Section -->
+      <!-- Features Section (remains for internal link on index.html) -->
       <section id="details" class="py-16 md:py-24 bg-white">
         <div class="container mx-auto px-6 text-center">
           <h2
@@ -235,7 +347,7 @@
       </section>
 
       <!-- Gallery Section -->
-      <section class="bg-gray-50 py-16 md:py-24">
+      <section id="gallery" class="bg-gray-50 py-16 md:py-24">
         <div class="container mx-auto px-6 text-center">
           <h2
             data-key="carouselTitle"
@@ -454,43 +566,65 @@
       </div>
     </footer>
 
-    <!-- Deep Chat Element -->
-    <deep-chat
-      id="deep-chat"
-      placement="bottom-right"
-      title="Pipa Canoe Assistant"
-      input-placeholder="Ask me about Pipa tours..."
-      style="
-        --deep-chat-button-background-color: #ff6b6b;
-        --deep-chat-button-icon-color: #ffffff;
-        --deep-chat-header-background-color: #ff6b6b;
-        --deep-chat-title-text-color: #ffffff;
-        --deep-chat-primary-color: #ff6b6b;
-        --deep-chat-font-family: 'Open Sans', sans-serif;
-      "
-      introMessage='{"text": "Hello! How can I help you plan your Pipa Canoe Adventure today? I can provide information about tours, pricing, availability, and answer any questions about our canoe experiences in Pipa!"}'
+    <!-- Floating Toggle Button -->
+    <button
+      id="chat-toggle"
+      class="fixed bottom-4 right-4 z-50 rounded-full bg-pink-500 text-white p-3 shadow-lg hover:bg-pink-600 transition"
+      aria-controls="chat-wrapper"
+      aria-expanded="false"
     >
-      <!-- Optional: Custom intro panel content -->
-      <div class="intro-panel">
-        <div
-          style="
-            text-align: center;
-            margin-bottom: 8px;
-            font-size: 16px;
-            color: #222;
-          "
-        >
-          <b>Pipa Canoe Assistant</b>
-        </div>
-        <div style="font-size: 14px; line-height: 20px; color: #444">
-          Hello! I'm your virtual assistant for Pipa Canoe Adventures. Ask me
-          anything about tours, bookings, or the beautiful waters around Pipa!
-        </div>
-      </div>
-    </deep-chat>
+      <span id="chat-toggle-icon">💬</span>
+      <span class="sr-only">Open chat</span>
+    </button>
+
+    <!-- Chat Wrapper (holds chat and close button) -->
+    <div
+      id="chat-wrapper"
+      class="hidden fixed bottom-0 right-0 w-full max-w-sm z-40"
+    >
+      <!-- Deep Chat -->
+      <deep-chat
+        id="deep-chat"
+        placement="bottom-right"
+        title="Pipa Canoe Assistant"
+        input-placeholder="Ask me about Pipa tours..."
+        style="
+          --deep-chat-button-background-color: #ff6b6b;
+          --deep-chat-button-icon-color: #ffffff;
+          --deep-chat-header-background-color: #ff6b6b;
+          --deep-chat-title-text-color: #ffffff;
+          --deep-chat-primary-color: #ff6b6b;
+          --deep-chat-font-family: 'Open Sans', sans-serif;
+        "
+        introMessage='{"text": "Hello! How can I help you plan your Pipa Canoe Adventure today?"}'
+      ></deep-chat>
+    </div>
+
+    <!-- Close Button (sits above chat, separate from shadow DOM) -->
+    <button
+      id="chat-close"
+      class="hidden fixed bottom-[350px] right-[10px] z-50 text-white bg-[#ff6b6b] hover:bg-[#e85c5c] rounded-full w-8 h-8 flex items-center justify-center shadow-lg"
+      aria-label="Close chat"
+    >
+      ✖️
+    </button>
+
     <!-- End Deep Chat Element -->
     <script src="translations.js"></script>
     <script src="chatbot.js"></script>
+    <!-- Mobile Menu Toggle Script -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const mobileMenuButton = document.getElementById("mobile-menu-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        if (mobileMenuButton && mobileMenu) {
+          mobileMenuButton.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+          });
+        }
+      });
+    </script>
     <script src="main.js"></script>
   </body>
 </html>

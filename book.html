@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Your Adventure | Pipa Canoe Adventures</title>
+    <meta
+      name="description"
+      content="Ready to book your Pipa Canoe adventure? Select your desired tour and date, and let's get your Pipa Canoe Adventure planned."
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Open+Sans:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Optional: Material Icons for FAQ, if you are using the FAQ page and want icons -->
+    <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+  </head>
+  <script
+    type="module"
+    src="https://unpkg.com/deep-chat@2.2.2/dist/deepChat.bundle.js"
+  ></script>
+  <body class="bg-gray-50 text-gray-800 antialiased">
+    <!-- Language Navigation Anchors -->
+    <div id="en"></div>
+    <div id="pt"></div>
+    <div id="es"></div>
+
+    <!-- Header -->
+    <header class="absolute top-0 left-0 right-0 z-50 p-4 md:p-6">
+      <div class="container mx-auto flex justify-between items-center">
+        <!-- Left Side: Logo/Title -->
+        <div class="flex items-center">
+          <h1 class="text-2xl md:text-3xl font-bold text-white text-shadow-md">
+            <a href="./index.html" data-key="home"> Pipa Canoe </a>
+          </h1>
+        </div>
+
+        <!-- Center: Main Navigation (visible on md+ screens) -->
+        <nav
+          aria-label="Main navigation"
+          class="hidden md:flex md:flex-grow md:justify-center space-x-6"
+        >
+          <a
+            href="tours.html"
+            data-key="navTours"
+            class="text-white hover:text-gray-300 font-semibold transition-colors duration-200 focus-ring px-2 py-1"
+          >
+            Tours
+          </a>
+          <a
+            href="book.html"
+            data-key="navBook"
+            class="text-white hover:text-gray-300 font-semibold transition-colors duration-200 focus-ring px-2 py-1"
+          >
+            Book
+          </a>
+          <a
+            href="faq.html"
+            data-key="navFaq"
+            class="text-white hover:text-gray-300 font-semibold transition-colors duration-200 focus-ring px-2 py-1"
+          >
+            FAQ
+          </a>
+        </nav>
+
+        <!-- Right Side: Language & Inquire -->
+        <div class="flex items-center space-x-4">
+          <nav aria-label="Language selection" class="hidden md:flex">
+            <div class="text-sm font-semibold flex space-x-4 text-white">
+              <a
+                href="#en"
+                class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+                aria-label="Switch to English"
+                >EN</a
+              >
+              <a
+                href="#pt"
+                class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+                aria-label="Switch to Portuguese"
+                >PT</a
+              >
+              <a
+                href="#es"
+                class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+                aria-label="Switch to Spanish"
+                >ES</a
+              >
+            </div>
+          </nav>
+          <a
+            href="book.html"
+            data-key="inquireBtn"
+            class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring"
+          >
+            Inquire
+          </a>
+          <!-- Mobile Menu Button -->
+          <button
+            id="mobile-menu-button"
+            class="md:hidden text-white focus:outline-none"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Mobile Menu (hidden by default) -->
+      <div
+        id="mobile-menu"
+        class="md:hidden bg-black/20 backdrop-blur-sm p-4 rounded-xl mt-2 hidden"
+      >
+        <nav
+          aria-label="Mobile main navigation"
+          class="flex flex-col space-y-4 text-white"
+        >
+          <a
+            href="tours.html"
+            data-key="navTours"
+            class="hover:text-gray-300 font-semibold transition-colors duration-200"
+          >
+            Tours
+          </a>
+          <a
+            href="book.html"
+            data-key="navBook"
+            class="hover:text-gray-300 font-semibold transition-colors duration-200"
+          >
+            Book
+          </a>
+          <a
+            href="faq.html"
+            data-key="navFaq"
+            class="hover:text-gray-300 font-semibold transition-colors duration-200"
+          >
+            FAQ
+          </a>
+        </nav>
+        <nav aria-label="Mobile language selection" class="mt-4">
+          <div
+            class="text-sm font-semibold flex justify-center space-x-4 text-white"
+          >
+            <a
+              href="#en"
+              class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+              aria-label="Switch to English"
+              >EN</a
+            >
+            <a
+              href="#pt"
+              class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+              aria-label="Switch to Portuguese"
+              >PT</a
+            >
+            <a
+              href="#es"
+              class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+              aria-label="Switch to Spanish"
+              >ES</a
+            >
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero Section with Full-Width Video Background -->
+      <section
+        class="relative w-screen h-screen flex items-center justify-center text-center overflow-hidden m-0 p-0"
+      >
+        <!-- Video Background Container -->
+        <div class="video-container">
+          <video
+            playsinline
+            autoplay
+            muted
+            loop
+            poster="img/pipa-canoe-poster.jpg"
+            class="hero-video hero-video-ken-burns"
+            aria-label="Background video of canoe adventures in Pipa"
+          >
+            <source src="img/Pipa-Canoe_1.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+
+        <!-- Enhanced Gradient Overlay -->
+        <div class="absolute inset-0 gradient-overlay z-10"></div>
+
+        <!-- Hero Content -->
+        <div
+          class="relative z-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto hero-text"
+        >
+          <h1
+            data-key="toursHeroTitle"
+            class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight mb-6 text-shadow-lg tracking-tight"
+          >
+            Discover Our Adventures
+          </h1>
+          <p
+            data-key="toursHeroSubtitle"
+            class="text-lg sm:text-xl md:text-2xl text-white/90 max-w-3xl mx-auto text-shadow-md leading-relaxed font-light mb-8"
+          >
+            Experience the beauty of Pipa from the water with our expertly
+            guided canoe tours.
+          </p>
+
+          <!-- Call-to-Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="book.html"
+              class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white px-8 py-4 rounded-lg font-bold text-lg btn-primary focus-ring shadow-lg"
+            >
+              Book Your Adventure
+            </a>
+            <a
+              href="#tours-content"
+              class="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-gray-800 transition-all duration-300 backdrop-blur-sm focus-ring"
+            >
+              Explore Tours
+            </a>
+          </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+          <div
+            class="w-6 h-10 border-2 border-white rounded-full flex justify-center scroll-indicator"
+          >
+            <div class="w-1 h-3 bg-white rounded-full mt-2"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Booking Form Section -->
+
+      <!-- === SIMULATED BOOKING AVAILABILITY SECTION === -->
+      <section id="booking-availability" class="py-16 md:py-24 bg-gray-100">
+        <div class="container mx-auto px-6">
+          <h2
+            data-key="availabilityTitle"
+            class="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800"
+          >
+            Check Tour Availability
+          </h2>
+
+          <div
+            class="flex flex-col md:flex-row justify-center items-center gap-4 mb-8"
+          >
+            <label
+              for="availability-date"
+              data-key="availabilityDateLabel"
+              class="font-semibold text-gray-700"
+              >Select Date:</label
+            >
+            <input
+              type="date"
+              id="availability-date"
+              class="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
+            />
+            <button
+              id="reset-bookings-btn"
+              data-key="resetBookingsBtn"
+              class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all duration-300 text-sm"
+            >
+              Reset All Bookings (Demo)
+            </button>
+          </div>
+
+          <div
+            id="availability-slots"
+            class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg"
+          >
+            <!-- Availability will be rendered here by JavaScript -->
+            <p class="text-center text-gray-500">Loading availability...</p>
+          </div>
+        </div>
+      </section>
+      <!-- === END SIMULATED BOOKING AVAILABILITY SECTION === -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8">
+      <div class="container mx-auto px-6 text-center">
+        <p data-key="footerText" class="text-gray-400">
+          © 2023 Pipa Canoe Adventures. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Floating Toggle Button -->
+    <button
+      id="chat-toggle"
+      class="fixed bottom-4 right-4 z-50 rounded-full bg-pink-500 text-white p-3 shadow-lg hover:bg-pink-600 transition"
+      aria-controls="chat-wrapper"
+      aria-expanded="false"
+    >
+      <span id="chat-toggle-icon">💬</span>
+      <span class="sr-only">Open chat</span>
+    </button>
+
+    <!-- Chat Wrapper (holds chat and close button) -->
+    <div
+      id="chat-wrapper"
+      class="hidden fixed bottom-0 right-0 w-full max-w-sm z-40"
+    >
+      <!-- Deep Chat -->
+      <deep-chat
+        id="deep-chat"
+        placement="bottom-right"
+        title="Pipa Canoe Assistant"
+        input-placeholder="Ask me about Pipa tours..."
+        style="
+          --deep-chat-button-background-color: #ff6b6b;
+          --deep-chat-button-icon-color: #ffffff;
+          --deep-chat-header-background-color: #ff6b6b;
+          --deep-chat-title-text-color: #ffffff;
+          --deep-chat-primary-color: #ff6b6b;
+          --deep-chat-font-family: 'Open Sans', sans-serif;
+        "
+        introMessage='{"text": "Hello! How can I help you plan your Pipa Canoe Adventure today?"}'
+      ></deep-chat>
+    </div>
+
+    <!-- Close Button (sits above chat, separate from shadow DOM) -->
+    <button
+      id="chat-close"
+      class="hidden fixed bottom-[350px] right-[10px] z-50 text-white bg-[#ff6b6b] hover:bg-[#e85c5c] rounded-full w-8 h-8 flex items-center justify-center shadow-lg"
+      aria-label="Close chat"
+    >
+      ✖️
+    </button>
+    <!-- End Deep Chat Element -->
+
+    <script src="translations.js"></script>
+    <script src="chatbot.js"></script>
+    <!-- Link to the external booking script -->
+    <script src="booking.js"></script>
+
+    <!-- Mobile Menu Toggle Script -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const mobileMenuButton = document.getElementById("mobile-menu-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        if (mobileMenuButton && mobileMenu) {
+          mobileMenuButton.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+          });
+        }
+      });
+    </script>
+    <script src="main.js"></script>
+  </body>
+</html>

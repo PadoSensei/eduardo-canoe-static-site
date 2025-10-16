@@ -1,6 +1,27 @@
 // chatbot.js
 document.addEventListener("DOMContentLoaded", () => {
+  const chatWrapper = document.getElementById("chat-wrapper");
   const chatElement = document.getElementById("deep-chat");
+  const openButton = document.getElementById("chat-toggle");
+  const closeButton = document.getElementById("chat-close");
+
+  if (chatWrapper && openButton && closeButton && chatElement) {
+    // Open chat
+    openButton.addEventListener("click", () => {
+      chatWrapper.classList.remove("hidden");
+      closeButton.classList.remove("hidden");
+      openButton.classList.add("hidden");
+      openButton.setAttribute("aria-expanded", "true");
+    });
+
+    // Close chat
+    closeButton.addEventListener("click", () => {
+      chatWrapper.classList.add("hidden");
+      closeButton.classList.add("hidden");
+      openButton.classList.remove("hidden");
+      openButton.setAttribute("aria-expanded", "false");
+    });
+  }
 
   if (!chatElement) {
     console.error("Deep Chat element not found!");

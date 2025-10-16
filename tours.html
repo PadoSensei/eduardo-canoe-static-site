@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Our Tours | Pipa Canoe Adventures</title>
+    <meta
+      name="description"
+      content="Explore the unique canoe tours offered by Pipa Canoe Adventures, from lagoon explorations to dolphin watching and sunset paddles."
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Open+Sans:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <script
+    type="module"
+    src="https://unpkg.com/deep-chat@2.2.2/dist/deepChat.bundle.js"
+  ></script>
+  <body class="bg-gray-50 text-gray-800 antialiased">
+    <!-- Language Navigation Anchors -->
+    <div id="en"></div>
+    <div id="pt"></div>
+    <div id="es"></div>
+
+    <!-- Header -->
+    <header class="absolute top-0 left-0 right-0 z-50 p-4 md:p-6">
+      <div class="container mx-auto flex justify-between items-center">
+        <!-- Left Side: Logo/Title -->
+        <div class="flex items-center">
+          <h1 class="text-2xl md:text-3xl font-bold text-white text-shadow-md">
+            <a href="./index.html" data-key="home"> Pipa Canoe </a>
+          </h1>
+        </div>
+
+        <!-- Center: Main Navigation (visible on md+ screens) -->
+        <nav
+          aria-label="Main navigation"
+          class="hidden md:flex md:flex-grow md:justify-center space-x-6"
+        >
+          <a
+            href="tours.html"
+            data-key="navTours"
+            class="text-white hover:text-gray-300 font-semibold transition-colors duration-200 focus-ring px-2 py-1"
+          >
+            Tours
+          </a>
+          <a
+            href="book.html"
+            data-key="navBook"
+            class="text-white hover:text-gray-300 font-semibold transition-colors duration-200 focus-ring px-2 py-1"
+          >
+            Book
+          </a>
+          <a
+            href="faq.html"
+            data-key="navFaq"
+            class="text-white hover:text-gray-300 font-semibold transition-colors duration-200 focus-ring px-2 py-1"
+          >
+            FAQ
+          </a>
+        </nav>
+
+        <!-- Right Side: Language & Inquire -->
+        <div class="flex items-center space-x-4">
+          <nav aria-label="Language selection" class="hidden md:flex">
+            <div class="text-sm font-semibold flex space-x-4 text-white">
+              <a
+                href="#en"
+                class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+                aria-label="Switch to English"
+                >EN</a
+              >
+              <a
+                href="#pt"
+                class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+                aria-label="Switch to Portuguese"
+                >PT</a
+              >
+              <a
+                href="#es"
+                class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+                aria-label="Switch to Spanish"
+                >ES</a
+              >
+            </div>
+          </nav>
+          <a
+            href="book.html"
+            data-key="inquireBtn"
+            class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring"
+          >
+            Inquire
+          </a>
+          <!-- Mobile Menu Button -->
+          <button
+            id="mobile-menu-button"
+            class="md:hidden text-white focus:outline-none"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Mobile Menu (hidden by default) -->
+      <div
+        id="mobile-menu"
+        class="md:hidden bg-black/20 backdrop-blur-sm p-4 rounded-xl mt-2 hidden"
+      >
+        <nav
+          aria-label="Mobile main navigation"
+          class="flex flex-col space-y-4 text-white"
+        >
+          <a
+            href="tours.html"
+            data-key="navTours"
+            class="hover:text-gray-300 font-semibold transition-colors duration-200"
+          >
+            Tours
+          </a>
+          <a
+            href="book.html"
+            data-key="navBook"
+            class="hover:text-gray-300 font-semibold transition-colors duration-200"
+          >
+            Book
+          </a>
+          <a
+            href="faq.html"
+            data-key="navFaq"
+            class="hover:text-gray-300 font-semibold transition-colors duration-200"
+          >
+            FAQ
+          </a>
+        </nav>
+        <nav aria-label="Mobile language selection" class="mt-4">
+          <div
+            class="text-sm font-semibold flex justify-center space-x-4 text-white"
+          >
+            <a
+              href="#en"
+              class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+              aria-label="Switch to English"
+              >EN</a
+            >
+            <a
+              href="#pt"
+              class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+              aria-label="Switch to Portuguese"
+              >PT</a
+            >
+            <a
+              href="#es"
+              class="opacity-70 hover:opacity-100 transition-opacity duration-200 focus-ring rounded px-2 py-1"
+              aria-label="Switch to Spanish"
+              >ES</a
+            >
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero Section with Full-Width Video Background -->
+      <section
+        class="relative w-screen h-screen flex items-center justify-center text-center overflow-hidden m-0 p-0"
+      >
+        <!-- Video Background Container -->
+        <div class="video-container">
+          <video
+            playsinline
+            autoplay
+            muted
+            loop
+            poster="img/pipa-canoe-poster.jpg"
+            class="hero-video hero-video-ken-burns"
+            aria-label="Background video of canoe adventures in Pipa"
+          >
+            <source src="img/Pipa-Canoe_1.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+
+        <!-- Enhanced Gradient Overlay -->
+        <div class="absolute inset-0 gradient-overlay z-10"></div>
+
+        <!-- Hero Content -->
+        <div
+          class="relative z-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto hero-text"
+        >
+          <h1
+            data-key="toursHeroTitle"
+            class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight mb-6 text-shadow-lg tracking-tight"
+          >
+            Discover Our Adventures
+          </h1>
+          <p
+            data-key="toursHeroSubtitle"
+            class="text-lg sm:text-xl md:text-2xl text-white/90 max-w-3xl mx-auto text-shadow-md leading-relaxed font-light mb-8"
+          >
+            Experience the beauty of Pipa from the water with our expertly
+            guided canoe tours.
+          </p>
+
+          <!-- Call-to-Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="book.html"
+              class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white px-8 py-4 rounded-lg font-bold text-lg btn-primary focus-ring shadow-lg"
+            >
+              Book Your Adventure
+            </a>
+            <a
+              href="#tours-content"
+              class="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-gray-800 transition-all duration-300 backdrop-blur-sm focus-ring"
+            >
+              Explore Tours
+            </a>
+          </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+          <div
+            class="w-6 h-10 border-2 border-white rounded-full flex justify-center scroll-indicator"
+          >
+            <div class="w-1 h-3 bg-white rounded-full mt-2"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tours Details Section -->
+      <section id="tours-content" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-6">
+          <h2
+            data-key="toursSectionTitle"
+            class="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-800"
+          >
+            Our Signature Canoe Experiences
+          </h2>
+          <p
+            data-key="toursSubtitle"
+            class="text-lg text-gray-600 mb-16 max-w-3xl mx-auto text-center"
+          >
+            Each tour offers a unique perspective on Pipa's natural beauty, from
+            tranquil lagoons to exciting dolphin encounters.
+          </p>
+
+          <div class="grid lg:grid-cols-1 gap-12 max-w-6xl mx-auto">
+            <!-- Tour 1: Sunset Paddle -->
+            <div
+              class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl shadow-lg overflow-hidden card-hover"
+            >
+              <div class="flex flex-col lg:flex-row">
+                <div class="lg:w-1/2">
+                  <img
+                    src="img/sunset_paddle.jpg"
+                    alt="Sunset canoe paddle in Pipa"
+                    class="w-full h-64 lg:h-full object-cover"
+                  />
+                </div>
+                <div class="lg:w-1/2 p-8">
+                  <div
+                    class="flex justify-center mb-6 lg:justify-start"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      class="h-16 w-16 text-[#FF6B6B]"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+                      />
+                    </svg>
+                  </div>
+                  <h3
+                    data-key="tour1Title"
+                    class="text-2xl font-bold mb-4 text-gray-800"
+                  >
+                    Sunset Lagoon Paddle
+                  </h3>
+                  <p
+                    data-key="tour1Description"
+                    class="text-gray-700 leading-relaxed mb-6"
+                  >
+                    Glide through the tranquil lagoons of Guaraíras as the sun
+                    dips below the horizon, painting the sky with vibrant
+                    colors. A truly magical experience that combines peaceful
+                    paddling with nature's most spectacular daily show.
+                  </p>
+                  <div class="mb-6">
+                    <p class="text-sm text-gray-600 mb-2">
+                      <strong>Duration:</strong> 2.5 hours
+                    </p>
+                    <p class="text-sm text-gray-600 mb-2">
+                      <strong>Difficulty:</strong> Beginner friendly
+                    </p>
+                    <p class="text-sm text-gray-600">
+                      <strong>Best time:</strong> Late afternoon
+                    </p>
+                  </div>
+                  <a
+                    href="book.html"
+                    data-key="tour1BookBtn"
+                    class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring"
+                  >
+                    Book Now
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tour 2: Dolphin Bay Encounter -->
+            <div
+              class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl shadow-lg overflow-hidden card-hover"
+            >
+              <div class="flex flex-col lg:flex-row">
+                <div class="lg:w-1/2 lg:order-2">
+                  <img
+                    src="img/dolphin_encounter.jpg"
+                    alt="Dolphins swimming near a canoe in Pipa"
+                    class="w-full h-64 lg:h-full object-cover"
+                  />
+                </div>
+                <div class="lg:w-1/2 p-8">
+                  <div
+                    class="flex justify-center mb-6 lg:justify-start"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      class="h-16 w-16 text-[#FF6B6B]"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-2.625 6.375a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm-2.25 3.375a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z"
+                      />
+                    </svg>
+                  </div>
+                  <h3
+                    data-key="tour2Title"
+                    class="text-2xl font-bold mb-4 text-gray-800"
+                  >
+                    Dolphin Bay Encounter
+                  </h3>
+                  <p
+                    data-key="tour2Description"
+                    class="text-gray-700 leading-relaxed mb-6"
+                  >
+                    Paddle along the stunning coastline to Dolphin Bay. Witness
+                    playful dolphins in their natural habitat – an unforgettable
+                    wildlife encounter that connects you with Pipa's amazing
+                    marine life.
+                  </p>
+                  <div class="mb-6">
+                    <p class="text-sm text-gray-600 mb-2">
+                      <strong>Duration:</strong> 3 hours
+                    </p>
+                    <p class="text-sm text-gray-600 mb-2">
+                      <strong>Difficulty:</strong> Moderate
+                    </p>
+                    <p class="text-sm text-gray-600">
+                      <strong>Best time:</strong> Morning
+                    </p>
+                  </div>
+                  <a
+                    href="book.html"
+                    data-key="tour2BookBtn"
+                    class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring"
+                  >
+                    Book Now
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tour 3: Coastal Exploration -->
+            <div
+              class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl shadow-lg overflow-hidden card-hover"
+            >
+              <div class="flex flex-col lg:flex-row">
+                <div class="lg:w-1/2">
+                  <img
+                    src="img/coastal_exploration.jpg"
+                    alt="Canoe exploring the coast of Pipa"
+                    class="w-full h-64 lg:h-full object-cover"
+                  />
+                </div>
+                <div class="lg:w-1/2 p-8">
+                  <div
+                    class="flex justify-center mb-6 lg:justify-start"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      class="h-16 w-16 text-[#FF6B6B]"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M14.25 20.25a5.25 5.25 0 003.75-1.549s1.163-.922 1.52-1.855m-5.27 3.404a5.25 5.25 0 01-3.75-1.549s-1.163-.922-1.52-1.855m5.27 3.404v-2.062a2.25 2.25 0 00-1.125-1.956m-2.25 4.018v-2.062a2.25 2.25 0 00-1.125-1.956m1.125 1.956V15.75m0 0v-2.25a3.375 3.375 0 00-3.375-3.375h-1.5a3.375 3.375 0 00-3.375 3.375v2.25m5.25 0v-2.25a3.375 3.375 0 00-3.375-3.375H6.75"
+                      />
+                    </svg>
+                  </div>
+                  <h3
+                    data-key="tour3Title"
+                    class="text-2xl font-bold mb-4 text-gray-800"
+                  >
+                    Coastal Exploration
+                  </h3>
+                  <p
+                    data-key="tour3Description"
+                    class="text-gray-700 leading-relaxed mb-6"
+                  >
+                    Discover hidden coves and majestic cliffs as you paddle
+                    along Pipa's breathtaking coastline. Learn about the local
+                    marine life and geology from our experienced guides.
+                  </p>
+                  <div class="mb-6">
+                    <p class="text-sm text-gray-600 mb-2">
+                      <strong>Duration:</strong> 4 hours
+                    </p>
+                    <p class="text-sm text-gray-600 mb-2">
+                      <strong>Difficulty:</strong> Moderate to Advanced
+                    </p>
+                    <p class="text-sm text-gray-600">
+                      <strong>Best time:</strong> Full day
+                    </p>
+                  </div>
+                  <a
+                    href="book.html"
+                    data-key="tour3BookBtn"
+                    class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring"
+                  >
+                    Book Now
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- What's Included Section -->
+      <section class="py-16 md:py-24 bg-gray-50">
+        <div class="container mx-auto px-6">
+          <h2
+            data-key="includedTitle"
+            class="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-800"
+          >
+            What's Included in Every Tour
+          </h2>
+          <p
+            data-key="includedSubtitle"
+            class="text-lg text-gray-600 mb-16 max-w-3xl mx-auto text-center"
+          >
+            We provide everything you need for a safe and enjoyable canoe
+            adventure.
+          </p>
+
+          <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div
+              class="p-8 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl shadow-lg card-hover text-center"
+            >
+              <div class="flex justify-center mb-6" aria-hidden="true">
+                <svg
+                  class="h-16 w-16 text-[#FF6B6B]"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold mb-4 text-gray-800">
+                Safety Equipment
+              </h3>
+              <p class="text-gray-700 leading-relaxed">
+                Professional life jackets, safety whistles, and first aid
+                equipment for your peace of mind.
+              </p>
+            </div>
+
+            <div
+              class="p-8 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl shadow-lg card-hover text-center"
+            >
+              <div class="flex justify-center mb-6" aria-hidden="true">
+                <svg
+                  class="h-16 w-16 text-[#FF6B6B]"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold mb-4 text-gray-800">
+                Expert Guides
+              </h3>
+              <p class="text-gray-700 leading-relaxed">
+                Certified water safety instructors and local nature experts to
+                enhance your experience.
+              </p>
+            </div>
+
+            <div
+              class="p-8 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl shadow-lg card-hover text-center"
+            >
+              <div class="flex justify-center mb-6" aria-hidden="true">
+                <svg
+                  class="h-16 w-16 text-[#FF6B6B]"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold mb-4 text-gray-800">Photography</h3>
+              <p class="text-gray-700 leading-relaxed">
+                Complimentary photos of your adventure to capture memories that
+                will last a lifetime.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Call to Action Section -->
+      <section
+        class="bg-gradient-to-br from-[#FF6B6B] to-[#FF5252] py-16 md:py-24"
+      >
+        <div class="container mx-auto px-6 text-center">
+          <h2
+            data-key="ctaTitle"
+            class="text-3xl md:text-4xl font-bold text-white mb-4"
+          >
+            Ready for Your Pipa Adventure?
+          </h2>
+          <p
+            data-key="ctaSubtitle"
+            class="text-lg text-white/90 mb-12 max-w-2xl mx-auto"
+          >
+            Book your canoe tour today and experience the magic of Pipa from the
+            water.
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="book.html"
+              class="bg-white hover:bg-gray-100 text-[#FF6B6B] font-bold py-4 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg btn-primary"
+            >
+              Book Your Tour
+            </a>
+            <a
+              href="faq.html"
+              class="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-[#FF6B6B] transition-all duration-300 backdrop-blur-sm focus-ring"
+            >
+              Have Questions?
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8">
+      <div class="container mx-auto px-6 text-center">
+        <p data-key="footerText" class="text-gray-400">
+          © 2023 Pipa Canoe Adventures. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Floating Toggle Button -->
+    <button
+      id="chat-toggle"
+      class="fixed bottom-4 right-4 z-50 rounded-full bg-pink-500 text-white p-3 shadow-lg hover:bg-pink-600 transition"
+      aria-controls="chat-wrapper"
+      aria-expanded="false"
+    >
+      <span id="chat-toggle-icon">💬</span>
+      <span class="sr-only">Open chat</span>
+    </button>
+
+    <!-- Chat Wrapper (holds chat and close button) -->
+    <div
+      id="chat-wrapper"
+      class="hidden fixed bottom-0 right-0 w-full max-w-sm z-40"
+    >
+      <!-- Deep Chat -->
+      <deep-chat
+        id="deep-chat"
+        placement="bottom-right"
+        title="Pipa Canoe Assistant"
+        input-placeholder="Ask me about Pipa tours..."
+        style="
+          --deep-chat-button-background-color: #ff6b6b;
+          --deep-chat-button-icon-color: #ffffff;
+          --deep-chat-header-background-color: #ff6b6b;
+          --deep-chat-title-text-color: #ffffff;
+          --deep-chat-primary-color: #ff6b6b;
+          --deep-chat-font-family: 'Open Sans', sans-serif;
+        "
+        introMessage='{"text": "Hello! How can I help you plan your Pipa Canoe Adventure today?"}'
+      ></deep-chat>
+    </div>
+
+    <!-- Close Button (sits above chat, separate from shadow DOM) -->
+    <button
+      id="chat-close"
+      class="hidden fixed bottom-[350px] right-[10px] z-50 text-white bg-[#ff6b6b] hover:bg-[#e85c5c] rounded-full w-8 h-8 flex items-center justify-center shadow-lg"
+      aria-label="Close chat"
+    >
+      ✖️
+    </button>
+
+    <script src="translations.js"></script>
+    <script src="chatbot.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const mobileMenuButton = document.getElementById("mobile-menu-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        if (mobileMenuButton && mobileMenu) {
+          mobileMenuButton.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+          });
+        }
+      });
+    </script>
+    <script src="main.js"></script>
+  </body>
+</html>
