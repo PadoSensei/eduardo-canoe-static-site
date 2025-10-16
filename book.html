@@ -99,13 +99,15 @@
               >
             </div>
           </nav>
-          <a
+
+          <!-- Edit Out Redudant Button -->
+          <!-- <a
             href="book.html"
             data-key="inquireBtn"
             class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring"
           >
             Inquire
-          </a>
+          </a> -->
           <!-- Mobile Menu Button -->
           <button
             id="mobile-menu-button"
@@ -187,74 +189,6 @@
     </header>
 
     <main>
-      <!-- Hero Section with Full-Width Video Background -->
-      <section
-        class="relative w-screen h-screen flex items-center justify-center text-center overflow-hidden m-0 p-0"
-      >
-        <!-- Video Background Container -->
-        <div class="video-container">
-          <video
-            playsinline
-            autoplay
-            muted
-            loop
-            poster="img/pipa-canoe-poster.jpg"
-            class="hero-video hero-video-ken-burns"
-            aria-label="Background video of canoe adventures in Pipa"
-          >
-            <source src="img/Pipa-Canoe_1.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Enhanced Gradient Overlay -->
-        <div class="absolute inset-0 gradient-overlay z-10"></div>
-
-        <!-- Hero Content -->
-        <div
-          class="relative z-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto hero-text"
-        >
-          <h1
-            data-key="toursHeroTitle"
-            class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight mb-6 text-shadow-lg tracking-tight"
-          >
-            Discover Our Adventures
-          </h1>
-          <p
-            data-key="toursHeroSubtitle"
-            class="text-lg sm:text-xl md:text-2xl text-white/90 max-w-3xl mx-auto text-shadow-md leading-relaxed font-light mb-8"
-          >
-            Experience the beauty of Pipa from the water with our expertly
-            guided canoe tours.
-          </p>
-
-          <!-- Call-to-Action Buttons -->
-          <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="book.html"
-              class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white px-8 py-4 rounded-lg font-bold text-lg btn-primary focus-ring shadow-lg"
-            >
-              Book Your Adventure
-            </a>
-            <a
-              href="#tours-content"
-              class="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-gray-800 transition-all duration-300 backdrop-blur-sm focus-ring"
-            >
-              Explore Tours
-            </a>
-          </div>
-        </div>
-
-        <!-- Scroll Indicator -->
-        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-          <div
-            class="w-6 h-10 border-2 border-white rounded-full flex justify-center scroll-indicator"
-          >
-            <div class="w-1 h-3 bg-white rounded-full mt-2"></div>
-          </div>
-        </div>
-      </section>
-
       <!-- Booking Form Section -->
 
       <!-- === SIMULATED BOOKING AVAILABILITY SECTION === -->
@@ -322,12 +256,11 @@
       <span class="sr-only">Open chat</span>
     </button>
 
-    <!-- Chat Wrapper (holds chat and close button) -->
+    <!-- Chat Wrapper -->
     <div
       id="chat-wrapper"
       class="hidden fixed bottom-0 right-0 w-full max-w-sm z-40"
     >
-      <!-- Deep Chat -->
       <deep-chat
         id="deep-chat"
         placement="bottom-right"
@@ -345,7 +278,6 @@
       ></deep-chat>
     </div>
 
-    <!-- Close Button (sits above chat, separate from shadow DOM) -->
     <button
       id="chat-close"
       class="hidden fixed bottom-[350px] right-[10px] z-50 text-white bg-[#ff6b6b] hover:bg-[#e85c5c] rounded-full w-8 h-8 flex items-center justify-center shadow-lg"
@@ -353,12 +285,61 @@
     >
       ✖️
     </button>
-    <!-- End Deep Chat Element -->
 
+    <!-- Booking Modal -->
+    <div
+      id="booking-modal"
+      class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="booking-modal-title"
+    >
+      <div
+        id="booking-modal-content"
+        class="bg-white rounded-xl w-full max-w-md p-6 relative transform scale-90 transition-transform duration-300 sm:p-8"
+      >
+        <button
+          id="booking-modal-close"
+          class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 font-bold text-xl"
+          aria-label="Close booking modal"
+        >
+          &times;
+        </button>
+        <h3 id="booking-modal-title" class="text-2xl font-bold mb-4"></h3>
+        <p id="booking-modal-date" class="mb-2 text-gray-600"></p>
+        <p id="booking-modal-price" class="mb-4 text-gray-600"></p>
+
+        <label for="booking-quantity" class="block font-semibold mb-1"
+          >Quantity:</label
+        >
+        <select
+          id="booking-quantity"
+          class="w-full p-2 mb-4 border rounded-lg"
+          aria-label="Select quantity to book"
+        ></select>
+
+        <p id="booking-modal-total" class="mb-4 font-bold text-gray-800"></p>
+        <button
+          id="booking-modal-confirm"
+          class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg w-full"
+        >
+          Confirm & Pay
+        </button>
+
+        <!-- Checkout summary inserted dynamically by JS -->
+      </div>
+    </div>
+    <!-- === JavaScript Section (Refactored for Mock API Integration) === -->
+
+    <!-- Non-module scripts (no imports) -->
     <script src="translations.js"></script>
     <script src="chatbot.js"></script>
-    <!-- Link to the external booking script -->
-    <script src="booking.js"></script>
+    <script src="main.js"></script>
+
+    <!-- Module scripts (must use type="module" for ES imports) -->
+    <script type="module" src="./mockData.js"></script>
+    <script type="module" src="./apiMock.js"></script>
+    <script type="module" src="./booking.js"></script>
 
     <!-- Mobile Menu Toggle Script -->
     <script>
@@ -372,7 +353,35 @@
           });
         }
       });
+
+      // Smooth scroll to section if URL has a hash
+      document.addEventListener("DOMContentLoaded", () => {
+        if (window.location.hash) {
+          const targetId = window.location.hash.substring(1);
+          const targetElement = document.getElementById(targetId);
+
+          if (targetElement) {
+            // Create observer to wait for element to be in viewport
+            const observer = new IntersectionObserver((entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  observer.disconnect();
+                }
+              });
+            });
+
+            observer.observe(targetElement);
+
+            // Scroll after a short delay
+            setTimeout(() => {
+              targetElement.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+            }, 200);
+          }
+        }
+      });
     </script>
-    <script src="main.js"></script>
   </body>
 </html>

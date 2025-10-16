@@ -185,74 +185,6 @@
     </header>
 
     <main>
-      <!-- Hero Section with Full-Width Video Background -->
-      <section
-        class="relative w-screen h-screen flex items-center justify-center text-center overflow-hidden m-0 p-0"
-      >
-        <!-- Video Background Container -->
-        <div class="video-container">
-          <video
-            playsinline
-            autoplay
-            muted
-            loop
-            poster="img/pipa-canoe-poster.jpg"
-            class="hero-video hero-video-ken-burns"
-            aria-label="Background video of canoe adventures in Pipa"
-          >
-            <source src="img/Pipa-Canoe_1.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <!-- Enhanced Gradient Overlay -->
-        <div class="absolute inset-0 gradient-overlay z-10"></div>
-
-        <!-- Hero Content -->
-        <div
-          class="relative z-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto hero-text"
-        >
-          <h1
-            data-key="toursHeroTitle"
-            class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight mb-6 text-shadow-lg tracking-tight"
-          >
-            Discover Our Adventures
-          </h1>
-          <p
-            data-key="toursHeroSubtitle"
-            class="text-lg sm:text-xl md:text-2xl text-white/90 max-w-3xl mx-auto text-shadow-md leading-relaxed font-light mb-8"
-          >
-            Experience the beauty of Pipa from the water with our expertly
-            guided canoe tours.
-          </p>
-
-          <!-- Call-to-Action Buttons -->
-          <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="book.html"
-              class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white px-8 py-4 rounded-lg font-bold text-lg btn-primary focus-ring shadow-lg"
-            >
-              Book Your Adventure
-            </a>
-            <a
-              href="#tours-content"
-              class="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-gray-800 transition-all duration-300 backdrop-blur-sm focus-ring"
-            >
-              Explore Tours
-            </a>
-          </div>
-        </div>
-
-        <!-- Scroll Indicator -->
-        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-          <div
-            class="w-6 h-10 border-2 border-white rounded-full flex justify-center scroll-indicator"
-          >
-            <div class="w-1 h-3 bg-white rounded-full mt-2"></div>
-          </div>
-        </div>
-      </section>
-
       <!-- Tours Details Section -->
       <section id="tours-content" class="py-16 md:py-24 bg-white">
         <div class="container mx-auto px-6">
@@ -329,13 +261,13 @@
                       <strong>Best time:</strong> Late afternoon
                     </p>
                   </div>
-                  <a
-                    href="book.html"
+                  <button
+                    data-tour-id="sunset"
                     data-key="tour1BookBtn"
-                    class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring"
+                    class="tour-book-btn bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring transition-all duration-200"
                   >
                     Book Now
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
@@ -376,7 +308,7 @@
                     data-key="tour2Title"
                     class="text-2xl font-bold mb-4 text-gray-800"
                   >
-                    Dolphin Bay Encounter
+                    Daybreak Dolphin Bay Encounter
                   </h3>
                   <p
                     data-key="tour2Description"
@@ -398,13 +330,13 @@
                       <strong>Best time:</strong> Morning
                     </p>
                   </div>
-                  <a
-                    href="book.html"
+                  <button
+                    data-tour-id="dolphin"
                     data-key="tour2BookBtn"
-                    class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring"
+                    class="tour-book-btn bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring transition-all duration-200"
                   >
                     Book Now
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
@@ -466,13 +398,13 @@
                       <strong>Best time:</strong> Full day
                     </p>
                   </div>
-                  <a
-                    href="book.html"
+                  <button
+                    data-tour-id="coastal"
                     data-key="tour3BookBtn"
-                    class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring"
+                    class="tour-book-btn bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring transition-all duration-200"
                   >
                     Book Now
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
@@ -481,7 +413,7 @@
       </section>
 
       <!-- What's Included Section -->
-      <section class="py-16 md:py-24 bg-gray-50">
+      <!-- <section class="py-16 md:py-24 bg-gray-50">
         <div class="container mx-auto px-6">
           <h2
             data-key="includedTitle"
@@ -586,7 +518,7 @@
             </div>
           </div>
         </div>
-      </section>
+      </section> -->
 
       <!-- Call to Action Section -->
       <section
@@ -609,7 +541,7 @@
 
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="book.html"
+              href="book.html#booking-availability"
               class="bg-white hover:bg-gray-100 text-[#FF6B6B] font-bold py-4 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg btn-primary"
             >
               Book Your Tour
@@ -677,6 +609,29 @@
       ✖️
     </button>
 
+    <!-- Booking Modal (same as book.html) -->
+    <div
+      id="booking-modal"
+      class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="booking-modal-title"
+    >
+      <div
+        id="booking-modal-content"
+        class="bg-white rounded-xl w-full max-w-md p-6 relative transform scale-90 transition-transform duration-300 sm:p-8"
+      >
+        <button
+          id="booking-modal-close"
+          class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 font-bold text-xl"
+          aria-label="Close booking modal"
+        >
+          &times;
+        </button>
+        <!-- Content will be dynamically inserted -->
+      </div>
+    </div>
+
     <script src="translations.js"></script>
     <script src="chatbot.js"></script>
     <script>
@@ -692,5 +647,9 @@
       });
     </script>
     <script src="main.js"></script>
+    <!-- Module scripts for booking integration -->
+    <script type="module" src="./mockData.js"></script>
+    <script type="module" src="./apiMock.js"></script>
+    <script type="module" src="./tours-booking.js"></script>
   </body>
 </html>
