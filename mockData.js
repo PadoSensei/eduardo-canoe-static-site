@@ -1,7 +1,7 @@
 // Simulate Supabase "tours" table with timeSlot for conflict logic
 export const tours = [
   {
-    id: "dolphin",
+    tour_id: "dolphin",
     name: "Daybreak Dolphin Bay Encounter",
     timeSlot: "morning",
     duration: "2h",
@@ -11,7 +11,7 @@ export const tours = [
     image_url: "img/Vibe_Beach.jpg",
   },
   {
-    id: "coastal",
+    tour_id: "coastal",
     name: "Coastal Exploration",
     timeSlot: "allDay",
     duration: "6h",
@@ -22,7 +22,7 @@ export const tours = [
     image_url: "img/Vibe_Forest.jpg",
   },
   {
-    id: "sunset",
+    tour_id: "sunset",
     name: "Sunset Lagoon Paddle",
     timeSlot: "evening",
     duration: "2h",

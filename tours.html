@@ -1,3 +1,4 @@
+<!-- tours.html -->
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
   <head>
@@ -143,7 +144,7 @@
             Tours
           </a>
           <a
-            href="book.html"
+            href="book.html#booking-availability"
             data-key="navBook"
             class="hover:text-gray-300 font-semibold transition-colors duration-200"
           >
@@ -202,323 +203,12 @@
             tranquil lagoons to exciting dolphin encounters.
           </p>
 
+          <!-- The tour cards will be dynamically generated here by tours-booking.js -->
           <div class="grid lg:grid-cols-1 gap-12 max-w-6xl mx-auto">
-            <!-- Tour 1: Sunset Paddle -->
-            <div
-              class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl shadow-lg overflow-hidden card-hover"
-            >
-              <div class="flex flex-col lg:flex-row">
-                <div class="lg:w-1/2">
-                  <img
-                    src="img/sunset_paddle.jpg"
-                    alt="Sunset canoe paddle in Pipa"
-                    class="w-full h-64 lg:h-full object-cover"
-                  />
-                </div>
-                <div class="lg:w-1/2 p-8">
-                  <div
-                    class="flex justify-center mb-6 lg:justify-start"
-                    aria-hidden="true"
-                  >
-                    <svg
-                      class="h-16 w-16 text-[#FF6B6B]"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
-                      />
-                    </svg>
-                  </div>
-                  <h3
-                    data-key="tour1Title"
-                    class="text-2xl font-bold mb-4 text-gray-800"
-                  >
-                    Sunset Lagoon Paddle
-                  </h3>
-                  <p
-                    data-key="tour1Description"
-                    class="text-gray-700 leading-relaxed mb-6"
-                  >
-                    Glide through the tranquil lagoons of Guaraíras as the sun
-                    dips below the horizon, painting the sky with vibrant
-                    colors. A truly magical experience that combines peaceful
-                    paddling with nature's most spectacular daily show.
-                  </p>
-                  <div class="mb-6">
-                    <p class="text-sm text-gray-600 mb-2">
-                      <strong>Duration:</strong> 2.5 hours
-                    </p>
-                    <p class="text-sm text-gray-600 mb-2">
-                      <strong>Difficulty:</strong> Beginner friendly
-                    </p>
-                    <p class="text-sm text-gray-600">
-                      <strong>Best time:</strong> Late afternoon
-                    </p>
-                  </div>
-                  <button
-                    data-tour-id="sunset"
-                    data-key="tour1BookBtn"
-                    class="tour-book-btn bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring transition-all duration-200"
-                  >
-                    Book Now
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tour 2: Dolphin Bay Encounter -->
-            <div
-              class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl shadow-lg overflow-hidden card-hover"
-            >
-              <div class="flex flex-col lg:flex-row">
-                <div class="lg:w-1/2 lg:order-2">
-                  <img
-                    src="img/dolphin_encounter.jpg"
-                    alt="Dolphins swimming near a canoe in Pipa"
-                    class="w-full h-64 lg:h-full object-cover"
-                  />
-                </div>
-                <div class="lg:w-1/2 p-8">
-                  <div
-                    class="flex justify-center mb-6 lg:justify-start"
-                    aria-hidden="true"
-                  >
-                    <svg
-                      class="h-16 w-16 text-[#FF6B6B]"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-2.625 6.375a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm-2.25 3.375a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z"
-                      />
-                    </svg>
-                  </div>
-                  <h3
-                    data-key="tour2Title"
-                    class="text-2xl font-bold mb-4 text-gray-800"
-                  >
-                    Daybreak Dolphin Bay Encounter
-                  </h3>
-                  <p
-                    data-key="tour2Description"
-                    class="text-gray-700 leading-relaxed mb-6"
-                  >
-                    Paddle along the stunning coastline to Dolphin Bay. Witness
-                    playful dolphins in their natural habitat – an unforgettable
-                    wildlife encounter that connects you with Pipa's amazing
-                    marine life.
-                  </p>
-                  <div class="mb-6">
-                    <p class="text-sm text-gray-600 mb-2">
-                      <strong>Duration:</strong> 3 hours
-                    </p>
-                    <p class="text-sm text-gray-600 mb-2">
-                      <strong>Difficulty:</strong> Moderate
-                    </p>
-                    <p class="text-sm text-gray-600">
-                      <strong>Best time:</strong> Morning
-                    </p>
-                  </div>
-                  <button
-                    data-tour-id="dolphin"
-                    data-key="tour2BookBtn"
-                    class="tour-book-btn bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring transition-all duration-200"
-                  >
-                    Book Now
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tour 3: Coastal Exploration -->
-            <div
-              class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl shadow-lg overflow-hidden card-hover"
-            >
-              <div class="flex flex-col lg:flex-row">
-                <div class="lg:w-1/2">
-                  <img
-                    src="img/coastal_exploration.jpg"
-                    alt="Canoe exploring the coast of Pipa"
-                    class="w-full h-64 lg:h-full object-cover"
-                  />
-                </div>
-                <div class="lg:w-1/2 p-8">
-                  <div
-                    class="flex justify-center mb-6 lg:justify-start"
-                    aria-hidden="true"
-                  >
-                    <svg
-                      class="h-16 w-16 text-[#FF6B6B]"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M14.25 20.25a5.25 5.25 0 003.75-1.549s1.163-.922 1.52-1.855m-5.27 3.404a5.25 5.25 0 01-3.75-1.549s-1.163-.922-1.52-1.855m5.27 3.404v-2.062a2.25 2.25 0 00-1.125-1.956m-2.25 4.018v-2.062a2.25 2.25 0 00-1.125-1.956m1.125 1.956V15.75m0 0v-2.25a3.375 3.375 0 00-3.375-3.375h-1.5a3.375 3.375 0 00-3.375 3.375v2.25m5.25 0v-2.25a3.375 3.375 0 00-3.375-3.375H6.75"
-                      />
-                    </svg>
-                  </div>
-                  <h3
-                    data-key="tour3Title"
-                    class="text-2xl font-bold mb-4 text-gray-800"
-                  >
-                    Coastal Exploration
-                  </h3>
-                  <p
-                    data-key="tour3Description"
-                    class="text-gray-700 leading-relaxed mb-6"
-                  >
-                    Discover hidden coves and majestic cliffs as you paddle
-                    along Pipa's breathtaking coastline. Learn about the local
-                    marine life and geology from our experienced guides.
-                  </p>
-                  <div class="mb-6">
-                    <p class="text-sm text-gray-600 mb-2">
-                      <strong>Duration:</strong> 4 hours
-                    </p>
-                    <p class="text-sm text-gray-600 mb-2">
-                      <strong>Difficulty:</strong> Moderate to Advanced
-                    </p>
-                    <p class="text-sm text-gray-600">
-                      <strong>Best time:</strong> Full day
-                    </p>
-                  </div>
-                  <button
-                    data-tour-id="coastal"
-                    data-key="tour3BookBtn"
-                    class="tour-book-btn bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring transition-all duration-200"
-                  >
-                    Book Now
-                  </button>
-                </div>
-              </div>
-            </div>
+            <!-- Dynamically generated tour cards will be inserted here -->
           </div>
         </div>
       </section>
-
-      <!-- What's Included Section -->
-      <!-- <section class="py-16 md:py-24 bg-gray-50">
-        <div class="container mx-auto px-6">
-          <h2
-            data-key="includedTitle"
-            class="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-800"
-          >
-            What's Included in Every Tour
-          </h2>
-          <p
-            data-key="includedSubtitle"
-            class="text-lg text-gray-600 mb-16 max-w-3xl mx-auto text-center"
-          >
-            We provide everything you need for a safe and enjoyable canoe
-            adventure.
-          </p>
-
-          <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <div
-              class="p-8 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl shadow-lg card-hover text-center"
-            >
-              <div class="flex justify-center mb-6" aria-hidden="true">
-                <svg
-                  class="h-16 w-16 text-[#FF6B6B]"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
-                  />
-                </svg>
-              </div>
-              <h3 class="text-xl font-bold mb-4 text-gray-800">
-                Safety Equipment
-              </h3>
-              <p class="text-gray-700 leading-relaxed">
-                Professional life jackets, safety whistles, and first aid
-                equipment for your peace of mind.
-              </p>
-            </div>
-
-            <div
-              class="p-8 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl shadow-lg card-hover text-center"
-            >
-              <div class="flex justify-center mb-6" aria-hidden="true">
-                <svg
-                  class="h-16 w-16 text-[#FF6B6B]"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                  />
-                </svg>
-              </div>
-              <h3 class="text-xl font-bold mb-4 text-gray-800">
-                Expert Guides
-              </h3>
-              <p class="text-gray-700 leading-relaxed">
-                Certified water safety instructors and local nature experts to
-                enhance your experience.
-              </p>
-            </div>
-
-            <div
-              class="p-8 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl shadow-lg card-hover text-center"
-            >
-              <div class="flex justify-center mb-6" aria-hidden="true">
-                <svg
-                  class="h-16 w-16 text-[#FF6B6B]"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
-                  />
-                </svg>
-              </div>
-              <h3 class="text-xl font-bold mb-4 text-gray-800">Photography</h3>
-              <p class="text-gray-700 leading-relaxed">
-                Complimentary photos of your adventure to capture memories that
-                will last a lifetime.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section> -->
 
       <!-- Call to Action Section -->
       <section
@@ -541,7 +231,7 @@
 
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="book.html#booking-availability"
+              href="book.html"
               class="bg-white hover:bg-gray-100 text-[#FF6B6B] font-bold py-4 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg btn-primary"
             >
               Book Your Tour
@@ -609,7 +299,7 @@
       ✖️
     </button>
 
-    <!-- Booking Modal (same as book.html) -->
+    <!-- Booking Modal -->
     <div
       id="booking-modal"
       class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0"
@@ -634,22 +324,14 @@
 
     <script src="translations.js"></script>
     <script src="chatbot.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const mobileMenuButton = document.getElementById("mobile-menu-button");
-        const mobileMenu = document.getElementById("mobile-menu");
 
-        if (mobileMenuButton && mobileMenu) {
-          mobileMenuButton.addEventListener("click", () => {
-            mobileMenu.classList.toggle("hidden");
-          });
-        }
-      });
-    </script>
-    <script src="main.js"></script>
-    <!-- Module scripts for booking integration -->
-    <script type="module" src="./mockData.js"></script>
-    <script type="module" src="./apiMock.js"></script>
+    <!-- CORRECTED: Link to the external tours-booking.js file -->
     <script type="module" src="./tours-booking.js"></script>
+
+    <!-- Ensure apiMock.js is also loaded as a module if it's not implicitly handled by tours-booking.js -->
+    <!-- It's good practice to load modules explicitly -->
+    <script type="module" src="./apiMock.js"></script>
+    <!-- mockData.js is no longer needed by tours-booking.js -->
+    <!-- <script type="module" src="./mockData.js"></script> -->
   </body>
 </html>
