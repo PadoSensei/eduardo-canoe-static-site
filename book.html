@@ -192,47 +192,9 @@
       <!-- Booking Form Section -->
 
       <!-- === SIMULATED BOOKING AVAILABILITY SECTION === -->
-      <section id="booking-availability" class="py-16 md:py-24 bg-gray-100">
-        <div class="container mx-auto px-6">
-          <h2
-            data-key="availabilityTitle"
-            class="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800"
-          >
-            Check Tour Availability
-          </h2>
 
-          <div
-            class="flex flex-col md:flex-row justify-center items-center gap-4 mb-8"
-          >
-            <label
-              for="availability-date"
-              data-key="availabilityDateLabel"
-              class="font-semibold text-gray-700"
-              >Select Date:</label
-            >
-            <input
-              type="date"
-              id="availability-date"
-              class="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
-            />
-            <button
-              id="reset-bookings-btn"
-              data-key="resetBookingsBtn"
-              class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all duration-300 text-sm"
-            >
-              Reset All Bookings (Demo)
-            </button>
-          </div>
+      <div id="react-booking-app"></div>
 
-          <div
-            id="availability-slots"
-            class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg"
-          >
-            <!-- Availability will be rendered here by JavaScript -->
-            <p class="text-center text-gray-500">Loading availability...</p>
-          </div>
-        </div>
-      </section>
       <!-- === END SIMULATED BOOKING AVAILABILITY SECTION === -->
     </main>
 
@@ -339,7 +301,7 @@
     <!-- Module scripts (must use type="module" for ES imports) -->
     <script type="module" src="./mockData.js"></script>
     <script type="module" src="./apiMock.js"></script>
-    <script type="module" src="./booking.js"></script>
+    <script type="module" src="/src/index.jsx"></script>
 
     <!-- Mobile Menu Toggle Script -->
     <script>
