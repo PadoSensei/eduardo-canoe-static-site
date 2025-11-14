@@ -26,9 +26,8 @@ export async function getAvailabilityAndDetails(dateString) {
   );
   const url = `${API_BASE_URL}/tours/available?tour_date=${dateString}`;
   try {
-    await delay(MOCK_DELAY); // Simulate network latency
+    // The fetch logic itself is correct.
     const response = await fetch(url);
-
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(
@@ -37,34 +36,38 @@ export async function getAvailabilityAndDetails(dateString) {
         }`
       );
     }
-
     const data = await response.json();
 
-    // IMPORTANT: If backend only returns ID and availability, we'll need another call for full details.
-    // For now, we assume this endpoint provides everything needed for the listing page.
-    // If the backend returns only basic tour_ids and availability counts, we would need to:
-    // 1. Fetch tour *templates* separately (if such an endpoint exists, e.g., GET /api/v1/tour-templates)
-    // 2. Combine the data from this response with the tour template details.
+    // =================================================================
+    // THE FIX IS HERE: This block now correctly maps the REAL API response
+    // to the data structure our React component expects.
+    // =================================================================
+    return data.map((tourFromApi) => ({
+      // Create a unique ID for React's `key` prop.
+      id: `${tourFromApi.tour_date}-${tourFromApi.tour_type}`,
 
-    // For demonstration, let's ensure essential fields are present,
-    // mimicking what a combined response might look like.
-    // This part might need adjustment based on the actual backend response structure.
-    return data.map((tour) => ({
-      id: tour.tour_id, // Assuming backend returns tour_id
-      name: tour.name || "Tour Name Unavailable", // Placeholder if not provided by backend
-      description: tour.description || "No description available.",
-      price: tour.price !== undefined ? tour.price : 0, // Ensure price is present
-      image_url: tour.image_url || "img/placeholder_tour.jpg", // Fallback image
-      duration: tour.duration || "N/A",
-      capacity: tour.capacity,
-      date: dateString, // Use the requested date
-      booked_count: tour.booked_count,
-      available: tour.available,
-      remaining: tour.remaining,
+      // Frontend expects `name`, backend sends `display_name`.
+      name: tourFromApi.display_name,
+
+      // Frontend expects `price`, backend sends `price`. (Match)
+      price: tourFromApi.price,
+
+      // Frontend expects `remaining`, backend sends `seats_available`.
+      remaining: tourFromApi.seats_available,
+
+      // Frontend expects `capacity`, backend sends `capacity`. (Match)
+      capacity: tourFromApi.capacity,
+
+      // Frontend expects `duration`, backend sends `duration`. (Match)
+      // duration: tourFromApi.duration || "N/A", // Add a fallback for safety
+
+      // Pass the booking status through directly.
+      is_bookable: tourFromApi.is_bookable,
+
+      // We don't need these other fields in the component, so we don't map them.
+      // description, image_url, booked_count, etc.
     }));
   } catch (error) {
-    // In a real app, you might want more sophisticated error handling or fallbacks.
-    // For now, we re-throw to be caught by the frontend's try-catch.
     throw error;
   }
 }
