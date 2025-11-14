@@ -21,9 +21,6 @@ import { tours as mockToursData } from "./mockData.js"; // Renamed to avoid conf
  * @returns {Promise<Array<object>>} - A promise that resolves with an array of tour objects, each including availability and details.
  */
 export async function getAvailabilityAndDetails(dateString) {
-  console.log(
-    `[API Mock] Fetching availability and details for: ${dateString}`
-  );
   const url = `${API_BASE_URL}/tours/available?tour_date=${dateString}`;
   try {
     await delay(MOCK_DELAY); // Simulate network latency

@@ -205,14 +205,14 @@
             class="flex flex-col md:flex-row justify-center items-center gap-4 mb-8"
           >
             <label
-              for="availability-date"
+              for="booking-date"
               data-key="availabilityDateLabel"
               class="font-semibold text-gray-700"
               >Select Date:</label
             >
             <input
               type="date"
-              id="availability-date"
+              id="booking-date"
               class="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
             />
             <button
@@ -225,7 +225,7 @@
           </div>
 
           <div
-            id="availability-slots"
+            id="availability-results"
             class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg"
           >
             <!-- Availability will be rendered here by JavaScript -->
@@ -337,8 +337,6 @@
     <script src="main.js"></script>
 
     <!-- Module scripts (must use type="module" for ES imports) -->
-    <script type="module" src="./mockData.js"></script>
-    <script type="module" src="./apiMock.js"></script>
     <script type="module" src="./booking.js"></script>
 
     <!-- Mobile Menu Toggle Script -->

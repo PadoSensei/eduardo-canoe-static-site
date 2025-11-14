@@ -17,6 +17,9 @@ jest.mock("../apiMock.js", () => ({
   resetMockBookings: jest.fn(),
 }));
 
+// Import the mocked API
+const mockApi = require("../apiMock.js");
+
 // Mock data for tests
 const TEST_DATE = "2025-12-01";
 const MOCK_TOUR_DATA = [
@@ -103,12 +106,10 @@ describe("Tours Booking Functionality", () => {
   });
 
   describe("API Integration Tests", () => {
-    const apiMock = require("../apiMock.js");
-
     test("should fetch tour availability data", async () => {
-      apiMock.getAvailabilityAndDetails.mockResolvedValue(MOCK_TOUR_DATA);
+      mockApi.getAvailabilityAndDetails.mockResolvedValue(MOCK_TOUR_DATA);
 
-      const result = await apiMock.getAvailabilityAndDetails(TEST_DATE);
+      const result = await mockApi.getAvailabilityAndDetails(TEST_DATE);
 
       expect(result).toEqual(MOCK_TOUR_DATA);
       expect(result.length).toBe(3);
@@ -116,21 +117,21 @@ describe("Tours Booking Functionality", () => {
     });
 
     test("should handle successful booking", async () => {
-      apiMock.bookTour.mockResolvedValue({ success: true });
+      mockApi.bookTour.mockResolvedValue({ success: true });
 
-      const result = await apiMock.bookTour(TEST_DATE, "dolphin", 2);
+      const result = await mockApi.bookTour(TEST_DATE, "dolphin", 2);
 
       expect(result.success).toBe(true);
-      expect(apiMock.bookTour).toHaveBeenCalledWith(TEST_DATE, "dolphin", 2);
+      expect(mockApi.bookTour).toHaveBeenCalledWith(TEST_DATE, "dolphin", 2);
     });
 
     test("should handle failed booking", async () => {
-      apiMock.bookTour.mockResolvedValue({
+      mockApi.bookTour.mockResolvedValue({
         success: false,
         message: "Not enough seats",
       });
 
-      const result = await apiMock.bookTour(TEST_DATE, "dolphin", 10);
+      const result = await mockApi.bookTour(TEST_DATE, "dolphin", 10);
 
       expect(result.success).toBe(false);
       expect(result.message).toBe("Not enough seats");
@@ -309,28 +310,26 @@ describe("Tours Booking Functionality", () => {
   });
 
   describe("Booking Flow", () => {
-    const apiMock = require("../apiMock.js");
-
     test("should complete successful booking flow", async () => {
-      apiMock.bookTour.mockResolvedValue({ success: true });
+      mockApi.bookTour.mockResolvedValue({ success: true });
 
       const tour = MOCK_TOUR_DATA[0];
       const quantity = 2;
 
       // Call the booking function
-      const result = await apiMock.bookTour(TEST_DATE, tour.id, quantity);
+      const result = await mockApi.bookTour(TEST_DATE, tour.id, quantity);
 
       expect(result.success).toBe(true);
-      expect(apiMock.bookTour).toHaveBeenCalledWith(TEST_DATE, "dolphin", 2);
+      expect(mockApi.bookTour).toHaveBeenCalledWith(TEST_DATE, "dolphin", 2);
     });
 
     test("should handle booking failure gracefully", async () => {
-      apiMock.bookTour.mockResolvedValue({
+      mockApi.bookTour.mockResolvedValue({
         success: false,
         message: "Tour is fully booked",
       });
 
-      const result = await apiMock.bookTour(TEST_DATE, "sunset", 1);
+      const result = await mockApi.bookTour(TEST_DATE, "sunset", 1);
 
       expect(result.success).toBe(false);
       expect(result.message).toBe("Tour is fully booked");
