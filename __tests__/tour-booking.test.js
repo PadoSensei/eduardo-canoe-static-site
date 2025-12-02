@@ -11,7 +11,7 @@ const fs = require("fs");
 const path = require("path");
 
 // Mock the API functions BEFORE importing tours-booking
-jest.mock("../apiMock.js", () => ({
+jest.mock("../api.js", () => ({
   getAvailabilityAndDetails: jest.fn(),
   bookTour: jest.fn(),
   resetMockBookings: jest.fn(),
@@ -103,7 +103,7 @@ describe("Tours Booking Functionality", () => {
   });
 
   describe("API Integration Tests", () => {
-    const apiMock = require("../apiMock.js");
+    const apiMock = require("../api.js");
 
     test("should fetch tour availability data", async () => {
       apiMock.getAvailabilityAndDetails.mockResolvedValue(MOCK_TOUR_DATA);
@@ -309,7 +309,7 @@ describe("Tours Booking Functionality", () => {
   });
 
   describe("Booking Flow", () => {
-    const apiMock = require("../apiMock.js");
+    const apiMock = require("../api.js");
 
     test("should complete successful booking flow", async () => {
       apiMock.bookTour.mockResolvedValue({ success: true });

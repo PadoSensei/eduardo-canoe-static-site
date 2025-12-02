@@ -4,7 +4,7 @@ import {
   getAvailability,
   bookTour,
   resetMockBookings,
-} from "./apiMock.js";
+} from "./api.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("[Booking] DOM loaded");

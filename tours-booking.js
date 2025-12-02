@@ -6,7 +6,7 @@ import {
   getAvailabilityAndDetails,
   bookTour,
   resetMockBookings,
-} from "./apiMock.js";
+} from "./api.js";
 
 // --- GLOBAL CONFIGURATION ---
 const API_BASE_URL = "http://localhost:8000/api/v1"; // Your backend base URL
