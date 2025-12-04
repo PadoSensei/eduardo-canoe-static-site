@@ -1,131 +1,135 @@
 // src/components/BookingSystem.jsx
-
 import React, { useState, useEffect } from "react";
-import { getAvailableTours, createBooking } from "../../api";
+import { getAvailableTours, createBooking, getBookingStatus } from "../../api";
+import { PaymentView } from "./booking/PaymentView";
+import { SuccessView } from "./booking/SuccessView";
+import { BookingForm } from "./booking/BookingForm";
 
 function BookingSystem() {
+  // --- Data State ---
   const [availableTours, setAvailableTours] = useState([]);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [bookingTourId, setBookingTourId] = useState(null);
 
-  // Form state for guest information
+  // --- UI State ---
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedTour, setSelectedTour] = useState(null);
+  const [bookingTourId, setBookingTourId] = useState(null); // Used for loading state
+
+  // --- Form State ---
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
-  const [showBookingForm, setShowBookingForm] = useState(false);
-  const [selectedTour, setSelectedTour] = useState(null);
 
+  // --- Transaction State ---
+  const [paymentInfo, setPaymentInfo] = useState(null);
+  const [currentBooking, setCurrentBooking] = useState(null);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+
+  // 1. Fetch Availability
   useEffect(() => {
     const loadAvailability = async () => {
       setIsLoading(true);
       setError(null);
-
       try {
-        // Updated function name
         const data = await getAvailableTours(selectedDate);
         setAvailableTours(data);
       } catch (err) {
-        console.error("Failed to fetch availability:", err);
-        setError(
-          "Sorry, we couldn't load tour availability. Please try again later."
-        );
+        console.error(err);
+        setError("Sorry, we couldn't load tour availability.");
       } finally {
         setIsLoading(false);
       }
     };
-
     loadAvailability();
   }, [selectedDate]);
 
-  const handleBookTour = async (tour) => {
-    console.log("Initiating booking for tour:", tour);
+  // 2. Poll Status
+  useEffect(() => {
+    let intervalId;
+    if (currentBooking?.uuid && paymentInfo && !isConfirmed) {
+      intervalId = setInterval(async () => {
+        try {
+          const statusData = await getBookingStatus(currentBooking.uuid);
+          if (statusData.status === "confirmed") {
+            setIsConfirmed(true);
+            setPaymentInfo(null);
+            clearInterval(intervalId);
+            // Refresh data
+            const updatedTours = await getAvailableTours(selectedDate);
+            setAvailableTours(updatedTours);
+          }
+        } catch (err) {
+          /* silent fail */
+        }
+      }, 3000);
+    }
+    return () => clearInterval(intervalId);
+  }, [currentBooking, paymentInfo, isConfirmed, selectedDate]);
 
-    // Validate guest information
+  // --- Handlers ---
+  const handleBookTour = async () => {
+    // Validation
     if (!guestName || !guestEmail) {
-      alert("Please provide your name and email address.");
+      alert("Please provide name and email.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
+      alert("Invalid email.");
       return;
     }
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(guestEmail)) {
-      alert("Please provide a valid email address.");
-      return;
-    }
-
-    setBookingTourId(tour.id);
-
+    setBookingTourId(selectedTour.id);
     try {
-      // Updated function call with new signature
       const result = await createBooking({
-        tourId: tour.instanceId,
-        guestName: guestName,
-        guestEmail: guestEmail,
-        numPeople: 1, // You can make this dynamic with a quantity selector
-        totalPrice: tour.price * 1,
+        tourId: selectedTour.instanceId,
+        guestName,
+        guestEmail,
+        numPeople: 1,
+        totalPrice: selectedTour.price * 1,
       });
 
       if (result.success) {
-        alert(
-          `Successfully booked ${tour.name}!\n\nBooking ID: ${result.booking.uuid}\n\nPlease check your email for payment instructions.`
-        );
-
-        // Reset form
+        setPaymentInfo(result.paymentInfo);
+        setCurrentBooking(result.booking);
+        setIsConfirmed(false);
         setGuestName("");
         setGuestEmail("");
-        setShowBookingForm(false);
-        setSelectedTour(null);
-
-        // Refresh availability
-        const updatedTours = await getAvailableTours(selectedDate);
-        setAvailableTours(updatedTours);
       } else {
         alert(`Booking failed: ${result.message}`);
       }
     } catch (error) {
-      console.error("An unexpected error occurred during booking:", error);
-      alert("Booking failed due to an unexpected error. Please try again.");
+      alert("Booking failed unexpectedly.");
     } finally {
       setBookingTourId(null);
     }
   };
 
-  const openBookingForm = (tour) => {
-    setSelectedTour(tour);
-    setShowBookingForm(true);
-  };
-
-  const closeBookingForm = () => {
-    setShowBookingForm(false);
+  const closeModal = () => {
+    setShowBookingModal(false);
     setSelectedTour(null);
+    setPaymentInfo(null);
+    setCurrentBooking(null);
+    setIsConfirmed(false);
     setGuestName("");
     setGuestEmail("");
   };
 
-  const renderAvailability = () => {
-    if (isLoading) {
-      return (
-        <p className="text-center text-gray-500">Loading availability...</p>
-      );
-    }
+  const openModal = (tour) => {
+    setSelectedTour(tour);
+    setShowBookingModal(true);
+  };
 
-    if (error) {
-      return <p className="text-center text-red-500">{error}</p>;
-    }
-
-    // Filter for bookable tours using the correct property name
-    const bookableTours = availableTours.filter((tour) => tour.isBookable);
-
-    if (bookableTours.length === 0) {
-      return (
-        <p className="text-center text-gray-600">
-          No tours available for this date.
-        </p>
-      );
-    }
+  // --- Render Helpers ---
+  const renderList = () => {
+    if (isLoading)
+      return <p className="text-center text-gray-500">Loading...</p>;
+    if (error) return <p className="text-center text-red-500">{error}</p>;
+    const bookableTours = availableTours.filter((t) => t.isBookable);
+    if (bookableTours.length === 0)
+      return <p className="text-center text-gray-600">No tours available.</p>;
 
     return bookableTours.map((tour) => (
       <div
@@ -135,27 +139,17 @@ function BookingSystem() {
         <div>
           <h4 className="font-bold text-lg text-gray-800">{tour.name}</h4>
           <p className="text-gray-600">
-            {tour.remaining} of {tour.capacity} slots remaining
+            {tour.remaining} of {tour.capacity} slots
           </p>
-          <p className="text-sm text-gray-500">Duration: {tour.duration}</p>
         </div>
-        <div className="mt-4 sm:mt-0 text-right">
+        <div className="text-right mt-4 sm:mt-0">
           <p className="text-xl font-semibold">R$ {tour.price.toFixed(2)}</p>
-          {bookingTourId === tour.id ? (
-            <button
-              disabled
-              className="mt-2 bg-gray-400 text-white font-bold py-2 px-4 rounded-lg shadow-md cursor-not-allowed"
-            >
-              Booking...
-            </button>
-          ) : (
-            <button
-              onClick={() => openBookingForm(tour)}
-              className="mt-2 bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors"
-            >
-              Book Now
-            </button>
-          )}
+          <button
+            onClick={() => openModal(tour)}
+            className="mt-2 bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors"
+          >
+            Book Now
+          </button>
         </div>
       </div>
     ));
@@ -168,93 +162,42 @@ function BookingSystem() {
           Check Tour Availability
         </h2>
 
-        <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-8">
-          <label htmlFor="booking-date" className="font-semibold text-gray-700">
-            Select Date:
-          </label>
+        {/* Date Input */}
+        <div className="flex justify-center mb-8">
           <input
             type="date"
-            id="booking-date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            min={new Date().toISOString().split("T")[0]}
-            className="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
+            className="p-3 rounded-lg border border-gray-300"
           />
         </div>
 
+        {/* List */}
         <div className="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
-          {renderAvailability()}
+          {renderList()}
         </div>
 
-        {/* Booking Form Modal */}
-        {showBookingForm && selectedTour && (
+        {/* Modal */}
+        {showBookingModal && selectedTour && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">
-                Book {selectedTour.name}
-              </h3>
-
-              <div className="mb-4">
-                <p className="text-gray-600">Date: {selectedDate}</p>
-                <p className="text-gray-600">
-                  Price: R$ {selectedTour.price.toFixed(2)}
-                </p>
-              </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="guest-name"
-                  className="block text-gray-700 font-semibold mb-2"
-                >
-                  Your Name *
-                </label>
-                <input
-                  type="text"
-                  id="guest-name"
-                  value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
-                  placeholder="Enter your full name"
-                  required
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
+              {isConfirmed ? (
+                <SuccessView guestEmail={guestEmail} onClose={closeModal} />
+              ) : paymentInfo ? (
+                <PaymentView paymentInfo={paymentInfo} onClose={closeModal} />
+              ) : (
+                <BookingForm
+                  tour={selectedTour}
+                  selectedDate={selectedDate}
+                  guestName={guestName}
+                  setGuestName={setGuestName}
+                  guestEmail={guestEmail}
+                  setGuestEmail={setGuestEmail}
+                  onConfirm={handleBookTour}
+                  onCancel={closeModal}
+                  isSubmitting={bookingTourId === selectedTour.id}
                 />
-              </div>
-
-              <div className="mb-6">
-                <label
-                  htmlFor="guest-email"
-                  className="block text-gray-700 font-semibold mb-2"
-                >
-                  Your Email *
-                </label>
-                <input
-                  type="email"
-                  id="guest-email"
-                  value={guestEmail}
-                  onChange={(e) => setGuestEmail(e.target.value)}
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
-                  placeholder="your@email.com"
-                  required
-                />
-              </div>
-
-              <div className="flex gap-4">
-                <button
-                  onClick={() => handleBookTour(selectedTour)}
-                  disabled={bookingTourId === selectedTour.id}
-                  className="flex-1 bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  {bookingTourId === selectedTour.id
-                    ? "Booking..."
-                    : "Confirm Booking"}
-                </button>
-                <button
-                  onClick={closeBookingForm}
-                  disabled={bookingTourId === selectedTour.id}
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg shadow-md transition-colors disabled:bg-gray-200 disabled:cursor-not-allowed"
-                >
-                  Cancel
-                </button>
-              </div>
+              )}
             </div>
           </div>
         )}
