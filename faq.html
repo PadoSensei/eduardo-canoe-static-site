@@ -45,8 +45,7 @@
           </h1>
         </div>
 
-        <!-- Center: Main Navigation (visible on md+ screens) -->
-        <!-- Updated to match main page layout with flex-grow and justify-center -->
+        <!-- Center: Main Navigation -->
         <nav
           aria-label="Main navigation"
           class="hidden md:flex md:flex-grow md:justify-center space-x-6"
@@ -59,7 +58,7 @@
             Tours
           </a>
           <a
-            href="book.html#booking-availability""
+            href="book.html"
             data-key="navBook"
             class="text-white hover:text-gray-300 font-semibold transition-colors duration-200 focus-ring px-2 py-1"
           >
@@ -186,8 +185,6 @@
     </header>
 
     <main>
-      
-
       <!-- FAQ Section -->
       <section id="faq-content" class="py-16 md:py-24 bg-white">
         <div class="container mx-auto px-6">
@@ -489,7 +486,7 @@
     <footer class="bg-gray-900 text-white py-8">
       <div class="container mx-auto px-6 text-center">
         <p data-key="footerText" class="text-gray-400">
-          © 2023 Pipa Canoe Adventures. All rights reserved.
+          © 2025 Pipa Canoe Adventures. All rights reserved.
         </p>
       </div>
     </footer>
@@ -505,12 +502,11 @@
       <span class="sr-only">Open chat</span>
     </button>
 
-    <!-- Chat Wrapper (holds chat and close button) -->
+    <!-- Chat Wrapper -->
     <div
       id="chat-wrapper"
       class="hidden fixed bottom-0 right-0 w-full max-w-sm z-40"
     >
-      <!-- Deep Chat -->
       <deep-chat
         id="deep-chat"
         placement="bottom-right"
@@ -528,7 +524,7 @@
       ></deep-chat>
     </div>
 
-    <!-- Close Button (sits above chat, separate from shadow DOM) -->
+    <!-- Close Button -->
     <button
       id="chat-close"
       class="hidden fixed bottom-[350px] right-[10px] z-50 text-white bg-[#ff6b6b] hover:bg-[#e85c5c] rounded-full w-8 h-8 flex items-center justify-center shadow-lg"
@@ -536,23 +532,15 @@
     >
       ✖️
     </button>
-    <!-- End Deep Chat Element -->
 
-    <script src="translations.js"></script>
-    <script src="chatbot.js"></script>
-    <!-- Mobile Menu Toggle Script -->
+    <!-- Scripts -->
+    <script type="module" src="/main.js"></script>
+    <script type="module" src="/chatbot.js"></script>
+
+    <!-- FAQ Toggle Functionality (Specific to this page) -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        const mobileMenuButton = document.getElementById("mobile-menu-button");
-        const mobileMenu = document.getElementById("mobile-menu");
-
-        if (mobileMenuButton && mobileMenu) {
-          mobileMenuButton.addEventListener("click", () => {
-            mobileMenu.classList.toggle("hidden");
-          });
-        }
-
-        // FAQ Toggle Functionality
+        // FAQ Toggle Logic
         const faqQuestions = document.querySelectorAll(".faq-question");
         faqQuestions.forEach((button) => {
           button.addEventListener("click", () => {
@@ -574,6 +562,5 @@
         });
       });
     </script>
-    <script src="main.js"></script>
   </body>
 </html>

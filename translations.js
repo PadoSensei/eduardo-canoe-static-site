@@ -85,7 +85,7 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
   });
 });
 
-const translations = {
+export const translations = {
   en: {
     inquireBtn: "Book Your Tour",
     heroTitle: "Feel the Ocean's Heartbeat",

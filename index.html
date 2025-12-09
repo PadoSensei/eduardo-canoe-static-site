@@ -45,11 +45,7 @@
           </h1>
         </div>
 
-        <!-- Center: Main Navigation (visible on md+ screens) -->
-        <!-- Modified this nav element:
-             - Added `md:flex-grow` to make it take up available horizontal space.
-             - Added `md:justify-center` to center the navigation links within that space.
-        -->
+        <!-- Center: Main Navigation -->
         <nav
           aria-label="Main navigation"
           class="hidden md:flex md:flex-grow md:justify-center space-x-6"
@@ -189,11 +185,10 @@
     </header>
 
     <main>
-      <!-- Hero Section with Full-Width Video -->
+      <!-- Hero Section -->
       <section
         class="relative w-screen h-screen flex items-center justify-center text-center overflow-hidden m-0 p-0"
       >
-        <!-- Video Background Container -->
         <div class="video-container">
           <video
             playsinline
@@ -209,10 +204,8 @@
           </video>
         </div>
 
-        <!-- Enhanced Gradient Overlay -->
         <div class="absolute inset-0 gradient-overlay z-10"></div>
 
-        <!-- Hero Content -->
         <div
           class="relative z-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto hero-text"
         >
@@ -225,7 +218,6 @@
             class="text-lg sm:text-xl md:text-2xl text-white/90 max-w-3xl mx-auto text-shadow-md leading-relaxed font-light mb-8"
           ></p>
 
-          <!-- Call-to-Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="book.html"
@@ -242,7 +234,6 @@
           </div>
         </div>
 
-        <!-- Scroll Indicator -->
         <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
           <div
             class="w-6 h-10 border-2 border-white rounded-full flex justify-center scroll-indicator"
@@ -252,7 +243,7 @@
         </div>
       </section>
 
-      <!-- Features Section (remains for internal link on index.html) -->
+      <!-- Features Section -->
       <section id="details" class="py-16 md:py-24 bg-white">
         <div class="container mx-auto px-6 text-center">
           <h2
@@ -609,22 +600,8 @@
       ✖️
     </button>
 
-    <!-- End Deep Chat Element -->
-    <script src="translations.js"></script>
-    <script src="chatbot.js"></script>
-    <!-- Mobile Menu Toggle Script -->
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const mobileMenuButton = document.getElementById("mobile-menu-button");
-        const mobileMenu = document.getElementById("mobile-menu");
-
-        if (mobileMenuButton && mobileMenu) {
-          mobileMenuButton.addEventListener("click", () => {
-            mobileMenu.classList.toggle("hidden");
-          });
-        }
-      });
-    </script>
-    <script src="main.js"></script>
+    <!-- Script Imports for Vite -->
+    <script type="module" src="/chatbot.js"></script>
+    <script type="module" src="/main.js"></script>
   </body>
 </html>

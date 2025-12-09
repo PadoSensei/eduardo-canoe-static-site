@@ -24,8 +24,6 @@
     <link rel="manifest" href="/site.webmanifest" />
 
     <link rel="stylesheet" href="styles.css" />
-    <!-- Optional: Material Icons for FAQ, if you are using the FAQ page and want icons -->
-    <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
   </head>
   <script
     type="module"
@@ -47,7 +45,7 @@
           </h1>
         </div>
 
-        <!-- Center: Main Navigation (visible on md+ screens) -->
+        <!-- Center: Main Navigation -->
         <nav
           aria-label="Main navigation"
           class="hidden md:flex md:flex-grow md:justify-center space-x-6"
@@ -75,7 +73,7 @@
           </a>
         </nav>
 
-        <!-- Right Side: Language & Inquire -->
+        <!-- Right Side: Language -->
         <div class="flex items-center space-x-4">
           <nav aria-label="Language selection" class="hidden md:flex">
             <div class="text-sm font-semibold flex space-x-4 text-white">
@@ -100,14 +98,6 @@
             </div>
           </nav>
 
-          <!-- Edit Out Redudant Button -->
-          <!-- <a
-            href="book.html"
-            data-key="inquireBtn"
-            class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-lg btn-primary focus-ring"
-          >
-            Inquire
-          </a> -->
           <!-- Mobile Menu Button -->
           <button
             id="mobile-menu-button"
@@ -188,26 +178,24 @@
       </div>
     </header>
 
-    <main>
-      <!-- Booking Form Section -->
-
-      <!-- === SIMULATED BOOKING AVAILABILITY SECTION === -->
-
-      <div id="react-booking-app"></div>
-
-      <!-- === END SIMULATED BOOKING AVAILABILITY SECTION === -->
+    <main class="pt-24 min-h-screen">
+      <!-- 
+        Booking App Container 
+        Vite/React will inject the BookingSystem.jsx here.
+      -->
+      <div id="react-booking-app" class="container mx-auto px-4"></div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-8">
+    <footer class="bg-gray-900 text-white py-8 mt-12">
       <div class="container mx-auto px-6 text-center">
         <p data-key="footerText" class="text-gray-400">
-          © 2023 Pipa Canoe Adventures. All rights reserved.
+          © 2025 Pipa Canoe Adventures. All rights reserved.
         </p>
       </div>
     </footer>
 
-    <!-- Floating Toggle Button -->
+    <!-- Floating Chat Buttons -->
     <button
       id="chat-toggle"
       class="fixed bottom-4 right-4 z-50 rounded-full bg-pink-500 text-white p-3 shadow-lg hover:bg-pink-600 transition"
@@ -218,7 +206,6 @@
       <span class="sr-only">Open chat</span>
     </button>
 
-    <!-- Chat Wrapper -->
     <div
       id="chat-wrapper"
       class="hidden fixed bottom-0 right-0 w-full max-w-sm z-40"
@@ -248,102 +235,14 @@
       ✖️
     </button>
 
-    <!-- Booking Modal -->
-    <div
-      id="booking-modal"
-      class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="booking-modal-title"
-    >
-      <div
-        id="booking-modal-content"
-        class="bg-white rounded-xl w-full max-w-md p-6 relative transform scale-90 transition-transform duration-300 sm:p-8"
-      >
-        <button
-          id="booking-modal-close"
-          class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 font-bold text-xl"
-          aria-label="Close booking modal"
-        >
-          &times;
-        </button>
-        <h3 id="booking-modal-title" class="text-2xl font-bold mb-4"></h3>
-        <p id="booking-modal-date" class="mb-2 text-gray-600"></p>
-        <p id="booking-modal-price" class="mb-4 text-gray-600"></p>
-
-        <label for="booking-quantity" class="block font-semibold mb-1"
-          >Quantity:</label
-        >
-        <select
-          id="booking-quantity"
-          class="w-full p-2 mb-4 border rounded-lg"
-          aria-label="Select quantity to book"
-        ></select>
-
-        <p id="booking-modal-total" class="mb-4 font-bold text-gray-800"></p>
-        <button
-          id="booking-modal-confirm"
-          class="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg w-full"
-        >
-          Confirm & Pay
-        </button>
-
-        <!-- Checkout summary inserted dynamically by JS -->
-      </div>
-    </div>
-    <!-- === JavaScript Section (Refactored for Mock API Integration) === -->
-
-    <!-- Non-module scripts (no imports) -->
-    <script src="translations.js"></script>
-    <script src="chatbot.js"></script>
-    <script src="main.js"></script>
-
-    <!-- Module scripts (must use type="module" for ES imports) -->
-    <script type="module" src="./mockData.js"></script>
-    <script type="module" src="./api.js"></script>
+    <!-- 
+      SCRIPTS
+      1. main.js: Handles Mobile Menu + Translations
+      2. chatbot.js: Handles Chat logic
+      3. /src/index.jsx: Mounts the React Booking App
+    -->
+    <script type="module" src="/main.js"></script>
+    <script type="module" src="/chatbot.js"></script>
     <script type="module" src="/src/index.jsx"></script>
-
-    <!-- Mobile Menu Toggle Script -->
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const mobileMenuButton = document.getElementById("mobile-menu-button");
-        const mobileMenu = document.getElementById("mobile-menu");
-
-        if (mobileMenuButton && mobileMenu) {
-          mobileMenuButton.addEventListener("click", () => {
-            mobileMenu.classList.toggle("hidden");
-          });
-        }
-      });
-
-      // Smooth scroll to section if URL has a hash
-      document.addEventListener("DOMContentLoaded", () => {
-        if (window.location.hash) {
-          const targetId = window.location.hash.substring(1);
-          const targetElement = document.getElementById(targetId);
-
-          if (targetElement) {
-            // Create observer to wait for element to be in viewport
-            const observer = new IntersectionObserver((entries) => {
-              entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                  observer.disconnect();
-                }
-              });
-            });
-
-            observer.observe(targetElement);
-
-            // Scroll after a short delay
-            setTimeout(() => {
-              targetElement.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
-            }, 200);
-          }
-        }
-      });
-    </script>
   </body>
 </html>
