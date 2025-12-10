@@ -94,15 +94,14 @@ export const translations = {
     detailsTitle: "Your Adventure Awaits",
     detailsSubtitle:
       "We offer more than just a tour; we offer an experience. Each journey is designed to immerse you in the natural beauty of Pipa.",
-    card1Title: "Lagoon & Mangrove Tour",
-    card1Text:
-      "Paddle through the tranquil Guaraíras Lagoon, exploring the mysterious mangrove tunnels and discovering a hidden world.",
-    card2Title: "Dolphin Bay Encounter",
+    card1Title: "Sunrise Tour",
+    card1Text: "Wake up before the world and paddle into magic.",
+    card2Title: "Full Day Tour",
     card2Text:
-      "Join the bay's most famous residents. A magical experience as you paddle alongside playful dolphins in their natural habitat.",
-    card3Title: "Sunset Paddle",
+      "Pipa's ultimate experience! 8 hours. 4 ecosystems. Secret beaches. And maybe a dolphin or two!",
+    card3Title: "Sunset Tour",
     card3Text:
-      "Witness the sky paint itself in incredible colors. A peaceful and breathtaking journey as the sun sets over the ocean.",
+      "Don't just watch the sunset - live it from inside a Hawaiian canoe on Tibau's crystal waters.",
     carouselTitle: "Moments on the Water",
     carouselSubtitle: "Visual stories from our unforgettable canoe excursions.",
     mapTitle: "Find Your Starting Point",
@@ -136,15 +135,14 @@ export const translations = {
     detailsTitle: "Sua Aventura o Aguarda",
     detailsSubtitle:
       "Oferecemos mais do que um passeio; oferecemos uma experiência. Cada jornada é projetada para imergir você na beleza natural de Pipa.",
-    card1Title: "Passeio na Lagoa e Manguezal",
-    card1Text:
-      "Reme pela tranquila Lagoa de Guaraíras, explorando os misteriosos túneis de mangue e descobrindo um mundo escondido. [15]",
-    card2Title: "Encontro na Baía dos Golfinhos",
+    card1Title: "Tour Sunrise",
+    card1Text: "Acorde antes do mundo e reme em direção à magia.",
+    card2Title: "Tour Dia Completo",
     card2Text:
-      "Junte-se aos residentes mais famosos da baía. Uma experiência mágica enquanto você rema ao lado de golfinhos brincalhões em seu habitat natural. [3]",
-    card3Title: "Remada ao Pôr do Sol",
+      "A experiência definitiva de Pipa! 8 horas. 4 ecossistemas. Praias secretas. E talvez um golfinho ou dois!",
+    card3Title: "Tour Sunset",
     card3Text:
-      "Testemunhe o céu se pintar com cores incríveis. Uma jornada pacífica e deslumbrante enquanto o sol se põe sobre o oceano.",
+      "Não apenas assista ao pôr do sol - viva-o de dentro de uma canoa havaiana nas águas cristalinas de Tibau.",
     carouselTitle: "Momentos na Água",
     carouselSubtitle:
       "Histórias visuais de nossos inesquecíveis passeios de canoa.",
@@ -178,15 +176,14 @@ export const translations = {
     detailsTitle: "Tu Aventura te Espera",
     detailsSubtitle:
       "Ofrecemos más que un tour; ofrecemos una experiencia. Cada viaje está diseñado para sumergirte en la belleza natural de Pipa.",
-    card1Title: "Tour por la Laguna y Manglar",
-    card1Text:
-      "Rema por la tranquila Laguna de Guaraíras, explorando los misteriosos túneles de manglar y descubriendo un mundo oculto.",
-    card2Title: "Encuentro en la Bahía de los Delfines",
+    card1Title: "Tour Amanecer",
+    card1Text: "Despierta antes que el mundo y rema hacia la magia.",
+    card2Title: "Tour Día Completo",
     card2Text:
-      "Únete a los residentes más famosos de la bahía. Una experiencia mágica mientras remas junto a juguetones delfines en su hábitat natural. [3, 28]",
-    card3Title: "Remo al Atardecer",
+      "¡La experiencia definitiva de Pipa! 8 horas. 4 ecosistemas. Playas secretas. ¡Y quizás un delfín o dos!",
+    card3Title: "Tour Atardecer",
     card3Text:
-      "Contempla cómo el cielo se pinta de colores increíbles. Un viaje pacífico e impresionante mientras el sol se pone sobre el océano.",
+      "No solo mires el atardecer, vívelo desde dentro de una canoa hawaiana en las aguas cristalinas de Tibau.",
     carouselTitle: "Momentos en el Agua",
     carouselSubtitle:
       "Historias visuales de nuestras inolvidables excursiones en canoa.",

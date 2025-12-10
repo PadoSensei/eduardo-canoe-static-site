@@ -10,19 +10,19 @@ const Tours = () => {
       title: t("card1Title"),
       desc: t("card1Text"),
       img: "/img/Vibe_Forest.jpg",
-      price: "R$ 150",
+      price: "R$ 250",
     },
     {
       title: t("card2Title"),
       desc: t("card2Text"),
       img: "/img/Whatsapp_1.jpeg",
-      price: "R$ 200",
+      price: "R$ 500",
     },
     {
       title: t("card3Title"),
       desc: t("card3Text"),
       img: "/img/Whatsapp_2.jpeg",
-      price: "R$ 180",
+      price: "R$ 200",
     },
   ];
 
