@@ -1,6 +1,6 @@
 // __tests__/api.test.js
 
-import { getAvailableTours, createBooking } from "../api.js";
+import { getAvailableTours, createBooking } from "../src/api";
 
 // Mock the fetch API globally
 global.fetch = jest.fn();

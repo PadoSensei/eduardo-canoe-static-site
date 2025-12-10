@@ -3,8 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { LanguageProvider } from "./context/LanguageContext";
 import App from "./App";
-// Ensure your styles are imported here so they apply globally
-import "../styles.css";
+import "../src/styles.css";
 
 // We will change the HTML ID from 'react-booking-app' to 'root'
 // to reflect that it controls the whole page now.

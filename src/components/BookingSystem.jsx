@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getAvailableTours, createBooking, getBookingStatus } from "../../api";
+import { getAvailableTours, createBooking, getBookingStatus } from "../api";
 import { useLanguage } from "../context/LanguageContext"; // 1. Import Context
 import { bookingTranslations } from "../data/bookingTranslations"; // 2. Import Data
 import { PaymentView } from "./booking/PaymentView";
