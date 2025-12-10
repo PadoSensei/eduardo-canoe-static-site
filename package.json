@@ -3,8 +3,10 @@
   "dependencies": {
     "@vitejs/plugin-react": "^5.1.1",
     "deep-chat": "^2.2.2",
+    "lucide-react": "^0.556.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-router-dom": "^7.10.1",
     "vite": "^7.2.2"
   },
   "scripts": {

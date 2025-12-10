@@ -1,16 +1,21 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import BookingSystem from "./components/BookingSystem.jsx";
+import { BrowserRouter } from "react-router-dom";
+import { LanguageProvider } from "./context/LanguageContext";
+import App from "./App";
+// Ensure your styles are imported here so they apply globally
+import "../styles.css";
 
-// 1. Find the div in our HTML where we want our React app to live.
-const rootElement = document.getElementById("react-booking-app");
+// We will change the HTML ID from 'react-booking-app' to 'root'
+// to reflect that it controls the whole page now.
+const rootElement = document.getElementById("root");
 
-// 2. Tell React to take control of that element.
-const root = ReactDOM.createRoot(rootElement);
-
-// 3. Render our main component inside that element.
-root.render(
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <BookingSystem />
+    <BrowserRouter>
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
