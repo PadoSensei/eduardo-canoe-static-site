@@ -119,6 +119,14 @@ export const translations = {
     formMessagePlaceholder: "Interested in the sunset tour...",
     formSubmitBtn: "Send Inquiry",
     footerText: "© 2025 Pipa Canoe Adventures. Paddle with passion.",
+    navTours: "Tours",
+    navBook: "Book",
+    navFaq: "FAQ",
+    ctaButton: "Book Now",
+    learnMore: "Our Tours",
+    faqSectionTitle: "Your Questions Answered",
+    faqSubtitle:
+      "Everything you need to know about our canoe adventures in Pipa.",
   },
   pt: {
     inquireBtn: "Reserve Seu Passeio",
@@ -154,6 +162,13 @@ export const translations = {
     formMessagePlaceholder: "Interessado no passeio ao pôr do sol...",
     formSubmitBtn: "Enviar Contato",
     footerText: "© 2025 Pipa Canoe Adventures. Reme com paixão.",
+    navTours: "Passeios",
+    navBook: "Reservar",
+    navFaq: "FAQ", // or "Dúvidas" if you prefer
+    ctaButton: "Reservar Agora",
+    learnMore: "Nossos Passeios",
+    faqSectionTitle: "Perguntas Frequentes",
+    faqSubtitle: "Tudo o que você precisa saber sobre nossos passeios em Pipa.",
   },
   es: {
     inquireBtn: "Reserva Tu Tour",
@@ -189,5 +204,13 @@ export const translations = {
     formMessagePlaceholder: "Interesado en el tour al atardecer...",
     formSubmitBtn: "Enviar Consulta",
     footerText: "© 2025 Pipa Canoe Adventures. Rema con pasión.",
+    navTours: "Tours",
+    navBook: "Reservar",
+    navFaq: "FAQ",
+    ctaButton: "Reservar Ahora",
+    learnMore: "Nuestros Tours",
+    faqSectionTitle: "Preguntas Frecuentes",
+    faqSubtitle:
+      "Todo lo que necesitas saber sobre nuestras aventuras en Pipa.",
   },
 };

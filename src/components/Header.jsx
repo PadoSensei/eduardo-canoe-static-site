@@ -13,7 +13,7 @@ const Header = () => {
         {/* Logo */}
         <div className="flex items-center">
           <h1 className="text-2xl md:text-3xl font-bold text-white text-shadow-md">
-            <Link to="/">{t("home") || "Pipa Canoe"}</Link>
+            <Link to="/">{"Pipa Canoe"}</Link>
           </h1>
         </div>
 

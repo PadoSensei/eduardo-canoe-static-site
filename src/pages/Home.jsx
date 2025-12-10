@@ -99,43 +99,23 @@ const Home = () => {
       </section>
 
       {/* --- GALLERY SECTION --- */}
-      <section className="bg-gray-50 py-16 md:py-24">
+      {/* <section className="bg-gray-50 py-16 md:py-24">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
-            {t("carouselTitle")}
+            {t('carouselTitle')}
           </h2>
-          <p className="text-lg text-gray-600 mb-12">{t("carouselSubtitle")}</p>
+          <p className="text-lg text-gray-600 mb-12">{t('carouselSubtitle')}</p> */}
 
-          {/* Simple Grid Gallery for React (Easier than Carousel logic for now) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
-            <img
-              src="/img/Vibe_Beach.jpg"
-              className="rounded-lg shadow-md hover:scale-105 transition-transform object-cover h-64 w-full"
-              alt="Gallery 1"
-            />
-            <img
-              src="/img/Whatsapp_1.jpeg"
-              className="rounded-lg shadow-md hover:scale-105 transition-transform object-cover h-64 w-full"
-              alt="Gallery 2"
-            />
-            <img
-              src="/img/Whatsapp_2.jpeg"
-              className="rounded-lg shadow-md hover:scale-105 transition-transform object-cover h-64 w-full"
-              alt="Gallery 3"
-            />
-            <img
-              src="/img/Whatsapp_3.jpeg"
-              className="rounded-lg shadow-md hover:scale-105 transition-transform object-cover h-64 w-full"
-              alt="Gallery 4"
-            />
-            <img
-              src="/img/Vibe_Forest.jpg"
-              className="rounded-lg shadow-md hover:scale-105 transition-transform object-cover h-64 w-full"
-              alt="Gallery 5"
-            />
-          </div>
-        </div>
-      </section>
+      {/* Simple Grid Gallery for React (Easier than Carousel logic for now) */}
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
+             <img src="/img/Vibe_Beach.jpg" className="rounded-lg shadow-md hover:scale-105 transition-transform object-cover h-64 w-full" alt="Gallery 1" />
+             <img src="/img/Whatsapp_1.jpeg" className="rounded-lg shadow-md hover:scale-105 transition-transform object-cover h-64 w-full" alt="Gallery 2" />
+             <img src="/img/Whatsapp_2.jpeg" className="rounded-lg shadow-md hover:scale-105 transition-transform object-cover h-64 w-full" alt="Gallery 3" />
+             <img src="/img/Whatsapp_3.jpeg" className="rounded-lg shadow-md hover:scale-105 transition-transform object-cover h-64 w-full" alt="Gallery 4" />
+             <img src="/img/Vibe_Forest.jpg" className="rounded-lg shadow-md hover:scale-105 transition-transform object-cover h-64 w-full" alt="Gallery 5" />
+          </div> */}
+      {/* </div>
+      </section> */}
 
       {/* --- MAP SECTION --- */}
       <section className="bg-white py-16 md:py-24">
