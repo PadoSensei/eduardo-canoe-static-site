@@ -1,11 +1,17 @@
-// src/components/BookingSystem.jsx
 import React, { useState, useEffect } from "react";
 import { getAvailableTours, createBooking, getBookingStatus } from "../../api";
+import { useLanguage } from "../context/LanguageContext"; // 1. Import Context
+import { bookingTranslations } from "../data/bookingTranslations"; // 2. Import Data
 import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 
 function BookingSystem() {
+  // --- Language Setup ---
+  const { language } = useLanguage();
+  // Helper to get the current translation object (fallback to 'en')
+  const t = bookingTranslations[language] || bookingTranslations["en"];
+
   // --- Data State ---
   const [availableTours, setAvailableTours] = useState([]);
   const [selectedDate, setSelectedDate] = useState(
@@ -17,7 +23,7 @@ function BookingSystem() {
   // --- UI State ---
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedTour, setSelectedTour] = useState(null);
-  const [bookingTourId, setBookingTourId] = useState(null); // Used for loading state
+  const [bookingTourId, setBookingTourId] = useState(null);
 
   // --- Form State ---
   const [guestName, setGuestName] = useState("");
@@ -38,7 +44,8 @@ function BookingSystem() {
         setAvailableTours(data);
       } catch (err) {
         console.error(err);
-        setError("Sorry, we couldn't load tour availability.");
+        // We set a flag or generic message here, but the UI will use the 't' object
+        setError("LOAD_ERROR");
       } finally {
         setIsLoading(false);
       }
@@ -57,7 +64,6 @@ function BookingSystem() {
             setIsConfirmed(true);
             setPaymentInfo(null);
             clearInterval(intervalId);
-            // Refresh data
             const updatedTours = await getAvailableTours(selectedDate);
             setAvailableTours(updatedTours);
           }
@@ -71,13 +77,13 @@ function BookingSystem() {
 
   // --- Handlers ---
   const handleBookTour = async () => {
-    // Validation
+    // Validation using Translated Strings
     if (!guestName || !guestEmail) {
-      alert("Please provide name and email.");
+      alert(t.alertMissing);
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
-      alert("Invalid email.");
+      alert(t.alertEmail);
       return;
     }
 
@@ -98,10 +104,10 @@ function BookingSystem() {
         setGuestName("");
         setGuestEmail("");
       } else {
-        alert(`Booking failed: ${result.message}`);
+        alert(`${t.alertFailed}: ${result.message}`);
       }
     } catch (error) {
-      alert("Booking failed unexpectedly.");
+      alert(t.alertError);
     } finally {
       setBookingTourId(null);
     }
@@ -125,30 +131,41 @@ function BookingSystem() {
   // --- Render Helpers ---
   const renderList = () => {
     if (isLoading)
-      return <p className="text-center text-gray-500">Loading...</p>;
-    if (error) return <p className="text-center text-red-500">{error}</p>;
+      return <p className="text-center text-gray-500 py-8">{t.loading}</p>;
+
+    if (error)
+      return <p className="text-center text-red-500 py-8">{t.errorGeneric}</p>;
+
     const bookableTours = availableTours.filter((t) => t.isBookable);
+
     if (bookableTours.length === 0)
-      return <p className="text-center text-gray-600">No tours available.</p>;
+      return <p className="text-center text-gray-600 py-8">{t.noTours}</p>;
 
     return bookableTours.map((tour) => (
       <div
         key={tour.id}
-        className="flex flex-col sm:flex-row justify-between items-center p-4 border-b last:border-b-0"
+        className="flex flex-col sm:flex-row justify-between items-center p-6 border-b last:border-b-0 hover:bg-gray-50 transition-colors"
       >
-        <div>
+        <div className="text-center sm:text-left mb-4 sm:mb-0">
           <h4 className="font-bold text-lg text-gray-800">{tour.name}</h4>
-          <p className="text-gray-600">
-            {tour.remaining} of {tour.capacity} slots
-          </p>
+          <div className="text-gray-600 text-sm mt-1 space-y-1">
+            <p>
+              ⏳ {t.duration}: {tour.duration || "2h"}
+            </p>
+            <p>
+              🛶 {tour.remaining} {t.spotsLeft}
+            </p>
+          </div>
         </div>
-        <div className="text-right mt-4 sm:mt-0">
-          <p className="text-xl font-semibold">R$ {tour.price.toFixed(2)}</p>
+        <div className="text-center sm:text-right">
+          <p className="text-xl font-bold text-gray-900 mb-2">
+            {t.pricePrefix} {tour.price.toFixed(2)}
+          </p>
           <button
             onClick={() => openModal(tour)}
-            className="mt-2 bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors"
+            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-2 px-6 rounded-full shadow-md transition-transform hover:-translate-y-0.5"
           >
-            Book Now
+            {t.bookBtn}
           </button>
         </div>
       </div>
@@ -156,30 +173,34 @@ function BookingSystem() {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-gray-100">
+    <section className="py-16 md:py-24 bg-gray-100 min-h-screen">
       <div className="container mx-auto px-6">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">
-          Check Tour Availability
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 text-gray-800">
+          {t.title}
         </h2>
+        <p className="text-center text-gray-600 mb-12">{t.subtitle}</p>
 
         {/* Date Input */}
-        <div className="flex justify-center mb-8">
+        <div className="flex flex-col items-center justify-center mb-8">
+          <label className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">
+            {t.selectDateLabel}
+          </label>
           <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="p-3 rounded-lg border border-gray-300"
+            className="p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-[#FF6B6B] outline-none"
           />
         </div>
 
         {/* List */}
-        <div className="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+        <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
           {renderList()}
         </div>
 
         {/* Modal */}
         {showBookingModal && selectedTour && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
             <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
               {isConfirmed ? (
                 <SuccessView guestEmail={guestEmail} onClose={closeModal} />
