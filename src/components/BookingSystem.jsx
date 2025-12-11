@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { getAvailableTours, createBooking, getBookingStatus } from "../api";
-import { useLanguage } from "../context/LanguageContext"; // 1. Import Context
-import { bookingTranslations } from "../data/bookingTranslations"; // 2. Import Data
+import { useLanguage } from "../context/LanguageContext";
+import { bookingTranslations } from "../data/bookingTranslations";
 import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 
 function BookingSystem() {
-  // --- Language Setup ---
-  const { language } = useLanguage();
-  // Helper to get the current translation object (fallback to 'en')
-  const t = bookingTranslations[language] || bookingTranslations["en"];
+  // 1. Get GLOBAL translations (t) and current language
+  const { language, t } = useLanguage();
+
+  // 2. Get BOOKING specific translations (bt)
+  const bt = bookingTranslations[language] || bookingTranslations["en"];
 
   // --- Data State ---
   const [availableTours, setAvailableTours] = useState([]);
@@ -34,6 +35,26 @@ function BookingSystem() {
   const [currentBooking, setCurrentBooking] = useState(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
+  // --- HELPER: Map Database Type to Existing Translation Keys ---
+  const getTourName = (tourType) => {
+    switch (tourType) {
+      case "sunrise":
+      case "morning": // Handle legacy data
+        return t("card1Title"); // "Sunrise Tour" / "Tour Sunrise"
+
+      case "full_day":
+      case "all_day": // Handle legacy data
+        return t("card2Title"); // "Full Day Tour" / "Tour Dia Completo"
+
+      case "sunset":
+      case "evening": // Handle legacy data
+        return t("card3Title"); // "Sunset Tour" / "Tour Sunset"
+
+      default:
+        return "Unknown Tour"; // Fallback
+    }
+  };
+
   // 1. Fetch Availability
   useEffect(() => {
     const loadAvailability = async () => {
@@ -44,14 +65,13 @@ function BookingSystem() {
         setAvailableTours(data);
       } catch (err) {
         console.error(err);
-        // We set a flag or generic message here, but the UI will use the 't' object
         setError("LOAD_ERROR");
       } finally {
         setIsLoading(false);
       }
     };
     loadAvailability();
-  }, [selectedDate]);
+  }, [selectedDate, language]); // Re-run if language changes
 
   // 2. Poll Status
   useEffect(() => {
@@ -77,13 +97,12 @@ function BookingSystem() {
 
   // --- Handlers ---
   const handleBookTour = async () => {
-    // Validation using Translated Strings
     if (!guestName || !guestEmail) {
-      alert(t.alertMissing);
+      alert(bt.alertMissing); // Use 'bt' for booking translations
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
-      alert(t.alertEmail);
+      alert(bt.alertEmail);
       return;
     }
 
@@ -104,10 +123,10 @@ function BookingSystem() {
         setGuestName("");
         setGuestEmail("");
       } else {
-        alert(`${t.alertFailed}: ${result.message}`);
+        alert(`${bt.alertFailed}: ${result.message}`);
       }
     } catch (error) {
-      alert(t.alertError);
+      alert(bt.alertError);
     } finally {
       setBookingTourId(null);
     }
@@ -131,15 +150,31 @@ function BookingSystem() {
   // --- Render Helpers ---
   const renderList = () => {
     if (isLoading)
-      return <p className="text-center text-gray-500 py-8">{t.loading}</p>;
-
+      return <p className="text-center text-gray-500 py-8">{bt.loading}</p>;
     if (error)
-      return <p className="text-center text-red-500 py-8">{t.errorGeneric}</p>;
+      return <p className="text-center text-red-500 py-8">{bt.errorGeneric}</p>;
 
-    const bookableTours = availableTours.filter((t) => t.isBookable);
+    const priorityMap = {
+      sunrise: 1, // First
+      morning: 1, // (Legacy)
+
+      sunset: 2, // Second
+      evening: 2, // (Legacy)
+
+      full_day: 3, // Third
+      all_day: 3, // (Legacy)
+    };
+
+    const bookableTours = availableTours
+      .filter((t) => t.isBookable)
+      .sort((a, b) => {
+        const orderA = priorityMap[a.tourType] || 99; // Default to end if unknown
+        const orderB = priorityMap[b.tourType] || 99;
+        return orderA - orderB;
+      });
 
     if (bookableTours.length === 0)
-      return <p className="text-center text-gray-600 py-8">{t.noTours}</p>;
+      return <p className="text-center text-gray-600 py-8">{bt.noTours}</p>;
 
     return bookableTours.map((tour) => (
       <div
@@ -147,25 +182,28 @@ function BookingSystem() {
         className="flex flex-col sm:flex-row justify-between items-center p-6 border-b last:border-b-0 hover:bg-gray-50 transition-colors"
       >
         <div className="text-center sm:text-left mb-4 sm:mb-0">
-          <h4 className="font-bold text-lg text-gray-800">{tour.name}</h4>
+          {/* Use the mapping function here */}
+          <h4 className="font-bold text-lg text-gray-800">
+            {getTourName(tour.tourType)}
+          </h4>
           <div className="text-gray-600 text-sm mt-1 space-y-1">
             <p>
-              ⏳ {t.duration}: {tour.duration || "2h"}
+              ⏳ {bt.duration}: {tour.duration || "2h"}
             </p>
             <p>
-              🛶 {tour.remaining} {t.spotsLeft}
+              🛶 {tour.remaining} {bt.spotsLeft}
             </p>
           </div>
         </div>
         <div className="text-center sm:text-right">
           <p className="text-xl font-bold text-gray-900 mb-2">
-            {t.pricePrefix} {tour.price.toFixed(2)}
+            {bt.pricePrefix} {tour.price.toFixed(2)}
           </p>
           <button
             onClick={() => openModal(tour)}
             className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-2 px-6 rounded-full shadow-md transition-transform hover:-translate-y-0.5"
           >
-            {t.bookBtn}
+            {bt.bookBtn}
           </button>
         </div>
       </div>
@@ -176,14 +214,14 @@ function BookingSystem() {
     <section className="py-16 md:py-24 bg-gray-100 min-h-screen">
       <div className="container mx-auto px-6">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 text-gray-800">
-          {t.title}
+          {bt.title}
         </h2>
-        <p className="text-center text-gray-600 mb-12">{t.subtitle}</p>
+        <p className="text-center text-gray-600 mb-12">{bt.subtitle}</p>
 
         {/* Date Input */}
         <div className="flex flex-col items-center justify-center mb-8">
           <label className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">
-            {t.selectDateLabel}
+            {bt.selectDateLabel}
           </label>
           <input
             type="date"
@@ -208,7 +246,11 @@ function BookingSystem() {
                 <PaymentView paymentInfo={paymentInfo} onClose={closeModal} />
               ) : (
                 <BookingForm
-                  tour={selectedTour}
+                  // IMPORTANT: Inject the translated name into the object passed to the form
+                  tour={{
+                    ...selectedTour,
+                    name: getTourName(selectedTour.tourType),
+                  }}
                   selectedDate={selectedDate}
                   guestName={guestName}
                   setGuestName={setGuestName}

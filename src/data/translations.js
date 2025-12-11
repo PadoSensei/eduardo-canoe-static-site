@@ -135,12 +135,12 @@ export const translations = {
     detailsTitle: "Sua Aventura o Aguarda",
     detailsSubtitle:
       "Oferecemos mais do que um passeio; oferecemos uma experiência. Cada jornada é projetada para imergir você na beleza natural de Pipa.",
-    card1Title: "Tour Sunrise",
+    card1Title: "Passeio ao nascer do sol",
     card1Text: "Acorde antes do mundo e reme em direção à magia.",
     card2Title: "Tour Dia Completo",
     card2Text:
       "A experiência definitiva de Pipa! 8 horas. 4 ecossistemas. Praias secretas. E talvez um golfinho ou dois!",
-    card3Title: "Tour Sunset",
+    card3Title: "Passeio ao pôr do sol",
     card3Text:
       "Não apenas assista ao pôr do sol - viva-o de dentro de uma canoa havaiana nas águas cristalinas de Tibau.",
     carouselTitle: "Momentos na Água",
