@@ -9,18 +9,31 @@ import * as api from "../src/api";
 jest.mock("../src/api");
 
 // 2. Programmable Mock for Language Context
-// We create a Jest function we can control
 const mockUseLanguage = jest.fn();
 
 jest.mock("../src/context/LanguageContext", () => ({
   useLanguage: () => mockUseLanguage(),
 }));
 
+// Helper to simulate translations for the test
+// This mimics your translations.js structure for the keys used in BookingSystem
+const mockT = (key) => {
+  const map = {
+    card1Title: "Sunrise Tour",
+    card2Title: "Full Day Tour",
+    card3Title: "Sunset Tour",
+  };
+  return map[key] || key;
+};
+
 describe("BookingSystem Integration", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // DEFAULT: Set language to English for standard functional tests
-    mockUseLanguage.mockReturnValue({ language: "en" });
+    // DEFAULT SETUP: English + working translator function
+    mockUseLanguage.mockReturnValue({
+      language: "en",
+      t: mockT,
+    });
   });
 
   // --- STANDARD FUNCTIONAL TESTS (English) ---
@@ -38,7 +51,9 @@ describe("BookingSystem Integration", () => {
       {
         id: "1",
         instanceId: 101,
-        name: "Sunset Tour",
+        // FIX: Added tourType so the component knows which name to render
+        tourType: "sunset",
+        name: "Sunset Tour", // Fallback name
         price: 150,
         isBookable: true,
         remaining: 5,
@@ -51,6 +66,7 @@ describe("BookingSystem Integration", () => {
 
     render(<BookingSystem />);
 
+    // Now this will find "Sunset Tour" because tourType='sunset' -> t('card3Title') -> 'Sunset Tour'
     await waitFor(() => {
       expect(screen.getByText("Sunset Tour")).toBeInTheDocument();
     });
@@ -60,7 +76,6 @@ describe("BookingSystem Integration", () => {
   // --- DYNAMIC LANGUAGE TEST ---
 
   test("Renders UI correctly in a randomly selected language (PT/ES)", async () => {
-    // 1. Pick a random language that isn't English
     const languages = ["pt", "es"];
     const randomLang = languages[Math.floor(Math.random() * languages.length)];
 
@@ -68,14 +83,17 @@ describe("BookingSystem Integration", () => {
       `🎲 BookingSystem Test: Randomly testing in [${randomLang.toUpperCase()}]`
     );
 
-    // 2. Change the Mock Return Value to the random language
-    mockUseLanguage.mockReturnValue({ language: randomLang });
+    // FIX: Ensure the mock returns the language AND the t function
+    mockUseLanguage.mockReturnValue({
+      language: randomLang,
+      t: mockT,
+    });
 
-    // 3. Setup API data
     api.getAvailableTours.mockResolvedValue([
       {
         id: "1",
         instanceId: 101,
+        tourType: "sunrise", // Use 'sunrise' to test card1Title logic
         name: "Test Tour",
         price: 100,
         isBookable: true,
@@ -85,11 +103,9 @@ describe("BookingSystem Integration", () => {
 
     render(<BookingSystem />);
 
-    // 4. Get the expected translation from your data file
     const expectedBookBtn = bookingTranslations[randomLang].bookBtn;
     const expectedTitle = bookingTranslations[randomLang].title;
 
-    // 5. Verify the UI matches the translation file
     await waitFor(() => {
       expect(screen.getByText(expectedBookBtn)).toBeInTheDocument();
     });
@@ -103,6 +119,7 @@ describe("BookingSystem Integration", () => {
       {
         id: "1",
         instanceId: 101,
+        tourType: "sunset", // FIX: Added tourType
         name: "Test Tour",
         price: 100,
         isBookable: true,
