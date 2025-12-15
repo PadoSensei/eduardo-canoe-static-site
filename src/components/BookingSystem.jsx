@@ -29,6 +29,8 @@ function BookingSystem() {
   // --- Form State ---
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
+  // NEW: State for number of people
+  const [numPeople, setNumPeople] = useState(1);
 
   // --- Transaction State ---
   const [paymentInfo, setPaymentInfo] = useState(null);
@@ -39,19 +41,16 @@ function BookingSystem() {
   const getTourName = (tourType) => {
     switch (tourType) {
       case "sunrise":
-      case "morning": // Handle legacy data
-        return t("card1Title"); // "Sunrise Tour" / "Tour Sunrise"
-
+      case "morning":
+        return t("card1Title");
       case "full_day":
-      case "all_day": // Handle legacy data
-        return t("card2Title"); // "Full Day Tour" / "Tour Dia Completo"
-
+      case "all_day":
+        return t("card2Title");
       case "sunset":
-      case "evening": // Handle legacy data
-        return t("card3Title"); // "Sunset Tour" / "Tour Sunset"
-
+      case "evening":
+        return t("card3Title");
       default:
-        return "Unknown Tour"; // Fallback
+        return "Unknown Tour";
     }
   };
 
@@ -71,7 +70,7 @@ function BookingSystem() {
       }
     };
     loadAvailability();
-  }, [selectedDate, language]); // Re-run if language changes
+  }, [selectedDate, language]);
 
   // 2. Poll Status
   useEffect(() => {
@@ -98,7 +97,7 @@ function BookingSystem() {
   // --- Handlers ---
   const handleBookTour = async () => {
     if (!guestName || !guestEmail) {
-      alert(bt.alertMissing); // Use 'bt' for booking translations
+      alert(bt.alertMissing);
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
@@ -108,20 +107,25 @@ function BookingSystem() {
 
     setBookingTourId(selectedTour.id);
     try {
+      // UPDATED: Calculate total price dynamically
+      const total = selectedTour.price * numPeople;
+
       const result = await createBooking({
         tourId: selectedTour.instanceId,
         guestName,
         guestEmail,
-        numPeople: 1,
-        totalPrice: selectedTour.price * 1,
+        numPeople: numPeople, // UPDATED: Pass state
+        totalPrice: total, // UPDATED: Pass calculation
       });
 
       if (result.success) {
         setPaymentInfo(result.paymentInfo);
         setCurrentBooking(result.booking);
         setIsConfirmed(false);
+        // Clear form
         setGuestName("");
         setGuestEmail("");
+        setNumPeople(1);
       } else {
         alert(`${bt.alertFailed}: ${result.message}`);
       }
@@ -140,10 +144,12 @@ function BookingSystem() {
     setIsConfirmed(false);
     setGuestName("");
     setGuestEmail("");
+    setNumPeople(1); // Reset people count
   };
 
   const openModal = (tour) => {
     setSelectedTour(tour);
+    setNumPeople(1); // Always start fresh with 1 person
     setShowBookingModal(true);
   };
 
@@ -155,20 +161,18 @@ function BookingSystem() {
       return <p className="text-center text-red-500 py-8">{bt.errorGeneric}</p>;
 
     const priorityMap = {
-      sunrise: 1, // First
-      morning: 1, // (Legacy)
-
-      sunset: 2, // Second
-      evening: 2, // (Legacy)
-
-      full_day: 3, // Third
-      all_day: 3, // (Legacy)
+      sunrise: 1,
+      morning: 1,
+      sunset: 2,
+      evening: 2,
+      full_day: 3,
+      all_day: 3,
     };
 
     const bookableTours = availableTours
       .filter((t) => t.isBookable)
       .sort((a, b) => {
-        const orderA = priorityMap[a.tourType] || 99; // Default to end if unknown
+        const orderA = priorityMap[a.tourType] || 99;
         const orderB = priorityMap[b.tourType] || 99;
         return orderA - orderB;
       });
@@ -182,7 +186,6 @@ function BookingSystem() {
         className="flex flex-col sm:flex-row justify-between items-center p-6 border-b last:border-b-0 hover:bg-gray-50 transition-colors"
       >
         <div className="text-center sm:text-left mb-4 sm:mb-0">
-          {/* Use the mapping function here */}
           <h4 className="font-bold text-lg text-gray-800">
             {getTourName(tour.tourType)}
           </h4>
@@ -246,16 +249,20 @@ function BookingSystem() {
                 <PaymentView paymentInfo={paymentInfo} onClose={closeModal} />
               ) : (
                 <BookingForm
-                  // IMPORTANT: Inject the translated name into the object passed to the form
                   tour={{
                     ...selectedTour,
                     name: getTourName(selectedTour.tourType),
                   }}
                   selectedDate={selectedDate}
+                  // Form Props
                   guestName={guestName}
                   setGuestName={setGuestName}
                   guestEmail={guestEmail}
                   setGuestEmail={setGuestEmail}
+                  // NEW PROPS PASSED DOWN
+                  numPeople={numPeople}
+                  setNumPeople={setNumPeople}
+                  // Actions
                   onConfirm={handleBookTour}
                   onCancel={closeModal}
                   isSubmitting={bookingTourId === selectedTour.id}

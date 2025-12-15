@@ -9,14 +9,27 @@ export function BookingForm({
   setGuestName,
   guestEmail,
   setGuestEmail,
+  // NEW PROPS
+  numPeople,
+  setNumPeople,
+  // ---------
   onConfirm,
   onCancel,
   isSubmitting,
 }) {
-  // 1. Get Language Context
   const { language } = useLanguage();
-  // 2. Load Translations
   const t = bookingTranslations[language] || bookingTranslations["en"];
+
+  // 1. Calculate Total Price dynamically
+  const totalPrice = tour.price * numPeople;
+
+  // 2. Handle constraints (min 1, max = remaining seats)
+  const handlePeopleChange = (e) => {
+    let val = parseInt(e.target.value, 10);
+    if (isNaN(val) || val < 1) val = 1;
+    if (val > tour.remaining) val = tour.remaining;
+    setNumPeople(val);
+  };
 
   return (
     <>
@@ -24,19 +37,54 @@ export function BookingForm({
         {t.bookTitle} <span className="text-[#FF6B6B]">{tour.name}</span>
       </h3>
 
+      {/* Summary Box */}
       <div className="mb-4 bg-gray-50 p-4 rounded-lg border border-gray-100">
         <p className="text-gray-600 flex justify-between">
           <span className="font-semibold">{t.labelDate}:</span>
           <span>{selectedDate}</span>
         </p>
         <p className="text-gray-600 flex justify-between mt-1">
-          <span className="font-semibold">{t.labelPrice}:</span>
-          <span className="font-bold text-gray-800">
+          <span className="font-semibold">Price per person:</span>
+          <span>
             {t.pricePrefix} {tour.price.toFixed(2)}
           </span>
         </p>
+
+        {/* Dynamic Total Price Display */}
+        <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center text-lg">
+          <span className="font-bold text-gray-800">Total:</span>
+          <span className="font-bold text-[#FF6B6B]">
+            {t.pricePrefix} {totalPrice.toFixed(2)}
+          </span>
+        </div>
       </div>
 
+      {/* NEW: Number of People Input */}
+      <div className="mb-4">
+        <label
+          htmlFor="num-people"
+          className="block text-gray-700 font-semibold mb-2"
+        >
+          Number of Guests (Max {tour.remaining})
+        </label>
+        <div className="flex items-center">
+          <input
+            type="number"
+            id="num-people"
+            min="1"
+            max={tour.remaining}
+            value={numPeople}
+            onChange={handlePeopleChange}
+            className="w-24 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] text-center font-bold text-lg"
+            required
+          />
+          <span className="ml-3 text-sm text-gray-500">
+            {numPeople === 1 ? "person" : "people"} selected
+          </span>
+        </div>
+      </div>
+
+      {/* Name Input */}
       <div className="mb-4">
         <label
           htmlFor="guest-name"
@@ -55,6 +103,7 @@ export function BookingForm({
         />
       </div>
 
+      {/* Email Input */}
       <div className="mb-6">
         <label
           htmlFor="guest-email"
@@ -73,6 +122,7 @@ export function BookingForm({
         />
       </div>
 
+      {/* Buttons */}
       <div className="flex gap-4">
         <button
           onClick={onConfirm}
