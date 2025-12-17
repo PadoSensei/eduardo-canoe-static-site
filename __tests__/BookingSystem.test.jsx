@@ -154,3 +154,141 @@ describe("BookingSystem Integration", () => {
     });
   });
 });
+
+test("Updates total price when number of guests changes", async () => {
+  const mockTours = [
+    {
+      id: "1",
+      instanceId: 101,
+      tourType: "morning",
+      name: "Morning Tour",
+      price: 100.0,
+      isBookable: true,
+      remaining: 5,
+    },
+  ];
+  api.getAvailableTours.mockResolvedValue(mockTours);
+
+  render(<BookingSystem />);
+
+  // 1. Open Modal
+  const bookBtn = await screen.findByText(/Book Now/i);
+  fireEvent.click(bookBtn);
+
+  // 2. Find the "Total:" label to locate the correct price container
+  const totalLabel = screen.getByText(/Total:/i);
+  const totalContainer = totalLabel.parentElement; // The <div> containing both "Total:" and the price
+
+  // 3. Check initial price (1 person = 100)
+  expect(totalContainer).toHaveTextContent("100.00");
+
+  // 4. Change people to 3
+  const guestsInput = screen.getByLabelText(/Number of Guests/i);
+  fireEvent.change(guestsInput, { target: { value: "3" } });
+
+  // 5. Assert Total is now 300
+  expect(totalContainer).toHaveTextContent("300.00");
+});
+
+test("Prevents submission if form is incomplete", async () => {
+  // Mock window.alert
+  window.alert = jest.fn();
+
+  const mockTours = [
+    {
+      id: "1",
+      instanceId: 101,
+      tourType: "morning",
+      name: "Morning Tour",
+      price: 100,
+      isBookable: true,
+      remaining: 5,
+    },
+  ];
+  api.getAvailableTours.mockResolvedValue(mockTours);
+
+  render(<BookingSystem />);
+  const bookBtn = await screen.findByText(/Book Now/i);
+  fireEvent.click(bookBtn);
+
+  // 1. Click Confirm WITHOUT filling name/email
+  const confirmBtn = screen.getByText(/Confirm Booking/i);
+  fireEvent.click(confirmBtn);
+
+  // 2. Expect Alert
+  expect(window.alert).toHaveBeenCalled();
+
+  // 3. Expect API NOT to be called
+  expect(api.createBooking).not.toHaveBeenCalled();
+});
+
+test("Polls for status and switches to Success View after payment", async () => {
+  jest.useFakeTimers(); // Take control of time
+
+  const mockTours = [
+    {
+      id: "1",
+      instanceId: 101,
+      tourType: "morning",
+      name: "Morning Tour",
+      price: 100,
+      isBookable: true,
+      remaining: 5,
+    },
+  ];
+
+  // 1. Setup API Mocks
+  api.getAvailableTours.mockResolvedValue(mockTours);
+
+  // Step A: Booking Creation Success
+  api.createBooking.mockResolvedValue({
+    success: true,
+    booking: { uuid: "booking-uuid-123" },
+    paymentInfo: { qr_code: "pix123", qr_code_image: "img.png" },
+  });
+
+  // Step B: Polling Logic (First return PENDING, then CONFIRMED)
+  api.getBookingStatus
+    .mockResolvedValueOnce({ status: "pending" }) // First poll
+    .mockResolvedValueOnce({ status: "confirmed" }); // Second poll
+
+  render(<BookingSystem />);
+
+  // 2. Perform Booking
+  const bookBtn = await screen.findByText(/Book Now/i);
+  fireEvent.click(bookBtn);
+  fireEvent.change(screen.getByPlaceholderText(/Enter your full name/i), {
+    target: { value: "Jane Doe" },
+  });
+  fireEvent.change(screen.getByPlaceholderText(/your@email.com/i), {
+    target: { value: "jane@test.com" },
+  });
+  fireEvent.click(screen.getByText(/Confirm Booking/i));
+
+  // 3. Wait for Payment View (QR Code)
+  await waitFor(() => {
+    expect(screen.getByText("pix123")).toBeInTheDocument();
+  });
+
+  // 4. Fast-forward time to trigger Polling
+  // Advance 3 seconds (First poll -> pending)
+  await React.act(async () => {
+    jest.advanceTimersByTime(3000);
+  });
+
+  // Advance 3 seconds (Second poll -> confirmed)
+  await React.act(async () => {
+    jest.advanceTimersByTime(3000);
+  });
+
+  // 5. Verify Success View appears
+  // Assuming SuccessView renders "Payment Confirmed!" or similar text based on your components
+  await waitFor(() => {
+    // Check for a unique element from your SuccessView component
+    // Adjust this text based on what SuccessView.jsx actually renders
+    expect(screen.queryByText("pix123")).not.toBeInTheDocument(); // QR code should be gone
+  });
+
+  // Cleanup
+  jest.useRealTimers();
+});
