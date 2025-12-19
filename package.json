@@ -2,6 +2,7 @@
   "type": "commonjs",
   "dependencies": {
     "@vitejs/plugin-react": "^5.1.1",
+    "date-fns": "^4.1.0",
     "deep-chat": "^2.2.2",
     "lucide-react": "^0.556.0",
     "react": "^19.2.0",

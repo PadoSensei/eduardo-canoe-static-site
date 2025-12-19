@@ -175,3 +175,39 @@ export async function getTourInstance(instanceId) {
     throw error;
   }
 }
+
+// --- DASHBOARD / ADMIN ENDPOINTS ---
+
+// 1. Fetch Calendar Data (Get all tour instances for a specific month)
+export const fetchMonthlySchedule = async (year, month) => {
+  // In a real app, pass year/month as query params
+  // GET /api/tours/schedule?year=2025&month=1
+  const response = await fetch(
+    `${API_BASE_URL}/tours/schedule?year=${year}&month=${month}`
+  );
+  if (!response.ok) throw new Error("Failed to fetch schedule");
+  return await response.json();
+};
+
+// 2. Fetch Details for a Specific Date (The Manifest)
+// This needs to return tours AND the bookings inside them
+export const fetchDayManifest = async (dateString) => {
+  // GET /api/tours/manifest?date=2025-01-20
+  const response = await fetch(
+    `${API_BASE_URL}/tours/manifest?date=${dateString}`
+  );
+  if (!response.ok) throw new Error("Failed to fetch manifest");
+  return await response.json();
+};
+
+// 3. Toggle Tour Status (Cancel/Uncancel)
+export const toggleTourStatus = async (tourId, newStatus) => {
+  // PATCH /api/tours/{id} body: { status: 'cancelled' | 'available' }
+  const response = await fetch(`${API_BASE_URL}/tours/${tourId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: newStatus }),
+  });
+  if (!response.ok) throw new Error("Failed to update tour status");
+  return await response.json();
+};

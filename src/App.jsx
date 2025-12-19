@@ -7,6 +7,9 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Tours from "./pages/Tours";
 import FAQ from "./pages/FAQ";
+import Dashboard from "./pages/Dashboard"; // <--- NEW IMPORT
+
+// Components
 import BookingSystem from "./components/BookingSystem";
 
 const App = () => {
@@ -15,6 +18,7 @@ const App = () => {
       <Header />
       <main className="flex-grow">
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/tours" element={<Tours />} />
           <Route
@@ -26,6 +30,9 @@ const App = () => {
             }
           />
           <Route path="/faq" element={<FAQ />} />
+
+          {/* Admin Route */}
+          <Route path="/admin" element={<Dashboard />} />
         </Routes>
       </main>
       <Footer />
