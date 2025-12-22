@@ -29,8 +29,8 @@ function BookingSystem() {
   // --- Form State ---
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
-  // NEW: State for number of people
   const [numPeople, setNumPeople] = useState(1);
+  const [specialNotes, setSpecialNotes] = useState("");
 
   // --- Transaction State ---
   const [paymentInfo, setPaymentInfo] = useState(null);
@@ -114,8 +114,9 @@ function BookingSystem() {
         tourId: selectedTour.instanceId,
         guestName,
         guestEmail,
-        numPeople: numPeople, // UPDATED: Pass state
-        totalPrice: total, // UPDATED: Pass calculation
+        numPeople: numPeople,
+        totalPrice: total,
+        special_notes: specialNotes,
       });
 
       if (result.success) {
@@ -126,6 +127,7 @@ function BookingSystem() {
         setGuestName("");
         setGuestEmail("");
         setNumPeople(1);
+        setSpecialNotes("");
       } else {
         alert(`${bt.alertFailed}: ${result.message}`);
       }
@@ -144,13 +146,15 @@ function BookingSystem() {
     setIsConfirmed(false);
     setGuestName("");
     setGuestEmail("");
-    setNumPeople(1); // Reset people count
+    setSpecialNotes("");
+    setNumPeople(1);
   };
 
   const openModal = (tour) => {
     setSelectedTour(tour);
-    setNumPeople(1); // Always start fresh with 1 person
+    setNumPeople(1);
     setShowBookingModal(true);
+    setSpecialNotes("");
   };
 
   // --- Render Helpers ---
@@ -259,9 +263,10 @@ function BookingSystem() {
                   setGuestName={setGuestName}
                   guestEmail={guestEmail}
                   setGuestEmail={setGuestEmail}
-                  // NEW PROPS PASSED DOWN
                   numPeople={numPeople}
                   setNumPeople={setNumPeople}
+                  specialNotes={specialNotes}
+                  setSpecialNotes={setSpecialNotes}
                   // Actions
                   onConfirm={handleBookTour}
                   onCancel={closeModal}

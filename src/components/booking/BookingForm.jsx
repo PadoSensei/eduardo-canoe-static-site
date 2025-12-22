@@ -9,10 +9,10 @@ export function BookingForm({
   setGuestName,
   guestEmail,
   setGuestEmail,
-  // NEW PROPS
   numPeople,
   setNumPeople,
-  // ---------
+  specialNotes,
+  setSpecialNotes,
   onConfirm,
   onCancel,
   isSubmitting,
@@ -119,6 +119,23 @@ export function BookingForm({
           className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
           placeholder={t.placeholderEmail}
           required
+        />
+      </div>
+
+      <div className="mb-6">
+        <label
+          htmlFor="special-notes"
+          className="block text-gray-700 font-semibold mb-2"
+        >
+          {t.labelNotes}
+        </label>
+        <textarea
+          id="special-notes"
+          value={specialNotes}
+          onChange={(e) => setSpecialNotes(e.target.value)}
+          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
+          placeholder={t.placeholderNotes}
+          rows="3"
         />
       </div>
 

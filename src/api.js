@@ -68,6 +68,7 @@ export async function createBooking(bookingData) {
     guest_email: bookingData.guestEmail,
     num_people: bookingData.numPeople,
     total_price: bookingData.totalPrice,
+    special_notes: bookingData.special_notes,
   };
 
   console.log("Creating booking:", payload);

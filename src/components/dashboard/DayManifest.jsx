@@ -137,12 +137,23 @@ const DayManifest = ({ date, onClose }) => {
                   </div>
                 </div>
 
-                {booking.notes && (
-                  <div className="mt-3 bg-yellow-50 text-yellow-800 text-sm p-2 rounded border border-yellow-200 flex gap-2 items-start">
-                    <AlertCircle size={16} className="mt-0.5 shrink-0" />
-                    <span>{booking.notes}</span>
-                  </div>
-                )}
+                {booking.special_notes &&
+                  booking.special_notes.trim() !== "" && (
+                    <div className="mt-3 bg-yellow-50 text-yellow-800 text-sm p-3 rounded border border-yellow-200 flex gap-2 items-start shadow-sm">
+                      <AlertCircle
+                        size={16}
+                        className="mt-0.5 shrink-0 text-yellow-600"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-yellow-700 opacity-70">
+                          Note from Guest:
+                        </span>
+                        <span className="leading-tight">
+                          {booking.special_notes}
+                        </span>
+                      </div>
+                    </div>
+                  )}
               </div>
             ))}
             {selectedTour.bookings.length === 0 && (

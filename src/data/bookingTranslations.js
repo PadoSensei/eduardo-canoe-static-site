@@ -14,6 +14,8 @@ export const bookingTranslations = {
     spotsLeft: "spots left", // e.g., "5 spots left"
     pricePrefix: "R$",
     bookBtn: "Book Now",
+    labelNotes: "Special Notes (Optional)",
+    placeholderNotes: "Food allergies or special occasions...",
 
     // Validation & Alerts
     alertMissing: "Please provide name and email.",
@@ -82,6 +84,8 @@ export const bookingTranslations = {
     btnSubmitting: "Reservando...",
     btnConfirm: "Confirmar Reserva",
     btnCancel: "Cancelar",
+    labelNotes: "Observações (Opcional)",
+    placeholderNotes: "Alergias alimentares ou ocasiões especiais...",
 
     // --- Payment View Additions ---
     paymentTitle: "Reserva Iniciada!",
@@ -132,6 +136,8 @@ export const bookingTranslations = {
     btnSubmitting: "Reservando...",
     btnConfirm: "Confirmar Reserva",
     btnCancel: "Cancelar",
+    labelNotes: "Notas Especiales (Opcional)",
+    placeholderNotes: "Alergias u ocasiones especiales...",
 
     // --- Payment View Additions ---
     paymentTitle: "¡Reserva Iniciada!",
