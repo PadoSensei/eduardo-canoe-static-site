@@ -1,8 +1,5 @@
 // api.js - Backend API client for tour booking application
 
-// 1. Read the base domain from the .env file (VITE_API_URL)
-// 2. Fallback to localhost if the variable is missing
-// 3. Append /api/v1 since your backend logic expects this structure
 const DOMAIN = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const API_BASE_URL = `${DOMAIN}/api/v1`;
 

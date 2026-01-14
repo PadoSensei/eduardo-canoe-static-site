@@ -93,7 +93,7 @@ export const generateBookingsForTour = (tourId, capacity, seedInput) => {
       email: `guest${i}@example.com`,
       phone: `+55 84 9999-${getSeededInt(1000, 9999, seed++)}`,
       partySize: partySize,
-      paymentStatus: isPaid ? "paid" : "pending",
+      paymentStatus: isPaid ? "confirmed" : "pending_payment",
       notes: note,
     });
 

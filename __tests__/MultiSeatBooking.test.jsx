@@ -116,8 +116,9 @@ describe("Multi-Seat Booking Flow", () => {
         tourId: 101,
         guestName: "John Doe",
         guestEmail: "john@example.com",
-        numPeople: 2, // Vital check
-        totalPrice: 300.0, // Vital check (150 * 2)
+        numPeople: 2,
+        totalPrice: 300.0,
+        special_notes: "",
       });
     });
   });
