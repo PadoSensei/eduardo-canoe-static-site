@@ -22,6 +22,8 @@ export const bookingTranslations = {
     alertEmail: "Invalid email address.",
     alertFailed: "Booking failed",
     alertError: "An unexpected error occurred.",
+    alertPastDate:
+      "Cannot book tours for past dates. Please select today or a future date.",
 
     // --- Booking Form Additions ---
     bookTitle: "Book", // Used as "Book {tourName}"
@@ -72,6 +74,8 @@ export const bookingTranslations = {
     alertEmail: "Endereço de e-mail inválido.",
     alertFailed: "Falha na reserva",
     alertError: "Ocorreu um erro inesperado.",
+    alertPastDate:
+      "Não é possível reservar passeios para datas passadas. Selecione hoje ou uma data futura.",
 
     // --- Booking Form Additions ---
     bookTitle: "Reservar",
@@ -124,6 +128,8 @@ export const bookingTranslations = {
     alertEmail: "Correo electrónico inválido.",
     alertFailed: "Fallo en la reserva",
     alertError: "Ocurrió un error inesperado.",
+    alertPastDate:
+      "No se pueden reservar tours para fechas pasadas. Seleccione hoy o una fecha futura.",
 
     // --- Booking Form Additions ---
     bookTitle: "Reservar",

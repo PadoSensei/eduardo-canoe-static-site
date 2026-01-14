@@ -6,6 +6,29 @@ import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 
+/**
+ * Gets the current date in YYYY-MM-DD format in the user's local timezone.
+ * This ensures consistency across date comparisons.
+ */
+const getTodayLocalDate = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+/**
+ * Checks if a date string (YYYY-MM-DD) is in the past.
+ * @param {string} dateString - Date in YYYY-MM-DD format
+ * @returns {boolean} - True if date is before today
+ */
+const isPastDate = (dateString) => {
+  const selectedDate = new Date(dateString + "T00:00:00"); // Normalize to midnight
+  const today = new Date(getTodayLocalDate() + "T00:00:00");
+  return selectedDate < today;
+};
+
 function BookingSystem() {
   // 1. Get GLOBAL translations (t) and current language
   const { language, t } = useLanguage();
@@ -15,9 +38,7 @@ function BookingSystem() {
 
   // --- Data State ---
   const [availableTours, setAvailableTours] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [selectedDate, setSelectedDate] = useState(getTodayLocalDate());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -52,6 +73,25 @@ function BookingSystem() {
       default:
         return "Unknown Tour";
     }
+  };
+
+  // --- ENHANCED: Date Change Handler with Validation ---
+  const handleDateChange = (e) => {
+    const newDate = e.target.value;
+
+    // Prevent selection of past dates
+    if (isPastDate(newDate)) {
+      // Optional: Show a user-friendly alert
+      alert(
+        bt.alertPastDate ||
+          "Cannot book tours for past dates. Please select today or a future date."
+      );
+      // Reset to today
+      setSelectedDate(getTodayLocalDate());
+      return;
+    }
+
+    setSelectedDate(newDate);
   };
 
   // 1. Fetch Availability
@@ -96,6 +136,7 @@ function BookingSystem() {
 
   // --- Handlers ---
   const handleBookTour = async () => {
+    // Frontend validation
     if (!guestName || !guestEmail) {
       alert(bt.alertMissing);
       return;
@@ -105,9 +146,15 @@ function BookingSystem() {
       return;
     }
 
+    // SAFETY CHECK: Prevent booking past dates
+    if (isPastDate(selectedDate)) {
+      alert(bt.alertPastDate || "Cannot book tours for past dates.");
+      closeModal();
+      return;
+    }
+
     setBookingTourId(selectedTour.id);
     try {
-      // UPDATED: Calculate total price dynamically
       const total = selectedTour.price * numPeople;
 
       const result = await createBooking({
@@ -132,7 +179,8 @@ function BookingSystem() {
         alert(`${bt.alertFailed}: ${result.message}`);
       }
     } catch (error) {
-      alert(bt.alertError);
+      console.error("Booking error:", error);
+      alert(bt.alertError || "An error occurred while creating your booking.");
     } finally {
       setBookingTourId(null);
     }
@@ -151,6 +199,12 @@ function BookingSystem() {
   };
 
   const openModal = (tour) => {
+    // SAFETY CHECK: Don't allow opening modal for past dates
+    if (isPastDate(selectedDate)) {
+      alert(bt.alertPastDate || "Cannot book tours for past dates.");
+      return;
+    }
+
     setSelectedTour(tour);
     setNumPeople(1);
     setShowBookingModal(true);
@@ -225,7 +279,7 @@ function BookingSystem() {
         </h2>
         <p className="text-center text-gray-600 mb-12">{bt.subtitle}</p>
 
-        {/* Date Input */}
+        {/* Date Input with Past Date Prevention */}
         <div className="flex flex-col items-center justify-center mb-8">
           <label className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">
             {bt.selectDateLabel}
@@ -233,7 +287,8 @@ function BookingSystem() {
           <input
             type="date"
             value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
+            onChange={handleDateChange}
+            min={getTodayLocalDate()} // Disable past dates in date picker
             className="p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-[#FF6B6B] outline-none"
           />
         </div>
