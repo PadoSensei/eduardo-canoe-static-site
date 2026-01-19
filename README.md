@@ -1,6 +1,6 @@
 # Pipa Canoe Adventures - AI Chatbot Integration
 
-A modern, responsive website for Pipa Canoe Adventures featuring an integrated AI chatbot powered by VoltAgent and Deep Chat. The website showcases canoe tour services in Pipa, Brazil, with real-time customer support through an intelligent conversational assistant.
+A modern, responsive React website for Pipa Canoe Adventures featuring an integrated AI chatbot powered by VoltAgent and Deep Chat. The website showcases canoe tour services in Pipa, Brazil, with real-time customer support through an intelligent conversational assistant.
 
 ## Table of Contents
 
@@ -17,24 +17,24 @@ A modern, responsive website for Pipa Canoe Adventures featuring an integrated A
 
 ## Overview
 
-This project combines a beautiful, responsive website for Pipa Canoe Adventures with an AI-powered chatbot that can answer customer questions about tours, pricing, availability, and general information about canoe experiences in Pipa, Brazil.
+This project combines a beautiful, responsive React application for Pipa Canoe Adventures with an AI-powered chatbot that can answer customer questions about tours, pricing, availability, and general information about canoe experiences in Pipa, Brazil.
 
 ### Key Components
 
-- **Frontend**: Modern HTML5 website with Tailwind CSS
+- **Frontend**: Modern React 19 application built with Vite and Tailwind CSS
 - **AI Backend**: VoltAgent framework running a specialized canoe booking bot
 - **Chat Interface**: Deep Chat web component for seamless user interaction
-- **Integration**: Custom JavaScript handler bridging Deep Chat and VoltAgent APIs
+- **Integration**: React-based handler bridging Deep Chat and VoltAgent APIs
 
 ## Features
 
 ### Website Features
 
+- **React-based SPA**: Fast, smooth navigation using React Router
 - **Responsive Design**: Mobile-first approach with Tailwind CSS
 - **Video Background**: Immersive hero section with canoe adventure footage
-- **Multi-language Support**: English, Portuguese, and Spanish
-- **Image Gallery**: Showcase of canoe tours and Pipa's natural beauty
-- **Contact Form**: Direct booking and inquiry functionality
+- **Multi-language Support**: English, Portuguese, and Spanish via React Context
+- **Tour Booking**: Real-time availability and booking system
 - **Interactive Map**: Google Maps integration showing Pipa location
 
 ### Chatbot Features
@@ -50,9 +50,11 @@ This project combines a beautiful, responsive website for Pipa Canoe Adventures 
 
 ### Frontend
 
-- **HTML5**: Semantic markup with accessibility features
+- **React 19**: Modern UI library for building the interface
+- **Vite**: Next-generation frontend tooling for fast development
 - **Tailwind CSS**: Utility-first CSS framework for responsive design
-- **JavaScript**: Vanilla ES6+ for interactivity and API integration
+- **React Router 7**: Declarative routing for React applications
+- **Lucide React**: Beautiful & consistent icons
 - **Deep Chat**: Web component for chat interface
 - **Google Fonts**: Lora and Open Sans typography
 
@@ -74,8 +76,8 @@ This project combines a beautiful, responsive website for Pipa Canoe Adventures 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │                 │    │                 │    │                 │
-│   Deep Chat     │◄──►│   Custom JS     │◄──►│   VoltAgent     │
-│   Component     │    │   Handler       │    │   HTTP Server   │
+│   Deep Chat     │◄──►│   React Hook/   │◄──►│   VoltAgent     │
+│   Component     │    │   API Client    │    │   HTTP Server   │
 │                 │    │                 │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                       │                       │
@@ -84,9 +86,9 @@ This project combines a beautiful, responsive website for Pipa Canoe Adventures 
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │                 │    │                 │    │                 │
 │   User Interface│    │  Message Format │    │  AI Processing  │
-│   - Chat Window │    │  Transformation │    │  - Gemini Model │
-│   - Styling     │    │  - Deep Chat ►  │    │  - Tool Calling │
-│   - Placement   │    │    VoltAgent    │    │  - Memory       │
+│   - React App   │    │  Transformation │    │  - Gemini Model │
+│   - Tailwind    │    │  - Deep Chat ►  │    │  - Tool Calling │
+│   - Components  │    │    VoltAgent    │    │  - Memory       │
 │                 │    │  - VoltAgent ►  │    │                 │
 │                 │    │    Deep Chat    │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
@@ -108,17 +110,20 @@ git clone <repository-url>
 cd pipa-canoe-adventures
 ```
 
-### 2. Set Up VoltAgent Backend
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Set Up VoltAgent Backend
 
 ```bash
 # Install VoltAgent dependencies
 npm install @voltagent/core @voltagent/vercel-ai @ai-sdk/google
-
-# Create VoltAgent configuration file
-# (See Configuration section below)
 ```
 
-### 3. Configure Environment Variables
+### 4. Configure Environment Variables
 
 Create a `.env` file in the root directory:
 
@@ -130,131 +135,31 @@ GOOGLE_AI_API_KEY=your_google_ai_api_key_here
 VOLTAGENT_PORT=3141
 VOLTAGENT_HOST=localhost
 
-# Database Configuration (optional)
-DATABASE_URL=file:./canoe_agent.db
-```
-
-### 4. Create VoltAgent Configuration
-
-Create `voltagent.config.js`:
-
-```javascript
-import { VoltAgent, Agent } from "@voltagent/core";
-import { VercelAIProvider } from "@voltagent/vercel-ai";
-import { google } from "@ai-sdk/google";
-
-const canoeAgent = new Agent({
-  name: "volt-canoe-eduardo",
-  instructions: `You are a helpful assistant for Pipa Canoe Adventures, a canoe tour company in Pipa, Brazil. 
-  
-  You help customers with:
-  - Information about canoe tours and experiences
-  - Pricing and availability questions
-  - Booking assistance and reservations
-  - Details about Pipa's natural attractions
-  - Tour recommendations based on preferences
-  
-  Be friendly, knowledgeable, and enthusiastic about the beautiful waters around Pipa.`,
-  llm: new VercelAIProvider(),
-  model: google("gemini-2.0-flash-exp"),
-  tools: [
-    {
-      name: "extractEntities",
-      description:
-        "Extracts tour-related entities like tour name, number of people, and date from a user message.",
-      parameters: {
-        type: "object",
-        properties: {
-          message: { type: "string" },
-        },
-        required: ["message"],
-      },
-    },
-    {
-      name: "detectIntent",
-      description: "Detect the user's intent from their message.",
-      parameters: {
-        type: "object",
-        properties: {
-          message: { type: "string" },
-        },
-        required: ["message"],
-      },
-    },
-  ],
-});
-
-new VoltAgent({
-  agents: { canoeAgent },
-  server: {
-    port: 3141,
-    enableSwaggerUI: true,
-  },
-});
+# Frontend API URL
+VITE_API_URL=http://localhost:8000
 ```
 
 ### 5. Start VoltAgent Server
 
+Create a `voltagent.config.js` and run it:
+
 ```bash
-npm run dev
-# or
 node voltagent.config.js
 ```
 
-You should see:
-
-```
-═══════════════════════════════════════════════════
-VOLTAGENT SERVER STARTED SUCCESSFULLY
-═══════════════════════════════════════════════════
-✓ HTTP Server: http://localhost:3141
-Test your agents with VoltOps Console: https://console.voltagent.dev
-═══════════════════════════════════════════════════
-```
-
-### 6. Set Up Frontend
-
-The frontend files are already configured. Simply serve them using a local server:
+### 6. Start Frontend Development Server
 
 ```bash
-# Using Python
-python -m http.server 8000
-
-# Using Node.js http-server
-npx http-server
-
-# Using Live Server (VS Code extension)
-# Right-click index.html > "Open with Live Server"
+npm run dev
 ```
 
-### 7. Test the Integration
-
-1. Open your browser to `http://localhost:8000` (or your server URL)
-2. Click the chat button in the bottom-right corner
-3. Test with messages like:
-   - "What canoe tours do you offer?"
-   - "How much does a sunset tour cost?"
-   - "I want to book a tour for 4 people"
+The application will be available at `http://localhost:5173`.
 
 ## Configuration
 
-### Deep Chat Styling
+### Deep Chat Integration
 
-The chat interface is styled to match the website's branding in the HTML:
-
-```html
-<deep-chat
-  id="deep-chat"
-  style="
-    --deep-chat-button-background-color: #ff6b6b;
-    --deep-chat-button-icon-color: #ffffff;
-    --deep-chat-header-background-color: #ff6b6b;
-    --deep-chat-title-text-color: #ffffff;
-    --deep-chat-primary-color: #ff6b6b;
-    --deep-chat-font-family: 'Open Sans', sans-serif;
-  "
-></deep-chat>
-```
+The chat interface is integrated as a web component. Ensure it is properly configured in your React components.
 
 ### VoltAgent Agent Configuration
 
@@ -272,106 +177,17 @@ const canoeAgent = new Agent({
 });
 ```
 
-### Message Format Transformation
-
-The JavaScript handler transforms between Deep Chat and VoltAgent formats:
-
-```javascript
-// Deep Chat sends:
-{
-  "messages": [
-    {"role": "user", "text": "Hello"}
-  ]
-}
-
-// Transformed to VoltAgent format:
-{
-  "input": "Hello",
-  "options": {"maxTokens": 1000}
-}
-
-// VoltAgent responds:
-{
-  "text": "Hello! How can I help you?",
-  "usage": {...}
-}
-
-// Transformed back to Deep Chat format:
-{
-  "text": "Hello! How can I help you?"
-}
-```
-
 ## Deployment
-
-### VoltAgent Backend
-
-Deploy to platforms that support Node.js:
-
-**Railway:**
-
-```bash
-# Connect to Railway
-railway login
-railway init
-railway add
-
-# Set environment variables
-railway variables set GOOGLE_AI_API_KEY=your_key_here
-railway deploy
-```
-
-**Vercel:**
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel --prod
-
-# Add environment variables in Vercel dashboard
-```
 
 ### Frontend
 
-Deploy to static hosting platforms:
-
-**Netlify:**
+Build the production-ready bundle:
 
 ```bash
-# Build command: Not needed (static files)
-# Publish directory: . (root)
+npm run build
 ```
 
-**Vercel:**
-
-```bash
-vercel --prod
-```
-
-**GitHub Pages:**
-
-- Push to GitHub repository
-- Enable Pages in repository settings
-- Select source branch
-
-### CORS Configuration
-
-For production, configure CORS in VoltAgent:
-
-```javascript
-new VoltAgent({
-  agents: { canoeAgent },
-  server: {
-    port: 3141,
-    cors: {
-      origin: ["https://your-domain.com"],
-      credentials: true,
-    },
-  },
-});
-```
+The output will be in the `dist` directory, which can be deployed to any static hosting provider (Vercel, Netlify, GitHub Pages, etc.).
 
 ## Troubleshooting
 
@@ -381,57 +197,16 @@ new VoltAgent({
 
 - Check browser console for errors
 - Verify VoltAgent is running on localhost:3141
-- Test direct API call: `curl -X POST http://localhost:3141/agents/volt-canoe-eduardo/text -H "Content-Type: application/json" -d '{"input": "Hello", "options": {"maxTokens": 100}}'`
+- Ensure CORS is configured correctly
 
-**2. CORS errors**
+**2. API Connection errors**
 
-- Ensure VoltAgent CORS is configured for your domain
-- For local development, serve frontend from a local server, not file://
-
-**3. 404 errors**
-
-- Verify agent name matches exactly: "volt-canoe-eduardo"
-- Check VoltAgent logs for errors
-- Confirm API endpoints are available
-
-**4. Response formatting issues**
-
-- Check browser console logs
-- Verify response transformation logic
-- Ensure VoltAgent returns expected format
-
-### Debug Mode
-
-Enable detailed logging:
-
-```javascript
-// In chatbot.js
-console.log("Sending message to Volt Agent:", userMessage);
-console.log("Full Volt Agent response:", result);
-console.log("Extracted response text:", responseText);
-```
+- Verify `VITE_API_URL` is set correctly in `.env`
+- Ensure the backend booking API is running
 
 ## API Reference
 
 ### VoltAgent Endpoints
-
-**List Agents**
-
-```
-GET /agents
-Response: {
-  "success": true,
-  "data": [
-    {
-      "id": "volt-canoe-eduardo",
-      "name": "volt-canoe-eduardo",
-      "description": "Canoe query and booking bot",
-      "status": "idle",
-      "model": "gemini-2.0-flash-exp"
-    }
-  ]
-}
-```
 
 **Generate Text Response**
 
@@ -443,48 +218,6 @@ Body: {
     "maxTokens": 1000
   }
 }
-
-Response: {
-  "text": "We offer several amazing canoe tours...",
-  "usage": {
-    "promptTokens": 25,
-    "completionTokens": 150,
-    "totalTokens": 175
-  }
-}
-```
-
-**Stream Response**
-
-```
-POST /agents/volt-canoe-eduardo/stream
-Body: {
-  "input": "Tell me about sunset tours",
-  "options": {
-    "maxTokens": 1000
-  }
-}
-
-Response: Server-Sent Events stream
-data: {"textDelta": "Our "}
-data: {"textDelta": "sunset "}
-data: {"textDelta": "tours "}
-...
-data: [DONE]
-```
-
-### Deep Chat Integration
-
-**Message Handler**
-
-```javascript
-chatElement.connect = {
-  handler: async (body, signals) => {
-    // body.messages - Array of conversation messages
-    // signals.onResponse() - Send response to chat
-    // signals.onError() - Send error message
-  },
-};
 ```
 
 ## Contributing
@@ -492,31 +225,14 @@ chatElement.connect = {
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature-name`
 3. Make your changes
-4. Test thoroughly
+4. Test thoroughly: `npm test`
 5. Commit: `git commit -m "Add feature"`
 6. Push: `git push origin feature-name`
 7. Create a Pull Request
 
-### Development Guidelines
-
-- Follow JavaScript ES6+ standards
-- Maintain responsive design principles
-- Test on multiple browsers and devices
-- Keep accessibility in mind
-- Document any new configuration options
-- Ensure VoltAgent compatibility
-
 ## License
 
 This project is licensed under the MIT License. See LICENSE file for details.
-
-## Support
-
-For technical support or questions:
-
-- Create an issue in the repository
-- Check VoltAgent documentation: https://voltagent.dev/docs/
-- Deep Chat documentation: https://deepchat.dev/docs/
 
 ---
 

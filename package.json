@@ -1,4 +1,6 @@
 {
+  "name": "pipa-canoe-adventures",
+  "version": "1.0.0",
   "type": "commonjs",
   "dependencies": {
     "@vitejs/plugin-react": "^5.1.1",

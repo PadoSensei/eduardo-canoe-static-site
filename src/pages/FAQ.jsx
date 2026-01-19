@@ -93,20 +93,6 @@ const FAQ = () => {
           ))}
         </div>
 
-        {/* Contact CTA */}
-        {/* <div className="mt-12 md:mt-16 text-center px-4">
-          <p className="text-gray-600 mb-4 text-sm md:text-base">
-            Can't find the answer you're looking for?
-          </p>
-          <a
-            href="https://wa.me/5584999999999" // Replace with actual number
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full md:w-auto inline-flex justify-center items-center bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 px-8 rounded-full shadow-lg transition-transform transform active:scale-95 hover:-translate-y-0.5"
-          >
-            <span className="mr-2">💬</span> Chat on WhatsApp
-          </a>
-        </div> */}
       </div>
     </div>
   );

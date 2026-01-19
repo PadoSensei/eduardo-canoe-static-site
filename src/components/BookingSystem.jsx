@@ -1,33 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { getAvailableTours, createBooking, getBookingStatus } from "../api";
+import { createBooking } from "../api";
 import { useLanguage } from "../context/LanguageContext";
 import { bookingTranslations } from "../data/bookingTranslations";
 import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
-
-/**
- * Gets the current date in YYYY-MM-DD format in the user's local timezone.
- * This ensures consistency across date comparisons.
- */
-const getTodayLocalDate = () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-/**
- * Checks if a date string (YYYY-MM-DD) is in the past.
- * @param {string} dateString - Date in YYYY-MM-DD format
- * @returns {boolean} - True if date is before today
- */
-const isPastDate = (dateString) => {
-  const selectedDate = new Date(dateString + "T00:00:00"); // Normalize to midnight
-  const today = new Date(getTodayLocalDate() + "T00:00:00");
-  return selectedDate < today;
-};
+import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
+import { useBooking } from "../hooks/useBooking";
 
 function BookingSystem() {
   // 1. Get GLOBAL translations (t) and current language
@@ -36,11 +15,17 @@ function BookingSystem() {
   // 2. Get BOOKING specific translations (bt)
   const bt = bookingTranslations[language] || bookingTranslations["en"];
 
-  // --- Data State ---
-  const [availableTours, setAvailableTours] = useState([]);
+  // --- Date State ---
   const [selectedDate, setSelectedDate] = useState(getTodayLocalDate());
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  // --- Custom Hook for Data & Polling ---
+  const {
+    availableTours,
+    setAvailableTours,
+    isLoading,
+    error,
+    startPolling,
+  } = useBooking(selectedDate, language);
 
   // --- UI State ---
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -81,12 +66,10 @@ function BookingSystem() {
 
     // Prevent selection of past dates
     if (isPastDate(newDate)) {
-      // Optional: Show a user-friendly alert
       alert(
         bt.alertPastDate ||
           "Cannot book tours for past dates. Please select today or a future date."
       );
-      // Reset to today
       setSelectedDate(getTodayLocalDate());
       return;
     }
@@ -94,45 +77,17 @@ function BookingSystem() {
     setSelectedDate(newDate);
   };
 
-  // 1. Fetch Availability
+  // Handle Polling
   useEffect(() => {
-    const loadAvailability = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await getAvailableTours(selectedDate);
-        setAvailableTours(data);
-      } catch (err) {
-        console.error(err);
-        setError("LOAD_ERROR");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadAvailability();
-  }, [selectedDate, language]);
-
-  // 2. Poll Status
-  useEffect(() => {
-    let intervalId;
     if (currentBooking?.uuid && paymentInfo && !isConfirmed) {
-      intervalId = setInterval(async () => {
-        try {
-          const statusData = await getBookingStatus(currentBooking.uuid);
-          if (statusData.status === "confirmed") {
-            setIsConfirmed(true);
-            setPaymentInfo(null);
-            clearInterval(intervalId);
-            const updatedTours = await getAvailableTours(selectedDate);
-            setAvailableTours(updatedTours);
-          }
-        } catch (err) {
-          /* silent fail */
-        }
-      }, 3000);
+      const stopPolling = startPolling(
+        currentBooking.uuid,
+        paymentInfo,
+        () => setIsConfirmed(true)
+      );
+      return stopPolling;
     }
-    return () => clearInterval(intervalId);
-  }, [currentBooking, paymentInfo, isConfirmed, selectedDate]);
+  }, [currentBooking, paymentInfo, isConfirmed, startPolling]);
 
   // --- Handlers ---
   const handleBookTour = async () => {

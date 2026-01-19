@@ -1,7 +1,7 @@
 // api.js - Backend API client for tour booking application
+import { API_CONFIG } from "./config";
 
-const DOMAIN = import.meta.env.VITE_API_URL || "http://localhost:8000";
-const API_BASE_URL = `${DOMAIN}/api/v1`;
+const API_BASE_URL = `${API_CONFIG.BASE_URL}/api/v1`;
 
 /**
  * Fetches available tours for a specific date from the backend.

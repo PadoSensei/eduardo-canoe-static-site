@@ -1,0 +1,11 @@
+
+> pipa-canoe-adventures@1.0.0 dev
+> vite
+
+10:07:13 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
+
+  VITE v7.2.2  ready in 316 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
