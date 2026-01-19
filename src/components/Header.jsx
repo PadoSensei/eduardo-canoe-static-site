@@ -52,6 +52,7 @@ const Header = () => {
                   ? "opacity-100 border-b-2 border-white"
                   : "opacity-60"
               }`}
+              aria-label="Change language to English"
             >
               EN
             </button>
@@ -62,6 +63,7 @@ const Header = () => {
                   ? "opacity-100 border-b-2 border-white"
                   : "opacity-60"
               }`}
+              aria-label="Mudar idioma para Português"
             >
               PT
             </button>
@@ -72,6 +74,7 @@ const Header = () => {
                   ? "opacity-100 border-b-2 border-white"
                   : "opacity-60"
               }`}
+              aria-label="Cambiar idioma a Español"
             >
               ES
             </button>
@@ -80,6 +83,8 @@ const Header = () => {
           <button
             className="md:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
           >
             {isMenuOpen ? <X /> : <Menu />}
           </button>
@@ -114,18 +119,21 @@ const Header = () => {
             <button
               onClick={() => setLanguage("en")}
               className={language === "en" ? "font-bold" : "opacity-70"}
+              aria-label="Change language to English"
             >
               EN
             </button>
             <button
               onClick={() => setLanguage("pt")}
               className={language === "pt" ? "font-bold" : "opacity-70"}
+              aria-label="Mudar idioma para Português"
             >
               PT
             </button>
             <button
               onClick={() => setLanguage("es")}
               className={language === "es" ? "font-bold" : "opacity-70"}
+              aria-label="Cambiar idioma a Español"
             >
               ES
             </button>

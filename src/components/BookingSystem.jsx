@@ -1,25 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { getAvailableTours, createBooking, getBookingStatus } from "../api";
+import { getAvailableTours, createBooking } from "../api";
 import { useLanguage } from "../context/LanguageContext";
 import { bookingTranslations } from "../data/bookingTranslations";
 import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
-
-// --- PURE UTILITIES (Stateless) ---
-const getTodayLocalDate = () => {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}-${String(now.getDate()).padStart(2, "0")}`;
-};
-
-const isPastDate = (dateString) => {
-  const selectedDate = new Date(dateString + "T00:00:00");
-  const today = new Date(getTodayLocalDate() + "T00:00:00");
-  return selectedDate < today;
-};
+import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
+import { useBooking } from "../hooks/useBooking";
+import { getTourTranslationKey } from "../data/tourMapping";
 
 const getStoredSession = () => {
   try {
@@ -58,58 +46,43 @@ function BookingSystem() {
   const [guestEmail, setGuestEmail] = useState("");
   const [numPeople, setNumPeople] = useState(1);
   const [specialNotes, setSpecialNotes] = useState("");
+  const [formError, setFormError] = useState(null);
 
-  // Transaction State
-  const [paymentInfo, setPaymentInfo] = useState(session?.paymentInfo || null);
-  const [currentBooking, setCurrentBooking] = useState(
-    session?.currentBooking || null
-  );
-  const [isConfirmed, setIsConfirmed] = useState(false);
-  const [isExpired, setIsExpired] = useState(false);
-  const [isFailed, setIsFailed] = useState(false);
-
-  // Resilience State
-  const [consecutiveErrors, setConsecutiveErrors] = useState(0);
-  const ERROR_THRESHOLD = 5;
+  // Booking Logic Hook
+  const {
+    currentBooking,
+    setCurrentBooking,
+    paymentInfo,
+    setPaymentInfo,
+    isConfirmed,
+    setIsConfirmed,
+    isExpired,
+    isFailed,
+    hasConnectionIssue,
+    clearBooking,
+  } = useBooking(session, selectedDate, setAvailableTours);
 
   // --- 2. LOGIC HELPERS ---
 
   const getTourName = useCallback(
     (tourType) => {
-      switch (tourType) {
-        case "sunrise":
-        case "morning":
-          return t("card1Title");
-        case "full_day":
-        case "all_day":
-          return t("card2Title");
-        case "sunset":
-        case "evening":
-          return t("card3Title");
-        default:
-          return "Unknown Tour";
-      }
+      const key = getTourTranslationKey(tourType);
+      return key ? t(key) : "Unknown Tour";
     },
     [t]
   );
 
   // --- 3. SIDE EFFECTS ---
 
-  // Persistence: Sync state to LocalStorage
+  // Handle Escape key to close modal
   useEffect(() => {
-    if (
-      currentBooking &&
-      paymentInfo &&
-      !isConfirmed &&
-      !isExpired &&
-      !isFailed
-    ) {
-      localStorage.setItem(
-        "pending_booking",
-        JSON.stringify({ currentBooking, paymentInfo })
-      );
-    }
-  }, [currentBooking, paymentInfo, isConfirmed, isExpired, isFailed]);
+    if (!showBookingModal) return;
+    const handleEsc = (e) => {
+      if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [showBookingModal]);
 
   // Data Loading: Fetch tours for date
   useEffect(() => {
@@ -132,66 +105,19 @@ function BookingSystem() {
     };
   }, [selectedDate, language]);
 
-  // Status Polling Loop
-  useEffect(() => {
-    let intervalId;
-    const needsPolling =
-      currentBooking?.uuid &&
-      paymentInfo &&
-      !isConfirmed &&
-      !isExpired &&
-      !isFailed;
-
-    if (needsPolling) {
-      intervalId = setInterval(async () => {
-        try {
-          const statusData = await getBookingStatus(currentBooking.uuid);
-          setConsecutiveErrors(0);
-
-          if (statusData.status === "confirmed") {
-            setIsConfirmed(true);
-            setPaymentInfo(null);
-            localStorage.removeItem("pending_booking");
-            clearInterval(intervalId);
-            // Refresh list to show updated spots
-            const updated = await getAvailableTours(selectedDate);
-            setAvailableTours(updated);
-          } else if (statusData.status === "expired") {
-            setIsExpired(true);
-            localStorage.removeItem("pending_booking");
-            clearInterval(intervalId);
-          } else if (statusData.status === "failed") {
-            setIsFailed(true);
-            localStorage.removeItem("pending_booking");
-            clearInterval(intervalId);
-          }
-        } catch (err) {
-          setConsecutiveErrors((prev) => prev + 1);
-        }
-      }, 3000);
-    }
-    return () => clearInterval(intervalId);
-  }, [
-    currentBooking,
-    paymentInfo,
-    isConfirmed,
-    isExpired,
-    isFailed,
-    selectedDate,
-  ]);
-
   // --- 4. EVENT HANDLERS ---
 
   const handleBookTour = async () => {
     if (bookingTourId || !selectedTour) return;
+    setFormError(null);
 
     if (!guestName || !guestEmail) {
-      alert(bt.alertMissing);
+      setFormError(bt.alertMissing);
       return;
     }
 
     if (isPastDate(selectedDate)) {
-      alert(bt.alertPastDate);
+      setFormError(bt.alertPastDate);
       return;
     }
 
@@ -212,37 +138,33 @@ function BookingSystem() {
         setCurrentBooking(result.booking);
         setIsConfirmed(false);
       } else {
-        alert(`${bt.alertFailed}: ${result.message}`);
+        setFormError(`${bt.alertFailed}: ${result.message}`);
       }
     } catch (error) {
-      alert(bt.alertError);
+      setFormError(bt.alertError);
     } finally {
       setBookingTourId(null);
     }
   };
 
   const closeModal = () => {
-    localStorage.removeItem("pending_booking");
+    clearBooking();
     setShowBookingModal(false);
     setSelectedTour(null);
-    setPaymentInfo(null);
-    setCurrentBooking(null);
-    setIsConfirmed(false);
-    setIsExpired(false);
-    setIsFailed(false);
-    setConsecutiveErrors(0);
     setGuestName("");
     setGuestEmail("");
     setNumPeople(1);
     setSpecialNotes("");
+    setFormError(null);
   };
 
   const openModal = (tour) => {
     // FRESH check against the current system clock
     if (isPastDate(selectedDate)) {
-      alert(bt.alertPastDate);
+      setFormError(bt.alertPastDate);
       return;
     }
+    setFormError(null);
     setSelectedTour(tour);
     setNumPeople(1);
     setShowBookingModal(true);
@@ -314,6 +236,14 @@ function BookingSystem() {
         <p className="text-center text-gray-600 mb-12">{bt.subtitle}</p>
 
         <div className="flex flex-col items-center justify-center mb-8">
+          {formError && !showBookingModal && (
+            <div
+              role="alert"
+              className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 w-full max-w-3xl rounded shadow-sm"
+            >
+              {formError}
+            </div>
+          )}
           <label
             htmlFor="tour-date-input"
             className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide"
@@ -335,8 +265,18 @@ function BookingSystem() {
         </div>
 
         {showBookingModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm"
+            role="presentation"
+            onClick={closeModal}
+          >
+            <div
+              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-title"
+              onClick={(e) => e.stopPropagation()}
+            >
               {isConfirmed ? (
                 <SuccessView
                   guestEmail={guestEmail || currentBooking?.guest_email}
@@ -346,7 +286,7 @@ function BookingSystem() {
                 <PaymentView
                   paymentInfo={paymentInfo}
                   onClose={closeModal}
-                  hasConnectionIssue={consecutiveErrors >= ERROR_THRESHOLD}
+                  hasConnectionIssue={hasConnectionIssue}
                   isExpired={isExpired}
                   isFailed={isFailed}
                 />
@@ -368,6 +308,7 @@ function BookingSystem() {
                   onConfirm={handleBookTour}
                   onCancel={closeModal}
                   isSubmitting={!!bookingTourId}
+                  error={formError}
                 />
               ) : null}
             </div>

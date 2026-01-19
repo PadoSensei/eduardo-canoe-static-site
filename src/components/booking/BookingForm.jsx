@@ -15,6 +15,7 @@ export function BookingForm({
   onConfirm,
   onCancel,
   isSubmitting,
+  error,
 }) {
   const { t } = useLanguage();
 
@@ -29,9 +30,18 @@ export function BookingForm({
 
   return (
     <>
-      <h3 className="text-2xl font-bold mb-4 text-gray-800">
+      <h3 id="modal-title" className="text-2xl font-bold mb-4 text-gray-800">
         {t("bookTitle")} <span className="text-[#FF6B6B]">{tour.name}</span>
       </h3>
+
+      {error && (
+        <div
+          role="alert"
+          className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-medium"
+        >
+          {error}
+        </div>
+      )}
 
       <div className="mb-4 bg-gray-50 p-4 rounded-lg border border-gray-100">
         <p className="text-gray-600 flex justify-between">

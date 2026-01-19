@@ -66,7 +66,7 @@ export function PaymentView({
               />
             </svg>
           </div>
-          <h3 className="text-2xl font-bold mb-2 text-gray-800">
+          <h3 id="modal-title" className="text-2xl font-bold mb-2 text-gray-800">
             {t.failedTitle}
           </h3>
           <p className="text-gray-600 mb-8">{t.failedDetail}</p>
@@ -89,7 +89,7 @@ export function PaymentView({
               />
             </svg>
           </div>
-          <h3 className="text-2xl font-bold mb-2 text-gray-800">
+          <h3 id="modal-title" className="text-2xl font-bold mb-2 text-gray-800">
             {t.expiredTitle}
           </h3>
           <p className="text-gray-600 mb-8">{t.expiredDetail}</p>
@@ -132,7 +132,7 @@ export function PaymentView({
             </svg>
           </div>
 
-          <h3 className="text-2xl font-bold mb-1 text-gray-800">
+          <h3 id="modal-title" className="text-2xl font-bold mb-1 text-gray-800">
             {t.paymentTitle}
           </h3>
 

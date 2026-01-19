@@ -26,7 +26,7 @@ export function SuccessView({ guestEmail, onClose }) {
         </div>
       </div>
 
-      <h3 className="text-2xl font-bold mb-4 text-gray-800">
+      <h3 id="modal-title" className="text-2xl font-bold mb-4 text-gray-800">
         {t.successTitle}
       </h3>
 
