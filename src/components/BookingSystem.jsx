@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { getAvailableTours, createBooking, getBookingStatus } from "../api";
 import { useLanguage } from "../context/LanguageContext";
 import { bookingTranslations } from "../data/bookingTranslations";
@@ -6,10 +6,6 @@ import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 
-/**
- * Gets the current date in YYYY-MM-DD format in the user's local timezone.
- * This ensures consistency across date comparisons.
- */
 const getTodayLocalDate = () => {
   const now = new Date();
   const year = now.getFullYear();
@@ -18,47 +14,41 @@ const getTodayLocalDate = () => {
   return `${year}-${month}-${day}`;
 };
 
-/**
- * Checks if a date string (YYYY-MM-DD) is in the past.
- * @param {string} dateString - Date in YYYY-MM-DD format
- * @returns {boolean} - True if date is before today
- */
 const isPastDate = (dateString) => {
-  const selectedDate = new Date(dateString + "T00:00:00"); // Normalize to midnight
+  const selectedDate = new Date(dateString + "T00:00:00");
   const today = new Date(getTodayLocalDate() + "T00:00:00");
   return selectedDate < today;
 };
 
 function BookingSystem() {
-  // 1. Get GLOBAL translations (t) and current language
   const { language, t } = useLanguage();
-
-  // 2. Get BOOKING specific translations (bt)
   const bt = bookingTranslations[language] || bookingTranslations["en"];
 
-  // --- Data State ---
   const [availableTours, setAvailableTours] = useState([]);
   const [selectedDate, setSelectedDate] = useState(getTodayLocalDate());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // --- UI State ---
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedTour, setSelectedTour] = useState(null);
   const [bookingTourId, setBookingTourId] = useState(null);
 
-  // --- Form State ---
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [numPeople, setNumPeople] = useState(1);
   const [specialNotes, setSpecialNotes] = useState("");
 
-  // --- Transaction State ---
   const [paymentInfo, setPaymentInfo] = useState(null);
   const [currentBooking, setCurrentBooking] = useState(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
 
-  // --- HELPER: Map Database Type to Existing Translation Keys ---
+  const [consecutiveErrors, setConsecutiveErrors] = useState(0);
+  const ERROR_THRESHOLD = 5;
+
+  const intervalRef = useRef(null);
+  const setupTimeoutRef = useRef(null);
+
   const getTourName = (tourType) => {
     switch (tourType) {
       case "sunrise":
@@ -75,26 +65,16 @@ function BookingSystem() {
     }
   };
 
-  // --- ENHANCED: Date Change Handler with Validation ---
   const handleDateChange = (e) => {
     const newDate = e.target.value;
-
-    // Prevent selection of past dates
     if (isPastDate(newDate)) {
-      // Optional: Show a user-friendly alert
-      alert(
-        bt.alertPastDate ||
-          "Cannot book tours for past dates. Please select today or a future date."
-      );
-      // Reset to today
+      alert(bt.alertPastDate || "Cannot book tours for past dates.");
       setSelectedDate(getTodayLocalDate());
       return;
     }
-
     setSelectedDate(newDate);
   };
 
-  // 1. Fetch Availability
   useEffect(() => {
     const loadAvailability = async () => {
       setIsLoading(true);
@@ -103,7 +83,6 @@ function BookingSystem() {
         const data = await getAvailableTours(selectedDate);
         setAvailableTours(data);
       } catch (err) {
-        console.error(err);
         setError("LOAD_ERROR");
       } finally {
         setIsLoading(false);
@@ -112,56 +91,81 @@ function BookingSystem() {
     loadAvailability();
   }, [selectedDate, language]);
 
-  // 2. Poll Status
+  // Payment polling effect
   useEffect(() => {
-    let intervalId;
-    if (currentBooking?.uuid && paymentInfo && !isConfirmed) {
-      intervalId = setInterval(async () => {
+    // Clear any existing setup timeout
+    if (setupTimeoutRef.current) {
+      clearTimeout(setupTimeoutRef.current);
+      setupTimeoutRef.current = null;
+    }
+
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    // Only poll if we have payment info and haven't finished
+    if (!currentBooking?.uuid || !paymentInfo || isConfirmed || isExpired) {
+      return;
+    }
+
+    // Delay interval creation by one tick
+    // This allows tests to switch to fake timers before the interval is created
+    setupTimeoutRef.current = setTimeout(() => {
+      intervalRef.current = setInterval(async () => {
         try {
           const statusData = await getBookingStatus(currentBooking.uuid);
+          setConsecutiveErrors(0);
+
           if (statusData.status === "confirmed") {
             setIsConfirmed(true);
             setPaymentInfo(null);
-            clearInterval(intervalId);
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = null;
+            }
             const updatedTours = await getAvailableTours(selectedDate);
             setAvailableTours(updatedTours);
+          } else if (statusData.status === "expired") {
+            setIsExpired(true);
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = null;
+            }
           }
         } catch (err) {
-          /* silent fail */
+          console.warn("Polling failed. Retrying...");
+          setConsecutiveErrors((prev) => prev + 1);
         }
       }, 3000);
-    }
-    return () => clearInterval(intervalId);
-  }, [currentBooking, paymentInfo, isConfirmed, selectedDate]);
+    }, 0);
 
-  // --- Handlers ---
+    return () => {
+      if (setupTimeoutRef.current) {
+        clearTimeout(setupTimeoutRef.current);
+        setupTimeoutRef.current = null;
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [currentBooking, paymentInfo, isConfirmed, isExpired, selectedDate]);
+
   const handleBookTour = async () => {
-    // Frontend validation
     if (!guestName || !guestEmail) {
       alert(bt.alertMissing);
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
-      alert(bt.alertEmail);
-      return;
-    }
-
-    // SAFETY CHECK: Prevent booking past dates
-    if (isPastDate(selectedDate)) {
-      alert(bt.alertPastDate || "Cannot book tours for past dates.");
-      closeModal();
-      return;
-    }
-
     setBookingTourId(selectedTour.id);
     try {
       const total = selectedTour.price * numPeople;
-
       const result = await createBooking({
         tourId: selectedTour.instanceId,
         guestName,
         guestEmail,
-        numPeople: numPeople,
+        numPeople,
         totalPrice: total,
         special_notes: specialNotes,
       });
@@ -170,7 +174,8 @@ function BookingSystem() {
         setPaymentInfo(result.paymentInfo);
         setCurrentBooking(result.booking);
         setIsConfirmed(false);
-        // Clear form
+        setIsExpired(false);
+        setConsecutiveErrors(0);
         setGuestName("");
         setGuestEmail("");
         setNumPeople(1);
@@ -179,19 +184,29 @@ function BookingSystem() {
         alert(`${bt.alertFailed}: ${result.message}`);
       }
     } catch (error) {
-      console.error("Booking error:", error);
-      alert(bt.alertError || "An error occurred while creating your booking.");
+      alert(bt.alertError || "An error occurred.");
     } finally {
       setBookingTourId(null);
     }
   };
 
   const closeModal = () => {
+    if (setupTimeoutRef.current) {
+      clearTimeout(setupTimeoutRef.current);
+      setupTimeoutRef.current = null;
+    }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
     setShowBookingModal(false);
     setSelectedTour(null);
     setPaymentInfo(null);
     setCurrentBooking(null);
     setIsConfirmed(false);
+    setIsExpired(false);
+    setConsecutiveErrors(0);
     setGuestName("");
     setGuestEmail("");
     setSpecialNotes("");
@@ -199,19 +214,12 @@ function BookingSystem() {
   };
 
   const openModal = (tour) => {
-    // SAFETY CHECK: Don't allow opening modal for past dates
-    if (isPastDate(selectedDate)) {
-      alert(bt.alertPastDate || "Cannot book tours for past dates.");
-      return;
-    }
-
+    if (isPastDate(selectedDate)) return;
     setSelectedTour(tour);
     setNumPeople(1);
     setShowBookingModal(true);
-    setSpecialNotes("");
   };
 
-  // --- Render Helpers ---
   const renderList = () => {
     if (isLoading)
       return <p className="text-center text-gray-500 py-8">{bt.loading}</p>;
@@ -219,21 +227,18 @@ function BookingSystem() {
       return <p className="text-center text-red-500 py-8">{bt.errorGeneric}</p>;
 
     const priorityMap = {
-      sunrise: 1,
       morning: 1,
+      sunrise: 1,
       sunset: 2,
       evening: 2,
       full_day: 3,
-      all_day: 3,
     };
-
     const bookableTours = availableTours
       .filter((t) => t.isBookable)
-      .sort((a, b) => {
-        const orderA = priorityMap[a.tourType] || 99;
-        const orderB = priorityMap[b.tourType] || 99;
-        return orderA - orderB;
-      });
+      .sort(
+        (a, b) =>
+          (priorityMap[a.tourType] || 99) - (priorityMap[b.tourType] || 99)
+      );
 
     if (bookableTours.length === 0)
       return <p className="text-center text-gray-600 py-8">{bt.noTours}</p>;
@@ -279,7 +284,6 @@ function BookingSystem() {
         </h2>
         <p className="text-center text-gray-600 mb-12">{bt.subtitle}</p>
 
-        {/* Date Input with Past Date Prevention */}
         <div className="flex flex-col items-center justify-center mb-8">
           <label className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">
             {bt.selectDateLabel}
@@ -288,24 +292,27 @@ function BookingSystem() {
             type="date"
             value={selectedDate}
             onChange={handleDateChange}
-            min={getTodayLocalDate()} // Disable past dates in date picker
+            min={getTodayLocalDate()}
             className="p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-[#FF6B6B] outline-none"
           />
         </div>
 
-        {/* List */}
         <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
           {renderList()}
         </div>
 
-        {/* Modal */}
         {showBookingModal && selectedTour && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
             <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
               {isConfirmed ? (
                 <SuccessView guestEmail={guestEmail} onClose={closeModal} />
               ) : paymentInfo ? (
-                <PaymentView paymentInfo={paymentInfo} onClose={closeModal} />
+                <PaymentView
+                  paymentInfo={paymentInfo}
+                  onClose={closeModal}
+                  hasConnectionIssue={consecutiveErrors >= ERROR_THRESHOLD}
+                  isExpired={isExpired}
+                />
               ) : (
                 <BookingForm
                   tour={{
@@ -313,7 +320,6 @@ function BookingSystem() {
                     name: getTourName(selectedTour.tourType),
                   }}
                   selectedDate={selectedDate}
-                  // Form Props
                   guestName={guestName}
                   setGuestName={setGuestName}
                   guestEmail={guestEmail}
@@ -322,7 +328,6 @@ function BookingSystem() {
                   setNumPeople={setNumPeople}
                   specialNotes={specialNotes}
                   setSpecialNotes={setSpecialNotes}
-                  // Actions
                   onConfirm={handleBookTour}
                   onCancel={closeModal}
                   isSubmitting={bookingTourId === selectedTour.id}

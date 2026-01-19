@@ -1,3 +1,5 @@
+// src/data/bookingTranslations.js
+
 export const bookingTranslations = {
   en: {
     title: "Check Tour Availability",
@@ -11,7 +13,7 @@ export const bookingTranslations = {
 
     // Tour Card
     duration: "Duration",
-    spotsLeft: "spots left", // e.g., "5 spots left"
+    spotsLeft: "spots left",
     pricePrefix: "R$",
     bookBtn: "Book Now",
     labelNotes: "Special Notes (Optional)",
@@ -26,7 +28,7 @@ export const bookingTranslations = {
       "Cannot book tours for past dates. Please select today or a future date.",
 
     // --- Booking Form Additions ---
-    bookTitle: "Book", // Used as "Book {tourName}"
+    bookTitle: "Book",
     labelDate: "Date",
     labelPrice: "Price",
     labelName: "Your Name",
@@ -46,6 +48,14 @@ export const bookingTranslations = {
     btnClose: "Close",
     alertCopyFail: "Please copy the code manually from the text box below.",
     altQrCode: "Payment QR Code",
+
+    // NEW: Payment Resilience & Expiry
+    connectionWarning:
+      "Connection slow. We are still waiting for your payment confirmation...",
+    expiredTitle: "Payment Expired",
+    expiredDetail:
+      "This Pix code is no longer valid. Please close this window and try booking again.",
+    btnRetry: "Try Again",
 
     // --- Success View Additions ---
     successTitle: "Payment Confirmed!",
@@ -75,7 +85,7 @@ export const bookingTranslations = {
     alertFailed: "Falha na reserva",
     alertError: "Ocorreu um erro inesperado.",
     alertPastDate:
-      "Não é possível reservar passeios para datas passadas. Selecione hoje ou uma data futura.",
+      "Não é possível reservar passeios para datas passadas. Selecione hoje ou uma tempo futura.",
 
     // --- Booking Form Additions ---
     bookTitle: "Reservar",
@@ -101,8 +111,16 @@ export const bookingTranslations = {
     alertCopyFail: "Por favor, copie o código manualmente da caixa abaixo.",
     altQrCode: "QR Code de Pagamento",
 
+    // NEW: Payment Resilience & Expiry
+    connectionWarning:
+      "Conexão lenta. Ainda estamos aguardando a confirmação do seu pagamento...",
+    expiredTitle: "Pagamento Expirado",
+    expiredDetail:
+      "Este código Pix não é mais válido. Por favor, feche esta janela e tente reservar novamente.",
+    btnRetry: "Tentar Novamente",
+
     // --- Success View Additions ---
-    successTitle: "Pagamento Confirmado!",
+    successTitle: "Pagamento Confirmed!",
     successMessage:
       "Sua aventura está reservada. Enviamos um e-mail de confirmação para",
     btnDone: "Concluído",
@@ -155,6 +173,14 @@ export const bookingTranslations = {
     alertCopyFail:
       "Por favor, copia el código manualmente del cuadro de abajo.",
     altQrCode: "Código QR de Pago",
+
+    // NEW: Payment Resilience & Expiry
+    connectionWarning:
+      "Conexión lenta. Todavía estamos esperando la confirmación de su pago...",
+    expiredTitle: "Pago Expirado",
+    expiredDetail:
+      "Este código Pix ya no es válido. Por favor, cierre esta ventana e intente reservar de nuevo.",
+    btnRetry: "Intentar de Nuevo",
 
     // --- Success View Additions ---
     successTitle: "¡Pago Confirmado!",

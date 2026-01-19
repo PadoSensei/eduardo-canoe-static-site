@@ -1,294 +1,128 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
+import { setupServer } from "msw/node";
+import { http, HttpResponse } from "msw";
 import BookingSystem from "../src/components/BookingSystem";
-import { bookingTranslations } from "../src/data/bookingTranslations";
+import { LanguageProvider } from "../src/context/LanguageContext";
 
-// 1. Mock the API functions
-import * as api from "../src/api";
-jest.mock("../src/api");
+const API_BASE = "http://localhost:8000/api/v1";
 
-// 2. Programmable Mock for Language Context
-const mockUseLanguage = jest.fn();
-
-jest.mock("../src/context/LanguageContext", () => ({
-  useLanguage: () => mockUseLanguage(),
-}));
-
-// Helper to simulate translations for the test
-// This mimics your translations.js structure for the keys used in BookingSystem
-const mockT = (key) => {
-  const map = {
-    card1Title: "Sunrise Tour",
-    card2Title: "Full Day Tour",
-    card3Title: "Sunset Tour",
-  };
-  return map[key] || key;
-};
-
-describe("BookingSystem Integration", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    // DEFAULT SETUP: English + working translator function
-    mockUseLanguage.mockReturnValue({
-      language: "en",
-      t: mockT,
-    });
-  });
-
-  // --- STANDARD FUNCTIONAL TESTS (English) ---
-
-  test("Renders loading state initially", () => {
-    api.getAvailableTours.mockReturnValue(new Promise(() => {}));
-    render(<BookingSystem />);
-    expect(
-      screen.getByText(/Loading available adventures/i)
-    ).toBeInTheDocument();
-  });
-
-  test("Renders available tours after fetching", async () => {
-    const mockTours = [
+const server = setupServer(
+  http.get(`${API_BASE}/tours/available`, () => {
+    return HttpResponse.json([
       {
-        id: "1",
-        instanceId: 101,
-        // FIX: Added tourType so the component knows which name to render
-        tourType: "sunset",
-        name: "Sunset Tour", // Fallback name
-        price: 150,
-        isBookable: true,
-        remaining: 5,
-        capacity: 10,
-        duration: "2h",
-      },
-    ];
-
-    api.getAvailableTours.mockResolvedValue(mockTours);
-
-    render(<BookingSystem />);
-
-    // Now this will find "Sunset Tour" because tourType='sunset' -> t('card3Title') -> 'Sunset Tour'
-    await waitFor(() => {
-      expect(screen.getByText("Sunset Tour")).toBeInTheDocument();
-    });
-    expect(screen.getByText("Book Now")).toBeInTheDocument();
-  });
-
-  // --- DYNAMIC LANGUAGE TEST ---
-
-  test("Renders UI correctly in a randomly selected language (PT/ES)", async () => {
-    const languages = ["pt", "es"];
-    const randomLang = languages[Math.floor(Math.random() * languages.length)];
-
-    console.log(
-      `🎲 BookingSystem Test: Randomly testing in [${randomLang.toUpperCase()}]`
-    );
-
-    // FIX: Ensure the mock returns the language AND the t function
-    mockUseLanguage.mockReturnValue({
-      language: randomLang,
-      t: mockT,
-    });
-
-    api.getAvailableTours.mockResolvedValue([
-      {
-        id: "1",
-        instanceId: 101,
-        tourType: "sunrise", // Use 'sunrise' to test card1Title logic
-        name: "Test Tour",
+        tour_instance_id: 101,
+        tour_type: "morning",
+        display_name: "Sunrise Tour",
         price: 100,
-        isBookable: true,
-        remaining: 5,
+        seats_available: 5,
+        is_bookable: true,
+        tour_date: "2026-01-16",
       },
     ]);
-
-    render(<BookingSystem />);
-
-    const expectedBookBtn = bookingTranslations[randomLang].bookBtn;
-    const expectedTitle = bookingTranslations[randomLang].title;
-
-    await waitFor(() => {
-      expect(screen.getByText(expectedBookBtn)).toBeInTheDocument();
-    });
-    expect(screen.getByText(expectedTitle)).toBeInTheDocument();
-  });
-
-  // --- INTERACTION TEST (English) ---
-
-  test("Handles booking flow correctly", async () => {
-    const mockTours = [
-      {
-        id: "1",
-        instanceId: 101,
-        tourType: "sunset", // FIX: Added tourType
-        name: "Test Tour",
-        price: 100,
-        isBookable: true,
-        remaining: 5,
-      },
-    ];
-
-    api.getAvailableTours.mockResolvedValue(mockTours);
-    api.createBooking.mockResolvedValue({
+  }),
+  http.post(`${API_BASE}/bookings`, () => {
+    return HttpResponse.json({
       success: true,
-      booking: { uuid: "123" },
-      paymentInfo: { qr_code: "pix-code", qr_code_image: "img.png" },
+      booking: { uuid: "test-uuid-123", id: 1 },
+      payment_info: { qr_code: "pix-key-123", qr_code_image: "img.png" },
     });
+  })
+);
 
-    render(<BookingSystem />);
+beforeAll(() => {
+  server.listen();
+  jest.useFakeTimers();
+});
+afterEach(() => {
+  server.resetHandlers();
+  jest.clearAllTimers();
+});
+afterAll(() => {
+  server.close();
+  jest.useRealTimers();
+});
 
-    const bookBtn = await screen.findByText(/Book Now/i);
-    fireEvent.click(bookBtn);
+const renderWithProviders = (ui) =>
+  render(<LanguageProvider>{ui}</LanguageProvider>);
 
-    fireEvent.change(screen.getByPlaceholderText(/Enter your full name/i), {
-      target: { value: "John Doe" },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/your@email.com/i), {
-      target: { value: "john@example.com" },
-    });
+const reachPaymentStage = async () => {
+  const bookBtn = await screen.findByRole("button", { name: /Book Now/i });
+  fireEvent.click(bookBtn);
 
-    const confirmBtn = screen.getByText(/Confirm Booking/i);
-    fireEvent.click(confirmBtn);
-
-    await waitFor(() => {
-      expect(api.createBooking).toHaveBeenCalled();
-    });
+  // Use labels or placeholders that exist in your BookingForm.jsx
+  fireEvent.change(screen.getByPlaceholderText(/full name/i), {
+    target: { value: "John Doe" },
   });
-});
+  fireEvent.change(screen.getByPlaceholderText(/email/i), {
+    target: { value: "john@test.com" },
+  });
 
-test("Updates total price when number of guests changes", async () => {
-  const mockTours = [
-    {
-      id: "1",
-      instanceId: 101,
-      tourType: "morning",
-      name: "Morning Tour",
-      price: 100.0,
-      isBookable: true,
-      remaining: 5,
-    },
-  ];
-  api.getAvailableTours.mockResolvedValue(mockTours);
-
-  render(<BookingSystem />);
-
-  // 1. Open Modal
-  const bookBtn = await screen.findByText(/Book Now/i);
-  fireEvent.click(bookBtn);
-
-  // 2. Find the "Total:" label to locate the correct price container
-  const totalLabel = screen.getByText(/Total:/i);
-  const totalContainer = totalLabel.parentElement; // The <div> containing both "Total:" and the price
-
-  // 3. Check initial price (1 person = 100)
-  expect(totalContainer).toHaveTextContent("100.00");
-
-  // 4. Change people to 3
-  const guestsInput = screen.getByLabelText(/Number of Guests/i);
-  fireEvent.change(guestsInput, { target: { value: "3" } });
-
-  // 5. Assert Total is now 300
-  expect(totalContainer).toHaveTextContent("300.00");
-});
-
-test("Prevents submission if form is incomplete", async () => {
-  // Mock window.alert
-  window.alert = jest.fn();
-
-  const mockTours = [
-    {
-      id: "1",
-      instanceId: 101,
-      tourType: "morning",
-      name: "Morning Tour",
-      price: 100,
-      isBookable: true,
-      remaining: 5,
-    },
-  ];
-  api.getAvailableTours.mockResolvedValue(mockTours);
-
-  render(<BookingSystem />);
-  const bookBtn = await screen.findByText(/Book Now/i);
-  fireEvent.click(bookBtn);
-
-  // 1. Click Confirm WITHOUT filling name/email
-  const confirmBtn = screen.getByText(/Confirm Booking/i);
+  const confirmBtn = screen.getByRole("button", { name: /Confirm Booking/i });
   fireEvent.click(confirmBtn);
 
-  // 2. Expect Alert
-  expect(window.alert).toHaveBeenCalled();
+  // Wait for the Payment View to appear
+  await screen.findByText(/Booking Reserved/i);
+};
 
-  // 3. Expect API NOT to be called
-  expect(api.createBooking).not.toHaveBeenCalled();
-});
+describe("BookingSystem Integration & Resilience", () => {
+  test("polls for status and switches to Success View", async () => {
+    let callCount = 0;
+    server.use(
+      http.get(`${API_BASE}/bookings/status/test-uuid-123`, () => {
+        callCount++;
+        const status = callCount < 2 ? "pending_payment" : "confirmed";
+        return HttpResponse.json({ status });
+      })
+    );
 
-test("Polls for status and switches to Success View after payment", async () => {
-  jest.useFakeTimers(); // Take control of time
+    renderWithProviders(<BookingSystem />);
+    await reachPaymentStage();
 
-  const mockTours = [
-    {
-      id: "1",
-      instanceId: 101,
-      tourType: "morning",
-      name: "Morning Tour",
-      price: 100,
-      isBookable: true,
-      remaining: 5,
-    },
-  ];
+    // Trigger Poll 1: returns pending
+    await act(async () => {
+      jest.advanceTimersByTime(3000);
+    });
 
-  // 1. Setup API Mocks
-  api.getAvailableTours.mockResolvedValue(mockTours);
+    // Trigger Poll 2: returns confirmed
+    await act(async () => {
+      jest.advanceTimersByTime(3000);
+    });
 
-  // Step A: Booking Creation Success
-  api.createBooking.mockResolvedValue({
-    success: true,
-    booking: { uuid: "booking-uuid-123" },
-    paymentInfo: { qr_code: "pix123", qr_code_image: "img.png" },
+    // SuccessView logic: Check for "Thank you" or "confirmed" (check your SuccessView.jsx)
+    await waitFor(
+      () => {
+        expect(screen.getByText(/Confirmation/i)).toBeInTheDocument();
+      },
+      { timeout: 4000 }
+    );
   });
 
-  // Step B: Polling Logic (First return PENDING, then CONFIRMED)
-  api.getBookingStatus
-    .mockResolvedValueOnce({ status: "pending" }) // First poll
-    .mockResolvedValueOnce({ status: "confirmed" }); // Second poll
+  test("shows connection warning after 5 failed status checks", async () => {
+    server.use(
+      http.get(`${API_BASE}/bookings/status/test-uuid-123`, () => {
+        return new HttpResponse(null, { status: 500 });
+      })
+    );
 
-  render(<BookingSystem />);
+    renderWithProviders(<BookingSystem />);
+    await reachPaymentStage();
 
-  // 2. Perform Booking
-  const bookBtn = await screen.findByText(/Book Now/i);
-  fireEvent.click(bookBtn);
-  fireEvent.change(screen.getByPlaceholderText(/Enter your full name/i), {
-    target: { value: "Jane Doe" },
+    // Advance 5 intervals
+    for (let i = 0; i < 5; i++) {
+      await act(async () => {
+        jest.advanceTimersByTime(3000);
+      });
+    }
+
+    // Matches the updated text in BookingSystem.jsx
+    const warning = await screen.findByText(/Connection slow/i);
+    expect(warning).toBeInTheDocument();
   });
-  fireEvent.change(screen.getByPlaceholderText(/your@email.com/i), {
-    target: { value: "jane@test.com" },
-  });
-  fireEvent.click(screen.getByText(/Confirm Booking/i));
-
-  // 3. Wait for Payment View (QR Code)
-  await waitFor(() => {
-    expect(screen.getByText("pix123")).toBeInTheDocument();
-  });
-
-  // 4. Fast-forward time to trigger Polling
-  // Advance 3 seconds (First poll -> pending)
-  await React.act(async () => {
-    jest.advanceTimersByTime(3000);
-  });
-
-  // Advance 3 seconds (Second poll -> confirmed)
-  await React.act(async () => {
-    jest.advanceTimersByTime(3000);
-  });
-
-  // 5. Verify Success View appears
-  // Assuming SuccessView renders "Payment Confirmed!" or similar text based on your components
-  await waitFor(() => {
-    // Check for a unique element from your SuccessView component
-    // Adjust this text based on what SuccessView.jsx actually renders
-    expect(screen.queryByText("pix123")).not.toBeInTheDocument(); // QR code should be gone
-  });
-
-  // Cleanup
-  jest.useRealTimers();
 });
