@@ -211,11 +211,9 @@ describe("BookingSystem Integration & Resilience", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
 
-    await waitFor(() => {
-      expect(alertMock).toHaveBeenCalledWith(
-        expect.stringContaining("Tour recently filled up")
-      );
-    });
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /Tour recently filled up/i
+    );
     alertMock.mockRestore();
   });
 
@@ -242,8 +240,8 @@ describe("BookingSystem Integration & Resilience", () => {
     const bookBtn = await screen.findByRole("button", { name: /Book Now/i });
     fireEvent.click(bookBtn);
 
-    expect(alertSpy).toHaveBeenCalledWith(
-      expect.stringContaining("past dates")
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /past dates/i
     );
     alertSpy.mockRestore();
   });

@@ -254,7 +254,6 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
         HttpResponse.json({ detail: "Server busy" }, { status: 503 })
       )
     );
-    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
     render(
       <LanguageProvider>
         <BookingSystem />
@@ -272,16 +271,10 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
 
-    await waitFor(() =>
-      expect(alertSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Server busy")
-      )
-    );
-    alertSpy.mockRestore();
+    expect(await screen.findByRole("alert")).toHaveTextContent(/Server busy/i);
   });
 
   test("prevents booking when tour fills up simultaneously", async () => {
-    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
     server.use(
       http.post(`${API_BASE}/bookings`, () =>
         HttpResponse.json(
@@ -307,11 +300,6 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
 
-    await waitFor(() =>
-      expect(alertSpy).toHaveBeenCalledWith(
-        expect.stringContaining("filled up")
-      )
-    );
-    alertSpy.mockRestore();
+    expect(await screen.findByRole("alert")).toHaveTextContent(/filled up/i);
   });
 });
