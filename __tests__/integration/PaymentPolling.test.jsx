@@ -3,115 +3,121 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import BookingSystem from "../../src/components/BookingSystem";
-import { LanguageProvider } from "../../src/context/LanguageContext";
+import {
+  LanguageProvider,
+  useLanguage,
+} from "../../src/context/LanguageContext";
+import { bookingTranslations } from "../../src/data/bookingTranslations";
 
-// --- Constants & Mock Data ---
 const API_BASE = "http://localhost:8000/api/v1";
 const TEST_UUID = "test-uuid-123";
 
-// Note: Date matches the debug logs to avoid "Past Date" validation logic
-const MOCK_TOURS = [
-  {
-    tour_instance_id: 1,
-    tour_type: "morning",
-    display_name: "Sunrise Tour",
-    price: 100,
-    seats_available: 10,
-    is_bookable: true,
-    tour_date: "2026-01-16",
-  },
-];
+// 1. Mock Context
+jest.mock("../../src/context/LanguageContext", () => {
+  const actual = jest.requireActual("../../src/context/LanguageContext");
+  return { ...actual, useLanguage: jest.fn() };
+});
 
-const MOCK_BOOKING_SUCCESS = {
-  booking: { id: 123, uuid: TEST_UUID },
-  payment_info: { qr_code: "pix-key", qr_code_image: "img-url" },
-};
-
-// --- MSW Server Setup ---
+// 2. Setup MSW
 const server = setupServer(
-  http.get(`${API_BASE}/tours/available`, () => HttpResponse.json(MOCK_TOURS)),
+  http.get(`${API_BASE}/tours/available`, () =>
+    HttpResponse.json([
+      {
+        tour_instance_id: 1,
+        tour_type: "morning",
+        display_name: "Sunrise Tour",
+        price: 100,
+        seats_available: 10,
+        is_bookable: true,
+        tour_date: "2026-01-19",
+      },
+    ])
+  ),
   http.post(`${API_BASE}/bookings`, () =>
-    HttpResponse.json(MOCK_BOOKING_SUCCESS)
+    HttpResponse.json({
+      success: true,
+      booking: { uuid: TEST_UUID, id: 1 },
+      payment_info: {
+        qr_code: "pix-key",
+        qr_code_image: "img",
+        expires_in: 900,
+      },
+    })
   )
 );
 
 beforeAll(() => server.listen());
 afterEach(() => {
   server.resetHandlers();
-  jest.useRealTimers(); // Reset clock after every test
+  localStorage.clear();
+  jest.clearAllTimers();
+  jest.useRealTimers();
 });
 afterAll(() => server.close());
 
-// --- HELPERS ---
-
-const renderBookingSystem = () =>
-  render(
-    <LanguageProvider>
-      <BookingSystem />
-    </LanguageProvider>
-  );
-
-/**
- * Reaches the Payment screen while timers are REAL.
- * This prevents the initial MSW fetches from deadlocking.
- */
-const reachPaymentStage = async () => {
-  // 1. Wait for loading to finish
-  const bookBtn = await screen.findByRole("button", { name: /Book Now/i });
-  fireEvent.click(bookBtn);
-
-  // 2. Fill form using placeholders from your code
-  fireEvent.change(screen.getByPlaceholderText(/full name/i), {
-    target: { value: "John Doe" },
-  });
-  fireEvent.change(screen.getByPlaceholderText(/email/i), {
-    target: { value: "john@test.com" },
-  });
-
-  // 3. Confirm
-  const confirmBtn = screen.getByRole("button", { name: /Confirm Booking/i });
-  fireEvent.click(confirmBtn);
-
-  // 4. Wait for transition to payment screen
-  await screen.findByText(/Booking Reserved/i);
-};
-
-// --- TEST SUITE ---
-
 describe("Payment Polling Integration", () => {
+  beforeEach(() => {
+    jest.useFakeTimers(); // USE FAKE TIMERS FROM THE START
+    useLanguage.mockReturnValue({
+      language: "en",
+      t: (key) => bookingTranslations.en[key] || key,
+    });
+  });
+
+  const runInitialSetup = async () => {
+    render(
+      <LanguageProvider>
+        <BookingSystem />
+      </LanguageProvider>
+    );
+
+    // Resolve initial fetch
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Book Now/i }));
+
+    fireEvent.input(screen.getByLabelText(/Name/i), {
+      target: { value: "John Doe" },
+    });
+    fireEvent.input(screen.getByLabelText(/Email/i), {
+      target: { value: "john@test.com" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
+
+    // Resolve booking creation fetch
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
+    });
+  };
+
   test("should transition to success view after successful polling", async () => {
     let pollCount = 0;
     server.use(
       http.get(`${API_BASE}/bookings/status/${TEST_UUID}`, () => {
         pollCount++;
-        const status = pollCount < 2 ? "pending_payment" : "confirmed";
-        return HttpResponse.json({ status });
+        return HttpResponse.json({
+          status: pollCount < 2 ? "pending" : "confirmed",
+        });
       })
     );
 
-    renderBookingSystem();
-    await reachPaymentStage();
+    await runInitialSetup();
+    expect(screen.getByText(/Booking Reserved/i)).toBeInTheDocument();
 
-    // --- Switch to Fake Timers for the Polling Loop ---
-    jest.useFakeTimers();
-
-    // Trigger Poll 1: Pending
-    // Using advanceTimersByTimeAsync (Jest 29.5+) is the cleanest fix for MSW v2
+    // Advance 3.1s for Poll 1
     await act(async () => {
-      await jest.advanceTimersByTimeAsync(3000);
+      await jest.advanceTimersByTimeAsync(3100);
     });
     expect(screen.getByText(/Booking Reserved/i)).toBeInTheDocument();
 
-    // Trigger Poll 2: Confirmed
+    // Advance 3.1s for Poll 2 (Confirmed)
     await act(async () => {
-      await jest.advanceTimersByTimeAsync(3000);
+      await jest.advanceTimersByTimeAsync(3100);
     });
 
-    // Switch back to real timers so the findBy queries work
-    jest.useRealTimers();
-
-    // Verify Success UI (Matches "Payment Confirmed!" in translations)
-    expect(await screen.findByText(/Confirmed/i)).toBeInTheDocument();
+    expect(screen.getByText(/Confirmed/i)).toBeInTheDocument();
     expect(pollCount).toBe(2);
   });
 
@@ -124,52 +130,40 @@ describe("Payment Polling Integration", () => {
       })
     );
 
-    renderBookingSystem();
-    await reachPaymentStage();
+    await runInitialSetup();
 
-    jest.useFakeTimers();
-
-    // Trigger the Poll
+    // Trigger Poll
     await act(async () => {
-      await jest.advanceTimersByTimeAsync(3000);
+      await jest.advanceTimersByTimeAsync(3100);
     });
 
-    jest.useRealTimers();
+    // Matches the <h3> or <p> containing the word Expired
+    expect(screen.getAllByText(/Expired/i)[0]).toBeInTheDocument();
 
-    // Verify "Payment Expired" text appears
-    expect(await screen.findByText(/Expired/i)).toBeInTheDocument();
-
-    // Ensure it stopped polling (pollCount should stay 1)
-    jest.useFakeTimers();
+    // Ensure no more polls happen
     await act(async () => {
-      await jest.advanceTimersByTimeAsync(3000);
+      await jest.advanceTimersByTimeAsync(3100);
     });
     expect(pollCount).toBe(1);
   });
 
   test("should handle API errors gracefully without stopping the loop", async () => {
-    let errorCount = 0;
+    let callCount = 0;
     server.use(
       http.get(`${API_BASE}/bookings/status/${TEST_UUID}`, () => {
-        errorCount++;
+        callCount++;
         return new HttpResponse(null, { status: 500 });
       })
     );
 
-    renderBookingSystem();
-    await reachPaymentStage();
-
-    jest.useFakeTimers();
+    await runInitialSetup();
 
     // Advance 1 interval
     await act(async () => {
-      await jest.advanceTimersByTimeAsync(3000);
+      await jest.advanceTimersByTimeAsync(3100);
     });
 
-    jest.useRealTimers();
-
-    // Still in payment view
     expect(screen.getByText(/Booking Reserved/i)).toBeInTheDocument();
-    expect(errorCount).toBe(1);
+    expect(callCount).toBe(1);
   });
 });

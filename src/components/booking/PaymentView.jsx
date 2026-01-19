@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import { bookingTranslations } from "../../data/bookingTranslations";
 
@@ -7,10 +7,32 @@ export function PaymentView({
   onClose,
   hasConnectionIssue,
   isExpired,
+  isFailed,
 }) {
   const [copied, setCopied] = useState(false);
+  // Woovi provides expires_in in seconds. Default to 15 mins (900s).
+  const [timeLeft, setTimeLeft] = useState(paymentInfo?.expires_in || 900);
+
   const { language } = useLanguage();
   const t = bookingTranslations[language] || bookingTranslations["en"];
+
+  // Countdown timer logic
+  useEffect(() => {
+    // Stop timer if payment is already terminal (expired/failed) or time is up
+    if (isExpired || isFailed || timeLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, isExpired, isFailed]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   const handleCopyPix = async () => {
     if (!paymentInfo) return;
@@ -26,7 +48,31 @@ export function PaymentView({
 
   return (
     <div className="text-center animate-fadeIn">
-      {isExpired ? (
+      {isFailed ? (
+        /* --- STATE: BANK REJECTION --- */
+        <div className="py-4">
+          <div className="mb-4 text-red-600">
+            <svg
+              className="w-16 h-16 mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-bold mb-2 text-gray-800">
+            {t.failedTitle}
+          </h3>
+          <p className="text-gray-600 mb-8">{t.failedDetail}</p>
+        </div>
+      ) : isExpired ? (
+        /* --- STATE: EXPIRED --- */
         <div className="py-4">
           <div className="mb-4 text-red-500">
             <svg
@@ -49,6 +95,7 @@ export function PaymentView({
           <p className="text-gray-600 mb-8">{t.expiredDetail}</p>
         </div>
       ) : (
+        /* --- STATE: ACTIVE PAYMENT --- */
         <>
           {hasConnectionIssue && (
             <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3 text-amber-700 text-sm animate-pulse">
@@ -85,9 +132,20 @@ export function PaymentView({
             </svg>
           </div>
 
-          <h3 className="text-2xl font-bold mb-2 text-gray-800">
+          <h3 className="text-2xl font-bold mb-1 text-gray-800">
             {t.paymentTitle}
           </h3>
+
+          <div className="mb-4">
+            <p
+              className={`text-sm font-medium ${
+                timeLeft < 60 ? "text-red-500 animate-pulse" : "text-gray-500"
+              }`}
+            >
+              ⏱️ {t.expiresIn}: {formatTime(timeLeft)}
+            </p>
+          </div>
+
           <p className="text-gray-600 mb-6 px-4">{t.paymentInstruction}</p>
 
           <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 flex justify-center shadow-inner">
@@ -125,7 +183,7 @@ export function PaymentView({
         onClick={onClose}
         className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors"
       >
-        {isExpired ? t.btnRetry : t.btnClose}
+        {isExpired || isFailed ? t.btnRetry : t.btnClose}
       </button>
     </div>
   );

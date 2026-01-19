@@ -88,6 +88,14 @@ export async function createBooking(bookingData) {
     const result = await response.json();
     console.log("Booking created:", result);
 
+    // Check if server indicates failure in response body
+    if (result.success === false) {
+      return {
+        success: false,
+        message: result.message || "Booking failed. Please try again.",
+      };
+    }
+
     return {
       success: true,
       booking: result.booking,

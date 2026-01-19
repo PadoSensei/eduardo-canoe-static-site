@@ -56,12 +56,18 @@ export const bookingTranslations = {
     expiredDetail:
       "This Pix code is no longer valid. Please close this window and try booking again.",
     btnRetry: "Try Again",
+    expiresIn: "QR Code expires in",
 
     // --- Success View Additions ---
     successTitle: "Payment Confirmed!",
     successMessage:
       "Your adventure is booked. We have sent a confirmation email to",
     btnDone: "Done",
+
+    // ---- Failed
+    failedTitle: "Payment Rejected",
+    failedDetail:
+      "The payment was rejected by the bank. Please try again or use a different payment method.",
   },
   pt: {
     title: "Verificar Disponibilidade",
@@ -118,6 +124,12 @@ export const bookingTranslations = {
     expiredDetail:
       "Este código Pix não é mais válido. Por favor, feche esta janela e tente reservar novamente.",
     btnRetry: "Tentar Novamente",
+    expiresIn: "O código expira em",
+
+    // ---- Failed
+    failedTitle: "Pagamento Rejeitado",
+    failedDetail:
+      "O pagamento foi rejeitado pelo banco. Por favor, tente novamente ou use outro método de pagamento.",
 
     // --- Success View Additions ---
     successTitle: "Pagamento Confirmed!",
@@ -181,6 +193,12 @@ export const bookingTranslations = {
     expiredDetail:
       "Este código Pix ya no es válido. Por favor, cierre esta ventana e intente reservar de nuevo.",
     btnRetry: "Intentar de Nuevo",
+    expiresIn: "El código expira en",
+
+    // ---- Failed
+    failedTitle: "Pago Rechazado",
+    failedDetail:
+      "El pago fue rechazado por el banco. Por favor, intente de nuevo o use otro método de pago.",
 
     // --- Success View Additions ---
     successTitle: "¡Pago Confirmado!",

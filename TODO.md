@@ -7,3 +7,7 @@
 - Refactor and 'sprinkle' react
 - Create knowledge base
 - Create supabase db and connection
+
+Buglist
+
+- user can book tours in the past - Solved
