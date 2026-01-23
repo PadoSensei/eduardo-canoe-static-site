@@ -97,6 +97,7 @@ describe("Tour API Client", () => {
         guestEmail: "john@example.com",
         numPeople: 2,
         totalPrice: 100.0,
+        acceptedTerms: true,
       };
 
       const result = await createBooking(bookingData);
@@ -128,6 +129,7 @@ describe("Tour API Client", () => {
         guestEmail: "john@example.com",
         numPeople: 20,
         totalPrice: 1000.0,
+        acceptedTerms: true,
       };
 
       const result = await createBooking(bookingData);

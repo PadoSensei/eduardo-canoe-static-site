@@ -47,6 +47,7 @@ function BookingSystem() {
   const [numPeople, setNumPeople] = useState(1);
   const [specialNotes, setSpecialNotes] = useState("");
   const [formError, setFormError] = useState(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Booking Logic Hook
   const {
@@ -113,6 +114,12 @@ function BookingSystem() {
 
     if (!guestName || !guestEmail) {
       setFormError(bt.alertMissing);
+      return;
+    }
+
+    // ADD THIS VALIDATION
+    if (!acceptedTerms) {
+      setFormError(bt.errorTerms);
       return;
     }
 
@@ -309,6 +316,8 @@ function BookingSystem() {
                   onCancel={closeModal}
                   isSubmitting={!!bookingTourId}
                   error={formError}
+                  acceptedTerms={acceptedTerms}
+                  setAcceptedTerms={setAcceptedTerms}
                 />
               ) : null}
             </div>

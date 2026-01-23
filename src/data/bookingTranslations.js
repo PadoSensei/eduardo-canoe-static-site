@@ -68,6 +68,12 @@ export const bookingTranslations = {
     failedTitle: "Payment Rejected",
     failedDetail:
       "The payment was rejected by the bank. Please try again or use a different payment method.",
+    // ----- TOS
+    labelAcceptTerms: "I accept the ",
+    linkTerms: "Terms of Service",
+    linkAnd: " and ",
+    linkPrivacy: "Privacy Policy",
+    errorTerms: "You must accept the terms to proceed.",
   },
   pt: {
     title: "Verificar Disponibilidade",
@@ -136,6 +142,12 @@ export const bookingTranslations = {
     successMessage:
       "Sua aventura está reservada. Enviamos um e-mail de confirmação para",
     btnDone: "Concluído",
+    // ----- TOS
+    labelAcceptTerms: "Eu aceito os ",
+    linkTerms: "Termos de Serviço",
+    linkAnd: " e a ",
+    linkPrivacy: "Política de Privacidade",
+    errorTerms: "Você deve aceitar os termos para continuar.",
   },
   es: {
     title: "Verificar Disponibilidad",
@@ -205,5 +217,11 @@ export const bookingTranslations = {
     successMessage:
       "Tu aventura está reservada. Hemos enviado un correo de confirmación a",
     btnDone: "Listo",
+    // ----- TOS
+    labelAcceptTerms: "Eu aceito os ",
+    linkTerms: "Termos de Serviço",
+    linkAnd: " e a ",
+    linkPrivacy: "Política de Privacidade",
+    errorTerms: "Você deve aceitar os termos para continuar.",
   },
 };

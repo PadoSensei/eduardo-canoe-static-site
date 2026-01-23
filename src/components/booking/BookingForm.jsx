@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom"; // Required for legal links
 import { useLanguage } from "../../context/LanguageContext";
 
 export function BookingForm({
@@ -12,6 +13,8 @@ export function BookingForm({
   setNumPeople,
   specialNotes,
   setSpecialNotes,
+  acceptedTerms, // NEW PROP
+  setAcceptedTerms, // NEW PROP
   onConfirm,
   onCancel,
   isSubmitting,
@@ -43,6 +46,7 @@ export function BookingForm({
         </div>
       )}
 
+      {/* Booking Summary Card */}
       <div className="mb-4 bg-gray-50 p-4 rounded-lg border border-gray-100">
         <p className="text-gray-600 flex justify-between">
           <span className="font-semibold">{t("labelDate")}:</span>
@@ -62,6 +66,7 @@ export function BookingForm({
         </div>
       </div>
 
+      {/* Guest Count */}
       <div className="mb-4">
         <label
           htmlFor="num-people"
@@ -69,20 +74,19 @@ export function BookingForm({
         >
           Number of Guests (Max {tour.remaining})
         </label>
-        <div className="flex items-center">
-          <input
-            type="number"
-            id="num-people"
-            min="1"
-            max={tour.remaining}
-            value={numPeople}
-            onChange={handlePeopleChange}
-            className="w-24 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] text-center font-bold text-lg"
-            required
-          />
-        </div>
+        <input
+          type="number"
+          id="num-people"
+          min="1"
+          max={tour.remaining}
+          value={numPeople}
+          onChange={handlePeopleChange}
+          className="w-24 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] text-center font-bold text-lg"
+          required
+        />
       </div>
 
+      {/* Name Input */}
       <div className="mb-4">
         <label
           htmlFor="guest-name"
@@ -101,6 +105,7 @@ export function BookingForm({
         />
       </div>
 
+      {/* Email Input */}
       <div className="mb-6">
         <label
           htmlFor="guest-email"
@@ -119,6 +124,7 @@ export function BookingForm({
         />
       </div>
 
+      {/* Notes Input */}
       <div className="mb-6">
         <label
           htmlFor="special-notes"
@@ -136,11 +142,49 @@ export function BookingForm({
         />
       </div>
 
+      {/* NEW: LGPD COMPLIANCE CHECKBOX */}
+      <div className="mb-6 flex items-start gap-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
+        <input
+          type="checkbox"
+          id="accept-terms"
+          checked={acceptedTerms}
+          onChange={(e) => setAcceptedTerms(e.target.checked)}
+          className="mt-1 h-5 w-5 rounded border-gray-300 text-[#FF6B6B] focus:ring-[#FF6B6B] cursor-pointer"
+        />
+        <label
+          htmlFor="accept-terms"
+          className="text-sm text-gray-600 leading-tight cursor-pointer"
+        >
+          {t("labelAcceptTerms")}
+          <Link
+            to="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#FF6B6B] underline font-medium mx-1 hover:text-[#FF5252]"
+          >
+            {t("linkTerms")}
+          </Link>
+          {t("linkAnd")}
+          <Link
+            to="/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#FF6B6B] underline font-medium mx-1 hover:text-[#FF5252]"
+          >
+            {t("linkPrivacy")}
+          </Link>
+          .
+        </label>
+      </div>
+
+      {/* Actions */}
       <div className="flex gap-4">
         <button
           onClick={onConfirm}
-          disabled={isSubmitting}
-          className="flex-1 bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex justify-center items-center"
+          // HARDENING: Submission is blocked if terms aren't accepted
+          disabled={isSubmitting || !acceptedTerms}
+          className="flex-1 bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all 
+                     disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed flex justify-center items-center"
         >
           {isSubmitting ? t("btnSubmitting") : t("btnConfirm")}
         </button>

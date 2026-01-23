@@ -39,6 +39,10 @@ export const translations = {
     faqSectionTitle: "Your Questions Answered",
     faqSubtitle:
       "Everything you need to know about our canoe adventures in Pipa.",
+    navHome: "Home",
+    footerLegal: "Legal",
+    footerTerms: "Terms of Service",
+    footerPrivacy: "Privacy Policy",
   },
   pt: {
     inquireBtn: "Reserve Seu Passeio",
@@ -80,6 +84,10 @@ export const translations = {
     learnMore: "Nossos Passeios",
     faqSectionTitle: "Perguntas Frequentes",
     faqSubtitle: "Tudo o que você precisa saber sobre nossos passeios em Pipa.",
+    navHome: "Início",
+    footerLegal: "Jurídico",
+    footerTerms: "Termos de Serviço",
+    footerPrivacy: "Política de Privacidade",
   },
   es: {
     inquireBtn: "Reserva Tu Tour",
@@ -122,5 +130,9 @@ export const translations = {
     faqSectionTitle: "Preguntas Frecuentes",
     faqSubtitle:
       "Todo lo que necesitas saber sobre nuestras aventuras en Pipa.",
+    navHome: "Início",
+    footerLegal: "Jurídico",
+    footerTerms: "Termos de Serviço",
+    footerPrivacy: "Política de Privacidade",
   },
 };

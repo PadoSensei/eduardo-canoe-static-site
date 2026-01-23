@@ -7,7 +7,9 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Tours from "./pages/Tours";
 import FAQ from "./pages/FAQ";
-import Dashboard from "./pages/Dashboard"; // <--- NEW IMPORT
+import Dashboard from "./pages/Dashboard";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 // Components
 import BookingSystem from "./components/BookingSystem";
@@ -30,6 +32,8 @@ const App = () => {
             }
           />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
 
           {/* Admin Route */}
           <Route path="/admin" element={<Dashboard />} />
