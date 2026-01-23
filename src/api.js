@@ -1,31 +1,46 @@
 // api.js - Backend API client for tour booking application
+import * as Sentry from "@sentry/react";
 
 const DOMAIN = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const API_BASE_URL = `${DOMAIN}/api/v1`;
 
 /**
+ * Helper to capture API errors with context
+ */
+const captureApiError = (error, context) => {
+  Sentry.withScope((scope) => {
+    scope.setLevel("error");
+    scope.setTag("api_endpoint", context.endpoint);
+    if (context.status) scope.setExtra("status_code", context.status);
+    scope.setExtra("payload", context.payload);
+    Sentry.captureException(error);
+  });
+};
+
+/**
  * Fetches available tours for a specific date from the backend.
- * @param {string} date - Date in YYYY-MM-DD format
- * @returns {Promise<Array>} Array of available tour objects
  */
 export async function getAvailableTours(date) {
   const url = `${API_BASE_URL}/tours/available?tour_date=${date}`;
 
   try {
-    console.log(`Fetching tours from: ${url}`);
     const response = await fetch(url);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const message =
         errorData.detail || response.statusText || "Unknown error";
-      throw new Error(`HTTP error ${response.status}: ${message}`);
+      const err = new Error(`HTTP error ${response.status}: ${message}`);
+
+      captureApiError(err, {
+        endpoint: "getAvailableTours",
+        status: response.status,
+        payload: { date },
+      });
+      throw err;
     }
 
     const data = await response.json();
-    console.log("API response:", data);
-
-    // Map backend response to frontend format
     return data.map((tour) => ({
       id: `${tour.tour_type}-${tour.tour_date}`,
       instanceId: tour.tour_instance_id,
@@ -42,19 +57,18 @@ export async function getAvailableTours(date) {
     }));
   } catch (error) {
     console.error("Error fetching available tours:", error);
+    if (!(error instanceof Error && error.message.includes("HTTP error"))) {
+      captureApiError(error, {
+        endpoint: "getAvailableTours",
+        payload: { date },
+      });
+    }
     throw error;
   }
 }
 
 /**
  * Creates a booking for a tour.
- * @param {object} bookingData - Booking information
- * @param {number} bookingData.tourId - Tour instance ID
- * @param {string} bookingData.guestName - Guest's name
- * @param {string} bookingData.guestEmail - Guest's email
- * @param {number} bookingData.numPeople - Number of people
- * @param {number} bookingData.totalPrice - Total price for the booking
- * @returns {Promise<object>} Booking response with booking details and payment info
  */
 export async function createBooking(bookingData) {
   const url = `${API_BASE_URL}/bookings`;
@@ -69,28 +83,33 @@ export async function createBooking(bookingData) {
     accepted_terms: bookingData.acceptedTerms,
   };
 
-  console.log("Creating booking:", payload);
-
   try {
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const message = errorData.detail || `Server error: ${response.status}`;
-      throw new Error(message);
+      const err = new Error(message);
+
+      captureApiError(err, {
+        endpoint: "createBooking",
+        status: response.status,
+        payload,
+      });
+      throw err;
     }
 
     const result = await response.json();
-    console.log("Booking created:", result);
 
-    // Check if server indicates failure in response body
     if (result.success === false) {
+      captureApiError(new Error("Booking indicated failure in body"), {
+        endpoint: "createBooking",
+        payload: result,
+      });
       return {
         success: false,
         message: result.message || "Booking failed. Please try again.",
@@ -104,6 +123,10 @@ export async function createBooking(bookingData) {
     };
   } catch (error) {
     console.error("Error creating booking:", error);
+    // If it's a network/timeout error (not a 4xx/5xx already captured)
+    if (!error.message.includes("Server error")) {
+      captureApiError(error, { endpoint: "createBooking", payload });
+    }
     return {
       success: false,
       message: error.message || "Failed to create booking. Please try again.",
@@ -113,8 +136,6 @@ export async function createBooking(bookingData) {
 
 /**
  * Checks the status of a booking by UUID.
- * @param {string} bookingUuid - The UUID of the booking
- * @returns {Promise<object>} Booking details
  */
 export async function getBookingStatus(bookingUuid) {
   const url = `${API_BASE_URL}/bookings/status/${bookingUuid}`;
@@ -125,20 +146,31 @@ export async function getBookingStatus(bookingUuid) {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const message = errorData.detail || response.statusText;
-      throw new Error(`HTTP error ${response.status}: ${message}`);
+      const err = new Error(`HTTP error ${response.status}: ${message}`);
+
+      captureApiError(err, {
+        endpoint: "getBookingStatus",
+        status: response.status,
+        payload: { bookingUuid },
+      });
+      throw err;
     }
 
     return await response.json();
   } catch (error) {
     console.error("Error checking booking status:", error);
+    if (!error.message.includes("HTTP error")) {
+      captureApiError(error, {
+        endpoint: "getBookingStatus",
+        payload: { bookingUuid },
+      });
+    }
     throw error;
   }
 }
 
 /**
  * Fetches a specific tour template by name.
- * @param {string} templateName - Name of the tour template (e.g., "morning", "evening")
- * @returns {Promise<object>} Tour template details
  */
 export async function getTourTemplate(templateName) {
   const url = `${API_BASE_URL}/tour-templates/${templateName}`;
@@ -154,15 +186,16 @@ export async function getTourTemplate(templateName) {
 
     return await response.json();
   } catch (error) {
-    console.error("Error fetching tour template:", error);
+    captureApiError(error, {
+      endpoint: "getTourTemplate",
+      payload: { templateName },
+    });
     throw error;
   }
 }
 
 /**
  * Fetches a specific tour instance by ID.
- * @param {number} instanceId - The tour instance ID
- * @returns {Promise<object>} Tour instance details
  */
 export async function getTourInstance(instanceId) {
   const url = `${API_BASE_URL}/tours/instances/${instanceId}`;
@@ -178,43 +211,62 @@ export async function getTourInstance(instanceId) {
 
     return await response.json();
   } catch (error) {
-    console.error("Error fetching tour instance:", error);
+    captureApiError(error, {
+      endpoint: "getTourInstance",
+      payload: { instanceId },
+    });
     throw error;
   }
 }
 
 // --- DASHBOARD / ADMIN ENDPOINTS ---
 
-// 1. Fetch Calendar Data (Get all tour instances for a specific month)
 export const fetchMonthlySchedule = async (year, month) => {
-  // In a real app, pass year/month as query params
-  // GET /api/tours/schedule?year=2025&month=1
-  const response = await fetch(
-    `${API_BASE_URL}/tours/schedule?year=${year}&month=${month}`
-  );
-  if (!response.ok) throw new Error("Failed to fetch schedule");
-  return await response.json();
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/tours/schedule?year=${year}&month=${month}`
+    );
+    if (!response.ok) throw new Error("Failed to fetch schedule");
+    return await response.json();
+  } catch (error) {
+    captureApiError(error, {
+      endpoint: "fetchMonthlySchedule",
+      payload: { year, month },
+    });
+    throw error;
+  }
 };
 
-// 2. Fetch Details for a Specific Date (The Manifest)
-// This needs to return tours AND the bookings inside them
 export const fetchDayManifest = async (dateString) => {
-  // GET /api/tours/manifest?date=2025-01-20
-  const response = await fetch(
-    `${API_BASE_URL}/tours/manifest?date=${dateString}`
-  );
-  if (!response.ok) throw new Error("Failed to fetch manifest");
-  return await response.json();
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/tours/manifest?date=${dateString}`
+    );
+    if (!response.ok) throw new Error("Failed to fetch manifest");
+    return await response.json();
+  } catch (error) {
+    captureApiError(error, {
+      endpoint: "fetchDayManifest",
+      payload: { dateString },
+    });
+    throw error;
+  }
 };
 
-// 3. Toggle Tour Status (Cancel/Uncancel)
 export const toggleTourStatus = async (tourId, newStatus) => {
-  // PATCH /api/tours/{id} body: { status: 'cancelled' | 'available' }
-  const response = await fetch(`${API_BASE_URL}/tours/${tourId}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status: newStatus }),
-  });
-  if (!response.ok) throw new Error("Failed to update tour status");
-  return await response.json();
+  try {
+    const response = await fetch(`${API_BASE_URL}/tours/${tourId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    if (!response.ok) throw new Error("Failed to update tour status");
+    return await response.json();
+  } catch (error) {
+    captureApiError(error, {
+      endpoint: "toggleTourStatus",
+      payload: { tourId, newStatus },
+    });
+    throw error;
+  }
 };

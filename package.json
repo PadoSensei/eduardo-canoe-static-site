@@ -1,6 +1,7 @@
 {
   "type": "commonjs",
   "dependencies": {
+    "@sentry/react": "^10.36.0",
     "@vitejs/plugin-react": "^5.1.1",
     "date-fns": "^4.1.0",
     "deep-chat": "^2.2.2",
