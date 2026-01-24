@@ -43,6 +43,18 @@ export const translations = {
     footerLegal: "Legal",
     footerTerms: "Terms of Service",
     footerPrivacy: "Privacy Policy",
+    // Tour Modal
+    tourSunriseDetail:
+      "Experience the ultimate tranquility. We depart while the stars are still out to witness the Atlantic sun emerge from the horizon. Perfect for photography and spotting dolphins in their most active hour.",
+    tourFullDayDetail:
+      "The total immersion. We explore the Guaraíras Lagoon, hidden mangrove tunnels, and secret sandbars. Includes local snacks and a specialized guide who knows every corner of this ecosystem.",
+    tourSunsetDetail:
+      "Our most popular tour. Watch the sky turn into a painting as you glide through the calm waters of Tibau. A relaxing, spiritual experience to end your day in Pipa.",
+    modalIncluded: "Included:",
+    modalBring: "What to bring:",
+    modalIncludedList: "Canoe, Lifejacket, Professional Guide, Waterproof bags",
+    modalBringList: "Sunscreen, Hat, Water, Towel, Swimwear",
+    viewDetails: "View Details",
   },
   pt: {
     inquireBtn: "Reserve Seu Passeio",
@@ -88,6 +100,19 @@ export const translations = {
     footerLegal: "Jurídico",
     footerTerms: "Termos de Serviço",
     footerPrivacy: "Política de Privacidade",
+    // Tour Modal
+    tourSunriseDetail:
+      "Experimente a tranquilidade suprema. Partimos enquanto as estrelas ainda estão fora para testemunhar o sol surgindo no horizonte. Perfeito para fotografia e observação de golfinhos em sua hora mais ativa.",
+    tourFullDayDetail:
+      "A imersão total. Exploramos a Lagoa de Guaraíras, túneis de mangue escondidos e bancos de areia secretos. Inclui lanches locais e guia especializado.",
+    tourSunsetDetail:
+      "Nosso passeio mais popular. Assista ao céu se transformar em uma pintura enquanto desliza pelas águas calmas de Tibau. Uma experiência relaxante e espiritual.",
+    modalIncluded: "Incluído:",
+    modalBring: "O que levar:",
+    modalIncludedList:
+      "Canoa, Colete salva-vidas, Guia Profissional, Sacos impermeáveis",
+    modalBringList: "Protetor solar, Chapéu, Água, Toalha, Roupa de banho",
+    viewDetails: "Ver Detalhes",
   },
   es: {
     inquireBtn: "Reserva Tu Tour",
@@ -134,5 +159,18 @@ export const translations = {
     footerLegal: "Jurídico",
     footerTerms: "Termos de Serviço",
     footerPrivacy: "Política de Privacidade",
+    // Tour Modal
+    tourSunriseDetail:
+      "Experimenta la máxima tranquilidad. Partimos mientras las estrellas aún están fuera para presenciar el sol emergiendo en el horizonte. Perfecto para la fotografía y el avistamiento de delfines.",
+    tourFullDayDetail:
+      "La inmersión total. Exploramos la Laguna Guaraíras, túneles de manglar ocultos y bancos de arena secretos. Incluye bocadillos locales y guía especializado.",
+    tourSunsetDetail:
+      "Nuestro tour más popular. Mira cómo el cielo se convierte en una pintura mientras te deslizas por las tranquilas aguas de Tibau.",
+    modalIncluded: "Incluido:",
+    modalBring: "Qué llevar:",
+    modalIncludedList:
+      "Canoa, Chaleco salvavidas, Guía Profesional, Bolsas impermeables",
+    modalBringList: "Protector solar, Gorra, Agua, Toalla, Ropa de baño",
+    viewDetails: "Ver Detalles",
   },
 };

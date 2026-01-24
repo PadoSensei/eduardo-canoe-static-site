@@ -12,6 +12,7 @@ import BookingSystem from "../src/components/BookingSystem";
 import { LanguageProvider, useLanguage } from "../src/context/LanguageContext";
 import { createBooking } from "../src/api";
 import { bookingTranslations } from "../src/data/bookingTranslations";
+import { MemoryRouter } from "react-router-dom";
 
 // --- Configuration ---
 const API_BASE = "http://localhost:8000/api/v1";
@@ -65,6 +66,9 @@ async function fillFormAndSubmit({ name, email }) {
     });
   });
 
+  // CHECK THE TERMS CHECKBOX
+  fireEvent.click(screen.getByRole("checkbox"));
+
   const confirmBtn = screen.getByRole("button", { name: /Confirm/i });
   fireEvent.click(confirmBtn);
 
@@ -78,7 +82,14 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
   beforeEach(() => {
     useLanguage.mockReturnValue({
       language: "en",
-      t: (key) => bookingTranslations.en[key] || key,
+      t: (key) => {
+        const manual = {
+          card1Title: "Sunrise Tour",
+          card2Title: "Full Day Tour",
+          card3Title: "Sunset Tour",
+        };
+        return manual[key] || bookingTranslations.en[key] || key;
+      },
     });
   });
 
@@ -105,9 +116,11 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
     );
 
     render(
-      <LanguageProvider>
-        <BookingSystem />
-      </LanguageProvider>
+      <MemoryRouter>
+        <LanguageProvider>
+          <BookingSystem />
+        </LanguageProvider>
+      </MemoryRouter>
     );
 
     // 1. Trigger Booking
@@ -207,9 +220,11 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
     );
 
     render(
-      <LanguageProvider>
-        <BookingSystem />
-      </LanguageProvider>
+      <MemoryRouter>
+        <LanguageProvider>
+          <BookingSystem />
+        </LanguageProvider>
+      </MemoryRouter>
     );
     fireEvent.click(await screen.findByRole("button", { name: /Book/i }));
     await fillFormAndSubmit({ name: "John", email: "john@test.com" });
@@ -255,9 +270,11 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
       )
     );
     render(
-      <LanguageProvider>
-        <BookingSystem />
-      </LanguageProvider>
+      <MemoryRouter>
+        <LanguageProvider>
+          <BookingSystem />
+        </LanguageProvider>
+      </MemoryRouter>
     );
 
     fireEvent.click(await screen.findByRole("button", { name: /Book/i }));
@@ -269,6 +286,10 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
         target: { value: "john@test.com" },
       });
     });
+
+    // CHECK THE TERMS CHECKBOX
+    fireEvent.click(screen.getByRole("checkbox"));
+
     fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/Server busy/i);
@@ -284,9 +305,11 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
       )
     );
     render(
-      <LanguageProvider>
-        <BookingSystem />
-      </LanguageProvider>
+      <MemoryRouter>
+        <LanguageProvider>
+          <BookingSystem />
+        </LanguageProvider>
+      </MemoryRouter>
     );
 
     fireEvent.click(await screen.findByRole("button", { name: /Book/i }));
@@ -298,6 +321,10 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
         target: { value: "john@test.com" },
       });
     });
+
+    // CHECK THE TERMS CHECKBOX
+    fireEvent.click(screen.getByRole("checkbox"));
+
     fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/filled up/i);

@@ -112,6 +112,11 @@ function BookingSystem() {
     if (bookingTourId || !selectedTour) return;
     setFormError(null);
 
+    if (!acceptedTerms) {
+      setFormError(bt.errorTerms);
+      return;
+    }
+
     if (!guestName || !guestEmail) {
       setFormError(bt.alertMissing);
       return;
@@ -138,6 +143,7 @@ function BookingSystem() {
         numPeople,
         totalPrice: total,
         special_notes: specialNotes,
+        acceptedTerms: acceptedTerms,
       });
 
       if (result.success) {

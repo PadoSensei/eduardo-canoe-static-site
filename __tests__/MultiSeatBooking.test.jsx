@@ -8,6 +8,7 @@ import {
 } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
+import { MemoryRouter } from "react-router-dom";
 import BookingSystem from "../src/components/BookingSystem";
 import { LanguageProvider, useLanguage } from "../src/context/LanguageContext";
 import { bookingTranslations } from "../src/data/bookingTranslations";
@@ -73,9 +74,11 @@ describe("Multi-Seat Booking Flow", () => {
 
   test("enforces capacity limit (cannot book more than remaining)", async () => {
     render(
-      <LanguageProvider>
-        <BookingSystem />
-      </LanguageProvider>
+      <MemoryRouter>
+        <LanguageProvider>
+          <BookingSystem />
+        </LanguageProvider>
+      </MemoryRouter>
     );
 
     // Open Modal
@@ -109,10 +112,13 @@ describe("Multi-Seat Booking Flow", () => {
     );
 
     render(
-      <LanguageProvider>
-        <BookingSystem />
-      </LanguageProvider>
+      <MemoryRouter>
+        <LanguageProvider>
+          <BookingSystem />
+        </LanguageProvider>
+      </MemoryRouter>
     );
+
     fireEvent.click(await screen.findByRole("button", { name: /book now/i }));
 
     // Fill Form using Accessible Labels
@@ -125,6 +131,9 @@ describe("Multi-Seat Booking Flow", () => {
     fireEvent.input(screen.getByLabelText(/Email/i), {
       target: { value: "john@test.com" },
     });
+
+    // CHECK THE TERMS CHECKBOX
+    fireEvent.click(screen.getByRole("checkbox"));
 
     fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
 

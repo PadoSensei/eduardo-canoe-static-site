@@ -10,6 +10,7 @@ import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import BookingSystem from "../src/components/BookingSystem";
 import { bookingTranslations } from "../src/data/bookingTranslations";
+import { MemoryRouter } from "react-router-dom";
 
 // --- Configuration ---
 const API_BASE = "http://localhost:8000/api/v1";
@@ -64,7 +65,11 @@ afterAll(() => server.close());
 // --- Helpers ---
 
 const renderWithProviders = (ui) =>
-  render(<LanguageProvider>{ui}</LanguageProvider>);
+  render(
+    <MemoryRouter>
+      <LanguageProvider>{ui}</LanguageProvider>
+    </MemoryRouter>
+  );
 
 /**
  * Common interaction helper. Works with Fake Timers.
@@ -84,6 +89,9 @@ const reachPaymentStage = async () => {
   fireEvent.input(screen.getByLabelText(/Your Email/i), {
     target: { value: "john@test.com" },
   });
+
+  // CHECK THE TERMS CHECKBOX
+  fireEvent.click(screen.getByRole("checkbox"));
 
   fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
 
@@ -176,6 +184,9 @@ describe("BookingSystem Integration & Resilience", () => {
       target: { value: "john@test.com" },
     });
 
+    // CHECK THE TERMS CHECKBOX
+    fireEvent.click(screen.getByRole("checkbox"));
+
     const confirmBtn = screen.getByRole("button", { name: /Confirm Booking/i });
     fireEvent.click(confirmBtn);
     fireEvent.click(confirmBtn);
@@ -209,6 +220,10 @@ describe("BookingSystem Integration & Resilience", () => {
     fireEvent.input(screen.getByLabelText(/Your Email/i), {
       target: { value: "john@test.com" },
     });
+
+    // CHECK THE TERMS CHECKBOX
+    fireEvent.click(screen.getByRole("checkbox"));
+
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
@@ -240,9 +255,7 @@ describe("BookingSystem Integration & Resilience", () => {
     const bookBtn = await screen.findByRole("button", { name: /Book Now/i });
     fireEvent.click(bookBtn);
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      /past dates/i
-    );
+    expect(await screen.findByRole("alert")).toHaveTextContent(/past dates/i);
     alertSpy.mockRestore();
   });
 });

@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
+import { MemoryRouter } from "react-router-dom";
 import BookingSystem from "../../src/components/BookingSystem";
 import {
   LanguageProvider,
@@ -60,15 +61,24 @@ describe("Payment Polling Integration", () => {
     jest.useFakeTimers(); // USE FAKE TIMERS FROM THE START
     useLanguage.mockReturnValue({
       language: "en",
-      t: (key) => bookingTranslations.en[key] || key,
+      t: (key) => {
+        const manual = {
+          card1Title: "Sunrise Tour",
+          card2Title: "Full Day Tour",
+          card3Title: "Sunset Tour",
+        };
+        return manual[key] || bookingTranslations.en[key] || key;
+      },
     });
   });
 
   const runInitialSetup = async () => {
     render(
-      <LanguageProvider>
-        <BookingSystem />
-      </LanguageProvider>
+      <MemoryRouter>
+        <LanguageProvider>
+          <BookingSystem />
+        </LanguageProvider>
+      </MemoryRouter>
     );
 
     // Resolve initial fetch
@@ -84,6 +94,10 @@ describe("Payment Polling Integration", () => {
     fireEvent.input(screen.getByLabelText(/Email/i), {
       target: { value: "john@test.com" },
     });
+
+    // CHECK THE TERMS CHECKBOX
+    fireEvent.click(screen.getByRole("checkbox"));
+
     fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
 
     // Resolve booking creation fetch

@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
+import { MemoryRouter } from "react-router-dom";
 import BookingSystem from "../../src/components/BookingSystem";
 import {
   LanguageProvider,
@@ -88,9 +89,11 @@ describe("Payment Failure Logic", () => {
     );
 
     render(
-      <LanguageProvider>
-        <BookingSystem />
-      </LanguageProvider>
+      <MemoryRouter>
+        <LanguageProvider>
+          <BookingSystem />
+        </LanguageProvider>
+      </MemoryRouter>
     );
 
     // STEP 1: Resolve the initial tour fetch
@@ -108,6 +111,10 @@ describe("Payment Failure Logic", () => {
     fireEvent.input(screen.getByLabelText(/Email/i), {
       target: { value: "john@test.com" },
     });
+
+    // Check the terms checkbox to enable the submit button
+    fireEvent.click(screen.getByRole("checkbox"));
+
     fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
 
     // STEP 3: Resolve the booking creation fetch
@@ -138,6 +145,7 @@ describe("Payment Failure Logic", () => {
     await act(async () => {
       await jest.advanceTimersByTimeAsync(3100);
     });
+
     expect(pollCount).toBe(1);
   });
 });
