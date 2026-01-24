@@ -1,6 +1,6 @@
-# Pipa Canoe Adventures - AI Chatbot Integration
+# Pipa Canoa Havaiana - AI Chatbot Integration
 
-A modern, responsive website for Pipa Canoe Adventures featuring an integrated AI chatbot powered by VoltAgent and Deep Chat. The website showcases canoe tour services in Pipa, Brazil, with real-time customer support through an intelligent conversational assistant.
+A modern, responsive website for Pipa Canoa Havaiana featuring an integrated AI chatbot powered by VoltAgent and Deep Chat. The website showcases canoe tour services in Pipa, Brazil, with real-time customer support through an intelligent conversational assistant.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ A modern, responsive website for Pipa Canoe Adventures featuring an integrated A
 
 ## Overview
 
-This project combines a beautiful, responsive website for Pipa Canoe Adventures with an AI-powered chatbot that can answer customer questions about tours, pricing, availability, and general information about canoe experiences in Pipa, Brazil.
+This project combines a beautiful, responsive website for Pipa Canoa Havaiana with an AI-powered chatbot that can answer customer questions about tours, pricing, availability, and general information about canoe experiences in Pipa, Brazil.
 
 ### Key Components
 
@@ -145,7 +145,7 @@ import { google } from "@ai-sdk/google";
 
 const canoeAgent = new Agent({
   name: "volt-canoe-eduardo",
-  instructions: `You are a helpful assistant for Pipa Canoe Adventures, a canoe tour company in Pipa, Brazil. 
+  instructions: `You are a helpful assistant for Pipa Canoa Havaiana, a canoe tour company in Pipa, Brazil. 
   
   You help customers with:
   - Information about canoe tours and experiences
@@ -520,4 +520,4 @@ For technical support or questions:
 
 ---
 
-**Pipa Canoe Adventures** - Experience the magic of Pipa from the water with our guided canoe excursions and intelligent booking assistant.
+**Pipa Canoa Havaiana** - Experience the magic of Pipa from the water with our guided canoe excursions and intelligent booking assistant.

@@ -1,4 +1,4 @@
-This is a comprehensive audit of the Pipa Canoe Adventures frontend. You have a solid foundation with high-quality testing, but there is significant "architectural debt" and "ghost logic" that will cause bugs or deployment failures if not addressed before the production push.
+This is a comprehensive audit of the Pipa Canoa Havaiana frontend. You have a solid foundation with high-quality testing, but there is significant "architectural debt" and "ghost logic" that will cause bugs or deployment failures if not addressed before the production push.
 
 1. Critical Cleanup: The "Ghost Logic" Problem
 

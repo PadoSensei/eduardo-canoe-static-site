@@ -1,4 +1,4 @@
-have completed the refactoring of the Pipa Canoe Adventures repository. Below is a summary of the architectural and accessibility improvements, along with an overview of the current test coverage.
+have completed the refactoring of the Pipa Canoa Havaiana repository. Below is a summary of the architectural and accessibility improvements, along with an overview of the current test coverage.
 Summary of Changes
 
 1. System Architecture

@@ -13,7 +13,7 @@ const Tours = () => {
       title: t("card1Title"),
       desc: t("card1Text"),
       detail: t("tourSunriseDetail"),
-      img: "/img/Vibe_Forest.jpg",
+      img: "/img/sunrise_pic.jpg",
       price: "R$ 250",
     },
     {
@@ -21,7 +21,7 @@ const Tours = () => {
       title: t("card2Title"),
       desc: t("card2Text"),
       detail: t("tourFullDayDetail"),
-      img: "/img/Whatsapp_1.jpeg",
+      img: "/img/full_day.jpeg",
       price: "R$ 500",
     },
     {
@@ -29,7 +29,7 @@ const Tours = () => {
       title: t("card3Title"),
       desc: t("card3Text"),
       detail: t("tourSunsetDetail"),
-      img: "/img/Whatsapp_2.jpeg",
+      img: "/img/sunset_pic.jpeg",
       price: "R$ 200",
     },
   ];

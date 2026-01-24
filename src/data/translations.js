@@ -30,7 +30,7 @@ export const translations = {
     formMessageLabel: "Message",
     formMessagePlaceholder: "Interested in the sunset tour...",
     formSubmitBtn: "Send Inquiry",
-    footerText: "© 2025 Pipa Canoe Adventures. Paddle with passion.",
+    footerText: "© 2025 Pipa Canoa Havaiana. Paddle with passion.",
     navTours: "Tours",
     navBook: "Book",
     navFaq: "FAQ",
@@ -55,6 +55,7 @@ export const translations = {
     modalIncludedList: "Canoe, Lifejacket, Professional Guide, Waterproof bags",
     modalBringList: "Sunscreen, Hat, Water, Towel, Swimwear",
     viewDetails: "View Details",
+    btnCancel: "Cancel",
   },
   pt: {
     inquireBtn: "Reserve Seu Passeio",
@@ -88,7 +89,7 @@ export const translations = {
     formMessageLabel: "Mensagem",
     formMessagePlaceholder: "Interessado no passeio ao pôr do sol...",
     formSubmitBtn: "Enviar Contato",
-    footerText: "© 2025 Pipa Canoe Adventures. Reme com paixão.",
+    footerText: "© 2025 Pipa Canoa Havaiana. Reme com paixão.",
     navTours: "Passeios",
     navBook: "Reservar",
     navFaq: "FAQ", // or "Dúvidas" if you prefer
@@ -113,6 +114,7 @@ export const translations = {
       "Canoa, Colete salva-vidas, Guia Profissional, Sacos impermeáveis",
     modalBringList: "Protetor solar, Chapéu, Água, Toalha, Roupa de banho",
     viewDetails: "Ver Detalhes",
+    btnCancel: "Cancelar",
   },
   es: {
     inquireBtn: "Reserva Tu Tour",
@@ -146,7 +148,7 @@ export const translations = {
     formMessageLabel: "Mensaje",
     formMessagePlaceholder: "Interesado en el tour al atardecer...",
     formSubmitBtn: "Enviar Consulta",
-    footerText: "© 2025 Pipa Canoe Adventures. Rema con pasión.",
+    footerText: "© 2025 Pipa Canoa Havaiana. Rema con pasión.",
     navTours: "Tours",
     navBook: "Reservar",
     navFaq: "FAQ",
@@ -172,5 +174,6 @@ export const translations = {
       "Canoa, Chaleco salvavidas, Guía Profesional, Bolsas impermeables",
     modalBringList: "Protector solar, Gorra, Agua, Toalla, Ropa de baño",
     viewDetails: "Ver Detalles",
+    btnCancel: "Cancelar",
   },
 };
