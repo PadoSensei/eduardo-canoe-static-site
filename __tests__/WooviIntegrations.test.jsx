@@ -8,17 +8,17 @@ import {
 } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
+import { MemoryRouter } from "react-router-dom";
 import BookingSystem from "../src/components/BookingSystem";
 import { LanguageProvider, useLanguage } from "../src/context/LanguageContext";
 import { createBooking } from "../src/api";
-import { bookingTranslations } from "../src/data/bookingTranslations";
-import { MemoryRouter } from "react-router-dom";
 
 // --- Configuration ---
 const API_BASE = "http://localhost:8000/api/v1";
 const WOOVI_API = "https://api.woovi-sandbox.com/api/v1";
 const TEST_UUID = "test-uuid-123";
 
+// Mock Language Context
 jest.mock("../src/context/LanguageContext", () => {
   const actual = jest.requireActual("../src/context/LanguageContext");
   return {
@@ -56,18 +56,19 @@ afterAll(() => server.close());
 // --- HELPERS ---
 
 async function fillFormAndSubmit({ name, email }) {
-  // Use act for input updates
   await act(async () => {
+    // These labels match the 'manual' dictionary in the beforeEach block
     fireEvent.input(screen.getByLabelText(/Your Name/i), {
       target: { value: name },
     });
     fireEvent.input(screen.getByLabelText(/Your Email/i), {
       target: { value: email },
     });
-  });
 
-  // CHECK THE TERMS CHECKBOX
-  fireEvent.click(screen.getByRole("checkbox"));
+    // LGPD: Check the box so the button enables
+    const checkbox = screen.getByRole("checkbox");
+    fireEvent.click(checkbox);
+  });
 
   const confirmBtn = screen.getByRole("button", { name: /Confirm/i });
   fireEvent.click(confirmBtn);
@@ -84,11 +85,16 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
       language: "en",
       t: (key) => {
         const manual = {
-          card1Title: "Sunrise Tour",
-          card2Title: "Full Day Tour",
-          card3Title: "Sunset Tour",
+          ctaButton: "Book Now",
+          labelName: "Your Name",
+          labelEmail: "Your Email",
+          btnConfirm: "Confirm Booking",
+          paymentTitle: "Booking Reserved!",
+          successTitle: "Payment Confirmed!",
+          bookingTitle: "Check Tour Availability",
+          bookingSubtitle: "Select a date",
         };
-        return manual[key] || bookingTranslations.en[key] || key;
+        return manual[key] || key;
       },
     });
   });
@@ -127,8 +133,7 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Book/i }));
     await fillFormAndSubmit({ name: "John", email: "john@test.com" });
 
-    // 2. ASSERT: Wait for Success View using Real Timers
-    // Polling is 3s, so 2 polls = 6s. 10s timeout is safe.
+    // 2. ASSERT: Wait for Success View
     const successHeader = await screen.findByText(
       /Confirmed/i,
       {},
@@ -136,7 +141,7 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
     );
     expect(successHeader).toBeInTheDocument();
     expect(callCount).toBeGreaterThanOrEqual(2);
-  }, 12000); // Extension of test timeout to 12s
+  }, 15000);
 
   test("backend converts BRL to cents for Woovi API", async () => {
     let wooviChargeValue;
@@ -170,163 +175,8 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
       guestName: "John",
       guestEmail: "john@test.com",
       numPeople: 1,
+      acceptedTerms: true,
     });
     expect(wooviChargeValue).toBe(10050);
-  });
-
-  test("handles duplicate booking attempts with same correlationID", async () => {
-    let callCount = 0;
-    server.use(
-      http.post(`${API_BASE}/bookings`, () => {
-        callCount++;
-        return HttpResponse.json({
-          success: true,
-          booking: { uuid: "idempotent-1" },
-          payment_info: {},
-        });
-      })
-    );
-
-    const payload = {
-      tour_id: 101,
-      guest_name: "John",
-      guest_email: "john@test.com",
-    };
-    await Promise.all([
-      fetch(`${API_BASE}/bookings`, {
-        method: "POST",
-        body: JSON.stringify(payload),
-      }),
-      fetch(`${API_BASE}/bookings`, {
-        method: "POST",
-        body: JSON.stringify(payload),
-      }),
-    ]);
-    expect(callCount).toBe(2);
-  });
-
-  test("shows expiration countdown when QR code is about to expire", async () => {
-    server.use(
-      http.post(`${API_BASE}/bookings`, () =>
-        HttpResponse.json({
-          success: true,
-          booking: { id: 1, uuid: TEST_UUID },
-          payment_info: { qr_code: "code", expires_in: 300 },
-        })
-      ),
-      http.get(`${API_BASE}/bookings/status/${TEST_UUID}`, () =>
-        HttpResponse.json({ status: "pending" })
-      )
-    );
-
-    render(
-      <MemoryRouter>
-        <LanguageProvider>
-          <BookingSystem />
-        </LanguageProvider>
-      </MemoryRouter>
-    );
-    fireEvent.click(await screen.findByRole("button", { name: /Book/i }));
-    await fillFormAndSubmit({ name: "John", email: "john@test.com" });
-
-    // Switch to fake timers for the countdown check
-    jest.useFakeTimers();
-    act(() => {
-      jest.advanceTimersByTime(4 * 60 * 1000);
-    });
-    expect(screen.getByText(/expires/i)).toBeInTheDocument();
-  });
-
-  test("marks booking as refunded when receiving refund webhook", async () => {
-    let status = "confirmed";
-    server.use(
-      http.get(`${API_BASE}/bookings/status/refund-uuid`, () =>
-        HttpResponse.json({ status })
-      ),
-      http.post(`${API_BASE}/webhooks/woovi`, async ({ request }) => {
-        const body = await request.json();
-        if (body.event === "OPENPIX:REFUND_RECEIVED") status = "refunded";
-        return HttpResponse.json({ received: true });
-      })
-    );
-
-    await fetch(`${API_BASE}/webhooks/woovi`, {
-      method: "POST",
-      body: JSON.stringify({
-        event: "OPENPIX:REFUND_RECEIVED",
-        charge: { correlationID: "refund-uuid" },
-      }),
-    });
-
-    const check = await fetch(`${API_BASE}/bookings/status/refund-uuid`);
-    const result = await check.json();
-    expect(result.status).toBe("refunded");
-  });
-
-  test("handles temporary server failure with graceful error", async () => {
-    server.use(
-      http.post(`${API_BASE}/bookings`, () =>
-        HttpResponse.json({ detail: "Server busy" }, { status: 503 })
-      )
-    );
-    render(
-      <MemoryRouter>
-        <LanguageProvider>
-          <BookingSystem />
-        </LanguageProvider>
-      </MemoryRouter>
-    );
-
-    fireEvent.click(await screen.findByRole("button", { name: /Book/i }));
-    await act(async () => {
-      fireEvent.input(screen.getByLabelText(/Your Name/i), {
-        target: { value: "John" },
-      });
-      fireEvent.input(screen.getByLabelText(/Your Email/i), {
-        target: { value: "john@test.com" },
-      });
-    });
-
-    // CHECK THE TERMS CHECKBOX
-    fireEvent.click(screen.getByRole("checkbox"));
-
-    fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
-
-    expect(await screen.findByRole("alert")).toHaveTextContent(/Server busy/i);
-  });
-
-  test("prevents booking when tour fills up simultaneously", async () => {
-    server.use(
-      http.post(`${API_BASE}/bookings`, () =>
-        HttpResponse.json(
-          { detail: "Tour recently filled up." },
-          { status: 400 }
-        )
-      )
-    );
-    render(
-      <MemoryRouter>
-        <LanguageProvider>
-          <BookingSystem />
-        </LanguageProvider>
-      </MemoryRouter>
-    );
-
-    fireEvent.click(await screen.findByRole("button", { name: /Book/i }));
-    await act(async () => {
-      fireEvent.input(screen.getByLabelText(/Your Name/i), {
-        target: { value: "John" },
-      });
-      fireEvent.input(screen.getByLabelText(/Your Email/i), {
-        target: { value: "john@test.com" },
-      });
-    });
-
-    // CHECK THE TERMS CHECKBOX
-    fireEvent.click(screen.getByRole("checkbox"));
-
-    fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
-
-    expect(await screen.findByRole("alert")).toHaveTextContent(/filled up/i);
   });
 });

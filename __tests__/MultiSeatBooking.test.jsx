@@ -11,11 +11,9 @@ import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
 import BookingSystem from "../src/components/BookingSystem";
 import { LanguageProvider, useLanguage } from "../src/context/LanguageContext";
-import { bookingTranslations } from "../src/data/bookingTranslations";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
-// 1. Setup MSW
 const server = setupServer(
   http.get(`${API_BASE}/tours/available`, () =>
     HttpResponse.json([
@@ -33,19 +31,15 @@ const server = setupServer(
   http.post(`${API_BASE}/bookings`, () =>
     HttpResponse.json({
       success: true,
-      booking: { uuid: "test-uuid" },
+      booking: { uuid: "test-uuid", id: 1 },
       payment_info: { qr_code: "pix", qr_code_image: "img" },
     })
   )
 );
 
-// 2. Mock Language Context
 jest.mock("../src/context/LanguageContext", () => {
   const actual = jest.requireActual("../src/context/LanguageContext");
-  return {
-    ...actual,
-    useLanguage: jest.fn(),
-  };
+  return { ...actual, useLanguage: jest.fn() };
 });
 
 beforeAll(() => server.listen());
@@ -58,16 +52,18 @@ afterAll(() => server.close());
 
 describe("Multi-Seat Booking Flow", () => {
   beforeEach(() => {
-    // FORCE real English values so matchers like "R$ 750.00" work
     useLanguage.mockReturnValue({
       language: "en",
       t: (key) => {
         const manualKeys = {
-          card1Title: "Sunrise Tour",
-          card2Title: "Full Day Tour",
-          card3Title: "Sunset Tour",
+          ctaButton: "Book Now",
+          btnConfirm: "Confirm Booking",
+          labelName: "Name",
+          labelEmail: "Email",
+          pricePrefix: "R$",
         };
-        return manualKeys[key] || bookingTranslations.en[key] || key;
+        // Removed reference to deleted bookingTranslations file
+        return manualKeys[key] || key;
       },
     });
   });
@@ -82,18 +78,16 @@ describe("Multi-Seat Booking Flow", () => {
     );
 
     // Open Modal
-    const bookBtn = await screen.findByRole("button", { name: /book now/i });
+    const bookBtn = await screen.findByRole("button", { name: /Book Now/i });
     fireEvent.click(bookBtn);
 
-    // Increase guests to 5 (the mock limit)
     const guestsInput = screen.getByLabelText(/Number of Guests/i);
     fireEvent.change(guestsInput, { target: { value: "5" } });
 
-    // ASSERT: Total price should be 5 * 150 = 750.00
-    // We use getByText with the actual values now that 't' is fixed
+    // 5 * 150 = 750.00
     expect(screen.getByText(/750\.00/)).toBeInTheDocument();
 
-    // Try to exceed limit (input should cap at 5)
+    // Try to exceed limit (input should cap at 5 via the handlePeopleChange logic)
     fireEvent.change(guestsInput, { target: { value: "10" } });
     expect(guestsInput.value).toBe("5");
   });
@@ -119,9 +113,8 @@ describe("Multi-Seat Booking Flow", () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(await screen.findByRole("button", { name: /book now/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /Book Now/i }));
 
-    // Fill Form using Accessible Labels
     fireEvent.change(screen.getByLabelText(/Number of Guests/i), {
       target: { value: "2" },
     });
@@ -132,14 +125,14 @@ describe("Multi-Seat Booking Flow", () => {
       target: { value: "john@test.com" },
     });
 
-    // CHECK THE TERMS CHECKBOX
+    // Click mandatory checkbox and Confirm
     fireEvent.click(screen.getByRole("checkbox"));
-
-    fireEvent.click(screen.getByRole("button", { name: /Confirm/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
 
     await waitFor(() => {
       expect(capturedPayload.num_people).toBe(2);
       expect(capturedPayload.total_price).toBe(300.0);
+      expect(capturedPayload.accepted_terms).toBe(true);
     });
   });
 });

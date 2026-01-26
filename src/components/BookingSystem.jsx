@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import * as Sentry from "@sentry/react";
 import { getAvailableTours, createBooking } from "../api";
 import { useLanguage } from "../context/LanguageContext";
-import { bookingTranslations } from "../data/bookingTranslations";
 import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
 import { useBooking } from "../hooks/useBooking";
-import { getTourTranslationKey } from "../data/tourMapping";
 
 const getStoredSession = () => {
   try {
@@ -20,14 +19,8 @@ const getStoredSession = () => {
 
 function BookingSystem() {
   const { language, t } = useLanguage();
-  const bt = useMemo(
-    () => bookingTranslations[language] || bookingTranslations["en"],
-    [language]
-  );
 
   // --- 1. STATE INITIALIZATION ---
-
-  // Use "Lazy Initializer" to read localStorage only once on mount
   const [session] = useState(() => getStoredSession());
 
   // Data State
@@ -49,7 +42,7 @@ function BookingSystem() {
   const [formError, setFormError] = useState(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  // Booking Logic Hook
+  // Booking Logic Hook (Handles polling and persistence)
   const {
     currentBooking,
     setCurrentBooking,
@@ -67,7 +60,16 @@ function BookingSystem() {
 
   const getTourName = useCallback(
     (tourType) => {
-      const key = getTourTranslationKey(tourType);
+      // Logic moved here directly from the deleted file
+      const mapping = {
+        sunrise: "card1Title",
+        morning: "card1Title",
+        full_day: "card2Title",
+        all_day: "card2Title",
+        sunset: "card3Title",
+        evening: "card3Title",
+      };
+      const key = mapping[tourType];
       return key ? t(key) : "Unknown Tour";
     },
     [t]
@@ -75,7 +77,7 @@ function BookingSystem() {
 
   // --- 3. SIDE EFFECTS ---
 
-  // Handle Escape key to close modal
+  // Close modal on Escape key
   useEffect(() => {
     if (!showBookingModal) return;
     const handleEsc = (e) => {
@@ -112,26 +114,26 @@ function BookingSystem() {
     if (bookingTourId || !selectedTour) return;
     setFormError(null);
 
+    // LGPD Consent Check
     if (!acceptedTerms) {
-      setFormError(bt.errorTerms);
+      setFormError(t("errorTerms"));
       return;
     }
 
+    // Validation
     if (!guestName || !guestEmail) {
-      setFormError(bt.alertMissing);
-      return;
-    }
-
-    // ADD THIS VALIDATION
-    if (!acceptedTerms) {
-      setFormError(bt.errorTerms);
+      setFormError(t("alertMissing"));
       return;
     }
 
     if (isPastDate(selectedDate)) {
-      setFormError(bt.alertPastDate);
+      setFormError(t("alertPastDate"));
       return;
     }
+
+    // --- SENIOR OBSERVABILITY ---
+    // Identify the user in Sentry so we can debug their specific session if it fails
+    Sentry.setUser({ email: guestEmail, username: guestName });
 
     setBookingTourId(selectedTour.instanceId);
     try {
@@ -142,7 +144,7 @@ function BookingSystem() {
         guestEmail,
         numPeople,
         totalPrice: total,
-        special_notes: specialNotes,
+        specialNotes: specialNotes,
         acceptedTerms: acceptedTerms,
       });
 
@@ -151,10 +153,11 @@ function BookingSystem() {
         setCurrentBooking(result.booking);
         setIsConfirmed(false);
       } else {
-        setFormError(`${bt.alertFailed}: ${result.message}`);
+        setFormError(`${t("alertFailed")}: ${result.message}`);
       }
     } catch (error) {
-      setFormError(bt.alertError);
+      setFormError(t("alertError"));
+      Sentry.captureException(error);
     } finally {
       setBookingTourId(null);
     }
@@ -168,13 +171,14 @@ function BookingSystem() {
     setGuestEmail("");
     setNumPeople(1);
     setSpecialNotes("");
+    setAcceptedTerms(false);
     setFormError(null);
+    Sentry.setUser(null); // Clear Sentry context on close
   };
 
   const openModal = (tour) => {
-    // FRESH check against the current system clock
     if (isPastDate(selectedDate)) {
-      setFormError(bt.alertPastDate);
+      setFormError(t("alertPastDate"));
       return;
     }
     setFormError(null);
@@ -187,26 +191,16 @@ function BookingSystem() {
 
   const renderTourList = () => {
     if (isLoading)
-      return <p className="text-center text-gray-500 py-8">{bt.loading}</p>;
+      return <p className="text-center text-gray-500 py-8">{t("loading")}</p>;
     if (error)
-      return <p className="text-center text-red-500 py-8">{bt.errorGeneric}</p>;
+      return (
+        <p className="text-center text-red-500 py-8">{t("errorGeneric")}</p>
+      );
     if (availableTours.length === 0)
-      return <p className="text-center text-gray-600 py-8">{bt.noTours}</p>;
-
-    const priorityMap = {
-      morning: 1,
-      sunrise: 1,
-      sunset: 2,
-      evening: 2,
-      full_day: 3,
-    };
+      return <p className="text-center text-gray-600 py-8">{t("noTours")}</p>;
 
     return availableTours
       .filter((t) => t.isBookable)
-      .sort(
-        (a, b) =>
-          (priorityMap[a.tourType] || 99) - (priorityMap[b.tourType] || 99)
-      )
       .map((tour) => (
         <div
           key={tour.id}
@@ -218,22 +212,22 @@ function BookingSystem() {
             </h4>
             <div className="text-gray-600 text-sm mt-1 space-y-1">
               <p>
-                ⏳ {bt.duration}: {tour.duration || "2h"}
+                ⏳ {t("duration")}: {tour.duration || "2h"}
               </p>
               <p>
-                🛶 {tour.remaining} {bt.spotsLeft}
+                🛶 {tour.remaining} {t("spotsLeft")}
               </p>
             </div>
           </div>
           <div className="text-center sm:text-right">
             <p className="text-xl font-bold text-gray-900 mb-2">
-              {bt.pricePrefix} {tour.price.toFixed(2)}
+              {t("pricePrefix")} {tour.price.toFixed(2)}
             </p>
             <button
               onClick={() => openModal(tour)}
               className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-2 px-6 rounded-full shadow-md transition-transform hover:-translate-y-0.5"
             >
-              {bt.bookBtn}
+              {t("ctaButton")}
             </button>
           </div>
         </div>
@@ -244,9 +238,11 @@ function BookingSystem() {
     <section className="py-16 md:py-24 bg-gray-100 min-h-screen">
       <div className="container mx-auto px-6">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 text-gray-800">
-          {bt.title}
+          {t("bookingTitle")}
         </h2>
-        <p className="text-center text-gray-600 mb-12">{bt.subtitle}</p>
+        <p className="text-center text-gray-600 mb-12">
+          {t("bookingSubtitle")}
+        </p>
 
         <div className="flex flex-col items-center justify-center mb-8">
           {formError && !showBookingModal && (
@@ -261,7 +257,7 @@ function BookingSystem() {
             htmlFor="tour-date-input"
             className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide"
           >
-            {bt.selectDateLabel}
+            {t("selectDateLabel")}
           </label>
           <input
             id="tour-date-input"

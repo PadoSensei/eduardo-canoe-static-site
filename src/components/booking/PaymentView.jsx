@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../context/LanguageContext";
-import { bookingTranslations } from "../../data/bookingTranslations";
 
 export function PaymentView({
   paymentInfo,
@@ -9,16 +8,13 @@ export function PaymentView({
   isExpired,
   isFailed,
 }) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
-  // Woovi provides expires_in in seconds. Default to 15 mins (900s).
+  // Default to 15 mins if metadata is missing
   const [timeLeft, setTimeLeft] = useState(paymentInfo?.expires_in || 900);
-
-  const { language } = useLanguage();
-  const t = bookingTranslations[language] || bookingTranslations["en"];
 
   // Countdown timer logic
   useEffect(() => {
-    // Stop timer if payment is already terminal (expired/failed) or time is up
     if (isExpired || isFailed || timeLeft <= 0) return;
 
     const timer = setInterval(() => {
@@ -42,7 +38,7 @@ export function PaymentView({
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
-      alert(t.alertCopyFail);
+      alert(t("alertCopyFail"));
     }
   };
 
@@ -70,9 +66,9 @@ export function PaymentView({
             id="modal-title"
             className="text-2xl font-bold mb-2 text-gray-800"
           >
-            {t.failedTitle}
+            {t("failedTitle")}
           </h3>
-          <p className="text-gray-600 mb-8">{t.failedDetail}</p>
+          <p className="text-gray-600 mb-8">{t("failedDetail")}</p>
         </div>
       ) : isExpired ? (
         /* --- STATE: EXPIRED --- */
@@ -96,9 +92,9 @@ export function PaymentView({
             id="modal-title"
             className="text-2xl font-bold mb-2 text-gray-800"
           >
-            {t.expiredTitle}
+            {t("expiredTitle")}
           </h3>
-          <p className="text-gray-600 mb-8">{t.expiredDetail}</p>
+          <p className="text-gray-600 mb-8">{t("expiredDetail")}</p>
         </div>
       ) : (
         /* --- STATE: ACTIVE PAYMENT --- */
@@ -118,7 +114,7 @@ export function PaymentView({
                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                 />
               </svg>
-              <p className="text-left">{t.connectionWarning}</p>
+              <p className="text-left">{t("connectionWarning")}</p>
             </div>
           )}
 
@@ -142,7 +138,7 @@ export function PaymentView({
             id="modal-title"
             className="text-2xl font-bold mb-1 text-gray-800"
           >
-            Booking Reserved
+            {t("paymentTitle")}
           </h3>
 
           <div className="mb-4">
@@ -151,16 +147,16 @@ export function PaymentView({
                 timeLeft < 60 ? "text-red-500 animate-pulse" : "text-gray-500"
               }`}
             >
-              ⏱️ {t.expiresIn}: {formatTime(timeLeft)}
+              ⏱️ {t("expiresIn")}: {formatTime(timeLeft)}
             </p>
           </div>
 
-          <p className="text-gray-600 mb-6 px-4">{t.paymentInstruction}</p>
+          <p className="text-gray-600 mb-6 px-4">{t("paymentInstruction")}</p>
 
           <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 flex justify-center shadow-inner">
             <img
               src={paymentInfo.qr_code_image}
-              alt={t.altQrCode}
+              alt={t("altQrCode")}
               className="w-48 h-48 object-contain mix-blend-multiply"
             />
           </div>
@@ -174,12 +170,12 @@ export function PaymentView({
                   : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
               }`}
           >
-            {copied ? t.btnCopied : t.btnCopy}
+            {copied ? t("btnCopied") : t("btnCopy")}
           </button>
 
           <div className="text-left mb-6">
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 ml-1">
-              {t.labelPixString}
+              {t("labelPixString")}
             </p>
             <p className="text-xs text-gray-500 break-all bg-gray-50 p-3 rounded-lg border border-gray-200 font-mono select-all">
               {paymentInfo.qr_code}
@@ -192,7 +188,7 @@ export function PaymentView({
         onClick={onClose}
         className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors"
       >
-        {isExpired || isFailed ? t.btnRetry : t.btnClose}
+        {isExpired || isFailed ? t("btnRetry") : t("btnClose")}
       </button>
     </div>
   );
