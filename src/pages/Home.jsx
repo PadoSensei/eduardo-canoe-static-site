@@ -17,6 +17,8 @@ const Home = () => {
             autoPlay
             muted
             loop
+            preload="metadata"
+            fetchpriority="high"
             poster="/img/pipa-canoe-poster.jpg"
             className="w-full h-full object-cover"
           >
