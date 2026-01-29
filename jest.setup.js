@@ -2,6 +2,10 @@
 import "@testing-library/jest-dom";
 import "whatwg-fetch";
 
+process.env.VITE_SUPABASE_URL = "https://mock-project.supabase.co";
+process.env.VITE_SUPABASE_ANON_KEY = "mock-anon-key";
+process.env.VITE_API_URL = "http://localhost:8000";
+
 const util = require("util");
 const {
   ReadableStream,

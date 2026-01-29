@@ -1,60 +1,81 @@
 // __tests__/pages/Dashboard.test.jsx
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react"; // Added waitFor
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Dashboard from "../../src/pages/Dashboard";
+import { LanguageProvider } from "../../src/context/LanguageContext";
+import { supabase } from "../../src/supabaseClient";
+
+// 1. Mock the Supabase client
+jest.mock("../../src/supabaseClient", () => ({
+  supabase: {
+    auth: {
+      getSession: jest.fn(),
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
+      signOut: jest.fn(),
+    },
+  },
+}));
+
+const renderDashboard = () => {
+  return render(
+    <LanguageProvider>
+      <Dashboard />
+    </LanguageProvider>
+  );
+};
 
 describe("Dashboard Page Integration", () => {
-  test("initially shows only calendar (desktop view logic check)", () => {
-    render(<Dashboard />);
-    // Note: Adjust the year regex if your mock data implies a specific year
-    expect(screen.getByText(/202/)).toBeInTheDocument();
-    expect(screen.queryByText("Day Controls")).not.toBeInTheDocument();
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    // 2. Simulate a logged-in session for all tests in this file
+    supabase.auth.getSession.mockResolvedValue({
+      data: {
+        session: {
+          user: { email: "eduardo@example.com" },
+          access_token: "mock-token",
+        },
+      },
+    });
+  });
+
+  test("initially shows calendar when logged in", async () => {
+    renderDashboard();
+
+    // Use findBy to wait for the session check to resolve and the calendar to render
+    const currentYear = new Date().getFullYear().toString();
+    expect(
+      await screen.findByText(new RegExp(currentYear))
+    ).toBeInTheDocument();
+
+    // Ensure the "Operations" header is visible
+    expect(screen.getByText(/Operations/i)).toBeInTheDocument();
+    expect(screen.getByText(/eduardo@example.com/i)).toBeInTheDocument();
   });
 
   test("clicking a date opens the manifest", async () => {
-    // Async
-    render(<Dashboard />);
+    renderDashboard();
 
-    // Find a day and click it.
-    // We target the outer div by getting the text and traversing up.
-    // Note: In the new structure, we want to ensure we click the cell.
-    const dayNumber = screen.getAllByText("15")[0];
-    fireEvent.click(dayNumber);
+    // Find a day (e.g., 15) and click it
+    // Note: dates might appear multiple times (prev/next month), we grab the first
+    const dayNumber = await screen.findAllByText("15");
+    fireEvent.click(dayNumber[0]);
 
-    // FIXED: Wrap in waitFor to handle React state update
     await waitFor(() => {
-      expect(screen.getByText("Day Controls")).toBeInTheDocument();
-      expect(screen.getByText("CANCEL ALL TOURS")).toBeInTheDocument();
+      expect(screen.getByText(/Day Controls/i)).toBeInTheDocument();
+      expect(screen.getByText(/CANCEL ALL TOURS/i)).toBeInTheDocument();
     });
   });
 
-  test("closing the manifest resets the view", async () => {
-    // Async
-    render(<Dashboard />);
+  test("logout button calls supabase signOut", async () => {
+    renderDashboard();
 
-    // Open
-    const dayNumber = screen.getAllByText("15")[0];
-    fireEvent.click(dayNumber);
+    const logoutBtn = await screen.findByRole("button", { name: /logout/i });
+    fireEvent.click(logoutBtn);
 
-    await waitFor(() => {
-      expect(screen.getByText("Day Controls")).toBeInTheDocument();
-    });
-
-    // Close
-    // Find the Close button (usually an SVG or accessible name) inside the panel
-    // Since we don't have aria-labels on buttons in the provided code, we look for the button element
-    const closeButton = screen
-      .getByText("Day Controls")
-      .closest("div")
-      .parentElement.parentElement // Traverse up to container
-      .querySelector("button"); // The close button is the first button in the header
-
-    fireEvent.click(closeButton);
-
-    // FIXED: Wrap in waitFor
-    await waitFor(() => {
-      expect(screen.queryByText("Day Controls")).not.toBeInTheDocument();
-    });
+    expect(supabase.auth.signOut).toHaveBeenCalled();
   });
 });

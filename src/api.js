@@ -1,8 +1,30 @@
 // api.js - Backend API client for tour booking application
 import * as Sentry from "@sentry/react";
+import { supabase } from "./supabaseClient"; // Import for auth session
 
 const DOMAIN = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const API_BASE_URL = `${DOMAIN}/api/v1`;
+
+/**
+ * Helper to get the current session token and prepare headers.
+ * This ensures that Eduardo's "ID Card" is sent to the backend.
+ */
+const getHeaders = async (includeAuth = false) => {
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  if (includeAuth) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      headers["Authorization"] = `Bearer ${session.access_token}`;
+    }
+  }
+
+  return headers;
+};
 
 /**
  * Helper to capture API errors with context
@@ -17,21 +39,17 @@ const captureApiError = (error, context) => {
   });
 };
 
-/**
- * Fetches available tours for a specific date from the backend.
- */
+// --- PUBLIC ENDPOINTS (No Auth Required) ---
+
 export async function getAvailableTours(date) {
   const url = `${API_BASE_URL}/tours/available?tour_date=${date}`;
-
   try {
     const response = await fetch(url);
-
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const message =
         errorData.detail || response.statusText || "Unknown error";
       const err = new Error(`HTTP error ${response.status}: ${message}`);
-
       captureApiError(err, {
         endpoint: "getAvailableTours",
         status: response.status,
@@ -39,7 +57,6 @@ export async function getAvailableTours(date) {
       });
       throw err;
     }
-
     const data = await response.json();
     return data.map((tour) => ({
       id: `${tour.tour_type}-${tour.tour_date}`,
@@ -67,12 +84,8 @@ export async function getAvailableTours(date) {
   }
 }
 
-/**
- * Creates a booking for a tour.
- */
 export async function createBooking(bookingData) {
   const url = `${API_BASE_URL}/bookings`;
-
   const payload = {
     tour_id: bookingData.tourId,
     guest_name: bookingData.guestName,
@@ -86,7 +99,7 @@ export async function createBooking(bookingData) {
   try {
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: await getHeaders(false), // Explicitly no auth for guests
       body: JSON.stringify(payload),
     });
 
@@ -94,7 +107,6 @@ export async function createBooking(bookingData) {
       const errorData = await response.json().catch(() => ({}));
       const message = errorData.detail || `Server error: ${response.status}`;
       const err = new Error(message);
-
       captureApiError(err, {
         endpoint: "createBooking",
         status: response.status,
@@ -104,50 +116,25 @@ export async function createBooking(bookingData) {
     }
 
     const result = await response.json();
-
-    if (result.success === false) {
-      captureApiError(new Error("Booking indicated failure in body"), {
-        endpoint: "createBooking",
-        payload: result,
-      });
-      return {
-        success: false,
-        message: result.message || "Booking failed. Please try again.",
-      };
-    }
-
     return {
       success: true,
       booking: result.booking,
       paymentInfo: result.payment_info,
     };
   } catch (error) {
-    console.error("Error creating booking:", error);
-    // If it's a network/timeout error (not a 4xx/5xx already captured)
     if (!error.message.includes("Server error")) {
       captureApiError(error, { endpoint: "createBooking", payload });
     }
-    return {
-      success: false,
-      message: error.message || "Failed to create booking. Please try again.",
-    };
+    return { success: false, message: error.message };
   }
 }
 
-/**
- * Checks the status of a booking by UUID.
- */
 export async function getBookingStatus(bookingUuid) {
   const url = `${API_BASE_URL}/bookings/status/${bookingUuid}`;
-
   try {
     const response = await fetch(url);
-
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const message = errorData.detail || response.statusText;
-      const err = new Error(`HTTP error ${response.status}: ${message}`);
-
+      const err = new Error(`HTTP error ${response.status}`);
       captureApiError(err, {
         endpoint: "getBookingStatus",
         status: response.status,
@@ -155,78 +142,22 @@ export async function getBookingStatus(bookingUuid) {
       });
       throw err;
     }
-
     return await response.json();
   } catch (error) {
-    console.error("Error checking booking status:", error);
-    if (!error.message.includes("HTTP error")) {
-      captureApiError(error, {
-        endpoint: "getBookingStatus",
-        payload: { bookingUuid },
-      });
-    }
     throw error;
   }
 }
 
-/**
- * Fetches a specific tour template by name.
- */
-export async function getTourTemplate(templateName) {
-  const url = `${API_BASE_URL}/tour-templates/${templateName}`;
-
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const message = errorData.detail || response.statusText;
-      throw new Error(`HTTP error ${response.status}: ${message}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    captureApiError(error, {
-      endpoint: "getTourTemplate",
-      payload: { templateName },
-    });
-    throw error;
-  }
-}
-
-/**
- * Fetches a specific tour instance by ID.
- */
-export async function getTourInstance(instanceId) {
-  const url = `${API_BASE_URL}/tours/instances/${instanceId}`;
-
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const message = errorData.detail || response.statusText;
-      throw new Error(`HTTP error ${response.status}: ${message}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    captureApiError(error, {
-      endpoint: "getTourInstance",
-      payload: { instanceId },
-    });
-    throw error;
-  }
-}
-
-// --- DASHBOARD / ADMIN ENDPOINTS ---
+// --- ADMIN ENDPOINTS (Auth Required) ---
 
 export const fetchMonthlySchedule = async (year, month) => {
   try {
+    const headers = await getHeaders(true); // Include JWT
     const response = await fetch(
-      `${API_BASE_URL}/tours/schedule?year=${year}&month=${month}`
+      `${API_BASE_URL}/admin/schedule?year=${year}&month=${month}`,
+      { headers }
     );
-    if (!response.ok) throw new Error("Failed to fetch schedule");
+    if (!response.ok) throw new Error("Unauthorized Access");
     return await response.json();
   } catch (error) {
     captureApiError(error, {
@@ -239,10 +170,12 @@ export const fetchMonthlySchedule = async (year, month) => {
 
 export const fetchDayManifest = async (dateString) => {
   try {
+    const headers = await getHeaders(true); // Include JWT
     const response = await fetch(
-      `${API_BASE_URL}/tours/manifest?date=${dateString}`
+      `${API_BASE_URL}/admin/manifest/${dateString}`,
+      { headers }
     );
-    if (!response.ok) throw new Error("Failed to fetch manifest");
+    if (!response.ok) throw new Error("Unauthorized Access");
     return await response.json();
   } catch (error) {
     captureApiError(error, {
@@ -255,12 +188,13 @@ export const fetchDayManifest = async (dateString) => {
 
 export const toggleTourStatus = async (tourId, newStatus) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/tours/${tourId}`, {
+    const headers = await getHeaders(true); // Include JWT
+    const response = await fetch(`${API_BASE_URL}/admin/tours/${tourId}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ status: newStatus }),
     });
-    if (!response.ok) throw new Error("Failed to update tour status");
+    if (!response.ok) throw new Error("Unauthorized Access");
     return await response.json();
   } catch (error) {
     captureApiError(error, {

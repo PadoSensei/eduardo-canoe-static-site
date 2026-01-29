@@ -2,6 +2,7 @@
   "type": "commonjs",
   "dependencies": {
     "@sentry/react": "^10.36.0",
+    "@supabase/supabase-js": "^2.93.3",
     "@tailwindcss/postcss": "^4.1.18",
     "@vitejs/plugin-react": "^5.1.1",
     "date-fns": "^4.1.0",
