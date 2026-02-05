@@ -204,3 +204,32 @@ export const toggleTourStatus = async (tourId, newStatus) => {
     throw error;
   }
 };
+
+export const adminCreateBooking = async (bookingData) => {
+  const headers = await getHeaders(true); // Sends Edu's Admin Token
+  const payload = {
+    tour_id: bookingData.tourId,
+    guest_name: bookingData.guestName,
+    guest_email: bookingData.guestEmail,
+    num_people: bookingData.numPeople,
+    total_price: bookingData.totalPrice,
+    special_notes: bookingData.special_notes,
+    accepted_terms: bookingData.acceptedTerms, // This must be true
+  };
+
+  const response = await fetch(`${API_BASE_URL}/admin/bookings`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    // This will now show you EXACTLY which field is failing in the alert
+    console.error("Validation Error Details:", error.detail);
+    throw new Error(
+      JSON.stringify(error.detail) || "Failed to create manual booking"
+    );
+  }
+  return await response.json();
+};

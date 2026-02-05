@@ -115,9 +115,27 @@ export const getDayDetails = (date) => {
   const dayHash = dateStr.split("").reduce((a, b) => a + b.charCodeAt(0), 0);
 
   const templates = [
-    { id: 1, name: "Morning Mangrove", time: "09:00", capacity: 15 },
-    { id: 2, name: "Sunset Adventure", time: "16:00", capacity: 20 },
-    { id: 3, name: "Full Moon Experience", time: "20:00", capacity: 12 },
+    {
+      id: 1,
+      name: "Morning Mangrove",
+      time: "09:00",
+      capacity: 15,
+      price: 250.0,
+    }, // Added price
+    {
+      id: 2,
+      name: "Sunset Adventure",
+      time: "16:00",
+      capacity: 20,
+      price: 200.0,
+    }, // Added price
+    {
+      id: 3,
+      name: "Full Moon Experience",
+      time: "20:00",
+      capacity: 12,
+      price: 500.0,
+    }, // Added price
   ];
 
   const tours = templates.map((tpl) => {

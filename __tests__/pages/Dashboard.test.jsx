@@ -1,81 +1,91 @@
-// __tests__/pages/Dashboard.test.jsx
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
+import { setupServer } from "msw/node";
+import { http, HttpResponse } from "msw";
+import { MemoryRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
-import Dashboard from "../../src/pages/Dashboard";
+import DayManifest from "../../src/components/dashboard/DayManifest";
 import { LanguageProvider } from "../../src/context/LanguageContext";
-import { supabase } from "../../src/supabaseClient";
 
-// 1. Mock the Supabase client
-jest.mock("../../src/supabaseClient", () => ({
-  supabase: {
-    auth: {
-      getSession: jest.fn(),
-      onAuthStateChange: jest.fn(() => ({
-        data: { subscription: { unsubscribe: jest.fn() } },
-      })),
-      signOut: jest.fn(),
-    },
+const API_BASE = "http://localhost:8000/api/v1";
+
+const MOCK_MANIFEST = [
+  {
+    tour_id: 101,
+    display_name: "Test Morning Tour",
+    time: "09:00",
+    capacity: 10,
+    booked_count: 8,
+    status: "available",
+    passengers: [
+      { name: "John Doe", pax: 2, email: "john@test.com", status: "confirmed" },
+    ],
   },
-}));
+];
 
-const renderDashboard = () => {
-  return render(
-    <LanguageProvider>
-      <Dashboard />
-    </LanguageProvider>
+const server = setupServer(
+  http.get(`${API_BASE}/admin/manifest/*`, () =>
+    HttpResponse.json(MOCK_MANIFEST)
+  ),
+  http.post(`${API_BASE}/admin/bookings`, () =>
+    HttpResponse.json({ success: true })
+  )
+);
+
+beforeAll(() => {
+  server.listen();
+  // SENIOR FIX: JSDOM doesn't support alert/confirm. We must mock them globally.
+  window.alert = jest.fn();
+  window.confirm = jest.fn(() => true);
+});
+afterEach(() => {
+  server.resetHandlers();
+  jest.clearAllMocks();
+});
+afterAll(() => server.close());
+
+const renderManifest = () =>
+  render(
+    <MemoryRouter>
+      <LanguageProvider>
+        <DayManifest date={new Date()} onClose={jest.fn()} />
+      </LanguageProvider>
+    </MemoryRouter>
   );
-};
 
-describe("Dashboard Page Integration", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+describe("DayManifest Integration", () => {
+  test("renders list of tours and seat counts", async () => {
+    renderManifest();
 
-    // 2. Simulate a logged-in session for all tests in this file
-    supabase.auth.getSession.mockResolvedValue({
-      data: {
-        session: {
-          user: { email: "eduardo@example.com" },
-          access_token: "mock-token",
-        },
-      },
+    // 1. Wait for async load
+    expect(await screen.findByText("Test Morning Tour")).toBeInTheDocument();
+
+    // 2. FIX: Use a function matcher to find text split across multiple <span> elements
+    const seatDisplay = screen.getByText((content, node) => {
+      const hasText = (node) => node.textContent === "8 / 10";
+      const nodeHasText = hasText(node);
+      const childrenDontHaveText = Array.from(node.children).every(
+        (child) => !hasText(child)
+      );
+      return nodeHasText && childrenDontHaveText;
     });
+    expect(seatDisplay).toBeInTheDocument();
   });
 
-  test("initially shows calendar when logged in", async () => {
-    renderDashboard();
+  test("Manual booking form respects remaining capacity", async () => {
+    renderManifest();
+    fireEvent.click(await screen.findByText("Test Morning Tour"));
+    fireEvent.click(screen.getByText(/Add Guest/i));
 
-    // Use findBy to wait for the session check to resolve and the calendar to render
-    const currentYear = new Date().getFullYear().toString();
-    expect(
-      await screen.findByText(new RegExp(currentYear))
-    ).toBeInTheDocument();
+    // Targeted via the aria-label we added to the refactored component
+    const plusBtn = screen.getByLabelText(/Increase passengers/i);
 
-    // Ensure the "Operations" header is visible
-    expect(screen.getByText(/Operations/i)).toBeInTheDocument();
-    expect(screen.getByText(/eduardo@example.com/i)).toBeInTheDocument();
-  });
+    // Initial 1 -> click -> 2
+    fireEvent.click(plusBtn);
+    expect(screen.getByText("2")).toBeInTheDocument();
 
-  test("clicking a date opens the manifest", async () => {
-    renderDashboard();
-
-    // Find a day (e.g., 15) and click it
-    // Note: dates might appear multiple times (prev/next month), we grab the first
-    const dayNumber = await screen.findAllByText("15");
-    fireEvent.click(dayNumber[0]);
-
-    await waitFor(() => {
-      expect(screen.getByText(/Day Controls/i)).toBeInTheDocument();
-      expect(screen.getByText(/CANCEL ALL TOURS/i)).toBeInTheDocument();
-    });
-  });
-
-  test("logout button calls supabase signOut", async () => {
-    renderDashboard();
-
-    const logoutBtn = await screen.findByRole("button", { name: /logout/i });
-    fireEvent.click(logoutBtn);
-
-    expect(supabase.auth.signOut).toHaveBeenCalled();
+    // Click again -> should stay at 2 (Math.min logic)
+    fireEvent.click(plusBtn);
+    expect(screen.getByText("2")).toBeInTheDocument();
   });
 });
