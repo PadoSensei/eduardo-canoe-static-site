@@ -3,6 +3,7 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
+import "@testing-library/jest-dom";
 import BookingSystem from "../../src/components/BookingSystem";
 import {
   LanguageProvider,
@@ -60,16 +61,20 @@ describe("Payment Polling Integration", () => {
     useLanguage.mockReturnValue({
       language: "en",
       t: (key) => {
-        // These MUST match the strings used in screen.getByRole/Text calls below
         const manual = {
+          bookingTitle: "Check Tour Availability",
+          bookingSubtitle: "Select a date",
+          selectDateLabel: "Select Date",
           ctaButton: "Book Now",
+          btnConfirm: "Confirm Booking",
           labelName: "Your Name",
           labelEmail: "Your Email",
-          btnConfirm: "Confirm Booking",
           paymentTitle: "Booking Reserved!",
           successTitle: "Payment Confirmed!",
-          bookingTitle: "Check Tour Availability",
-          selectDateLabel: "Select Date",
+          labelAcceptTerms: "I accept the",
+          linkTerms: "Terms of Service",
+          linkAnd: "and",
+          linkPrivacy: "Privacy Policy",
         };
         return manual[key] || key;
       },
@@ -89,7 +94,7 @@ describe("Payment Polling Integration", () => {
       await jest.advanceTimersByTimeAsync(0);
     });
 
-    // Clicking the button that now has the correct mock text
+    // Interaction using text defined in the mock above
     fireEvent.click(screen.getByRole("button", { name: /Book Now/i }));
 
     fireEvent.input(screen.getByLabelText(/Your Name/i), {
@@ -99,7 +104,7 @@ describe("Payment Polling Integration", () => {
       target: { value: "john@test.com" },
     });
 
-    // LGPD Compliance: Enable the button by checking the terms box
+    // LGPD Compliance: Check the box to enable the button
     fireEvent.click(screen.getByRole("checkbox"));
 
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
@@ -112,14 +117,13 @@ describe("Payment Polling Integration", () => {
   test("should transition to success view after successful polling", async () => {
     server.use(
       http.get(`${API_BASE}/bookings/status/${TEST_UUID}`, () =>
-        // Ensure status string matches your BookingStatus Enum (pending_payment)
         HttpResponse.json({ status: "confirmed" })
       )
     );
 
     await runInitialSetup();
 
-    // Trigger the 3-second polling interval
+    // Trigger the 3-second polling interval defined in useBooking.js
     await act(async () => {
       await jest.advanceTimersByTimeAsync(3100);
     });

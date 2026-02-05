@@ -233,3 +233,21 @@ export const adminCreateBooking = async (bookingData) => {
   }
   return await response.json();
 };
+
+export const cancelTourForWeather = async (tourId, tourName, tourDate) => {
+  const headers = await getHeaders(true); // Gets Edu's Admin Token
+  const response = await fetch(
+    `${API_BASE_URL}/admin/tours/${tourId}/weather-cancel`,
+    {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ tour_name: tourName, tour_date: tourDate }),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Cancellation failed");
+  }
+  return await response.json();
+};

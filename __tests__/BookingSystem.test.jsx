@@ -9,6 +9,7 @@ import {
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
+import "@testing-library/jest-dom";
 import BookingSystem from "../src/components/BookingSystem";
 import { LanguageProvider, useLanguage } from "../src/context/LanguageContext";
 
@@ -42,7 +43,7 @@ const server = setupServer(
       success: true,
       booking: { uuid: TEST_UUID, id: 1 },
       payment_info: {
-        qr_code: "pix-key",
+        qr_code: "pix-key-123",
         qr_code_image: "img",
         expires_in: 900,
       },
@@ -59,6 +60,8 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
+// --- Helpers ---
+
 const renderWithProviders = (ui) =>
   render(
     <MemoryRouter>
@@ -67,10 +70,11 @@ const renderWithProviders = (ui) =>
   );
 
 /**
- * Helper to reach the payment stage.
- * Now includes the mandatory step of checking the LGPD terms box.
+ * Common interaction helper.
+ * Navigates the UI from the tour list to the Pix payment screen.
  */
 const reachPaymentStage = async () => {
+  // Clear initial loading state
   await act(async () => {
     await jest.advanceTimersByTimeAsync(0);
   });
@@ -78,7 +82,7 @@ const reachPaymentStage = async () => {
   const bookBtn = await screen.findByRole("button", { name: /Book Now/i });
   fireEvent.click(bookBtn);
 
-  // These labels MUST match the dictionary in the beforeEach block below
+  // Fill in guest details
   fireEvent.input(screen.getByLabelText(/Your Name/i), {
     target: { value: "John Doe" },
   });
@@ -86,21 +90,27 @@ const reachPaymentStage = async () => {
     target: { value: "john@test.com" },
   });
 
-  // LGPD: Check the terms checkbox to enable the Confirm button
+  // LGPD Compliance: Check the mandatory terms checkbox
   const checkbox = screen.getByRole("checkbox");
   fireEvent.click(checkbox);
 
-  fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
+  // Click confirm
+  const confirmBtn = screen.getByRole("button", { name: /Confirm Booking/i });
+  fireEvent.click(confirmBtn);
 
+  // Resolve the 'createBooking' fetch
   await act(async () => {
     await jest.advanceTimersByTimeAsync(0);
   });
-  await screen.findByText(/Booking Reserved/i);
+
+  // Assert we arrived at the payment view
+  await screen.findByText(/Booking Reserved!/i);
 };
 
 describe("BookingSystem Integration & Resilience", () => {
   beforeEach(() => {
     jest.useFakeTimers();
+    // Comprehensive mock dictionary to satisfy all child components (Form, Payment, Success)
     useLanguage.mockReturnValue({
       language: "en",
       t: (key) => {
@@ -117,6 +127,8 @@ describe("BookingSystem Integration & Resilience", () => {
           connectionWarning: "Connection slow.",
           alertPastDate: "Cannot book tours for past dates.",
           errorTerms: "You must accept the terms to proceed.",
+          expiresIn: "QR Code expires in",
+          btnDone: "Done",
         };
         return manual[key] || key;
       },
@@ -128,6 +140,7 @@ describe("BookingSystem Integration & Resilience", () => {
     server.use(
       http.get(`${API_BASE}/bookings/status/${TEST_UUID}`, () => {
         callCount++;
+        // First poll remains pending, second poll confirms
         return HttpResponse.json({
           status: callCount < 2 ? "pending_payment" : "confirmed",
         });
@@ -137,6 +150,7 @@ describe("BookingSystem Integration & Resilience", () => {
     renderWithProviders(<BookingSystem />);
     await reachPaymentStage();
 
+    // Fast-forward two polling intervals (3s each)
     await act(async () => {
       await jest.advanceTimersByTimeAsync(3000);
     });
@@ -154,16 +168,50 @@ describe("BookingSystem Integration & Resilience", () => {
         () => new HttpResponse(null, { status: 500 })
       )
     );
+
     renderWithProviders(<BookingSystem />);
     await reachPaymentStage();
 
+    // Advance 5 intervals to trigger the error threshold
     for (let i = 0; i < 5; i++) {
       await act(async () => {
         await jest.advanceTimersByTimeAsync(3000);
       });
     }
 
-    expect(await screen.findByText(/Connection slow/i)).toBeInTheDocument();
+    const warning = await screen.findByText(/Connection slow/i);
+    expect(warning).toBeInTheDocument();
+  });
+
+  test("prevents double-booking by disabling button during submission", async () => {
+    renderWithProviders(<BookingSystem />);
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
+    });
+
+    fireEvent.click(await screen.findByRole("button", { name: /Book Now/i }));
+
+    fireEvent.input(screen.getByLabelText(/Your Name/i), {
+      target: { value: "John" },
+    });
+    fireEvent.input(screen.getByLabelText(/Your Email/i), {
+      target: { value: "john@test.com" },
+    });
+
+    fireEvent.click(screen.getByRole("checkbox"));
+
+    const confirmBtn = screen.getByRole("button", { name: /Confirm Booking/i });
+
+    // Simulate double-click
+    fireEvent.click(confirmBtn);
+    fireEvent.click(confirmBtn);
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
+    });
+
+    // Ensure we only ended up at the payment screen once
+    expect(await screen.findByText(/Booking Reserved!/i)).toBeInTheDocument();
   });
 
   test("displays error message when tour fills up during checkout", async () => {
@@ -175,6 +223,7 @@ describe("BookingSystem Integration & Resilience", () => {
         )
       )
     );
+
     renderWithProviders(<BookingSystem />);
     await act(async () => {
       await jest.advanceTimersByTimeAsync(0);
@@ -185,13 +234,37 @@ describe("BookingSystem Integration & Resilience", () => {
       target: { value: "John" },
     });
     fireEvent.input(screen.getByLabelText(/Your Email/i), {
-      target: { value: "j@t.com" },
+      target: { value: "john@test.com" },
     });
+
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      /Tour recently filled up/i
-    );
+    // Verify the error alert appears inside the modal
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(/Tour recently filled up/i);
+  });
+
+  test("prevents booking a date that becomes 'yesterday' while the page is open", async () => {
+    // Set system time to nearly midnight Jan 19
+    const nearMidnight = new Date("2026-01-19T23:59:59");
+    jest.setSystemTime(nearMidnight);
+
+    renderWithProviders(<BookingSystem />);
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
+    });
+
+    // Tick the clock past midnight into Jan 20
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
+
+    // Try to book the Jan 19 tour which is now in the past
+    const bookBtn = await screen.findByRole("button", { name: /Book Now/i });
+    fireEvent.click(bookBtn);
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(/past dates/i);
   });
 });

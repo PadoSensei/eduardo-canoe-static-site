@@ -9,11 +9,13 @@ import {
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
+import "@testing-library/jest-dom";
 import BookingSystem from "../src/components/BookingSystem";
 import { LanguageProvider, useLanguage } from "../src/context/LanguageContext";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
+// 1. Setup MSW
 const server = setupServer(
   http.get(`${API_BASE}/tours/available`, () =>
     HttpResponse.json([
@@ -37,9 +39,13 @@ const server = setupServer(
   )
 );
 
+// 2. Mock Language Context
 jest.mock("../src/context/LanguageContext", () => {
   const actual = jest.requireActual("../src/context/LanguageContext");
-  return { ...actual, useLanguage: jest.fn() };
+  return {
+    ...actual,
+    useLanguage: jest.fn(),
+  };
 });
 
 beforeAll(() => server.listen());
@@ -52,17 +58,23 @@ afterAll(() => server.close());
 
 describe("Multi-Seat Booking Flow", () => {
   beforeEach(() => {
+    // Force real English values so matchers like "R$ 750.00" work
     useLanguage.mockReturnValue({
       language: "en",
       t: (key) => {
         const manualKeys = {
+          bookingTitle: "Check Tour Availability",
+          bookingSubtitle: "Select a date",
           ctaButton: "Book Now",
           btnConfirm: "Confirm Booking",
-          labelName: "Name",
-          labelEmail: "Email",
+          labelName: "Your Name",
+          labelEmail: "Your Email",
           pricePrefix: "R$",
+          labelAcceptTerms: "I accept the",
+          linkTerms: "Terms of Service",
+          linkAnd: "and",
+          linkPrivacy: "Privacy Policy",
         };
-        // Removed reference to deleted bookingTranslations file
         return manualKeys[key] || key;
       },
     });
@@ -115,18 +127,20 @@ describe("Multi-Seat Booking Flow", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: /Book Now/i }));
 
+    // Fill Form using Accessible Labels
     fireEvent.change(screen.getByLabelText(/Number of Guests/i), {
       target: { value: "2" },
     });
-    fireEvent.input(screen.getByLabelText(/Name/i), {
+    fireEvent.input(screen.getByLabelText(/Your Name/i), {
       target: { value: "John Doe" },
     });
-    fireEvent.input(screen.getByLabelText(/Email/i), {
+    fireEvent.input(screen.getByLabelText(/Your Email/i), {
       target: { value: "john@test.com" },
     });
 
-    // Click mandatory checkbox and Confirm
+    // LGPD: Click mandatory checkbox to enable the button
     fireEvent.click(screen.getByRole("checkbox"));
+
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
 
     await waitFor(() => {

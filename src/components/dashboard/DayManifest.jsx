@@ -1,4 +1,3 @@
-// src/components/dashboard/DayManifest.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import {
@@ -13,8 +12,13 @@ import {
   Loader2,
   Plus,
   Minus,
+  CloudRain,
 } from "lucide-react";
-import { adminCreateBooking, fetchDayManifest } from "../../api";
+import {
+  adminCreateBooking,
+  fetchDayManifest,
+  cancelTourForWeather,
+} from "../../api";
 
 const DayManifest = ({ date, onClose }) => {
   const [tours, setTours] = useState([]);
@@ -80,8 +84,26 @@ const DayManifest = ({ date, onClose }) => {
 
   const handleCancelDay = () => {
     if (window.confirm("Cancel all tours for this day? This is permanent.")) {
-      // Logic for bulk cancellation would go here
       alert("Bulk cancellation triggered (Feature Pending Backend)");
+    }
+  };
+
+  const handleWeatherCancellation = async (tour) => {
+    try {
+      setIsSubmitting(true);
+      await cancelTourForWeather(
+        tour.tour_id,
+        tour.display_name,
+        format(date, "yyyy-MM-dd")
+      );
+      alert(
+        "Success: Tour cancelled, guests notified, and refund manifest sent to your email."
+      );
+      await loadManifest();
+    } catch (err) {
+      alert("Failed to cancel: " + err.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -94,7 +116,6 @@ const DayManifest = ({ date, onClose }) => {
     );
   }
 
-  // --- VIEW: ADD GUEST FORM ---
   if (selectedTour && isAddingGuest) {
     return (
       <div className="flex flex-col w-full h-full duration-300 bg-white shadow-2xl animate-in slide-in-from-bottom">
@@ -112,14 +133,6 @@ const DayManifest = ({ date, onClose }) => {
           onSubmit={handleManualBooking}
           className="flex-1 p-6 space-y-4 overflow-y-auto bg-gray-50"
         >
-          <div className="p-4 mb-2 border border-teal-100 rounded-xl bg-teal-50">
-            <p className="text-xs font-bold text-teal-800 uppercase">
-              Adding to:
-            </p>
-            <p className="text-lg font-bold text-teal-900">
-              {selectedTour.display_name}
-            </p>
-          </div>
           <div>
             <label className="block mb-1 text-sm font-bold text-gray-700">
               Guest Name
@@ -134,7 +147,7 @@ const DayManifest = ({ date, onClose }) => {
           </div>
           <div>
             <label className="block mb-1 text-sm font-bold text-gray-700">
-              Email (for Ticket)
+              Email
             </label>
             <input
               type="email"
@@ -147,13 +160,13 @@ const DayManifest = ({ date, onClose }) => {
           </div>
           <div>
             <label className="block mb-1 text-sm font-bold text-gray-700">
-              Number of Passengers
+              Passengers
             </label>
             <div className="flex items-center gap-4">
               <button
                 type="button"
                 onClick={() => setNumPeople(Math.max(1, numPeople - 1))}
-                className="p-3 bg-white border rounded-full hover:bg-gray-100"
+                className="p-3 bg-white border rounded-full"
                 aria-label="Decrease passengers"
               >
                 <Minus size={20} />
@@ -168,55 +181,48 @@ const DayManifest = ({ date, onClose }) => {
                     selectedTour.capacity - selectedTour.booked_count;
                   setNumPeople((prev) => Math.min(remaining, prev + 1));
                 }}
+                className="p-3 bg-white border rounded-full"
                 aria-label="Increase passengers"
               >
                 <Plus size={20} />
               </button>
             </div>
           </div>
-          <div className="pt-4">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex items-center justify-center w-full gap-2 py-4 font-bold text-white transition-colors bg-teal-600 shadow-lg rounded-xl hover:bg-teal-700"
-            >
-              {isSubmitting ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                "Confirm Manual Booking"
-              )}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full py-4 font-bold text-white bg-teal-600 rounded-xl"
+          >
+            Confirm Manual Booking
+          </button>
         </form>
       </div>
     );
   }
 
-  // --- VIEW: PASSENGER LIST ---
   if (selectedTour) {
     return (
-      <div className="flex flex-col w-full h-full duration-300 bg-white shadow-2xl animate-in slide-in-from-right">
-        <div className="z-10 flex items-center justify-between p-4 text-white bg-teal-900 shadow-md shrink-0">
+      <div className="flex flex-col w-full h-full bg-white shadow-2xl animate-in slide-in-from-right">
+        <div className="flex items-center justify-between p-4 text-white bg-teal-900 shadow-md">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSelectedTour(null)}
-              className="p-2 transition rounded-full hover:bg-teal-800"
+              className="p-2 rounded-full hover:bg-teal-800"
               aria-label="back to tour list"
             >
               <ArrowLeft size={24} />
             </button>
-            <h2 className="text-lg font-bold truncate">
-              {selectedTour.display_name}
-            </h2>
+            <h2 className="font-bold truncate">{selectedTour.display_name}</h2>
           </div>
           <button
             onClick={() => setIsAddingGuest(true)}
-            className="flex items-center gap-2 p-2 text-sm font-bold transition rounded-lg bg-white/20 hover:bg-white/30"
+            className="p-2 rounded-lg bg-white/20"
+            aria-label="Add Guest"
           >
-            <UserPlus size={18} /> <span>Add Guest</span>
+            <UserPlus size={18} />
           </button>
         </div>
-        <div className="flex-1 p-4 pb-20 overflow-y-auto bg-gray-50">
+        <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
           <h3 className="mb-4 text-sm font-bold tracking-wider text-gray-500 uppercase">
             Confirmed Passengers
           </h3>
@@ -226,7 +232,9 @@ const DayManifest = ({ date, onClose }) => {
               className="p-4 mb-3 bg-white border rounded-lg shadow-sm"
             >
               <h4 className="text-lg font-bold">{p.name}</h4>
-              <p className="text-sm text-gray-500">{p.pax} Pax</p>
+              <p className="text-sm text-gray-500">
+                {p.pax} Pax • {p.status}
+              </p>
             </div>
           ))}
         </div>
@@ -234,7 +242,6 @@ const DayManifest = ({ date, onClose }) => {
     );
   }
 
-  // --- VIEW: MAIN LIST ---
   return (
     <div className="flex flex-col w-full h-full overflow-hidden bg-white shadow-2xl animate-in slide-in-from-right">
       <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white border-b shrink-0">
@@ -248,7 +255,6 @@ const DayManifest = ({ date, onClose }) => {
         </button>
       </div>
       <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
-        {/* RESTORED: DAY CONTROLS */}
         <div className="p-4 mb-6 bg-white border border-gray-100 shadow-sm rounded-xl">
           <h3 className="mb-3 text-xs font-bold tracking-wider text-gray-400 uppercase">
             Day Controls
@@ -261,26 +267,55 @@ const DayManifest = ({ date, onClose }) => {
           </button>
         </div>
         <div className="space-y-4">
-          {tours.map((tour) => (
-            <div
-              key={tour.tour_id}
-              className="p-5 transition bg-white border cursor-pointer rounded-xl hover:shadow-md"
-              onClick={() => setSelectedTour(tour)}
-            >
-              <div className="flex items-center justify-between">
-                <h4 className="font-bold">{tour.display_name}</h4>
-                <div className="text-right">
-                  <span className="text-xl font-bold text-teal-600">
-                    {tour.booked_count}
-                  </span>
-                  <span className="text-sm text-gray-400">
-                    {" "}
-                    / {tour.capacity}
-                  </span>
+          {tours.map((tour) => {
+            const isCancelled =
+              tour.status === "cancelled" ||
+              tour.status === "cancelled_weather";
+            return (
+              <div
+                key={tour.tour_id}
+                className={`p-5 bg-white border rounded-xl shadow-sm ${
+                  isCancelled
+                    ? "opacity-60 grayscale"
+                    : "hover:shadow-md cursor-pointer"
+                }`}
+                onClick={() => !isCancelled && setSelectedTour(tour)}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-teal-900">
+                      {tour.display_name}
+                    </h4>
+                    <span className="text-[10px] text-gray-400 uppercase font-bold">
+                      {tour.status}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xl font-bold text-teal-600">
+                      {tour.booked_count}
+                    </span>
+                    <span className="text-sm text-gray-400">
+                      {" "}
+                      / {tour.capacity}
+                    </span>
+                  </div>
                 </div>
+                {!isCancelled && (
+                  <button
+                    disabled={isSubmitting}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm("Notify guests?"))
+                        handleWeatherCancellation(tour);
+                    }}
+                    className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg text-[10px] font-black uppercase hover:bg-red-100"
+                  >
+                    <CloudRain size={14} /> Weather Cancel
+                  </button>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
