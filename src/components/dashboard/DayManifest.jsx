@@ -37,6 +37,7 @@ const DayManifest = ({ date, onClose }) => {
     setLoading(true);
     try {
       const dateString = format(date, "yyyy-MM-dd");
+
       const data = await fetchDayManifest(dateString);
       setTours(data);
     } catch (err) {

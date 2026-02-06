@@ -170,12 +170,40 @@ export const fetchMonthlySchedule = async (year, month) => {
 
 export const fetchDayManifest = async (dateString) => {
   try {
-    const headers = await getHeaders(true); // Include JWT
+    // 🔍 DEBUG: Check auth before calling
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    console.log("🔍 Manifest Auth Check:", {
+      hasSession: !!session,
+      hasToken: !!session?.access_token,
+      userEmail: session?.user?.email,
+      tokenPreview: session?.access_token?.substring(0, 30) + "...",
+    });
+
+    const headers = await getHeaders(true);
+    console.log("🔍 Headers being sent:", headers);
+
     const response = await fetch(
       `${API_BASE_URL}/admin/manifest/${dateString}`,
       { headers }
     );
-    if (!response.ok) throw new Error("Unauthorized Access");
+
+    console.log("🔍 Response status:", response.status);
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      console.error("Backend Error Details:", {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+        body: body,
+      });
+      throw new Error(
+        `Server returned ${response.status}: ${body.detail || "Unauthorized"}`
+      );
+    }
     return await response.json();
   } catch (error) {
     captureApiError(error, {

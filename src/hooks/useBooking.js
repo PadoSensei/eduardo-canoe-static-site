@@ -34,6 +34,15 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
   // Polling
   useEffect(() => {
     let intervalId;
+
+    console.log("🔍 Booking State:", {
+      hasBooking: !!currentBooking,
+      hasPayment: !!paymentInfo,
+      isConfirmed,
+      isExpired,
+      isFailed,
+      bookingStatus: currentBooking?.status, // ← Check initial status
+    });
     const needsPolling =
       currentBooking?.uuid &&
       paymentInfo &&
@@ -42,12 +51,17 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
       !isFailed;
 
     if (needsPolling) {
-      intervalId = setInterval(async () => {
+      // Add immediate first check (don't wait 3 seconds)
+      const checkStatus = async () => {
         try {
+          console.log("🔄 Polling booking status...", currentBooking.uuid);
           const statusData = await getBookingStatus(currentBooking.uuid);
+          console.log("📊 Status response:", statusData);
+
           setConsecutiveErrors(0);
 
           if (statusData.status === "confirmed") {
+            console.log("✅ CONFIRMED! Transitioning to success view");
             setIsConfirmed(true);
             setPaymentInfo(null);
             localStorage.removeItem("pending_booking");
@@ -57,18 +71,27 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
               setAvailableTours(updated);
             }
           } else if (statusData.status === "expired") {
+            console.log("⏰ EXPIRED");
             setIsExpired(true);
             localStorage.removeItem("pending_booking");
             clearInterval(intervalId);
           } else if (statusData.status === "failed") {
+            console.log("❌ FAILED");
             setIsFailed(true);
             localStorage.removeItem("pending_booking");
             clearInterval(intervalId);
+          } else {
+            console.log("⏳ Still pending:", statusData.status);
           }
         } catch (err) {
+          console.error("❌ Polling error:", err);
           setConsecutiveErrors((prev) => prev + 1);
         }
-      }, 3000);
+      };
+
+      // Check immediately, then every 3 seconds
+      checkStatus();
+      intervalId = setInterval(checkStatus, 3000);
     }
     return () => clearInterval(intervalId);
   }, [

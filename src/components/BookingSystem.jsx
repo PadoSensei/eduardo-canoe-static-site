@@ -77,6 +77,20 @@ function BookingSystem() {
 
   // --- 3. SIDE EFFECTS ---
 
+  // Extract the loading logic into a reusable function
+  const loadAvailability = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getAvailableTours(selectedDate);
+      setAvailableTours(data);
+    } catch (err) {
+      setError("LOAD_ERROR");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedDate]);
+
   // Close modal on Escape key
   useEffect(() => {
     if (!showBookingModal) return;
@@ -90,23 +104,14 @@ function BookingSystem() {
   // Data Loading: Fetch tours for date
   useEffect(() => {
     let isMounted = true;
-    const loadAvailability = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await getAvailableTours(selectedDate);
-        if (isMounted) setAvailableTours(data);
-      } catch (err) {
-        if (isMounted) setError("LOAD_ERROR");
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
+    const load = async () => {
+      await loadAvailability();
     };
-    loadAvailability();
+    if (isMounted) load();
     return () => {
       isMounted = false;
     };
-  }, [selectedDate, language]);
+  }, [selectedDate, language, loadAvailability]);
 
   // --- 4. EVENT HANDLERS ---
 
@@ -163,7 +168,7 @@ function BookingSystem() {
     }
   };
 
-  const closeModal = () => {
+  const closeModal = async () => {
     clearBooking();
     setShowBookingModal(false);
     setSelectedTour(null);
@@ -174,6 +179,7 @@ function BookingSystem() {
     setAcceptedTerms(false);
     setFormError(null);
     Sentry.setUser(null); // Clear Sentry context on close
+    await loadAvailability();
   };
 
   const openModal = (tour) => {
@@ -191,26 +197,26 @@ function BookingSystem() {
 
   const renderTourList = () => {
     if (isLoading)
-      return <p className="text-center text-gray-500 py-8">{t("loading")}</p>;
+      return <p className="py-8 text-center text-gray-500">{t("loading")}</p>;
     if (error)
       return (
-        <p className="text-center text-red-500 py-8">{t("errorGeneric")}</p>
+        <p className="py-8 text-center text-red-500">{t("errorGeneric")}</p>
       );
     if (availableTours.length === 0)
-      return <p className="text-center text-gray-600 py-8">{t("noTours")}</p>;
+      return <p className="py-8 text-center text-gray-600">{t("noTours")}</p>;
 
     return availableTours
       .filter((t) => t.isBookable)
       .map((tour) => (
         <div
           key={tour.id}
-          className="flex flex-col sm:flex-row justify-between items-center p-6 border-b last:border-b-0 hover:bg-gray-50 transition-colors"
+          className="flex flex-col items-center justify-between p-6 transition-colors border-b sm:flex-row last:border-b-0 hover:bg-gray-50"
         >
-          <div className="text-center sm:text-left mb-4 sm:mb-0">
-            <h4 className="font-bold text-lg text-gray-800">
+          <div className="mb-4 text-center sm:text-left sm:mb-0">
+            <h4 className="text-lg font-bold text-gray-800">
               {getTourName(tour.tourType)}
             </h4>
-            <div className="text-gray-600 text-sm mt-1 space-y-1">
+            <div className="mt-1 space-y-1 text-sm text-gray-600">
               <p>
                 ⏳ {t("duration")}: {tour.duration || "2h"}
               </p>
@@ -220,7 +226,7 @@ function BookingSystem() {
             </div>
           </div>
           <div className="text-center sm:text-right">
-            <p className="text-xl font-bold text-gray-900 mb-2">
+            <p className="mb-2 text-xl font-bold text-gray-900">
               {t("pricePrefix")} {tour.price.toFixed(2)}
             </p>
             <button
@@ -235,12 +241,12 @@ function BookingSystem() {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-gray-100 min-h-screen">
-      <div className="container mx-auto px-6">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 text-gray-800">
+    <section className="min-h-screen py-16 bg-gray-100 md:py-24">
+      <div className="container px-6 mx-auto">
+        <h2 className="mb-2 text-3xl font-bold text-center text-gray-800 md:text-4xl">
           {t("bookingTitle")}
         </h2>
-        <p className="text-center text-gray-600 mb-12">
+        <p className="mb-12 text-center text-gray-600">
           {t("bookingSubtitle")}
         </p>
 
@@ -248,14 +254,14 @@ function BookingSystem() {
           {formError && !showBookingModal && (
             <div
               role="alert"
-              className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 w-full max-w-3xl rounded shadow-sm"
+              className="w-full max-w-3xl p-4 mb-4 text-red-700 bg-red-100 border-l-4 border-red-500 rounded shadow-sm"
             >
               {formError}
             </div>
           )}
           <label
             htmlFor="tour-date-input"
-            className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide"
+            className="mb-2 text-sm font-semibold tracking-wide text-gray-500 uppercase"
           >
             {t("selectDateLabel")}
           </label>
@@ -269,13 +275,13 @@ function BookingSystem() {
           />
         </div>
 
-        <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
+        <div className="max-w-3xl mx-auto overflow-hidden bg-white shadow-xl rounded-xl">
           {renderTourList()}
         </div>
 
         {showBookingModal && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm"
             role="presentation"
             onClick={closeModal}
           >
