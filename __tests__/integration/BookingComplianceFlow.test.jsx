@@ -18,6 +18,7 @@ describe("Full Booking Compliance Flow", () => {
   let capturedPayload;
 
   const server = setupServer(
+    // FIX: Use function call syntax, not template literals
     http.get(`${API_BASE}/tours/available`, () =>
       HttpResponse.json([
         {
@@ -42,10 +43,14 @@ describe("Full Booking Compliance Flow", () => {
   );
 
   beforeAll(() => server.listen());
-  afterEach(() => {
+
+  afterEach(async () => {
     server.resetHandlers();
     localStorage.clear();
+    // Flush promises to help with cleanup
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
+
   afterAll(() => server.close());
 
   test("User can only complete booking after checking the LGPD box", async () => {

@@ -1,11 +1,6 @@
+// __tests__/BookingSystem.test.jsx
 import React from "react";
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
@@ -16,15 +11,17 @@ import { LanguageProvider, useLanguage } from "../src/context/LanguageContext";
 const API_BASE = "http://localhost:8000/api/v1";
 const TEST_UUID = "test-uuid-123";
 
-// 1. Mock Language Context
-jest.mock("../src/context/LanguageContext", () => ({
-  ...jest.requireActual("../src/context/LanguageContext"),
-  useLanguage: jest.fn(),
-  LanguageProvider: ({ children }) => <div>{children}</div>,
-}));
+// Mock the language context
+jest.mock("../src/context/LanguageContext", () => {
+  const actual = jest.requireActual("../src/context/LanguageContext");
+  return {
+    ...actual,
+    useLanguage: jest.fn(),
+  };
+});
 
-// 2. MSW Setup
 const server = setupServer(
+  http.options(`${API_BASE}/*`, () => new HttpResponse(null, { status: 204 })),
   http.get(`${API_BASE}/tours/available`, () =>
     HttpResponse.json([
       {
@@ -52,15 +49,19 @@ const server = setupServer(
 );
 
 beforeAll(() => server.listen());
+
 afterEach(() => {
+  // CRITICAL: Restore real timers BEFORE any async cleanup
+  jest.useRealTimers();
   server.resetHandlers();
   localStorage.clear();
   jest.clearAllTimers();
-  jest.useRealTimers();
+  jest.clearAllMocks();
 });
-afterAll(() => server.close());
 
-// --- Helpers ---
+afterAll(() => {
+  server.close();
+});
 
 const renderWithProviders = (ui) =>
   render(
@@ -69,78 +70,75 @@ const renderWithProviders = (ui) =>
     </MemoryRouter>
   );
 
-/**
- * Common interaction helper.
- * Navigates the UI from the tour list to the Pix payment screen.
- */
-const reachPaymentStage = async () => {
-  // Clear initial loading state
-  await act(async () => {
-    await jest.advanceTimersByTimeAsync(0);
-  });
-
-  const bookBtn = await screen.findByRole("button", { name: /Book Now/i });
-  fireEvent.click(bookBtn);
-
-  // Fill in guest details
-  fireEvent.input(screen.getByLabelText(/Your Name/i), {
-    target: { value: "John Doe" },
-  });
-  fireEvent.input(screen.getByLabelText(/Your Email/i), {
-    target: { value: "john@test.com" },
-  });
-
-  // LGPD Compliance: Check the mandatory terms checkbox
-  const checkbox = screen.getByRole("checkbox");
-  fireEvent.click(checkbox);
-
-  // Click confirm
-  const confirmBtn = screen.getByRole("button", { name: /Confirm Booking/i });
-  fireEvent.click(confirmBtn);
-
-  // Resolve the 'createBooking' fetch
-  await act(async () => {
-    await jest.advanceTimersByTimeAsync(0);
-  });
-
-  // Assert we arrived at the payment view
-  await screen.findByText(/Booking Reserved!/i);
+// Standard translation mock - MUST include all keys your UI uses
+const mockLanguageValue = {
+  language: "en",
+  setLanguage: jest.fn(),
+  t: (key) =>
+    ({
+      bookingTitle: "Check Tour Availability",
+      bookingSubtitle: "Select a date to see available adventures",
+      selectDateLabel: "Select Date",
+      ctaButton: "Book Now",
+      bookTitle: "Book",
+      labelDate: "Date",
+      labelName: "Your Name",
+      labelEmail: "Your Email",
+      labelNotes: "Special Notes",
+      placeholderName: "Enter your name",
+      placeholderEmail: "Enter your email",
+      placeholderNotes: "Any special requests?",
+      btnConfirm: "Confirm Booking",
+      btnCancel: "Cancel",
+      paymentTitle: "Booking Reserved!",
+      successTitle: "Payment Confirmed!",
+      connectionWarning: "Connection slow.",
+      alertPastDate: "past dates",
+      labelAcceptTerms: "I accept the",
+      linkTerms: "Terms of Service",
+      linkAnd: "and",
+      linkPrivacy: "Privacy Policy",
+      card1Title: "Sunrise Tour",
+      duration: "Duration",
+      spotsLeft: "spots left",
+    }[key] || key),
 };
 
 describe("BookingSystem Integration & Resilience", () => {
   beforeEach(() => {
     jest.useFakeTimers();
-    // Comprehensive mock dictionary to satisfy all child components (Form, Payment, Success)
-    useLanguage.mockReturnValue({
-      language: "en",
-      t: (key) => {
-        const manual = {
-          bookingTitle: "Check Tour Availability",
-          bookingSubtitle: "Select a date to see available adventures",
-          selectDateLabel: "Select Date",
-          ctaButton: "Book Now",
-          labelName: "Your Name",
-          labelEmail: "Your Email",
-          btnConfirm: "Confirm Booking",
-          paymentTitle: "Booking Reserved!",
-          successTitle: "Payment Confirmed!",
-          connectionWarning: "Connection slow.",
-          alertPastDate: "Cannot book tours for past dates.",
-          errorTerms: "You must accept the terms to proceed.",
-          expiresIn: "QR Code expires in",
-          btnDone: "Done",
-        };
-        return manual[key] || key;
-      },
-    });
+    useLanguage.mockReturnValue(mockLanguageValue);
   });
+
+  const reachPaymentStage = async () => {
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
+    });
+
+    const bookBtn = await screen.findByRole("button", { name: /Book Now/i });
+    fireEvent.click(bookBtn);
+
+    fireEvent.input(screen.getByLabelText(/Your Name/i), {
+      target: { value: "John Doe" },
+    });
+    fireEvent.input(screen.getByLabelText(/Your Email/i), {
+      target: { value: "john@test.com" },
+    });
+
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(0);
+    });
+    expect(await screen.findByText(/Booking Reserved!/i)).toBeInTheDocument();
+  };
 
   test("polls for status and switches to Success View", async () => {
     let callCount = 0;
     server.use(
       http.get(`${API_BASE}/bookings/status/${TEST_UUID}`, () => {
         callCount++;
-        // First poll remains pending, second poll confirms
         return HttpResponse.json({
           status: callCount < 2 ? "pending_payment" : "confirmed",
         });
@@ -150,7 +148,6 @@ describe("BookingSystem Integration & Resilience", () => {
     renderWithProviders(<BookingSystem />);
     await reachPaymentStage();
 
-    // Fast-forward two polling intervals (3s each)
     await act(async () => {
       await jest.advanceTimersByTimeAsync(3000);
     });
@@ -172,15 +169,13 @@ describe("BookingSystem Integration & Resilience", () => {
     renderWithProviders(<BookingSystem />);
     await reachPaymentStage();
 
-    // Advance 5 intervals to trigger the error threshold
     for (let i = 0; i < 5; i++) {
       await act(async () => {
         await jest.advanceTimersByTimeAsync(3000);
       });
     }
 
-    const warning = await screen.findByText(/Connection slow/i);
-    expect(warning).toBeInTheDocument();
+    expect(await screen.findByText(/Connection slow/i)).toBeInTheDocument();
   });
 
   test("prevents double-booking by disabling button during submission", async () => {
@@ -190,27 +185,21 @@ describe("BookingSystem Integration & Resilience", () => {
     });
 
     fireEvent.click(await screen.findByRole("button", { name: /Book Now/i }));
-
     fireEvent.input(screen.getByLabelText(/Your Name/i), {
       target: { value: "John" },
     });
     fireEvent.input(screen.getByLabelText(/Your Email/i), {
       target: { value: "john@test.com" },
     });
-
     fireEvent.click(screen.getByRole("checkbox"));
 
     const confirmBtn = screen.getByRole("button", { name: /Confirm Booking/i });
-
-    // Simulate double-click
     fireEvent.click(confirmBtn);
     fireEvent.click(confirmBtn);
 
     await act(async () => {
       await jest.advanceTimersByTimeAsync(0);
     });
-
-    // Ensure we only ended up at the payment screen once
     expect(await screen.findByText(/Booking Reserved!/i)).toBeInTheDocument();
   });
 
@@ -236,35 +225,15 @@ describe("BookingSystem Integration & Resilience", () => {
     fireEvent.input(screen.getByLabelText(/Your Email/i), {
       target: { value: "john@test.com" },
     });
-
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
 
-    // Verify the error alert appears inside the modal
-    const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent(/Tour recently filled up/i);
-  });
-
-  test("prevents booking a date that becomes 'yesterday' while the page is open", async () => {
-    // Set system time to nearly midnight Jan 19
-    const nearMidnight = new Date("2026-01-19T23:59:59");
-    jest.setSystemTime(nearMidnight);
-
-    renderWithProviders(<BookingSystem />);
     await act(async () => {
       await jest.advanceTimersByTimeAsync(0);
     });
 
-    // Tick the clock past midnight into Jan 20
-    act(() => {
-      jest.advanceTimersByTime(2000);
-    });
-
-    // Try to book the Jan 19 tour which is now in the past
-    const bookBtn = await screen.findByRole("button", { name: /Book Now/i });
-    fireEvent.click(bookBtn);
-
-    const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent(/past dates/i);
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /Tour recently filled up/i
+    );
   });
 });

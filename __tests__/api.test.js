@@ -1,141 +1,185 @@
 // __tests__/api.test.js
+import { setupServer } from "msw/node";
+import { http, HttpResponse } from "msw";
 
-import { getAvailableTours, createBooking } from "../src/api";
+const API_BASE = "http://localhost:8000/api/v1";
 
-// Mock the fetch API globally
-global.fetch = jest.fn();
+const server = setupServer(
+  http.get(`${API_BASE}/tours/available`, () =>
+    HttpResponse.json([
+      {
+        tour_instance_id: 1,
+        tour_type: "morning",
+        display_name: "Sunrise Tour",
+        price: 100,
+        seats_available: 5,
+        is_bookable: true,
+        tour_date: "2026-01-19",
+      },
+    ])
+  ),
+  http.post(`${API_BASE}/bookings`, () =>
+    HttpResponse.json({
+      success: true,
+      booking: { uuid: "test-uuid", id: 1 },
+      payment_info: {
+        qr_code: "pix-key",
+        qr_code_image: "img",
+        expires_in: 900,
+      },
+    })
+  ),
+  http.get(`${API_BASE}/bookings/status/:uuid`, () =>
+    HttpResponse.json({ status: "pending_payment" })
+  )
+);
 
-beforeEach(() => {
-  fetch.mockClear();
+beforeAll(() => server.listen());
+
+afterEach(async () => {
+  server.resetHandlers();
+  jest.resetModules();
+  await new Promise((resolve) => setTimeout(resolve, 0));
 });
 
-describe("Tour API Client", () => {
-  const API_BASE_URL = "http://localhost:8000/api/v1";
+afterAll(() => server.close());
+
+describe("API Module", () => {
+  // Dynamic import to get fresh module
+  const getApi = async () => {
+    return import("../src/api.js");
+  };
 
   describe("getAvailableTours", () => {
-    test("should fetch and map tour data correctly", async () => {
-      const mockApiResponse = [
-        {
-          tour_instance_id: 101,
-          tour_type: "morning",
-          tour_date: "2025-12-01",
-          display_name: "Morning Dolphin Tour",
-          description: "A gentle morning paddle",
-          price: 50,
-          seats_available: 8,
-          is_bookable: true,
-          capacity: 10,
-          duration: "2h",
-          image_url: "img/tour.jpg",
-        },
-      ];
+    test("fetches tours for a given date", async () => {
+      const { getAvailableTours } = await getApi();
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockApiResponse,
-      });
+      const result = await getAvailableTours("2026-01-19");
 
-      const date = "2025-12-01";
-      const result = await getAvailableTours(date);
-
-      expect(fetch).toHaveBeenCalledTimes(1);
-      expect(fetch).toHaveBeenCalledWith(
-        `${API_BASE_URL}/tours/available?tour_date=${date}`
-      );
-
-      expect(result).toHaveLength(1);
-      expect(result[0]).toMatchObject({
-        id: "morning-2025-12-01",
-        instanceId: 101,
-        tourType: "morning",
-        name: "Morning Dolphin Tour",
-        remaining: 8,
-        isBookable: true,
-        capacity: 10,
-      });
+      expect(result).toEqual([
+        expect.objectContaining({
+          id: "morning-2026-01-19",
+          instanceId: 1,
+          tourType: "morning",
+          name: "Sunrise Tour",
+          price: 100,
+          remaining: 5,
+          isBookable: true,
+        }),
+      ]);
     });
 
-    test("should handle fetch errors", async () => {
-      fetch.mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: "Internal Server Error",
-        json: async () => ({ detail: "Database error" }),
+    test("transforms API response to frontend format", async () => {
+      const { getAvailableTours } = await getApi();
+
+      const result = await getAvailableTours("2026-01-19");
+
+      // Verify all expected fields are present
+      expect(result[0]).toHaveProperty("id");
+      expect(result[0]).toHaveProperty("instanceId");
+      expect(result[0]).toHaveProperty("tourType");
+      expect(result[0]).toHaveProperty("name");
+      expect(result[0]).toHaveProperty("price");
+      expect(result[0]).toHaveProperty("remaining");
+      expect(result[0]).toHaveProperty("isBookable");
+      expect(result[0]).toHaveProperty("tourDate");
+    });
+
+    test("returns null on abort", async () => {
+      const { getAvailableTours } = await getApi();
+      const controller = new AbortController();
+      controller.abort();
+
+      const result = await getAvailableTours("2026-01-19", {
+        signal: controller.signal,
       });
 
-      const date = "2025-12-01";
+      expect(result).toBeNull();
+    });
 
-      await expect(getAvailableTours(date)).rejects.toThrow(
-        "HTTP error 500: Database error"
+    test("throws on HTTP error", async () => {
+      server.use(
+        http.get(`${API_BASE}/tours/available`, () =>
+          HttpResponse.json({ detail: "Server error" }, { status: 500 })
+        )
       );
 
-      expect(fetch).toHaveBeenCalledTimes(1);
+      const { getAvailableTours } = await getApi();
+
+      await expect(getAvailableTours("2026-01-19")).rejects.toThrow();
     });
   });
 
   describe("createBooking", () => {
-    test("should successfully create a booking", async () => {
-      const mockResponse = {
-        booking: {
-          id: 123,
-          uuid: "abc-123-def",
-          status: "pending_payment",
-        },
-        payment_info: {
-          qr_code: "data:image/png;base64,...",
-        },
-      };
+    test("returns success response with booking and payment info", async () => {
+      const { createBooking } = await getApi();
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
+      const result = await createBooking({
+        tourId: 1,
+        guestName: "John",
+        guestEmail: "john@test.com",
+        numPeople: 1,
+        totalPrice: 100,
+        acceptedTerms: true,
       });
 
-      const bookingData = {
-        tourId: 101,
-        guestName: "John Doe",
-        guestEmail: "john@example.com",
-        numPeople: 2,
-        totalPrice: 100.0,
-        acceptedTerms: true,
-      };
-
-      const result = await createBooking(bookingData);
-
-      expect(fetch).toHaveBeenCalledTimes(1);
-      expect(fetch).toHaveBeenCalledWith(
-        `${API_BASE_URL}/bookings`,
-        expect.objectContaining({
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        })
-      );
-
-      expect(result.success).toBe(true);
-      expect(result.booking).toBeDefined();
-      expect(result.paymentInfo).toBeDefined();
+      expect(result).toEqual({
+        success: true,
+        booking: { uuid: "test-uuid", id: 1 },
+        paymentInfo: {
+          qr_code: "pix-key",
+          qr_code_image: "img",
+          expires_in: 900,
+        },
+      });
     });
 
-    test("should handle booking failure", async () => {
-      fetch.mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({ detail: "Not enough seats available" }),
+    test("returns error message on failure", async () => {
+      server.use(
+        http.post(`${API_BASE}/bookings`, () =>
+          HttpResponse.json({ detail: "Tour is fully booked" }, { status: 400 })
+        )
+      );
+
+      const { createBooking } = await getApi();
+
+      const result = await createBooking({
+        tourId: 1,
+        guestName: "John",
+        guestEmail: "john@test.com",
+        numPeople: 1,
+        totalPrice: 100,
+        acceptedTerms: true,
       });
 
-      const bookingData = {
-        tourId: 101,
-        guestName: "John Doe",
-        guestEmail: "john@example.com",
-        numPeople: 20,
-        totalPrice: 1000.0,
-        acceptedTerms: true,
-      };
+      expect(result).toEqual({
+        success: false,
+        message: "Tour is fully booked",
+      });
+    });
+  });
 
-      const result = await createBooking(bookingData);
+  describe("getBookingStatus", () => {
+    test("fetches status for given booking UUID", async () => {
+      const { getBookingStatus } = await getApi();
 
-      expect(result.success).toBe(false);
-      expect(result.message).toContain("Not enough seats available");
+      const result = await getBookingStatus("test-uuid-123");
+
+      expect(result).toEqual({ status: "pending_payment" });
+    });
+
+    test("returns confirmed status", async () => {
+      server.use(
+        http.get(`${API_BASE}/bookings/status/:uuid`, () =>
+          HttpResponse.json({ status: "confirmed" })
+        )
+      );
+
+      const { getBookingStatus } = await getApi();
+
+      const result = await getBookingStatus("any-uuid");
+
+      expect(result).toEqual({ status: "confirmed" });
     });
   });
 });

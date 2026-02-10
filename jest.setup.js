@@ -1,58 +1,86 @@
 // jest.setup.js
-import "@testing-library/jest-dom";
-import "whatwg-fetch";
-
-process.env.VITE_SUPABASE_URL = "https://mock-project.supabase.co";
-process.env.VITE_SUPABASE_ANON_KEY = "mock-anon-key";
-process.env.VITE_API_URL = "http://localhost:8000";
-
+// ==============================================================================
+// POLYFILLS - Required for MSW v2 with JSDOM
+// ==============================================================================
 const util = require("util");
 const {
   ReadableStream,
   TransformStream,
   WritableStream,
 } = require("node:stream/web");
-const { BroadcastChannel } = require("worker_threads"); // NEW: Required for MSW v2
-const { Blob, File } = require("node:buffer"); // NEW: Defensive polyfill
+const { BroadcastChannel } = require("worker_threads");
+const { Blob, File } = require("node:buffer");
 
-// 1. Polyfill Encoding API
 global.TextEncoder = util.TextEncoder;
 global.TextDecoder = util.TextDecoder;
-
-// 2. Polyfill Web Streams API
 global.ReadableStream = ReadableStream;
 global.TransformStream = TransformStream;
 global.WritableStream = WritableStream;
+global.setImmediate = (fn) => setTimeout(fn, 0);
 
-// 3. Polyfill BroadcastChannel (The fix for your current error)
 if (typeof global.BroadcastChannel === "undefined") {
   global.BroadcastChannel = BroadcastChannel;
 }
 
-// 4. Polyfill Blob/File
 if (typeof global.Blob === "undefined") {
   global.Blob = Blob;
   global.File = File;
 }
 
-// 5. Polyfill Fetch API Globals
-global.Headers = global.Headers || fetch.Headers;
-global.Request = global.Request || fetch.Request;
-global.Response = global.Response || fetch.Response;
+require("@testing-library/jest-dom");
+require("whatwg-fetch");
 
-// 6. Polyfill Buffer
-if (typeof global.Buffer === "undefined") {
-  global.Buffer = require("buffer").Buffer;
-}
-
-// 7. Polyfill setImmediate (FIX for your current error)
-if (typeof global.setImmediate === "undefined") {
-  global.setImmediate = (fn) => setTimeout(fn, 0);
-}
-
-// Mock navigator.clipboard
+// ==============================================================================
+// BROWSER API MOCKS
+// ==============================================================================
 Object.assign(navigator, {
   clipboard: {
     writeText: jest.fn().mockImplementation(() => Promise.resolve()),
   },
 });
+
+// ==============================================================================
+// GLOBAL MOCKS - Prevent background network/timer leakage
+// ==============================================================================
+
+// Sentry Mock
+jest.mock("@sentry/react", () => ({
+  init: jest.fn(),
+  setUser: jest.fn(),
+  captureException: jest.fn(),
+  captureMessage: jest.fn(),
+  ErrorBoundary: ({ children }) => children,
+  withScope: jest.fn((callback) =>
+    callback({
+      setLevel: jest.fn(),
+      setTag: jest.fn(),
+      setExtra: jest.fn(),
+    })
+  ),
+  makeFetchTransport: jest.fn(() => ({
+    send: () => Promise.resolve({ status: "success" }),
+    flush: () => Promise.resolve(true),
+  })),
+}));
+
+// Supabase Mock - Prevents auth websocket/timer leaks
+jest.mock("./src/supabaseClient", () => ({
+  supabase: {
+    auth: {
+      getSession: jest
+        .fn()
+        .mockResolvedValue({ data: { session: null }, error: null }),
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
+      signInWithOtp: jest.fn().mockResolvedValue({ error: null }),
+      signOut: jest.fn().mockResolvedValue({ error: null }),
+    },
+  },
+}));
+
+// ==============================================================================
+// NOTE: Do NOT add global afterEach/afterAll with async operations here!
+// They conflict with fake timers in individual tests and cause timeouts.
+// Each test file should handle its own cleanup.
+// ==============================================================================

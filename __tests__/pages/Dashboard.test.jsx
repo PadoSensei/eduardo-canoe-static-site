@@ -9,10 +9,10 @@ import { LanguageProvider } from "../../src/context/LanguageContext";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
-// 1. Setup MSW to handle both schedule and manifest
 const server = setupServer(
   http.options(`${API_BASE}/*`, () => new HttpResponse(null, { status: 204 })),
-  http.get(`${API_BASE}/admin/schedule`, () => HttpResponse.json([])),
+  // Wildcard is required to match query parameters (?year=2026...)
+  http.get(`${API_BASE}/admin/schedule*`, () => HttpResponse.json({})),
   http.get(`${API_BASE}/admin/manifest/*`, () =>
     HttpResponse.json([
       {
@@ -25,7 +25,8 @@ const server = setupServer(
         passengers: [],
       },
     ])
-  )
+  ),
+  http.get(`${API_BASE}/tours/available*`, () => HttpResponse.json([]))
 );
 
 beforeAll(() => {
@@ -33,22 +34,28 @@ beforeAll(() => {
   window.alert = jest.fn();
   window.confirm = jest.fn(() => true);
 });
-afterEach(() => server.resetHandlers());
+
+afterEach(async () => {
+  server.resetHandlers();
+  // Ensure microtasks flush to prevent uv_stream leaks
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+  jest.clearAllMocks();
+});
+
 afterAll(() => server.close());
 
-// Mock Supabase Auth to bypass the login screen
 jest.mock("../../src/supabaseClient", () => ({
   supabase: {
     auth: {
-      getSession: jest.fn(() =>
-        Promise.resolve({
-          data: { session: { user: { email: "eduardo@example.com" } } },
-        })
-      ),
+      getSession: jest.fn().mockResolvedValue({
+        data: { session: { user: { email: "eduardo@example.com" } } },
+      }),
       onAuthStateChange: jest.fn(() => ({
         data: { subscription: { unsubscribe: jest.fn() } },
       })),
-      signOut: jest.fn(() => Promise.resolve()),
+      signOut: jest.fn().mockResolvedValue({}),
     },
   },
 }));
@@ -65,52 +72,49 @@ const renderDashboard = () =>
 describe("Dashboard Page Integration", () => {
   test("initially shows calendar when logged in", async () => {
     renderDashboard();
-    // Wait for the auth session check to finish and render the "Operations" view
     expect(await screen.findByText(/Operations/i)).toBeInTheDocument();
-    expect(screen.getByText(/eduardo@example.com/i)).toBeInTheDocument();
+    expect(await screen.findByText(/eduardo@example.com/i)).toBeInTheDocument();
   });
 
-  test("clicking a date opens the manifest panel and shows tour list", async () => {
+  test("clicking an active date opens the manifest and shows tours", async () => {
     renderDashboard();
+    await screen.findByText(/Operations/i);
 
-    // Find a day on the calendar (e.g., the 15th)
+    // Find all day "15"s and click the one that is NOT grayed out
     const days = await screen.findAllByText("15");
+    const activeDay = days.find((d) => !d.className.includes("text-gray-300"));
 
     await act(async () => {
-      fireEvent.click(days[0]);
+      fireEvent.click(activeDay);
     });
 
-    // SENIOR FIX: When we click a date, the component shows "Day Controls"
-    // and the list of tours. "Confirmed Passengers" is in the next view.
-    const controlsHeader = await screen.findByText(/Day Controls/i);
-    expect(controlsHeader).toBeInTheDocument();
-
-    // Verify the mock tour data we provided in MSW is visible
-    expect(screen.getByText("Test Morning Tour")).toBeInTheDocument();
+    // findByText waits for the MSW manifest response
+    expect(
+      await screen.findByText("Test Morning Tour", {}, { timeout: 5000 })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Day Controls/i)).toBeInTheDocument();
   });
 
   test("clicking a tour card shows the passenger list", async () => {
     renderDashboard();
-
-    // 1. Open the date manifest
     const days = await screen.findAllByText("15");
+    const activeDay = days.find((d) => !d.className.includes("text-gray-300"));
+
     await act(async () => {
-      fireEvent.click(days[0]);
+      fireEvent.click(activeDay);
     });
 
-    // 2. Click the specific tour card to see passengers
     const tourCard = await screen.findByText("Test Morning Tour");
     await act(async () => {
       fireEvent.click(tourCard);
     });
 
-    // 3. NOW we expect to see the passenger header
     expect(
       await screen.findByText(/Confirmed Passengers/i)
     ).toBeInTheDocument();
   });
 
-  test("logout button clears session", async () => {
+  test("logout button clears session and returns to login", async () => {
     renderDashboard();
     const logoutBtn = await screen.findByRole("button", { name: /logout/i });
 
@@ -120,5 +124,7 @@ describe("Dashboard Page Integration", () => {
 
     const { supabase } = require("../../src/supabaseClient");
     expect(supabase.auth.signOut).toHaveBeenCalled();
+    // Proves the transition finished and requests are closed
+    expect(await screen.findByText(/Admin Access/i)).toBeInTheDocument();
   });
 });

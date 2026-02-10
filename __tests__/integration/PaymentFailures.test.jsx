@@ -3,6 +3,7 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
+import "@testing-library/jest-dom";
 import BookingSystem from "../../src/components/BookingSystem";
 import {
   LanguageProvider,
@@ -12,13 +13,13 @@ import {
 const API_BASE = "http://localhost:8000/api/v1";
 const TEST_UUID = "failed-uuid-123";
 
-// 1. Mock Context
+// Mock Context
 jest.mock("../../src/context/LanguageContext", () => {
   const actual = jest.requireActual("../../src/context/LanguageContext");
   return { ...actual, useLanguage: jest.fn() };
 });
 
-// 2. Setup MSW
+// Setup MSW - Use function call syntax, not template literals
 const server = setupServer(
   http.get(`${API_BASE}/tours/available`, () =>
     HttpResponse.json([
@@ -46,12 +47,11 @@ const server = setupServer(
   )
 );
 
-beforeAll(() => {
-  server.listen();
-  jest.useFakeTimers();
-});
+beforeAll(() => server.listen());
 
 afterEach(() => {
+  // CRITICAL: Restore real timers FIRST to prevent timeout
+  jest.useRealTimers();
   server.resetHandlers();
   localStorage.clear();
   jest.clearAllMocks();
@@ -59,28 +59,42 @@ afterEach(() => {
 
 afterAll(() => {
   server.close();
-  jest.useRealTimers();
 });
+
+// Complete translation mock
+const mockLanguageValue = {
+  language: "en",
+  setLanguage: jest.fn(),
+  t: (key) =>
+    ({
+      ctaButton: "Book Now",
+      labelName: "Name",
+      labelEmail: "Email",
+      labelNotes: "Special Notes",
+      btnConfirm: "Confirm Booking",
+      btnCancel: "Cancel",
+      failedTitle: "Payment Rejected",
+      btnRetry: "Try Again",
+      bookingTitle: "Check Tour Availability",
+      bookingSubtitle: "Select a date",
+      selectDateLabel: "Select Date",
+      bookTitle: "Book",
+      labelDate: "Date",
+      labelAcceptTerms: "I accept the",
+      linkTerms: "Terms of Service",
+      linkAnd: "and",
+      linkPrivacy: "Privacy Policy",
+      paymentTitle: "Booking Reserved!",
+      card1Title: "Sunrise Tour",
+      duration: "Duration",
+      spotsLeft: "spots left",
+    }[key] || key),
+};
 
 describe("Payment Failure Logic", () => {
   beforeEach(() => {
-    useLanguage.mockReturnValue({
-      language: "en",
-      t: (key) => {
-        const manual = {
-          // These strings MUST match the regex in your fireEvent/expect calls
-          ctaButton: "Book Now",
-          labelName: "Name",
-          labelEmail: "Email",
-          btnConfirm: "Confirm Booking",
-          failedTitle: "Payment Rejected",
-          btnRetry: "Try Again",
-          bookingTitle: "Check Tour Availability",
-          bookingSubtitle: "Select a date",
-        };
-        return manual[key] || key;
-      },
-    });
+    jest.useFakeTimers();
+    useLanguage.mockReturnValue(mockLanguageValue);
   });
 
   test("displays bank rejection message and stops polling when status is failed", async () => {
@@ -116,32 +130,29 @@ describe("Payment Failure Logic", () => {
       target: { value: "john@test.com" },
     });
 
-    // NEW: Click the mandatory terms checkbox to enable the submit button
-    const checkbox = screen.getByRole("checkbox");
-    fireEvent.click(checkbox);
-
+    // Click the mandatory terms checkbox
+    fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
 
-    // STEP 3: Resolve the booking creation fetch
+    // STEP 3: Resolve the booking creation
     await act(async () => {
       await jest.advanceTimersByTimeAsync(0);
     });
 
-    // STEP 4: Advance 3.1 seconds to trigger the first poll
+    // STEP 4: Advance to trigger first poll
     await act(async () => {
       await jest.advanceTimersByTimeAsync(3100);
     });
 
-    // STEP 5: ASSERT - The UI should now show the failure state
+    // STEP 5: Verify failure UI
     expect(
       screen.getByRole("heading", { name: /Rejected/i })
     ).toBeInTheDocument();
-
     expect(
       screen.getByRole("button", { name: /Try Again/i })
     ).toBeInTheDocument();
 
-    // STEP 6: ASSERT - Polling stopped
+    // STEP 6: Verify polling stopped
     await act(async () => {
       await jest.advanceTimersByTimeAsync(3100);
     });

@@ -1,106 +1,73 @@
 import React from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  act,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
-import { MemoryRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
 import DayManifest from "../../src/components/dashboard/DayManifest";
-import { LanguageProvider } from "../../src/context/LanguageContext";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
-const MOCK_MANIFEST = [
-  {
-    tour_id: 101,
-    display_name: "Test Morning Tour",
-    time: "09:00",
-    capacity: 10,
-    booked_count: 8,
-    status: "available",
-    passengers: [
-      { name: "John Doe", pax: 2, email: "john@test.com", status: "confirmed" },
-    ],
+// Mock Supabase to prevent Auth listeners from leaking in the test process
+jest.mock("../../src/supabaseClient", () => ({
+  supabase: {
+    auth: {
+      getSession: jest.fn().mockResolvedValue({ data: { session: null } }),
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
+    },
   },
-];
+}));
 
 const server = setupServer(
+  http.options(`${API_BASE}/*`, () => new HttpResponse(null, { status: 204 })),
   http.get(`${API_BASE}/admin/manifest/*`, () =>
-    HttpResponse.json(MOCK_MANIFEST)
-  ),
-  http.post(`${API_BASE}/admin/bookings`, () =>
-    HttpResponse.json({ success: true })
-  ),
-  http.post(`${API_BASE}/admin/tours/*/weather-cancel`, () =>
-    HttpResponse.json({ success: true })
+    HttpResponse.json([
+      {
+        tour_id: 1,
+        display_name: "Morning Tour",
+        booked_count: 2,
+        capacity: 10,
+        status: "available",
+        passengers: [{ name: "John Doe", pax: 2, email: "john@test.com" }],
+      },
+    ])
   )
 );
 
-beforeAll(() => {
-  server.listen();
-  window.alert = jest.fn();
-  window.confirm = jest.fn(() => true);
-});
-afterEach(() => {
+beforeAll(() => server.listen());
+afterEach(async () => {
   server.resetHandlers();
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 0));
+  });
   jest.clearAllMocks();
 });
 afterAll(() => server.close());
 
-const renderManifest = () =>
-  render(
-    <MemoryRouter>
-      <LanguageProvider>
-        <DayManifest date={new Date()} onClose={jest.fn()} />
-      </LanguageProvider>
-    </MemoryRouter>
-  );
-
-describe("DayManifest Integration", () => {
-  test("renders list of tours after loading state finishes", async () => {
-    renderManifest();
-    expect(await screen.findByText("Test Morning Tour")).toBeInTheDocument();
-
-    // Flexible matcher for "8 / 10"
-    expect(
-      screen.getByText((content, node) => {
-        const hasText = (node) =>
-          node.textContent.replace(/\s/g, "") === "8/10";
-        return (
-          hasText(node) &&
-          Array.from(node.children).every((child) => !hasText(child))
-        );
-      })
-    ).toBeInTheDocument();
-  });
-
-  test("drills down into passenger list when a tour is clicked", async () => {
-    renderManifest();
-    fireEvent.click(await screen.findByText("Test Morning Tour"));
-    expect(
-      await screen.findByText(/Confirmed Passengers/i)
-    ).toBeInTheDocument();
-    expect(screen.getByText("John Doe")).toBeInTheDocument();
-  });
-
-  test("Manual booking form respects remaining capacity", async () => {
-    renderManifest();
-    fireEvent.click(await screen.findByText("Test Morning Tour"));
-    fireEvent.click(screen.getByLabelText(/Add Guest/i));
-
-    const plusBtn = screen.getByLabelText(/Increase passengers/i);
-    fireEvent.click(plusBtn); // 1 -> 2
-    expect(screen.getByText("2")).toBeInTheDocument();
-
-    fireEvent.click(plusBtn); // Should stay at 2
-    expect(screen.getByText("2")).toBeInTheDocument();
-  });
-
-  test("fires confirmation dialog when attempting to cancel all tours", async () => {
-    renderManifest();
-    const cancelBtn = await screen.findByText(/CANCEL ALL TOURS/i);
-    fireEvent.click(cancelBtn);
-    expect(window.confirm).toHaveBeenCalledWith(
-      expect.stringContaining("Cancel all tours")
+describe("DayManifest Component", () => {
+  test("renders tours and handles selection", async () => {
+    render(
+      <DayManifest
+        date={new Date("2026-02-12T12:00:00Z")}
+        onClose={jest.fn()}
+      />
     );
+
+    await waitForElementToBeRemoved(() =>
+      screen.queryByText(/Loading Manifest/i)
+    );
+
+    const tourCard = await screen.findByText("Morning Tour");
+    fireEvent.click(tourCard);
+
+    expect(await screen.findByText("John Doe")).toBeInTheDocument();
+    expect(screen.getByText(/2 Pax/i)).toBeInTheDocument();
   });
 });

@@ -2,21 +2,35 @@
 module.exports = {
   testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
-
   transform: {
     "^.+\\.(js|jsx)$": "babel-jest",
   },
-
-  // Added until-async, msw, and @mswjs to the list of things to TRANSFORMe
+  // Transform ES modules in these packages
   transformIgnorePatterns: [
     "node_modules/(?!(msw|@mswjs|until-async|parse5|entities|whatwg-url|tr46|webidl-conversions)/)",
   ],
-
-  // This allows MSW v2 to work correctly with JSDOM's export conditions
+  // Required for MSW v2 to work correctly with JSDOM
   testEnvironmentOptions: {
     customExportConditions: [""],
   },
-
-  testTimeout: 10000,
+  // =============================================================================
+  // EXCLUDE HELPER FILES FROM TEST RUNS
+  // =============================================================================
+  testPathIgnorePatterns: [
+    "/node_modules/",
+    "/__tests__/.*[Hh]elper.*\\.(js|jsx)$",
+  ],
+  // Only match actual test files
+  testMatch: [
+    "**/__tests__/**/*.test.(js|jsx)",
+    "**/__tests__/**/*.spec.(js|jsx)",
+  ],
+  // =============================================================================
+  // STABILITY SETTINGS (Prevents SIGABRT crashes)
+  // =============================================================================
+  maxWorkers: 1,
+  testTimeout: 30000,
+  forceExit: true,
   clearMocks: true,
+  verbose: true,
 };

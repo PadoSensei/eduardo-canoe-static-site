@@ -1,3 +1,4 @@
+// __tests__/integration/PaymentPolling.test.jsx
 import React from "react";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { setupServer } from "msw/node";
@@ -47,38 +48,49 @@ const server = setupServer(
 );
 
 beforeAll(() => server.listen());
+
 afterEach(() => {
+  jest.useRealTimers();
   server.resetHandlers();
   localStorage.clear();
-  jest.clearAllTimers();
-  jest.useRealTimers();
+  jest.clearAllMocks();
 });
+
 afterAll(() => server.close());
+
+// Complete translation mock
+const mockLanguageValue = {
+  language: "en",
+  setLanguage: jest.fn(),
+  t: (key) =>
+    ({
+      bookingTitle: "Check Tour Availability",
+      bookingSubtitle: "Select a date",
+      selectDateLabel: "Select Date",
+      ctaButton: "Book Now",
+      bookTitle: "Book",
+      labelDate: "Date",
+      btnConfirm: "Confirm Booking",
+      btnCancel: "Cancel",
+      labelName: "Your Name",
+      labelEmail: "Your Email",
+      labelNotes: "Special Notes",
+      paymentTitle: "Booking Reserved!",
+      successTitle: "Payment Confirmed!",
+      labelAcceptTerms: "I accept the",
+      linkTerms: "Terms of Service",
+      linkAnd: "and",
+      linkPrivacy: "Privacy Policy",
+      card1Title: "Sunrise Tour",
+      duration: "Duration",
+      spotsLeft: "spots left",
+    }[key] || key),
+};
 
 describe("Payment Polling Integration", () => {
   beforeEach(() => {
     jest.useFakeTimers();
-    useLanguage.mockReturnValue({
-      language: "en",
-      t: (key) => {
-        const manual = {
-          bookingTitle: "Check Tour Availability",
-          bookingSubtitle: "Select a date",
-          selectDateLabel: "Select Date",
-          ctaButton: "Book Now",
-          btnConfirm: "Confirm Booking",
-          labelName: "Your Name",
-          labelEmail: "Your Email",
-          paymentTitle: "Booking Reserved!",
-          successTitle: "Payment Confirmed!",
-          labelAcceptTerms: "I accept the",
-          linkTerms: "Terms of Service",
-          linkAnd: "and",
-          linkPrivacy: "Privacy Policy",
-        };
-        return manual[key] || key;
-      },
-    });
+    useLanguage.mockReturnValue(mockLanguageValue);
   });
 
   const runInitialSetup = async () => {
@@ -94,9 +106,7 @@ describe("Payment Polling Integration", () => {
       await jest.advanceTimersByTimeAsync(0);
     });
 
-    // Interaction using text defined in the mock above
     fireEvent.click(screen.getByRole("button", { name: /Book Now/i }));
-
     fireEvent.input(screen.getByLabelText(/Your Name/i), {
       target: { value: "John Doe" },
     });
@@ -104,9 +114,7 @@ describe("Payment Polling Integration", () => {
       target: { value: "john@test.com" },
     });
 
-    // LGPD Compliance: Check the box to enable the button
     fireEvent.click(screen.getByRole("checkbox"));
-
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
 
     await act(async () => {
@@ -123,11 +131,40 @@ describe("Payment Polling Integration", () => {
 
     await runInitialSetup();
 
-    // Trigger the 3-second polling interval defined in useBooking.js
     await act(async () => {
       await jest.advanceTimersByTimeAsync(3100);
     });
 
     expect(await screen.findByText(/Payment Confirmed!/i)).toBeInTheDocument();
+  });
+
+  test("should poll multiple times before confirmation", async () => {
+    let pollCount = 0;
+
+    // Confirms on 5th poll to ensure we actually test multiple polls
+    server.use(
+      http.get(`${API_BASE}/bookings/status/${TEST_UUID}`, () => {
+        pollCount++;
+        return HttpResponse.json({
+          status: pollCount >= 5 ? "confirmed" : "pending_payment",
+        });
+      })
+    );
+
+    await runInitialSetup();
+
+    // Keep advancing until confirmed
+    for (let i = 0; i < 10; i++) {
+      if (screen.queryByText(/Payment Confirmed!/i)) break;
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(3100);
+      });
+    }
+
+    // Should eventually confirm
+    expect(screen.getByText(/Payment Confirmed!/i)).toBeInTheDocument();
+
+    // Should have polled at least 5 times
+    expect(pollCount).toBeGreaterThanOrEqual(5);
   });
 });

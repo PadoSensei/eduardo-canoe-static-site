@@ -1,19 +1,12 @@
-// api.js - Backend API client for tour booking application
+// src/api.js
 import * as Sentry from "@sentry/react";
-import { supabase } from "./supabaseClient"; // Import for auth session
+import { supabase } from "./supabaseClient";
 
 const DOMAIN = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const API_BASE_URL = `${DOMAIN}/api/v1`;
 
-/**
- * Helper to get the current session token and prepare headers.
- * This ensures that Eduardo's "ID Card" is sent to the backend.
- */
 const getHeaders = async (includeAuth = false) => {
-  const headers = {
-    "Content-Type": "application/json",
-  };
-
+  const headers = { "Content-Type": "application/json" };
   if (includeAuth) {
     const {
       data: { session },
@@ -22,40 +15,37 @@ const getHeaders = async (includeAuth = false) => {
       headers["Authorization"] = `Bearer ${session.access_token}`;
     }
   }
-
   return headers;
 };
 
-/**
- * Helper to capture API errors with context
- */
 const captureApiError = (error, context) => {
-  Sentry.withScope((scope) => {
-    scope.setLevel("error");
-    scope.setTag("api_endpoint", context.endpoint);
-    if (context.status) scope.setExtra("status_code", context.status);
-    scope.setExtra("payload", context.payload);
-    Sentry.captureException(error);
-  });
+  if (error.name === "AbortError") return;
+  if (!Sentry.withScope) return;
+
+  // Safety: Sentry might be partially unmounted in tests
+  try {
+    const Sentry = require("@sentry/react");
+    if (Sentry && Sentry.withScope) {
+      Sentry.withScope((scope) => {
+        scope.setLevel("error");
+        scope.setTag("api_endpoint", context.endpoint);
+        Sentry.captureException(error);
+      });
+    }
+  } catch (e) {
+    // Fail silently in tests if Sentry is gone
+  }
 };
 
-// --- PUBLIC ENDPOINTS (No Auth Required) ---
-
-export async function getAvailableTours(date) {
+export async function getAvailableTours(date, options = {}) {
   const url = `${API_BASE_URL}/tours/available?tour_date=${date}`;
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: options.signal });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      const message =
-        errorData.detail || response.statusText || "Unknown error";
-      const err = new Error(`HTTP error ${response.status}: ${message}`);
-      captureApiError(err, {
-        endpoint: "getAvailableTours",
-        status: response.status,
-        payload: { date },
-      });
-      throw err;
+      throw new Error(
+        `HTTP error ${response.status}: ${errorData.detail || "Error"}`
+      );
     }
     const data = await response.json();
     return data.map((tour) => ({
@@ -63,7 +53,6 @@ export async function getAvailableTours(date) {
       instanceId: tour.tour_instance_id,
       tourType: tour.tour_type,
       name: tour.display_name,
-      description: tour.description || "",
       price: tour.price,
       remaining: tour.seats_available,
       isBookable: tour.is_bookable,
@@ -73,18 +62,18 @@ export async function getAvailableTours(date) {
       tourDate: tour.tour_date,
     }));
   } catch (error) {
-    console.error("Error fetching available tours:", error);
-    if (!(error instanceof Error && error.message.includes("HTTP error"))) {
-      captureApiError(error, {
-        endpoint: "getAvailableTours",
-        payload: { date },
-      });
-    }
+    if (error.name === "AbortError") return null;
+    captureApiError(error, {
+      endpoint: "getAvailableTours",
+      status: 500,
+      payload: { date },
+    });
     throw error;
   }
 }
 
-export async function createBooking(bookingData) {
+// FIX: Ensure this is a named export function
+export async function createBooking(bookingData, options = {}) {
   const url = `${API_BASE_URL}/bookings`;
   const payload = {
     tour_id: bookingData.tourId,
@@ -92,27 +81,21 @@ export async function createBooking(bookingData) {
     guest_email: bookingData.guestEmail,
     num_people: bookingData.numPeople,
     total_price: bookingData.totalPrice,
-    special_notes: bookingData.special_notes,
+    special_notes: bookingData.specialNotes,
     accepted_terms: bookingData.acceptedTerms,
   };
 
   try {
     const response = await fetch(url, {
       method: "POST",
-      headers: await getHeaders(false), // Explicitly no auth for guests
+      headers: await getHeaders(false),
       body: JSON.stringify(payload),
+      signal: options.signal,
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      const message = errorData.detail || `Server error: ${response.status}`;
-      const err = new Error(message);
-      captureApiError(err, {
-        endpoint: "createBooking",
-        status: response.status,
-        payload,
-      });
-      throw err;
+      throw new Error(errorData.detail || `Server error: ${response.status}`);
     }
 
     const result = await response.json();
@@ -122,160 +105,103 @@ export async function createBooking(bookingData) {
       paymentInfo: result.payment_info,
     };
   } catch (error) {
-    if (!error.message.includes("Server error")) {
-      captureApiError(error, { endpoint: "createBooking", payload });
-    }
+    if (error.name === "AbortError") return null;
+    captureApiError(error, { endpoint: "createBooking", payload });
     return { success: false, message: error.message };
   }
 }
 
-export async function getBookingStatus(bookingUuid) {
+export async function getBookingStatus(bookingUuid, options = {}) {
   const url = `${API_BASE_URL}/bookings/status/${bookingUuid}`;
   try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      const err = new Error(`HTTP error ${response.status}`);
-      captureApiError(err, {
-        endpoint: "getBookingStatus",
-        status: response.status,
-        payload: { bookingUuid },
-      });
-      throw err;
-    }
+    const response = await fetch(url, { signal: options.signal });
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
     return await response.json();
   } catch (error) {
+    if (error.name === "AbortError") return null;
     throw error;
   }
 }
 
-// --- ADMIN ENDPOINTS (Auth Required) ---
-
-export const fetchMonthlySchedule = async (year, month) => {
+export async function fetchMonthlySchedule(year, month, options = {}) {
   try {
-    const headers = await getHeaders(true); // Include JWT
+    const headers = await getHeaders(true);
     const response = await fetch(
       `${API_BASE_URL}/admin/schedule?year=${year}&month=${month}`,
-      { headers }
+      { headers, signal: options.signal }
     );
     if (!response.ok) throw new Error("Unauthorized Access");
     return await response.json();
   } catch (error) {
+    if (error.name === "AbortError") return null;
     captureApiError(error, {
       endpoint: "fetchMonthlySchedule",
       payload: { year, month },
     });
     throw error;
   }
-};
+}
 
-export const fetchDayManifest = async (dateString) => {
+export async function fetchDayManifest(dateString, options = {}) {
   try {
-    // 🔍 DEBUG: Check auth before calling
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    console.log("🔍 Manifest Auth Check:", {
-      hasSession: !!session,
-      hasToken: !!session?.access_token,
-      userEmail: session?.user?.email,
-      tokenPreview: session?.access_token?.substring(0, 30) + "...",
-    });
-
     const headers = await getHeaders(true);
-    console.log("🔍 Headers being sent:", headers);
-
     const response = await fetch(
       `${API_BASE_URL}/admin/manifest/${dateString}`,
-      { headers }
+      {
+        headers,
+        signal: options.signal,
+      }
     );
-
-    console.log("🔍 Response status:", response.status);
-
-    if (!response.ok) {
-      const body = await response.json().catch(() => ({}));
-      console.error("Backend Error Details:", {
-        status: response.status,
-        statusText: response.statusText,
-        url: response.url,
-        body: body,
-      });
-      throw new Error(
-        `Server returned ${response.status}: ${body.detail || "Unauthorized"}`
-      );
-    }
+    if (!response.ok) throw new Error("Unauthorized");
     return await response.json();
   } catch (error) {
+    if (error.name === "AbortError") return null;
     captureApiError(error, {
       endpoint: "fetchDayManifest",
       payload: { dateString },
     });
     throw error;
   }
-};
+}
 
-export const toggleTourStatus = async (tourId, newStatus) => {
+export async function adminCreateBooking(bookingData, options = {}) {
   try {
-    const headers = await getHeaders(true); // Include JWT
-    const response = await fetch(`${API_BASE_URL}/admin/tours/${tourId}`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify({ status: newStatus }),
-    });
-    if (!response.ok) throw new Error("Unauthorized Access");
-    return await response.json();
-  } catch (error) {
-    captureApiError(error, {
-      endpoint: "toggleTourStatus",
-      payload: { tourId, newStatus },
-    });
-    throw error;
-  }
-};
-
-export const adminCreateBooking = async (bookingData) => {
-  const headers = await getHeaders(true); // Sends Edu's Admin Token
-  const payload = {
-    tour_id: bookingData.tourId,
-    guest_name: bookingData.guestName,
-    guest_email: bookingData.guestEmail,
-    num_people: bookingData.numPeople,
-    total_price: bookingData.totalPrice,
-    special_notes: bookingData.special_notes,
-    accepted_terms: bookingData.acceptedTerms, // This must be true
-  };
-
-  const response = await fetch(`${API_BASE_URL}/admin/bookings`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    // This will now show you EXACTLY which field is failing in the alert
-    console.error("Validation Error Details:", error.detail);
-    throw new Error(
-      JSON.stringify(error.detail) || "Failed to create manual booking"
-    );
-  }
-  return await response.json();
-};
-
-export const cancelTourForWeather = async (tourId, tourName, tourDate) => {
-  const headers = await getHeaders(true); // Gets Edu's Admin Token
-  const response = await fetch(
-    `${API_BASE_URL}/admin/tours/${tourId}/weather-cancel`,
-    {
+    const headers = await getHeaders(true);
+    const response = await fetch(`${API_BASE_URL}/admin/bookings`, {
       method: "POST",
       headers,
-      body: JSON.stringify({ tour_name: tourName, tour_date: tourDate }),
-    }
-  );
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Cancellation failed");
+      body: JSON.stringify(bookingData),
+      signal: options.signal,
+    });
+    if (!response.ok) throw new Error("Manual booking failed");
+    return await response.json();
+  } catch (error) {
+    if (error.name === "AbortError") return null;
+    throw error;
   }
-  return await response.json();
-};
+}
+
+export async function cancelTourForWeather(
+  tourId,
+  tourName,
+  tourDate,
+  options = {}
+) {
+  try {
+    const headers = await getHeaders(true);
+    const response = await fetch(
+      `${API_BASE_URL}/admin/tours/${tourId}/weather-cancel`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ tour_name: tourName, tour_date: tourDate }),
+        signal: options.signal,
+      }
+    );
+    if (!response.ok) throw new Error("Cancellation failed");
+    return await response.json();
+  } catch (error) {
+    if (error.name === "AbortError") return null;
+    throw error;
+  }
+}

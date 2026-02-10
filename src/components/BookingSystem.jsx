@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+// src/components/BookingSystem.jsx
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import * as Sentry from "@sentry/react";
 import { getAvailableTours, createBooking } from "../api";
 import { useLanguage } from "../context/LanguageContext";
@@ -20,21 +21,20 @@ const getStoredSession = () => {
 function BookingSystem() {
   const { language, t } = useLanguage();
 
+  // Ref to track component mount status for async safety
+  const isMounted = useRef(true);
+
   // --- 1. STATE INITIALIZATION ---
   const [session] = useState(() => getStoredSession());
-
-  // Data State
   const [availableTours, setAvailableTours] = useState([]);
   const [selectedDate, setSelectedDate] = useState(getTodayLocalDate());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // UI / Modal State
   const [showBookingModal, setShowBookingModal] = useState(!!session);
   const [selectedTour, setSelectedTour] = useState(null);
   const [bookingTourId, setBookingTourId] = useState(null);
 
-  // Form State
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [numPeople, setNumPeople] = useState(1);
@@ -42,7 +42,6 @@ function BookingSystem() {
   const [formError, setFormError] = useState(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  // Booking Logic Hook (Handles polling and persistence)
   const {
     currentBooking,
     setCurrentBooking,
@@ -60,7 +59,6 @@ function BookingSystem() {
 
   const getTourName = useCallback(
     (tourType) => {
-      // Logic moved here directly from the deleted file
       const mapping = {
         sunrise: "card1Title",
         morning: "card1Title",
@@ -75,23 +73,42 @@ function BookingSystem() {
     [t]
   );
 
-  // --- 3. SIDE EFFECTS ---
+  // --- 3. ASYNC DATA LOADING ---
 
-  // Extract the loading logic into a reusable function
-  const loadAvailability = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await getAvailableTours(selectedDate);
-      setAvailableTours(data);
-    } catch (err) {
-      setError("LOAD_ERROR");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedDate]);
+  const loadAvailability = useCallback(
+    async (signal) => {
+      if (!isMounted.current) return;
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await getAvailableTours(selectedDate, { signal });
+        if (isMounted.current && !signal?.aborted) {
+          setAvailableTours(data || []);
+        }
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        if (isMounted.current) setError("LOAD_ERROR");
+      } finally {
+        if (isMounted.current && !signal?.aborted) setIsLoading(false);
+      }
+    },
+    [selectedDate]
+  );
 
-  // Close modal on Escape key
+  // Lifecycle Management
+  useEffect(() => {
+    isMounted.current = true;
+    const controller = new AbortController();
+
+    loadAvailability(controller.signal);
+
+    return () => {
+      isMounted.current = false;
+      controller.abort(); // KILL any pending availability fetch on unmount
+    };
+  }, [selectedDate, language, loadAvailability]);
+
+  // Modal Escape Key Listener
   useEffect(() => {
     if (!showBookingModal) return;
     const handleEsc = (e) => {
@@ -101,70 +118,60 @@ function BookingSystem() {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [showBookingModal]);
 
-  // Data Loading: Fetch tours for date
-  useEffect(() => {
-    let isMounted = true;
-    const load = async () => {
-      await loadAvailability();
-    };
-    if (isMounted) load();
-    return () => {
-      isMounted = false;
-    };
-  }, [selectedDate, language, loadAvailability]);
-
   // --- 4. EVENT HANDLERS ---
 
   const handleBookTour = async () => {
     if (bookingTourId || !selectedTour) return;
     setFormError(null);
 
-    // LGPD Consent Check
     if (!acceptedTerms) {
       setFormError(t("errorTerms"));
       return;
     }
 
-    // Validation
     if (!guestName || !guestEmail) {
       setFormError(t("alertMissing"));
       return;
     }
 
-    if (isPastDate(selectedDate)) {
-      setFormError(t("alertPastDate"));
-      return;
-    }
-
-    // --- SENIOR OBSERVABILITY ---
-    // Identify the user in Sentry so we can debug their specific session if it fails
+    // Set Sentry context before the API call for observability
     Sentry.setUser({ email: guestEmail, username: guestName });
 
+    const controller = new AbortController();
     setBookingTourId(selectedTour.instanceId);
+
     try {
       const total = selectedTour.price * numPeople;
-      const result = await createBooking({
-        tourId: selectedTour.instanceId,
-        guestName,
-        guestEmail,
-        numPeople,
-        totalPrice: total,
-        specialNotes: specialNotes,
-        acceptedTerms: acceptedTerms,
-      });
+      const result = await createBooking(
+        {
+          tourId: selectedTour.instanceId,
+          guestName,
+          guestEmail,
+          numPeople,
+          totalPrice: total,
+          specialNotes,
+          acceptedTerms,
+        },
+        { signal: controller.signal }
+      );
 
-      if (result.success) {
-        setPaymentInfo(result.paymentInfo);
-        setCurrentBooking(result.booking);
-        setIsConfirmed(false);
-      } else {
-        setFormError(`${t("alertFailed")}: ${result.message}`);
+      if (isMounted.current && !controller.signal.aborted) {
+        if (result.success) {
+          setPaymentInfo(result.paymentInfo);
+          setCurrentBooking(result.booking);
+          setIsConfirmed(false);
+        } else {
+          setFormError(`${t("alertFailed")}: ${result.message}`);
+        }
       }
     } catch (error) {
-      setFormError(t("alertError"));
-      Sentry.captureException(error);
+      if (error.name === "AbortError") return;
+      if (isMounted.current) {
+        setFormError(t("alertError"));
+        Sentry.captureException(error);
+      }
     } finally {
-      setBookingTourId(null);
+      if (isMounted.current) setBookingTourId(null);
     }
   };
 
@@ -178,7 +185,11 @@ function BookingSystem() {
     setSpecialNotes("");
     setAcceptedTerms(false);
     setFormError(null);
-    Sentry.setUser(null); // Clear Sentry context on close
+
+    // Clear Sentry context
+    Sentry.setUser(null);
+
+    // Refetch availability to show updated spots immediately
     await loadAvailability();
   };
 
@@ -197,7 +208,14 @@ function BookingSystem() {
 
   const renderTourList = () => {
     if (isLoading)
-      return <p className="py-8 text-center text-gray-500">{t("loading")}</p>;
+      return (
+        <p
+          className="py-8 text-center text-gray-500"
+          data-testid="loading-state"
+        >
+          {t("loading")}
+        </p>
+      );
     if (error)
       return (
         <p className="py-8 text-center text-red-500">{t("errorGeneric")}</p>

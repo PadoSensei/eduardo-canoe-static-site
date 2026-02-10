@@ -64,11 +64,11 @@ export function PaymentView({
           </div>
           <h3
             id="modal-title"
-            className="text-2xl font-bold mb-2 text-gray-800"
+            className="mb-2 text-2xl font-bold text-gray-800"
           >
             {t("failedTitle")}
           </h3>
-          <p className="text-gray-600 mb-8">{t("failedDetail")}</p>
+          <p className="mb-8 text-gray-600">{t("failedDetail")}</p>
         </div>
       ) : isExpired ? (
         /* --- STATE: EXPIRED --- */
@@ -90,17 +90,17 @@ export function PaymentView({
           </div>
           <h3
             id="modal-title"
-            className="text-2xl font-bold mb-2 text-gray-800"
+            className="mb-2 text-2xl font-bold text-gray-800"
           >
             {t("expiredTitle")}
           </h3>
-          <p className="text-gray-600 mb-8">{t("expiredDetail")}</p>
+          <p className="mb-8 text-gray-600">{t("expiredDetail")}</p>
         </div>
       ) : (
         /* --- STATE: ACTIVE PAYMENT --- */
         <>
           {hasConnectionIssue && (
-            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3 text-amber-700 text-sm animate-pulse">
+            <div className="flex items-center gap-3 p-3 mb-4 text-sm border rounded-lg bg-amber-50 border-amber-200 text-amber-700 animate-pulse">
               <svg
                 className="w-5 h-5 shrink-0"
                 fill="none"
@@ -114,7 +114,9 @@ export function PaymentView({
                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                 />
               </svg>
-              <p className="text-left">{t("connectionWarning")}</p>
+              <p className="text-sm text-yellow-600">
+                {t("connectionWarning")}
+              </p>
             </div>
           )}
 
@@ -136,7 +138,7 @@ export function PaymentView({
 
           <h3
             id="modal-title"
-            className="text-2xl font-bold mb-1 text-gray-800"
+            className="mb-1 text-2xl font-bold text-gray-800"
           >
             {t("paymentTitle")}
           </h3>
@@ -151,13 +153,13 @@ export function PaymentView({
             </p>
           </div>
 
-          <p className="text-gray-600 mb-6 px-4">{t("paymentInstruction")}</p>
+          <p className="px-4 mb-6 text-gray-600">{t("paymentInstruction")}</p>
 
-          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 flex justify-center shadow-inner">
+          <div className="flex justify-center p-4 mb-6 border border-gray-200 shadow-inner bg-gray-50 rounded-xl">
             <img
               src={paymentInfo.qr_code_image}
               alt={t("altQrCode")}
-              className="w-48 h-48 object-contain mix-blend-multiply"
+              className="object-contain w-48 h-48 mix-blend-multiply"
             />
           </div>
 
@@ -173,11 +175,11 @@ export function PaymentView({
             {copied ? t("btnCopied") : t("btnCopy")}
           </button>
 
-          <div className="text-left mb-6">
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 ml-1">
+          <div className="mb-6 text-left">
+            <p className="mb-1 ml-1 text-xs font-bold tracking-wide text-gray-500 uppercase">
               {t("labelPixString")}
             </p>
-            <p className="text-xs text-gray-500 break-all bg-gray-50 p-3 rounded-lg border border-gray-200 font-mono select-all">
+            <p className="p-3 font-mono text-xs text-gray-500 break-all border border-gray-200 rounded-lg select-all bg-gray-50">
               {paymentInfo.qr_code}
             </p>
           </div>
