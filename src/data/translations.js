@@ -144,6 +144,7 @@ export const translations = {
     about_iko_status: "IKO Certified Instructor",
     about_projects:
       "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
+    logoAlt: "Pipa Canoa Havaiana Logo",
   },
 
   pt: {
@@ -273,7 +274,8 @@ export const translations = {
     ],
     about_iko_status: "Instrutor Certificado IKO",
     about_projects:
-      "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras", // Added this
+      "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
+    logoAlt: "Pipa Canoa Havaiana Logo",
   },
 
   es: {
@@ -405,5 +407,6 @@ export const translations = {
     about_iko_status: "Instructor Certificado IKO",
     about_projects:
       "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
+    logoAlt: "Pipa Canoa Havaiana Logo",
   },
 };
