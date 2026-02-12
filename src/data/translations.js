@@ -21,6 +21,7 @@ export const translations = {
     navTours: "Tours",
     navBook: "Book",
     navFaq: "FAQ",
+    navAbout: "About Us",
 
     // --- Hero Section ---
     heroTitle: "Feel the Ocean's Heartbeat",
@@ -128,6 +129,21 @@ export const translations = {
     mapTitle: "Find Your Starting Point",
     mapSubtitle:
       "Our main departure is from Tibau do Sul, next to the Guaraíras Lagoon.",
+
+    // --- About Page
+    about_title: "Meet Your Guide, Edu!",
+    about_bio: [
+      "Born in Rio de Janeiro, I grew up with the sea as an extension of my own life. Between waves, salt, and horizon, surfing and swimming shaped my relationship with nature from an early age—a connection that was never just sport, but feeling, belonging, and freedom.",
+      "While still young, I went to live in the United States, where I matured, traveled, and carried this maritime identity with me. At 25, destiny took me to Hawaii, one of the most sacred places for those who live the ocean. There I dove deeply into Polynesian culture, learned about respect for the waters, ancestry, and community, and fell in love with Hawaiian canoe and kitesurfing. It was 10 years of learning, transformation, and experience living the sea in its purest form.",
+      "In 2011 I returned to Brazil and arrived at Praia da Pipa, and it was love at first sight. Here I found a place where wind, lagoon, sea, and nature meet in a unique way. Pipa wasn't just a new home; it was a calling to share everything I had learned.",
+      "I am a certified instructor with IKO (International Kiteboarding Organization) and since then I have been working in training, teaching, and promoting kitesurfing and Hawaiian canoe in Tibau do Sul and the region.",
+      "My purpose has always been to go beyond lessons: to create experiences, build community, and bring people closer to the ocean and Guaraíras Lagoon in a conscious and respectful way.",
+      "Today I follow this path through Pipa Canoa Havaiana, Pipa Kite Center, and Esporte Clube Guaraíras—projects that unite sport, culture, tourism, and connection with nature. My work is about movement, encounter, and transformation, in the water and in life.",
+      "More than teaching how to paddle or sail, I want every person who crosses my path to feel what the sea gave me: freedom, balance, and belonging.",
+    ],
+    about_iko_status: "IKO Certified Instructor",
+    about_projects:
+      "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
   },
 
   pt: {
@@ -136,6 +152,7 @@ export const translations = {
     navTours: "Passeios",
     navBook: "Reservar",
     navFaq: "FAQ",
+    navAbout: "Sobre Nós",
 
     // --- Hero Section ---
     heroTitle: "Sinta a Pulsação do Oceano",
@@ -242,6 +259,21 @@ export const translations = {
     mapTitle: "Encontre Seu Ponto de Partida",
     mapSubtitle:
       "Nossa principal saída é de Tibau do Sul, ao lado da Lagoa de Guaraíras.",
+
+    // --- About Page
+    about_title: "Conheça Seu Guia, Edu!",
+    about_bio: [
+      "Nascido no Rio de Janeiro, cresci com o mar como uma extensão da minha própria vida. Entre ondas, sal e horizonte, o surfe e a natação moldaram minha relação com a natureza desde cedo — uma conexão que nunca foi apenas esporte, mas sentimento, pertencimento e liberdade.",
+      "Ainda jovem, fui viver nos Estados Unidos, onde amadureci, viajei e carreguei essa identidade marítima comigo. Aos 25 anos, o destino me levou para o Havaí, um dos lugares mais sagrados para quem vive o oceano. Lá mergulhei profundamente na cultura polinésia, aprendi sobre respeito às águas, ancestralidade e comunidade, e me apaixonei pela canoa havaiana e pelo kitesurf. Foram 10 anos de aprendizado, transformação e experiência vivendo o mar em sua forma mais pura.",
+      "Em 2011 voltei para o Brasil e cheguei à Praia da Pipa, e foi amor à primeira vista. Aqui encontrei um lugar onde vento, lagoa, mar e natureza se encontram de uma forma única. Pipa não era apenas um novo lar; era um chamado para compartilhar tudo o que eu tinha aprendido.",
+      "Sou instrutor certificado pela IKO (International Kiteboarding Organization) e desde então venho trabalhando em treinamento, ensino e promoção do kitesurf e da canoa havaiana em Tibau do Sul e região.",
+      "Meu propósito sempre foi ir além das aulas: criar experiências, construir comunidade e aproximar as pessoas do oceano e da Lagoa de Guaraíras de uma forma consciente e respeitosa.",
+      "Hoje sigo esse caminho através da Pipa Canoa Havaiana, Pipa Kite Center e Esporte Clube Guaraíras — projetos que unem esporte, cultura, turismo e conexão com a natureza. Meu trabalho é sobre movimento, encontro e transformação, na água e na vida.",
+      "Mais do que ensinar a remar ou velejar, quero que cada pessoa que cruza meu caminho sinta o que o mar me deu: liberdade, equilíbrio e pertencimento.",
+    ],
+    about_iko_status: "Instrutor Certificado IKO",
+    about_projects:
+      "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras", // Added this
   },
 
   es: {
@@ -250,6 +282,7 @@ export const translations = {
     navTours: "Tours",
     navBook: "Reservar",
     navFaq: "FAQ",
+    navAbout: "Sobre Nosotros",
 
     // --- Hero Section ---
     heroTitle: "Siente el Latido del Océano",
@@ -357,5 +390,20 @@ export const translations = {
     mapTitle: "Encuentra Tu Punto de Partida",
     mapSubtitle:
       "Nuestra salida principal es desde Tibau do Sul, al lado de la Laguna de Guaraíras.",
+
+    // --- About Page
+    about_title: "Conoce a tu Guía, Edu!",
+    about_bio: [
+      "Nacido en Río de Janeiro, crecí con el mar como una extensión de mi propia vida. Entre olas, sal y horizonte, el surf y la natación moldearon mi relación con la naturaleza desde temprana edad—una conexión que nunca fue solo deporte, sino sentimiento, pertenencia y libertad.",
+      "Siendo aún joven, me fui a vivir a los Estados Unidos, donde maduré, viajé y llevé conmigo esta identidad marítima. A los 25 años, el destino me llevó a Hawái, uno de los lugares más sagrados para quienes viven el océano. Allí me sumergí profundamente en la cultura polinesia, aprendí sobre el respeto por las aguas, la ancestralidad y la comunidad, y me enamoré de la canoa hawaiana y el kitesurf. Fueron 10 años de aprendizaje, transformación y vivencia del mar en su forma más pura.",
+      "En 2011 regresé a Brasil y llegué a Praia da Pipa, y fue amor a primera vista. Aquí encontrei un lugar donde el viento, la laguna, el mar y la naturaleza se encuentran de una manera única. Pipa no fue solo un nuevo hogar; fue un llamado a compartir todo lo que había aprendido.",
+      "Soy instructor certificado por la IKO (International Kiteboarding Organization) y desde entonces trabajo en la formación, enseñanza y promoción del kitesurf y la canoa hawaiana en Tibau do Sul y la región.",
+      "Mi propósito siempre ha sido ir más allá de las clases: crear experiencias, construir comunidad y acercar a las personas al océano y a la Laguna de Guaraíras de una manera consciente y respetuosa.",
+      "Hoy sigo este camino a través de Pipa Canoa Havaiana, Pipa Kite Center y Esporte Clube Guaraíras—proyectos que unen deporte, cultura, turismo y conexión con la naturaleza. Mi trabajo se trata de movimiento, encuentro y transformación, en el agua y en la vida.",
+      "Más que enseñar a remar o navegar, quiero que cada persona que se cruce en mi camino sienta lo que el mar me dio: libertad, equilibrio y pertenencia.",
+    ],
+    about_iko_status: "Instructor Certificado IKO",
+    about_projects:
+      "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
   },
 };

@@ -21,30 +21,33 @@ const Header = () => {
   return (
     // 4. Apply the dynamic class
     <header className={headerClasses}>
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="container flex items-center justify-between mx-auto">
         {/* Logo */}
         <div className="flex items-center">
-          <h1 className="text-2xl md:text-3xl font-bold text-white text-shadow-md hover:text-gray-200 transition">
+          <h1 className="text-2xl font-bold text-white transition md:text-3xl text-shadow-md hover:text-gray-200">
             <Link to="/">{"Pipa Canoa Havaiana"}</Link>
           </h1>
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex space-x-6 text-white font-semibold">
-          <Link to="/tours" className="hover:text-gray-300 transition">
+        <nav className="hidden space-x-6 font-semibold text-white md:flex">
+          <Link to="/tours" className="transition hover:text-gray-300">
             {t("navTours")}
           </Link>
-          <Link to="/book" className="hover:text-gray-300 transition">
+          <Link to="/book" className="transition hover:text-gray-300">
             {t("navBook")}
           </Link>
-          <Link to="/faq" className="hover:text-gray-300 transition">
+          <Link to="/about" className="transition hover:text-gray-300">
+            {t("navAbout")}
+          </Link>
+          <Link to="/faq" className="transition hover:text-gray-300">
             {t("navFaq")}
           </Link>
         </nav>
 
         {/* Language & Mobile Toggle */}
         <div className="flex items-center space-x-4 text-white">
-          <div className="hidden md:flex space-x-2 font-bold text-sm">
+          <div className="hidden space-x-2 text-sm font-bold md:flex">
             <button
               onClick={() => setLanguage("en")}
               className={`hover:text-gray-300 ${
@@ -93,7 +96,7 @@ const Header = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-gray-900 border-t border-gray-700 p-4 mt-4 rounded-b-xl text-white flex flex-col space-y-4 shadow-xl">
+        <div className="flex flex-col p-4 mt-4 space-y-4 text-white bg-gray-900 border-t border-gray-700 shadow-xl md:hidden rounded-b-xl">
           <Link
             to="/tours"
             onClick={() => setIsMenuOpen(false)}
@@ -115,7 +118,7 @@ const Header = () => {
           >
             {t("navFaq")}
           </Link>
-          <div className="flex gap-6 pt-2 justify-center">
+          <div className="flex justify-center gap-6 pt-2">
             <button
               onClick={() => setLanguage("en")}
               className={language === "en" ? "font-bold" : "opacity-70"}

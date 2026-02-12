@@ -8,17 +8,17 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-white pt-12 pb-8 border-t border-gray-800">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+    <footer className="pt-12 pb-8 text-white bg-gray-900 border-t border-gray-800">
+      <div className="container px-6 mx-auto">
+        <div className="grid grid-cols-1 gap-12 mb-12 md:grid-cols-3">
           {/* Column 1: Brand & Social */}
           <div className="flex flex-col space-y-6">
             <div className="space-y-4">
-              <h2 className="text-xl font-bold font-lora tracking-tight">
+              <h2 className="text-xl font-bold tracking-tight font-lora">
                 Pipa Canoa Havaiana{" "}
                 <span className="text-[#FF6B6B]">Adventures</span>
               </h2>
-              <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+              <p className="max-w-xs text-sm leading-relaxed text-gray-400">
                 {t("heroSubtitle").substring(0, 100)}...
               </p>
             </div>
@@ -29,13 +29,13 @@ const Footer = () => {
                 href="https://www.instagram.com/pipa_canoa_havaiana"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-2 text-gray-400 hover:text-white transition-all"
+                className="flex items-center gap-2 text-gray-400 transition-all group hover:text-white"
                 aria-label="Follow us on Instagram"
               >
                 <div className="p-2 rounded-lg bg-gray-800 group-hover:bg-[#FF6B6B] transition-colors">
                   <Instagram size={20} />
                 </div>
-                <span className="text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-xs font-bold tracking-widest uppercase transition-opacity opacity-0 group-hover:opacity-100">
                   @pipacanoe
                 </span>
               </a>
@@ -44,30 +44,38 @@ const Footer = () => {
 
           {/* Column 2: Navigation */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-4">
+            <h3 className="mb-4 text-sm font-bold tracking-widest text-gray-500 uppercase">
               Explore
             </h3>
-            <ul className="space-y-2 text-gray-400 text-sm">
+            <ul className="space-y-2 text-sm text-gray-400">
               <li>
-                <Link to="/" className="hover:text-white transition-colors">
+                <Link to="/" className="transition-colors hover:text-white">
                   {t("navHome")}
                 </Link>
               </li>
               <li>
                 <Link
                   to="/tours"
-                  className="hover:text-white transition-colors"
+                  className="transition-colors hover:text-white"
                 >
                   {t("navTours")}
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="hover:text-white transition-colors">
+                <Link
+                  to="/about"
+                  className="transition-colors hover:text-white"
+                >
+                  {t("navAbout")}
+                </Link>
+              </li>
+              <li>
+                <Link to="/faq" className="transition-colors hover:text-white">
                   {t("navFaq")}
                 </Link>
               </li>
               <li>
-                <Link to="/book" className="hover:text-white transition-colors">
+                <Link to="/book" className="transition-colors hover:text-white">
                   {t("navBook")}
                 </Link>
               </li>
@@ -76,14 +84,14 @@ const Footer = () => {
 
           {/* Column 3: Legal (Compliance) */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-4">
+            <h3 className="mb-4 text-sm font-bold tracking-widest text-gray-500 uppercase">
               {t("footerLegal")}
             </h3>
-            <ul className="space-y-2 text-gray-400 text-sm">
+            <ul className="space-y-2 text-sm text-gray-400">
               <li>
                 <Link
                   to="/terms"
-                  className="hover:text-white transition-colors"
+                  className="transition-colors hover:text-white"
                 >
                   {t("footerTerms")}
                 </Link>
@@ -91,7 +99,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/privacy"
-                  className="hover:text-white transition-colors"
+                  className="transition-colors hover:text-white"
                 >
                   {t("footerPrivacy")}
                 </Link>
@@ -101,11 +109,11 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar: Copyright */}
-        <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-500 text-xs">
+        <div className="flex flex-col items-center justify-between gap-4 pt-8 border-t border-gray-800 md:flex-row">
+          <p className="text-xs text-gray-500">
             © {currentYear} Pipa Canoa Havaiana.
           </p>
-          <div className="flex items-center gap-2 text-gray-500 text-xs italic">
+          <div className="flex items-center gap-2 text-xs italic text-gray-500">
             <span>Tibau do Sul, RN - Brasil</span>
           </div>
         </div>
