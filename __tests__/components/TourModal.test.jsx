@@ -43,6 +43,7 @@ describe("TourModal Component", () => {
           btnCancel: "Cancel",
           modalIncluded: "Included:",
           modalBring: "What to bring:",
+          logoAlt: "Pipa Canoa Havaiana Logo", // Added for BrandLogo support
         };
         return manual[key] || key;
       },
@@ -56,10 +57,20 @@ describe("TourModal Component", () => {
 
   test("renders tour details correctly when tour is provided", () => {
     renderTourModal(mockTour);
+
+    // 1. Verify text content
     expect(screen.getByText(mockTour.title)).toBeInTheDocument();
     expect(screen.getByText(mockTour.price)).toBeInTheDocument();
     expect(screen.getByText(mockTour.detail)).toBeInTheDocument();
-    expect(screen.getByRole("img")).toHaveAttribute("src", mockTour.img);
+
+    // 2. Fix: Find the tour image specifically by its Alt Text
+    // This avoids the "multiple elements" error caused by adding the logo
+    const tourImage = screen.getByAltText(mockTour.title);
+    expect(tourImage).toHaveAttribute("src", mockTour.img);
+
+    // 3. Optional: Verify the BrandLogo watermark is present
+    const brandLogo = screen.getByAltText(/Pipa Canoa Havaiana Logo/i);
+    expect(brandLogo).toBeInTheDocument();
   });
 
   test("calls onClose when the backdrop is clicked", () => {
@@ -82,7 +93,6 @@ describe("TourModal Component", () => {
     const onCloseMock = jest.fn();
     renderTourModal(mockTour, onCloseMock);
     fireEvent.keyDown(window, { key: "Escape", code: "Escape" });
-    // Flexible assertion to handle potential re-renders in test env
     expect(onCloseMock).toHaveBeenCalled();
   });
 
