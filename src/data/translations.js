@@ -129,6 +129,8 @@ export const translations = {
     mapTitle: "Find Your Starting Point",
     mapSubtitle:
       "Our main departure is from Tibau do Sul, next to the Guaraíras Lagoon.",
+    footer_developed_by: "Developed by",
+    footer_powered_by: "Powered by Innovation & Human Spirit",
 
     // --- About Page
     about_title: "Meet Your Guide, Edu!",
@@ -260,6 +262,8 @@ export const translations = {
     mapTitle: "Encontre Seu Ponto de Partida",
     mapSubtitle:
       "Nossa principal saída é de Tibau do Sul, ao lado da Lagoa de Guaraíras.",
+    footer_developed_by: "Desenvolvido por",
+    footer_powered_by: "Impulsionado por Inovação e Espírito Humano",
 
     // --- About Page
     about_title: "Conheça Seu Guia, Edu!",
@@ -392,6 +396,8 @@ export const translations = {
     mapTitle: "Encuentra Tu Punto de Partida",
     mapSubtitle:
       "Nuestra salida principal es desde Tibau do Sul, al lado de la Laguna de Guaraíras.",
+    footer_developed_by: "Desarrollado por",
+    footer_powered_by: "Impulsado por Innovación y Espíritu Humano",
 
     // --- About Page
     about_title: "Conoce a tu Guía, Edu!",

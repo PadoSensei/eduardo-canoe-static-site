@@ -15,7 +15,6 @@ const Footer = () => {
           {/* Column 1: Brand Identity & Mission */}
           <div className="flex flex-col space-y-6">
             <div className="flex items-center gap-5">
-              {/* Logo as a high-contrast badge */}
               <BrandLogo className="w-16 h-16 transition-transform shadow-2xl md:w-20 md:h-20 hover:scale-105" />
 
               <div>
@@ -146,17 +145,36 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar: Final Polish */}
+        {/* Bottom Bar: Final Polish & Credits */}
         <div className="flex flex-col items-center justify-between gap-6 pt-10 border-t border-gray-800 md:flex-row">
-          <p className="text-[10px] tracking-widest text-gray-600 uppercase font-bold">
+          <p className="text-[10px] tracking-widest text-gray-600 uppercase font-bold text-center md:text-left">
             © {currentYear} Pipa Canoa Havaiana Adventures • All Rights Reserved
           </p>
 
-          <div className="flex items-center gap-6">
-            <span className="text-[10px] text-gray-600 uppercase tracking-widest">
-              Handcrafted in Brazil
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+            {/* Handcrafted Tag */}
+            <span className="text-[10px] text-gray-600 uppercase tracking-widest text-center">
+              {t("footer_powered_by")}
             </span>
-            <div className="w-8 h-[1px] bg-gray-800"></div>
+
+            <div className="hidden md:block w-8 h-[1px] bg-gray-800"></div>
+
+            {/* AI SOLUTIONS CREDIT */}
+            <span className="text-[10px] text-gray-600 uppercase tracking-widest">
+              {t("footer_developed_by")}{" "}
+              <a
+                href="https://aisolutions.irish" // Replace with your actual company URL
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold transition-colors text-gray-500 hover:text-[#FF6B6B]"
+              >
+                AI Solutions
+              </a>
+            </span>
+
+            <div className="hidden md:block w-8 h-[1px] bg-gray-800"></div>
+
+            {/* Aloha Spirit Tag */}
             <span className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter italic">
               Aloha Spirit
             </span>
