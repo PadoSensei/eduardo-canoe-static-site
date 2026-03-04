@@ -1,4 +1,3 @@
-// src/components/BookingSystem.jsx
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import * as Sentry from "@sentry/react";
 import { getAvailableTours, createBooking } from "../api";
@@ -104,7 +103,7 @@ function BookingSystem() {
 
     return () => {
       isMounted.current = false;
-      controller.abort(); // KILL any pending availability fetch on unmount
+      controller.abort();
     };
   }, [selectedDate, language, loadAvailability]);
 
@@ -134,7 +133,6 @@ function BookingSystem() {
       return;
     }
 
-    // Set Sentry context before the API call for observability
     Sentry.setUser({ email: guestEmail, username: guestName });
 
     const controller = new AbortController();
@@ -185,11 +183,7 @@ function BookingSystem() {
     setSpecialNotes("");
     setAcceptedTerms(false);
     setFormError(null);
-
-    // Clear Sentry context
     Sentry.setUser(null);
-
-    // Refetch availability to show updated spots immediately
     await loadAvailability();
   };
 
@@ -209,47 +203,87 @@ function BookingSystem() {
   const renderTourList = () => {
     if (isLoading)
       return (
-        <p
-          className="py-8 text-center text-gray-500"
+        <div
+          className="flex flex-col items-center gap-4 py-16"
           data-testid="loading-state"
         >
-          {t("loading")}
-        </p>
+          <div className="w-10 h-10 border-4 border-[#FF6B6B] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">
+            {t("loading")}
+          </p>
+        </div>
       );
+
     if (error)
       return (
-        <p className="py-8 text-center text-red-500">{t("errorGeneric")}</p>
+        <p className="py-12 font-medium text-center text-red-500">
+          {t("errorGeneric")}
+        </p>
       );
+
     if (availableTours.length === 0)
-      return <p className="py-8 text-center text-gray-600">{t("noTours")}</p>;
+      return (
+        <p className="py-16 italic text-center text-gray-500">{t("noTours")}</p>
+      );
 
     return availableTours
       .filter((t) => t.isBookable)
       .map((tour) => (
         <div
           key={tour.id}
-          className="flex flex-col items-center justify-between p-6 transition-colors border-b sm:flex-row last:border-b-0 hover:bg-gray-50"
+          onClick={() => openModal(tour)}
+          className="flex flex-col items-center gap-6 p-5 transition-all border-b cursor-pointer group last:border-b-0 hover:bg-gray-50/80 sm:flex-row"
         >
-          <div className="mb-4 text-center sm:text-left sm:mb-0">
-            <h4 className="text-lg font-bold text-gray-800">
-              {getTourName(tour.tourType)}
+          {/* 1. IMAGE THUMBNAIL - Fixed Aspect Ratio */}
+          <div className="w-full h-40 overflow-hidden border border-gray-100 shadow-sm sm:w-48 sm:h-32 shrink-0 rounded-2xl">
+            <img
+              src={tour.imageUrl || "/img/sunset_pic.jpeg"}
+              alt={tour.name}
+              className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+            />
+          </div>
+
+          {/* 2. TOUR INFO - Better Typography */}
+          <div className="flex-grow space-y-2 text-center sm:text-left">
+            <h4 className="text-2xl font-bold text-teal-950 font-lora">
+              {tour.name || getTourName(tour.tourType)}
             </h4>
-            <div className="mt-1 space-y-1 text-sm text-gray-600">
-              <p>
-                ⏳ {t("duration")}: {tour.duration || "2h"}
-              </p>
-              <p>
-                🛶 {tour.remaining} {t("spotsLeft")}
-              </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 font-medium text-gray-500 sm:justify-start">
+              <span className="flex items-center gap-1.5 text-sm bg-gray-100 px-3 py-1 rounded-full text-gray-600">
+                <span className="text-orange-500">⏳</span>{" "}
+                {tour.duration || "2h"}
+              </span>
+
+              <span className="text-[10px] bg-teal-50 text-teal-700 px-2.5 py-1 rounded-md font-black uppercase tracking-widest border border-teal-100">
+                {t("navTours")}
+              </span>
             </div>
           </div>
-          <div className="text-center sm:text-right">
-            <p className="mb-2 text-xl font-bold text-gray-900">
-              {t("pricePrefix")} {tour.price.toFixed(2)}
-            </p>
+
+          {/* 3. PRICE & CTA - Clear Visual Hierarchy */}
+          <div className="flex flex-row items-center justify-between w-full gap-6 sm:flex-col sm:w-auto sm:items-end sm:justify-center">
+            <div className="text-left sm:text-right">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter block mb-[-4px]">
+                Total
+              </span>
+              <p className="text-3xl font-black text-teal-950">
+                <span className="text-sm font-bold text-teal-600 mr-0.5">
+                  {t("pricePrefix")}
+                </span>
+                {Math.floor(tour.price)}
+                <span className="text-lg font-bold opacity-40">
+                  .{(tour.price % 1).toFixed(2).split(".")[1]}
+                </span>
+              </p>
+            </div>
+
             <button
-              onClick={() => openModal(tour)}
-              className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-2 px-6 rounded-full shadow-md transition-transform hover:-translate-y-0.5"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent double trigger since card is clickable
+                openModal(tour);
+              }}
+              className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-black py-3 px-10 rounded-2xl shadow-lg shadow-orange-200 transition-all active:scale-95 group-hover:shadow-orange-300"
             >
               {t("ctaButton")}
             </button>
@@ -261,14 +295,14 @@ function BookingSystem() {
   return (
     <section className="min-h-screen py-16 bg-gray-100 md:py-24">
       <div className="container px-6 mx-auto">
-        <h2 className="mb-2 text-3xl font-bold text-center text-gray-800 md:text-4xl">
+        <h2 className="mb-2 text-3xl font-bold text-center text-gray-800 md:text-4xl font-lora">
           {t("bookingTitle")}
         </h2>
-        <p className="mb-12 text-center text-gray-600">
+        <p className="mb-12 font-medium text-center text-gray-600">
           {t("bookingSubtitle")}
         </p>
 
-        <div className="flex flex-col items-center justify-center mb-8">
+        <div className="flex flex-col items-center justify-center mb-10">
           {formError && !showBookingModal && (
             <div
               role="alert"
@@ -279,32 +313,34 @@ function BookingSystem() {
           )}
           <label
             htmlFor="tour-date-input"
-            className="mb-2 text-sm font-semibold tracking-wide text-gray-500 uppercase"
+            className="mb-2 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase"
           >
             {t("selectDateLabel")}
           </label>
-          <input
-            id="tour-date-input"
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            min={getTodayLocalDate()}
-            className="p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-[#FF6B6B] outline-none"
-          />
+          <div className="relative group">
+            <input
+              id="tour-date-input"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              min={getTodayLocalDate()}
+              className="p-3 bg-white px-6 rounded-xl border border-gray-200 shadow-sm focus:ring-4 focus:ring-[#FF6B6B]/20 focus:border-[#FF6B6B] transition-all outline-none font-bold text-gray-700"
+            />
+          </div>
         </div>
 
-        <div className="max-w-3xl mx-auto overflow-hidden bg-white shadow-xl rounded-xl">
+        <div className="max-w-3xl mx-auto overflow-hidden bg-white border border-white shadow-xl rounded-3xl">
           {renderTourList()}
         </div>
 
         {showBookingModal && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
             role="presentation"
             onClick={closeModal}
           >
             <div
-              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto"
               role="dialog"
               aria-modal="true"
               aria-labelledby="modal-title"
@@ -327,7 +363,8 @@ function BookingSystem() {
                 <BookingForm
                   tour={{
                     ...selectedTour,
-                    name: getTourName(selectedTour.tourType),
+                    name:
+                      selectedTour.name || getTourName(selectedTour.tourType),
                   }}
                   selectedDate={selectedDate}
                   guestName={guestName}

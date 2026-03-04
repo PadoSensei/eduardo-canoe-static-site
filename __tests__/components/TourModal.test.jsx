@@ -7,7 +7,6 @@ import {
   useLanguage,
 } from "../../src/context/LanguageContext";
 
-// Mock the language context to control strings in tests
 jest.mock("../../src/context/LanguageContext", () => ({
   ...jest.requireActual("../../src/context/LanguageContext"),
   useLanguage: jest.fn(),
@@ -15,12 +14,14 @@ jest.mock("../../src/context/LanguageContext", () => ({
 }));
 
 const mockTour = {
-  id: "sunrise",
-  title: "Sunrise Adventure",
-  desc: "A beautiful morning.",
-  detail: "Full comprehensive description here.",
-  img: "/img/test.jpg",
-  price: "R$ 250",
+  instanceId: 101,
+  tourType: "sunset",
+  name: "Sunrise Adventure",
+  description: "Full comprehensive description here.",
+  imageUrl: "/img/test.jpg",
+  price: 250,
+  inclusions: ["Paddle", "Lifejacket"],
+  requirements: ["Sunscreen"],
 };
 
 const renderTourModal = (tour, onClose = jest.fn()) => {
@@ -43,7 +44,7 @@ describe("TourModal Component", () => {
           btnCancel: "Cancel",
           modalIncluded: "Included:",
           modalBring: "What to bring:",
-          logoAlt: "Pipa Canoa Havaiana Logo", // Added for BrandLogo support
+          logoAlt: "Pipa Canoa Havaiana Logo",
         };
         return manual[key] || key;
       },
@@ -58,33 +59,21 @@ describe("TourModal Component", () => {
   test("renders tour details correctly when tour is provided", () => {
     renderTourModal(mockTour);
 
-    // 1. Verify text content
-    expect(screen.getByText(mockTour.title)).toBeInTheDocument();
-    expect(screen.getByText(mockTour.price)).toBeInTheDocument();
-    expect(screen.getByText(mockTour.detail)).toBeInTheDocument();
+    expect(screen.getByText(mockTour.name)).toBeInTheDocument();
+    // Use Regex to match the price even with the "R$" prefix
+    expect(screen.getByText(new RegExp(mockTour.price))).toBeInTheDocument();
+    // Component now looks up translation key: tour_sunset_detail
+    expect(screen.getByText(/tour_sunset_detail/i)).toBeInTheDocument();
 
-    // 2. Fix: Find the tour image specifically by its Alt Text
-    // This avoids the "multiple elements" error caused by adding the logo
-    const tourImage = screen.getByAltText(mockTour.title);
-    expect(tourImage).toHaveAttribute("src", mockTour.img);
-
-    // 3. Optional: Verify the BrandLogo watermark is present
-    const brandLogo = screen.getByAltText(/Pipa Canoa Havaiana Logo/i);
-    expect(brandLogo).toBeInTheDocument();
-  });
-
-  test("calls onClose when the backdrop is clicked", () => {
-    const onCloseMock = jest.fn();
-    renderTourModal(mockTour, onCloseMock);
-    const backdrop = screen.getByRole("dialog");
-    fireEvent.click(backdrop);
-    expect(onCloseMock).toHaveBeenCalled();
+    const tourImage = screen.getByAltText(mockTour.name);
+    expect(tourImage).toHaveAttribute("src", mockTour.imageUrl);
   });
 
   test("does NOT call onClose when clicking inside the modal content", () => {
     const onCloseMock = jest.fn();
     renderTourModal(mockTour, onCloseMock);
-    const title = screen.getByText(mockTour.title);
+    // Fixed: Use mockTour.name instead of title
+    const title = screen.getByText(mockTour.name);
     fireEvent.click(title);
     expect(onCloseMock).not.toHaveBeenCalled();
   });

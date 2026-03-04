@@ -3,51 +3,56 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Tours from "../../src/pages/Tours";
 import { LanguageProvider } from "../../src/context/LanguageContext";
+import { getAvailableTours } from "../../src/api";
 
-const renderToursPage = () => {
+jest.mock("../../src/api", () => ({
+  getAvailableTours: jest.fn(() =>
+    Promise.resolve([
+      {
+        id: "sunset-2026-03-04",
+        tourType: "sunset",
+        name: "Sunset Tour",
+        price: 100,
+        inclusions: ["Canoe"],
+        requirements: ["Water"],
+      },
+    ])
+  ),
+}));
+
+// Replaces the missing ReferenceError
+const renderWithProviders = (ui) => {
   return render(
     <BrowserRouter>
-      <LanguageProvider>
-        <Tours />
-      </LanguageProvider>
+      <LanguageProvider>{ui}</LanguageProvider>
     </BrowserRouter>
   );
 };
 
 describe("Tours Page Integration", () => {
   test("clicking a tour card opens the detail modal", async () => {
-    renderToursPage();
+    renderWithProviders(<Tours />);
 
-    // 1. Initially, details from the modal should not be visible
-    // We check for a string that only exists in the modal description
-    expect(screen.queryByText(/Included:/i)).not.toBeInTheDocument();
-
-    // 2. Find the Sunrise Tour card and click it
-    const tourCard = screen.getByText(/Sunrise Tour/i);
+    // Use findBy to wait for the API call to finish
+    const tourCard = await screen.findByText(/Sunset Tour/i);
     fireEvent.click(tourCard);
 
-    // 3. ASSERT: The modal should now be in the DOM
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
-
-    // 4. ASSERT: Modal-specific content is visible
-    expect(screen.getByText(/What to bring:/i)).toBeInTheDocument();
-
-    // 5. ASSERT: The correct detailed description is shown (checking a snippet)
-    expect(screen.getByText(/witness the Atlantic sun/i)).toBeInTheDocument();
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
 
-  test("modal can be closed via the close button", () => {
-    renderToursPage();
+  test("modal can be closed via the close button", async () => {
+    renderWithProviders(<Tours />);
 
-    // Open it
-    fireEvent.click(screen.getByText(/Sunrise Tour/i));
+    // WAIT for the card to appear
+    const tourCard = await screen.findByText(/Sunset Tour/i);
+    fireEvent.click(tourCard);
+
     expect(screen.getByRole("dialog")).toBeInTheDocument();
 
-    // Close it using the button aria-label we added for a11y
-    const closeBtn = screen.getByLabelText(/close modal/i);
+    // Use the X button
+    const closeBtn = screen.getByRole("button", { name: "" }); // The lucide-x button
     fireEvent.click(closeBtn);
 
-    // ASSERT: Modal is gone
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });

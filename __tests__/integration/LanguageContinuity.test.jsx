@@ -1,30 +1,46 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import Tours from "../../src/pages/Tours";
-import Header from "../../src/components/Header";
+import Layout from "../../src/components/Layout";
 import { LanguageProvider } from "../../src/context/LanguageContext";
 
-describe("Language Continuity", () => {
-  test("Tour Modal reflects the language selected in the Header", async () => {
-    render(
-      <MemoryRouter>
-        <LanguageProvider>
-          <Header />
-          <Tours />
-        </LanguageProvider>
-      </MemoryRouter>
-    );
+// Mock the API so tours actually load
+jest.mock("../../src/api", () => ({
+  getAvailableTours: jest.fn(() =>
+    Promise.resolve([
+      {
+        id: "1",
+        tourType: "sunset",
+        name: "Sunset Tour",
+        price: 100,
+      },
+    ])
+  ),
+}));
 
-    // 1. Switch to Portuguese in the Header
-    fireEvent.click(screen.getByText(/PT/i));
+const renderWithProviders = (ui) => {
+  return render(
+    <BrowserRouter>
+      <LanguageProvider>{ui}</LanguageProvider>
+    </BrowserRouter>
+  );
+};
 
-    // 2. Open a Tour Modal
-    // We check for the PT version of "View Details" (Ver Detalhes)
-    fireEvent.click(screen.getAllByText(/Ver Detalhes/i)[0]);
+test("Tour Modal reflects the language selected in the Header", async () => {
+  renderWithProviders(
+    <Layout>
+      <Tours />
+    </Layout>
+  );
 
-    // 3. ASSERT: Modal content is in Portuguese
-    // "What to bring" becomes "O que levar"
-    expect(screen.getByText(/O que levar:/i)).toBeInTheDocument();
-  });
+  const ptButton = screen.getByLabelText(/Mudar idioma para Português/i);
+  fireEvent.click(ptButton);
+
+  // WAIT for the async load
+  const viewDetailsBtns = await screen.findAllByText(/Ver Detalhes/i);
+  fireEvent.click(viewDetailsBtns[0]);
+
+  // Check modal content (Portuguese translation for "What to bring")
+  expect(screen.getByText(/O que levar/i)).toBeInTheDocument();
 });

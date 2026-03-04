@@ -60,6 +60,9 @@ export const translations = {
     modalBring: "What to bring:",
     modalIncludedList: "Canoe, Lifejacket, Professional Guide, Waterproof bags",
     modalBringList: "Sunscreen, Hat, Water, Towel, Swimwear",
+    tour_sunset_short: "Don't just watch the sunset - live it from the water.",
+    tour_sunset_detail:
+      "Our most popular tour. Watch the sky turn into a painting as you glide through the calm waters of Tibau. A relaxing, spiritual experience to end your day in Pipa.",
 
     // --- Booking Search/List ---
     bookingTitle: "Check Tour Availability",
@@ -195,6 +198,10 @@ export const translations = {
     modalIncludedList:
       "Canoa, Colete salva-vidas, Guia Profissional, Sacos impermeáveis",
     modalBringList: "Protetor solar, Chapéu, Água, Toalha, Roupa de banho",
+    tour_sunset_short:
+      "Não apenas assista ao pôr do sol - viva-o dentro d'água.",
+    tour_sunset_detail:
+      "Nosso passeio mais popular. Veja o céu se transformar em uma pintura enquanto desliza pelas águas calmas de Tibau. Uma experiência relaxante e espiritual.",
 
     // --- Booking Search/List ---
     bookingTitle: "Verificar Disponibilidade",
@@ -328,6 +335,9 @@ export const translations = {
     modalIncludedList:
       "Canoa, Chaleco salvavidas, Guía Profesional, Bolsas impermeables",
     modalBringList: "Protector solar, Gorra, Agua, Toalla, Ropa de baño",
+    tour_sunset_short: "No solo mires el atardecer, vívelo desde el agua.",
+    tour_sunset_detail:
+      "Nuestro tour más popular. Mira cómo el cielo se convierte en una pintura mientras te deslizas por las tranquilas aguas de Tibau.",
 
     // --- Booking Search/List ---
     bookingTitle: "Verificar Disponibilidad",

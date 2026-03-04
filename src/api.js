@@ -60,6 +60,11 @@ export async function getAvailableTours(date, options = {}) {
       duration: tour.duration || "2h",
       imageUrl: tour.image_url || "",
       tourDate: tour.tour_date,
+      name: tour.display_name,
+      description: tour.description, // Full blurb
+      shortDescription: tour.short_description,
+      inclusions: tour.inclusions || [], // Array of strings
+      requirements: tour.requirements || [], // Array of strings
     }));
   } catch (error) {
     if (error.name === "AbortError") return null;
