@@ -128,6 +128,38 @@ export async function getBookingStatus(bookingUuid, options = {}) {
   }
 }
 
+export async function getTourTemplates(options = {}) {
+  const url = `${API_BASE_URL}/tour-templates/`;
+  try {
+    const response = await fetch(url, { signal: options.signal });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        `HTTP error ${response.status}: ${errorData.detail || "Error"}`
+      );
+    }
+    const data = await response.json();
+
+    // We map the backend Template model to the frontend Tour object
+    return data.map((template) => ({
+      id: template.id,
+      tourType: template.name, // e.g. "sunset", "full_moon"
+      name: template.display_name,
+      price: template.price,
+      duration: template.duration,
+      imageUrl: template.image_url,
+      description: template.description,
+      shortDescription: template.short_description,
+      inclusions: template.inclusions || [],
+      requirements: template.requirements || [],
+    }));
+  } catch (error) {
+    if (error.name === "AbortError") return null;
+    captureApiError(error, { endpoint: "getTourTemplates" });
+    throw error;
+  }
+}
+
 export async function fetchMonthlySchedule(year, month, options = {}) {
   try {
     const headers = await getHeaders(true);

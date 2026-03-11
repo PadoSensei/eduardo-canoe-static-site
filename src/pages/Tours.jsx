@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
-import { getAvailableTours } from "../api"; // 1. Import real API
+import { getTourTemplates } from "../api";
 import TourModal from "../components/TourModal";
 import { format } from "date-fns";
 
@@ -11,18 +11,17 @@ const Tours = () => {
   const [selectedTour, setSelectedTour] = useState(null);
 
   useEffect(() => {
-    const loadTours = async () => {
+    const loadMenu = async () => {
       try {
-        const today = format(new Date(), "yyyy-MM-dd");
-        const data = await getAvailableTours(today);
+        const data = await getTourTemplates();
         setTours(data || []);
       } catch (err) {
-        console.error("Failed to load tours:", err);
+        console.error("Failed to load tour menu:", err);
       } finally {
         setLoading(false);
       }
     };
-    loadTours();
+    loadMenu();
   }, []);
 
   if (loading) {

@@ -1,11 +1,10 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { X, CheckCircle, Backpack } from "lucide-react";
+import { X, CheckCircle, Backpack, Clock, Users, MapPin } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import BrandLogo from "./BrandLogo";
 
 const TourModal = ({ tour, onClose }) => {
-  console.log("Selected Tour Data:", tour);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -18,105 +17,157 @@ const TourModal = ({ tour, onClose }) => {
 
   if (!tour) return null;
 
+  const description = t(`tour_${tour.tourType}_detail`) || tour.description;
+  const paragraphs = description.split("\n\n");
+
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-black/70 backdrop-blur-sm transition-all animate-in fade-in duration-300"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-black/80 backdrop-blur-md transition-all animate-in fade-in duration-300"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div
-        className="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
+        className="bg-white w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Header Image Section */}
         <div className="relative h-48 md:h-72 shrink-0">
           <img
             src={tour.imageUrl || "/img/sunset_pic.jpeg"}
             className="object-cover w-full h-full"
             alt={tour.name}
           />
-          <div className="absolute top-4 left-4 drop-shadow-2xl">
-            <BrandLogo className="w-12 h-12 border-2 border-white md:w-14 md:h-14" />
+          <div className="absolute top-6 left-6">
+            <BrandLogo className="w-12 h-12 border-2 border-white shadow-xl" />
           </div>
           <button
             onClick={onClose}
-            className="absolute p-2 text-white transition-all border rounded-full top-4 right-4 bg-white/20 hover:bg-white/40 backdrop-blur-md border-white/30"
+            className="absolute p-2 text-white transition-all border rounded-full top-6 right-6 bg-black/10 hover:bg-black/30 backdrop-blur-md border-white/20"
           >
             <X size={20} />
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto md:p-10">
-          <div className="flex items-start justify-between mb-6">
+        {/* Content Section */}
+        <div className="p-8 pb-32 overflow-y-auto md:p-10">
+          {/* Header Metadata */}
+          <div className="flex flex-col justify-between gap-4 mb-8 md:flex-row md:items-start">
             <div className="space-y-1">
-              {/* Changed from tour.title to tour.name */}
+              <p className="text-[10px] uppercase tracking-[0.4em] text-[#FF6B6B] font-black">
+                {tour.tourType === "full_moon" ? "Monthly Event" : "Daily Tour"}
+              </p>
               <h2 className="text-3xl font-bold md:text-4xl text-teal-950 font-lora">
                 {tour.name}
               </h2>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-[#FF6B6B] font-bold">
-                Pipa Canoa Havaiana
-              </p>
             </div>
-            <span className="bg-orange-50 text-[#FF6B6B] px-4 py-1 rounded-full font-bold text-xl border border-orange-100">
-              R$ {tour.price}
-            </span>
+            <div className="px-4 py-2 border bg-teal-50 rounded-2xl border-teal-100/50">
+              <span className="text-[10px] text-teal-600 font-bold uppercase tracking-widest block text-center mb-0.5">
+                {t("pricePrefix")}
+              </span>
+              <span className="block text-2xl font-black text-teal-900">
+                R$ {tour.price}
+              </span>
+            </div>
           </div>
 
-          <p className="mb-10 text-lg leading-relaxed text-gray-700">
-            {/* Changed from tour.detail to tour.description */}
-            {t(`tour_${tour.tourType}_detail`) || tour.description}
-          </p>
+          {/* Logistics Strip */}
+          <div className="flex flex-wrap gap-6 pb-8 mb-10 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <Clock size={16} className="text-orange-500" />
+              <span className="text-xs font-bold tracking-tighter text-gray-500 uppercase">
+                {t("logistics_duration")}:
+              </span>
+              <span className="text-xs font-black text-teal-950">
+                {tour.duration}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users size={16} className="text-teal-500" />
+              <span className="text-xs font-bold tracking-tighter text-gray-500 uppercase">
+                {t("logistics_capacity")}:
+              </span>
+              <span className="text-xs font-black text-teal-950">
+                {tour.capacity} Pax
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin size={16} className="text-blue-500" />
+              <span className="text-xs font-bold tracking-tighter text-gray-500 uppercase">
+                {t("logistics_meeting")}:
+              </span>
+              <span className="text-xs font-black text-teal-950">
+                Sunset Stairs
+              </span>
+            </div>
+          </div>
 
-          <div className="grid gap-8 mb-10 md:grid-cols-2">
-            <div className="p-5 border bg-teal-50/50 rounded-2xl border-teal-100/50">
-              <h4 className="flex items-center gap-2 mb-3 font-bold text-teal-900">
-                <CheckCircle size={20} className="text-teal-600" />
-                {t("modalIncluded")}
+          {/* Narrative Body */}
+          <div className="mb-12 space-y-6 leading-relaxed text-gray-600">
+            {paragraphs.map((p, i) => (
+              <p
+                key={i}
+                className={`${
+                  i === 0 ? "text-lg text-teal-900 font-semibold" : "text-base"
+                }`}
+              >
+                {p}
+              </p>
+            ))}
+          </div>
+
+          {/* Lists Grid */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-black text-teal-700 uppercase tracking-[0.2em] flex items-center gap-2">
+                <CheckCircle size={14} /> {t("modalIncluded")}
               </h4>
               <ul className="space-y-2">
-                {/* Dynamically mapping the array from the DB */}
                 {(tour.inclusions || []).map((item, idx) => (
                   <li
                     key={idx}
-                    className="flex items-start gap-2 text-sm text-teal-800/80"
+                    className="flex items-start gap-2 text-sm text-gray-500"
                   >
-                    <span className="text-teal-400">•</span> {item}
+                    <span className="font-bold text-teal-400">✓</span> {item}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="p-5 border bg-orange-50/50 rounded-2xl border-orange-100/50">
-              <h4 className="flex items-center gap-2 mb-3 font-bold text-orange-900">
-                <Backpack size={20} className="text-orange-600" />
-                {t("modalBring")}
+
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-black text-orange-700 uppercase tracking-[0.2em] flex items-center gap-2">
+                <Backpack size={14} /> {t("modalBring")}
               </h4>
               <ul className="space-y-2">
                 {(tour.requirements || []).map((item, idx) => (
                   <li
                     key={idx}
-                    className="flex items-start gap-2 text-sm text-orange-800/80"
+                    className="flex items-start gap-2 text-sm text-gray-500"
                   >
-                    <span className="text-orange-300">•</span> {item}
+                    <span className="font-bold text-orange-400">•</span> {item}
                   </li>
                 ))}
               </ul>
             </div>
           </div>
+        </div>
 
-          <div className="sticky bottom-0 flex flex-col gap-4 pt-4 bg-white border-t border-gray-100 sm:flex-row">
-            <Link
-              to="/book"
-              className="flex-[2] bg-[#FF6B6B] hover:bg-[#FF5252] text-white text-center py-4 rounded-2xl font-bold text-lg shadow-lg shadow-orange-200 transition-all"
-            >
-              {t("ctaButton")}
-            </Link>
-            <button
-              onClick={onClose}
-              className="flex-1 py-4 text-lg font-bold text-gray-500 border-2 border-gray-200 rounded-2xl hover:bg-gray-50"
-            >
-              {t("btnCancel")}
-            </button>
-          </div>
+        {/* Action Bar - Fixed Bottom with Glassmorphism */}
+        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between gap-4 p-6 border-t border-gray-100 md:px-10 bg-white/90 backdrop-blur-md">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-bold text-gray-400 transition-colors hover:text-gray-600"
+          >
+            {t("btnCancel")}
+          </button>
+
+          <Link
+            to="/book"
+            className="bg-teal-950 hover:bg-black text-white px-8 py-3.5 rounded-2xl font-bold text-sm shadow-xl transition-all hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"
+          >
+            {t("ctaButton")}
+            <span className="text-teal-400">→</span>
+          </Link>
         </div>
       </div>
     </div>
