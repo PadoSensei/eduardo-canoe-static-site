@@ -1,5 +1,10 @@
 ### To Do
 
+### General
+
+- Colour Scheme Check on Buttons
+-
+
 ### Home
 
 - Details section on the homepage needs compelete tour
@@ -14,3 +19,7 @@
 
 - We sure on the picture?
 - Add the instagram
+
+### Tours
+
+- Add When next Midnight tours are across site

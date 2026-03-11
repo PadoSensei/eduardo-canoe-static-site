@@ -16,10 +16,12 @@ jest.mock("../../src/context/LanguageContext", () => ({
 const mockTour = {
   instanceId: 101,
   tourType: "sunset",
-  name: "Sunrise Adventure",
+  name: "Sunset Adventure",
   description: "Full comprehensive description here.",
   imageUrl: "/img/test.jpg",
   price: 250,
+  duration: "2 Hours",
+  capacity: 10,
   inclusions: ["Paddle", "Lifejacket"],
   requirements: ["Sunscreen"],
 };
@@ -45,6 +47,9 @@ describe("TourModal Component", () => {
           modalIncluded: "Included:",
           modalBring: "What to bring:",
           logoAlt: "Pipa Canoa Havaiana Logo",
+          logistics_duration: "Duration",
+          logistics_capacity: "Capacity",
+          logistics_meeting: "Meeting Point",
         };
         return manual[key] || key;
       },
@@ -56,23 +61,32 @@ describe("TourModal Component", () => {
     jest.clearAllMocks();
   });
 
-  test("renders tour details correctly when tour is provided", () => {
+  test("renders tour details and logistics correctly", () => {
     renderTourModal(mockTour);
 
+    // 1. Core Info
     expect(screen.getByText(mockTour.name)).toBeInTheDocument();
-    // Use Regex to match the price even with the "R$" prefix
     expect(screen.getByText(new RegExp(mockTour.price))).toBeInTheDocument();
-    // Component now looks up translation key: tour_sunset_detail
+
+    // 2. New Logistics Strip Verification
+    expect(screen.getByText(/Duration/i)).toBeInTheDocument();
+    expect(screen.getByText(mockTour.duration)).toBeInTheDocument();
+    expect(screen.getByText(/Capacity/i)).toBeInTheDocument();
+    expect(screen.getByText(/10 Pax/i)).toBeInTheDocument();
+
+    // 3. Translation Key Verification
     expect(screen.getByText(/tour_sunset_detail/i)).toBeInTheDocument();
 
+    // 4. Image verification
     const tourImage = screen.getByAltText(mockTour.name);
     expect(tourImage).toHaveAttribute("src", mockTour.imageUrl);
   });
 
-  test("does NOT call onClose when clicking inside the modal content", () => {
+  test("does NOT call onClose when clicking inside the content area", () => {
     const onCloseMock = jest.fn();
     renderTourModal(mockTour, onCloseMock);
-    // Fixed: Use mockTour.name instead of title
+
+    // Clicking the title (inside the modal) should not trigger the backdrop's onClose
     const title = screen.getByText(mockTour.name);
     fireEvent.click(title);
     expect(onCloseMock).not.toHaveBeenCalled();
@@ -85,9 +99,11 @@ describe("TourModal Component", () => {
     expect(onCloseMock).toHaveBeenCalled();
   });
 
-  test("Booking button links to the /book route", () => {
+  test("Booking button contains correct link and visual arrow", () => {
     renderTourModal(mockTour);
+    // The link now contains an arrow, so we use a partial text match or find by role
     const bookBtn = screen.getByRole("link", { name: /book now/i });
     expect(bookBtn).toHaveAttribute("href", "/book");
+    expect(screen.getByText("→")).toBeInTheDocument();
   });
 });
