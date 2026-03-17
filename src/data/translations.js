@@ -451,4 +451,153 @@ export const translations = {
     logistics_duration: "Duración",
     logistics_capacity: "Capacidad",
   },
+  fr: {
+    // --- Navigation ---
+    navHome: "Accueil",
+    navTours: "Tours",
+    navBook: "Réserver",
+    navFaq: "FAQ",
+    navAbout: "À Propos",
+
+    // --- Hero Section ---
+    heroTitle: "Ressentez le Pouls de l'Océan",
+    heroSubtitle:
+      "Découvrez l'âme de Pipa sous un nouvel angle. Glissez sur des eaux sereines, connectez-vous à la nature et créez des souvenirs impérissables.",
+    ctaButton: "Réserver",
+    learnMore: "Nos Tours",
+
+    // --- Features Section ---
+    detailsTitle: "Votre Aventure vous Attend",
+    detailsSubtitle:
+      "Nous offrons plus qu'un simple tour ; nous offrons une expérience. Chaque voyage est conçu pour vous immerger dans la beauté naturelle de Pipa.",
+
+    // --- Tour Cards & Templates ---
+    card1Title: "Tour au Lever du Soleil",
+    card1Text: "Éveillez-vous avant le monde et pagayez vers la magie.",
+    card2Title: "Tour Journée Complète",
+    card2Text:
+      "L'expérience ultime de Pipa ! 8 heures. 4 écosystèmes. Plages secrètes. Et peut-être un dauphin ou deux !",
+    card3Title: "Tour au Coucher du Soleil",
+    card3Text:
+      "Ne vous contentez pas de regarder le coucher du soleil - vivez-le depuis une pirogue hawaïenne sur les eaux cristallines de Tibau.",
+    viewDetails: "Détails",
+    duration: "Durée",
+    spotsLeft: "places restantes",
+    pricePrefix: "R$",
+
+    // --- Tour Detail Modal ---
+    tourSunriseDetail:
+      "Découvrez la tranquillité absolue. Nous partons sous les étoiles pour voir le soleil de l'Atlantique émerger de l'horizon. Idéal pour la photographie et l'observation des dauphins à leur heure la plus active.",
+    tourFullDayDetail:
+      "L'immersion totale. Nous explorons la lagune de Guaraíras, les tunnels de mangrove cachés et les bancs de sable secrets. Inclut des collations locales et un guide spécialisé qui connaît chaque recoin de cet écosystème.",
+    tourSunsetDetail:
+      "Notre tour le plus populaire. Regardez le ciel devenir une peinture alors que vous glissez sur les eaux calmes de Tibau. Une expérience relaxante et spirituelle pour terminer votre journée à Pipa.",
+    modalIncluded: "Inclus :",
+    modalBring: "À apporter :",
+    modalIncludedList:
+      "Pirogue, Gilet de sauvetage, Guide professionnel, Sacs étanches",
+    modalBringList: "Crème solaire, Chapeau, Eau, Serviette, Maillot de bain",
+    tour_sunset_short:
+      "Ne regardez pas seulement le coucher du soleil - vivez-le depuis l'eau.",
+    tour_sunset_detail:
+      "Notre tour le plus populaire. Regardez le ciel se transformer en tableau en glissant sur les eaux calmes de Tibau. Une expérience relaxante et spirituelle.",
+
+    // --- Booking Search/List ---
+    bookingTitle: "Vérifier la Disponibilité",
+    bookingSubtitle:
+      "Sélectionnez une date pour voir les aventures disponibles",
+    selectDateLabel: "Choisir une date",
+    loading: "Chargement des aventures...",
+    errorGeneric: "Désolé, nous n'avons pas pu charger les disponibilités.",
+    noTours: "Aucun tour disponible pour cette date. Essayez un autre jour !",
+
+    // --- Booking Form ---
+    bookTitle: "Réserver",
+    labelDate: "Date",
+    labelName: "Votre Nom",
+    placeholderName: "Entrez votre nom complet",
+    labelEmail: "Votre Email",
+    placeholderEmail: "votre@email.com",
+    labelNotes: "Notes Spéciales (Optionnel)",
+    placeholderNotes: "Allergies alimentaires ou occasions spéciales...",
+    btnSubmitting: "Réservation...",
+    btnConfirm: "Confirmer la réservation",
+    btnCancel: "Annuler",
+
+    // --- Form Validation & LGPD ---
+    labelAcceptTerms: "J'accepte les ",
+    linkTerms: "Conditions d'utilisation",
+    linkAnd: " et la ",
+    linkPrivacy: "Politique de confidentialité",
+    errorTerms: "Vous devez accepter les conditions pour continuer.",
+    alertMissing: "Veuillez fournir un nom et un email.",
+    alertEmail: "Adresse email invalide.",
+    alertFailed: "Échec de la réservation",
+    alertError: "Une erreur inattendue est survenue.",
+    alertPastDate:
+      "Impossible de réserver pour une date passée. Veuillez choisir aujourd'hui ou une date future.",
+
+    // --- Payment View (Pix) ---
+    paymentTitle: "Réservation Enregistrée !",
+    paymentInstruction: "Scannez le code QR ci-dessous pour payer via Pix.",
+    btnCopy: "Copier le code Pix",
+    btnCopied: "Code Copié !",
+    labelPixString: "Code Pix Copier-Coller",
+    btnClose: "Fermer",
+    expiresIn: "Le code QR expire dans",
+    connectionWarning:
+      "Connexion lente. Nous attendons toujours la confirmation de votre paiement...",
+    expiredTitle: "Paiement Expiré",
+    expiredDetail:
+      "Ce code Pix n'est plus valide. Veuillez fermer cette fenêtre et réessayer de réserver.",
+    failedTitle: "Paiement Rejeté",
+    failedDetail:
+      "Le paiement a été rejeté par la banque. Veuillez réessayer ou utiliser une autre méthode.",
+
+    // --- Success View ---
+    successTitle: "Paiement Confirmé !",
+    successMessage:
+      "Votre aventure est réservée. Nous avons envoyé un email de confirmation à",
+    btnDone: "Terminé",
+
+    // --- Site Footer & Meta ---
+    footerLegal: "Mentions Légales",
+    footerTerms: "Conditions d'utilisation",
+    footerPrivacy: "Politique de confidentialité",
+    footerText: "Pagayez avec passion.",
+    faqSectionTitle: "Vos Questions, nos Réponses",
+    faqSubtitle:
+      "Tout ce que vous devez savoir sur nos aventures en pirogue à Pipa.",
+    mapTitle: "Trouvez votre point de départ",
+    mapSubtitle:
+      "Notre départ principal se fait depuis Tibau do Sul, à côté de la lagune de Guaraíras.",
+    footer_developed_by: "Développé par",
+    footer_powered_by: "Propulsé par l'Innovation et l'Esprit Humain",
+
+    // --- About Page ---
+    about_title: "Rencontrez votre guide, Edu !",
+    about_bio: [
+      "Né à Rio de Janeiro, j'ai grandi avec la mer comme une extension de ma propre vie. Entre vagues, sel et horizon, le surf et la natation ont façonné ma relation avec la nature dès mon plus jeune âge — une connexion qui n'a jamais été qu'un sport, mais un sentiment, une appartenance et une liberté.",
+      "Encore jeune, je suis parti vivre aux États-Unis, où j'ai mûri, voyagé et porté cette identité maritime avec moi. À 25 ans, le destin m'a conduit à Hawaï, l'un des lieux les plus sacrés pour ceux qui vivent l'océan. Là-bas, j'ai plongé profondément dans la culture polynésienne, appris le respect des eaux, l'ancestralité et la communauté, et je suis tombé amoureux de la pirogue hawaïenne et du kitesurf. Ce furent 10 années d'apprentissage, de transformation et d'expérience de la mer dans sa forme la plus pure.",
+      "En 2011, je suis revenu au Brésil et je suis arrivé à Praia da Pipa, et ce fut le coup de foudre. J'y ai trouvé un endroit où le vent, la lagune, la mer et la nature se rencontrent de manière unique. Pipa n'était pas seulement un nouveau foyer ; c'était un appel à partager tout ce que j'avais appris.",
+      "Je suis instructeur certifié par l'IKO (International Kiteboarding Organization) et depuis lors, je travaille à la formation, l'enseignement et la promotion du kitesurf et de la pirogue hawaïenne à Tibau do Sul et dans la région.",
+      "Mon but a toujours été d'aller au-delà des leçons : créer des expériences, bâtir une communauté et rapprocher les gens de l'océan et de la lagune de Guaraíras de manière consciente et respectueuse.",
+      "Aujourd'hui, je poursuis ce chemin à travers Pipa Canoa Havaiana, Pipa Kite Center et l'Esporte Clube Guaraíras — des projets qui unissent sport, culture, tourisme et connexion avec la nature. Mon travail est une question de mouvement, de rencontre et de transformation, dans l'eau comme dans la vie.",
+      "Plus que d'enseigner à pagayer ou à naviguer, je veux que chaque personne qui croise mon chemin ressente ce que la mer m'a donné : liberté, équilibre et appartenance.",
+    ],
+    about_iko_status: "Instructeur certifié IKO",
+    about_projects:
+      "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
+    logoAlt: "Logo Pipa Canoa Havaiana",
+
+    // --- Special Tours ---
+    tour_full_moon_short:
+      "Un voyage mystique de 4 heures avec de la musique Forró en direct et un feu de camp sur les dunes.",
+    tour_full_moon_detail:
+      "Découvrez le tour le plus magique que nous proposons – un voyage qui commence par le coucher du soleil et se poursuit dans la soirée enchantée pour observer la pleine lune se lever sur l'Atlantique. \n\nRDV à 14h40 à l'Escalier du Coucher de Soleil (Escadaria do Pôr do Sol). Inclut un groupe de Forró en direct, des fruits tropicaux frais et un feu de camp sur les dunes de Malombar. Une célébration de la danse céleste de la nature.",
+
+    logistics_meeting: "Point de rencontre",
+    logistics_duration: "Durée",
+    logistics_capacity: "Capacité",
+  },
 };

@@ -1,1131 +1,406 @@
+// src/data/faqData.js
+
 export const faqData = {
-  pt: [
+  en: [
     {
-      title: "🌊 Sobre as Canoas e Experiência",
+      id: "experience",
+      title: "The Experience & Safety",
+      icon: "🛶",
       items: [
         {
-          q: "Nunca andei de canoa. Posso fazer os tours?",
-          a: "Sim! Nossos tours de Sunrise e Sunset são perfeitos para iniciantes. Eduardo ensina tudo que você precisa saber no briefing antes de começar. As canoas havaianas são muito estáveis e você sempre usa colete salva-vidas. O Tour Dia Completo requer um pouco mais de disposição física, mas também aceita iniciantes com boa condição.",
+          q: "I’ve never paddled a canoe before. Can I still join?",
+          a: "Absolutely. Our Sunset Tour is perfect for beginners. Eduardo provides a full safety briefing and paddling instruction before we hit the water. Our Hawaiian canoes are equipped with outriggers (lateral stabilizers), making them extremely stable and nearly impossible to flip.",
         },
         {
-          q: "Preciso saber nadar?",
-          a: "Não é obrigatório. Todos usam coletes salva-vidas durante todo o passeio. Mas é importante você se sentir confortável perto da água.",
+          q: "Do I need to know how to swim?",
+          a: "It is not mandatory, but you should feel comfortable being on the water. We provide professional-grade life jackets, and wearing them is mandatory for all participants throughout the duration of the tour.",
         },
         {
-          q: "As canoas são seguras?",
-          a: "Muito seguras! Usamos canoas havaianas tradicionais com outrigger (estabilizador lateral), que são extremamente estáveis. Eduardo tem anos de experiência e certificação em segurança aquática.",
+          q: "Are the tours physically demanding?",
+          a: "The paddling is gentle and contemplative. We move at the pace of the group, and there are plenty of breaks to enjoy the scenery and swim. It’s more about the connection with nature than a workout.",
         },
         {
-          q: "Quantas pessoas vão na canoa comigo?",
-          a: "Trabalhamos com grupos pequenos de no máximo 9 pessoas por tour. Isso garante atenção personalizada e uma experiência mais íntima.",
+          q: "Can I bring my dog or other pets?",
+          a: "To ensure the safety of all guests and respect the local wildlife in the mangroves, we do not allow pets on any of our tours.",
         },
         {
-          q: "Vou remar sozinho ou em dupla?",
-          a: "Depende da canoa utilizada. Algumas são para 1 pessoa (V1), outras para 4-6 pessoas. Eduardo organiza conforme o grupo e a experiência. Você nunca fica sozinho - sempre há um guia ou outros participantes na mesma canoa.",
-        },
-        {
-          q: "E se eu cansar de remar?",
-          a: "Sem problemas! Eduardo adapta o ritmo ao grupo. Você pode fazer pausas quando precisar. A remada é suave e contemplativa, não é uma competição.",
-        },
-        {
-          q: "Quanto tempo dura a remada efetiva?",
-          a: "Sunrise e Sunset: ~1 a 1h30 de remada. Dia Completo: 3-4 horas de remada distribuídas ao longo de 8 horas.",
+          q: "What is your environmental policy?",
+          a: "We operate under a strict 'Leave No Trace' policy. We are guests in the Guaraíras Lagoon ecosystem. We do not leave trash, we do not feed or touch wildlife, and we use silent propulsion to minimize our impact on the environment.",
         },
       ],
     },
     {
-      title: "📅 Reservas e Agendamento",
+      id: "booking",
+      title: "Booking & Payments",
+      icon: "💰",
       items: [
         {
-          q: "Como faço para reservar?",
-          a: "Entre em contato pelo WhatsApp. Reservas devem ser feitas com no mínimo 24h de antecedência (48h para o Tour Dia Completo).",
+          q: "How do I confirm my booking?",
+          a: "We use an automated system. Your reservation is only officially confirmed once you have completed the Pix payment through the website and received your confirmation email.",
         },
         {
-          q: "Posso reservar para o mesmo dia?",
-          a: "Não aceitamos reservas no mesmo dia através do sistema. Se houver uma emergência, você pode tentar contatar Eduardo diretamente, mas não há garantias de disponibilidade.",
+          q: "What is the price for children?",
+          a: "We sell spaces in the canoe. Because a child occupies a dedicated seat and requires a life jacket and insurance, the price is the same as an adult.",
         },
         {
-          q: "Preciso pagar antecipado?",
-          a: "Sim, o pagamento do tour deve ser feito no ato da reserva (PIX preferencial). O transporte (R$ 15 por trecho) é pago diretamente ao motorista no dia.",
-        },
-        {
-          q: "Posso remarcar se mudar meus planos?",
-          a: "Sim! Você pode remarcar sem custo adicional se avisar com 24h de antecedência (48h para Dia Completo). Menos de 24h, não há reembolso.",
-        },
-        {
-          q: "E se chover ou o tempo estiver ruim?",
-          a: "Eduardo monitora as condições climáticas constantemente. Se não for seguro, ele cancela e você escolhe entre remarcação ou reembolso total. Sua segurança vem sempre em primeiro lugar.",
+          q: "What happens if it rains or the weather is bad?",
+          a: "Eduardo monitors weather and wind conditions constantly. If conditions are deemed unsafe, we will cancel the tour. In this event, you can choose between rescheduling or receiving a full refund within 5 days.",
         },
       ],
     },
     {
-      title: "🌅 Tour Sunrise (Nascer do Sol)",
+      id: "sunset",
+      title: "Sunset Tour (Daily)",
+      icon: "🌅",
       items: [
         {
-          q: "Que horas preciso acordar?",
-          a: "A saída de Pipa é às 3h50 da manhã. Recomendamos acordar às 3h30 para estar pronto no horário.",
+          q: "What is the price and duration?",
+          a: "The Sunset Tour is R$ 100 per person. The experience lasts approximately 3 hours, departing at 3:00 PM and returning at 6:00 PM.",
         },
         {
-          q: "Isso não é muito cedo?",
-          a: "É cedo, mas vale MUITO a pena! Nossos clientes dizem que é o momento mais mágico da viagem. Você pode dormir depois - o tour termina às 7h.",
-        },
-        {
-          q: "A que horas o sol nasce?",
-          a: "Aproximadamente às 5h00 (varia alguns minutos por época do ano). Estaremos posicionados na água 20 minutos antes para você ver todo o espetáculo.",
-        },
-        {
-          q: "Vai estar frio?",
-          a: "Pode estar fresco na madrugada (especialmente entre maio-agosto). Traga um casaco leve - você pode tirar depois que o sol aparecer e esquentar.",
-        },
-        {
-          q: "Qual o preço?",
-          a: "R$ 150 por pessoa + R$ 30 transporte (R$ 15 ida + R$ 15 volta). Para grupos com mais de 2 pessoas, entre em contato para preço especial.",
-        },
-        {
-          q: "Vale a pena acordar tão cedo?",
-          a: "Absolutamente! É a experiência mais exclusiva e íntima que oferecemos. A luz do nascer do sol é mágica, as águas estão calmas como espelho, e você terá memórias para a vida toda.",
+          q: "How many people can join?",
+          a: "We have a capacity of 30 people per day for the Sunset Tour, distributed across our fleet of canoes.",
         },
       ],
     },
     {
-      title: "🌇 Tour Sunset (Pôr do Sol)",
+      id: "fullmoon",
+      title: "Full Moon Celebration",
+      icon: "🌕",
       items: [
         {
-          q: "Qual o melhor tour para começar?",
-          a: "O Sunset é nosso tour assinatura e mais popular! Perfeito para primeira experiência, famílias, casais, qualquer pessoa. Horário conveniente, nível fácil, momento mágico garantido.",
+          q: "How is this different from the Sunset Tour?",
+          a: "This is a premium 4-hour special event. It includes the sunset paddle, but continues into the night. It features a live Forró band on support boats, fresh tropical fruits, and a bonfire experience on the Malombar dunes to watch the moon rise over the ocean.",
         },
         {
-          q: "A que horas é o pôr do sol?",
-          a: "Por volta das 17h15 (varia levemente por época do ano). Saímos de Pipa às 15h e voltamos às 18h. Total de 3 horas de experiência.",
+          q: "What is the price?",
+          a: "The Full Moon Celebration is R$ 200 per person.",
         },
         {
-          q: "Qual o preço?",
-          a: "R$ 150 por pessoa + R$ 30 transporte (R$ 15 ida + R$ 15 volta).",
-        },
-        {
-          q: "Posso levar crianças pequenas?",
-          a: "Sim! O Sunset é perfeito para todas as idades. Crianças pequenas devem estar com um responsável na mesma canoa.",
-        },
-        {
-          q: "Tem muita gente?",
-          a: "Não! Grupos pequenos de no máximo 9 pessoas. Você não vai estar em tour de massa - é uma experiência íntima e personalizada.",
+          q: "What if it is cloudy during the Full Moon tour?",
+          a: "The tour proceeds even if there is cloud cover. The atmosphere created by the live music, the bonfire, and the nighttime paddling is still a magical experience. We only cancel if wind or rain makes the water unsafe.",
         },
       ],
     },
     {
-      title: "☀️ Tour Dia Completo (Full Day Adventure)",
+      id: "logistics",
+      title: "Logistics",
+      icon: "📍",
       items: [
         {
-          q: "O que está incluído no Tour Dia Completo?",
-          a: "Tudo! Você vai à Lagoa de Guaraíras, explora túneis de mangue, visita praias secretas, tem tempo para relaxar/nadar, e termina com o pôr do sol. São 8 horas de experiência completa + lanches/almoço incluídos + transporte incluído.",
+          q: "Where is the meeting point?",
+          a: "All tours depart from Tibau do Sul. The specific meeting point is the Sunset Stairs (Escadaria do Pôr do Sol), located in front of the Lagoa Flat Condominium.",
         },
         {
-          q: "Qual o preço?",
-          a: "R$ 500 por pessoa (alimentação e transporte já incluídos no valor!).",
+          q: "Is transportation included?",
+          a: "No. Our prices are for the tour experience only. Guests are responsible for their own transportation to the meeting point in Tibau do Sul. It is a short 10-15 minute drive from the center of Pipa.",
         },
         {
-          q: "O que vem na alimentação?",
-          a: "O cardápio é definido na véspera do tour. Eduardo consulta suas preferências e restrições alimentares (vegetariano, vegano, alergias) e prepara algo especial.",
-        },
-        {
-          q: "Onde é o almoço?",
-          a: "Pode ser em uma praia isolada, banco de areia, ou área especial dependendo das condições do dia e preferências do grupo.",
-        },
-        {
-          q: "Precisa ser atleta para fazer?",
-          a: "Não! Precisa ter boa disposição e gostar de estar ao ar livre. A remada é distribuída ao longo de 8 horas com várias pausas longas.",
-        },
-        {
-          q: "Vale a pena?",
-          a: "Clientes dizem que é o melhor dia da viagem inteira! Você vê múltiplos ecossistemas, aprende muito sobre a natureza local, tem acesso a lugares secretos que turistas regulares nunca veem, e ainda economiza.",
-        },
-        {
-          q: "É muito cansativo?",
-          a: "É um dia ativo e completo, mas com muitas pausas para descanso, alimentação, natação e relaxamento. A maioria das pessoas termina cansada mas feliz.",
-        },
-      ],
-    },
-    {
-      title: "💰 Preços e Pagamento",
-      items: [
-        {
-          q: "Quais são os preços?",
-          a: "Sunrise: R$ 180 total. Sunset: R$ 180 total. Dia Completo: R$ 500 total (tudo incluso).",
-        },
-        {
-          q: "Por que o transporte é cobrado separado nos tours Sunrise e Sunset?",
-          a: "O ponto de partida é em Tibau do Sul. O transporte (R$ 15 por trecho) é pago diretamente ao motorista. Isso dá flexibilidade para quem tem carro próprio.",
-        },
-        {
-          q: "Se eu tiver carro, posso ir por conta própria?",
-          a: "Sim! Se preferir ir direto para Tibau do Sul, você economiza os R$ 30 do transporte.",
-        },
-        {
-          q: "Tem desconto para grupos?",
-          a: "Sim! Grupos com mais de 2 pessoas no Sunrise recebem desconto especial.",
-        },
-        {
-          q: "Tem pacotes combinados?",
-          a: "Sim! Oferecemos pacotes com desconto: Amanhecer & Entardecer, Fim de Semana, e Imersão Total.",
-        },
-        {
-          q: "Aceitam cartão?",
-          a: "Aceitamos PIX (preferencial) e dinheiro. Para cartão, consulte disponibilidade.",
-        },
-      ],
-    },
-    {
-      title: "🎒 O que levar",
-      items: [
-        {
-          q: "O que preciso trazer?",
-          a: "TODOS OS TOURS: Câmera/celular, roupa que pode molhar, toalha, óculos de sol. SUNRISE: Casaco leve. DIA COMPLETO: Protetor solar, mochila.",
-        },
-        {
-          q: "Posso levar celular/câmera?",
-          a: "Sim! Fornecemos saco impermeável para proteger seus pertences. Mas leve por sua conta e risco.",
-        },
-        {
-          q: "Preciso levar comida?",
-          a: "Sunrise e Sunset: Não precisa. Dia Completo: Alimentação incluída!",
-        },
-        {
-          q: "E protetor solar?",
-          a: "Recomendamos aplicar ANTES de sair. Pode levar para reaplicar, especialmente no Tour Dia Completo.",
-        },
-        {
-          q: "Que roupa usar?",
-          a: "Roupa de banho + roupa leve por cima. Leve chinelos ou sandálias que possam molhar.",
-        },
-      ],
-    },
-    {
-      title: "⚠️ Segurança e Regras",
-      items: [
-        {
-          q: "É seguro?",
-          a: "Muito seguro! Eduardo tem anos de experiência, certificação em primeiros socorros, e as canoas havaianas são extremamente estáveis.",
-        },
-        {
-          q: "O que acontece se alguém cair na água?",
-          a: "Raramente acontece. Mas se acontecer, você está com colete salva-vidas e Eduardo sabe exatamente como proceder.",
-        },
-        {
-          q: "Posso beber antes do tour?",
-          a: "NÃO. Por segurança, não aceitamos pessoas alcoolizadas.",
-        },
-        {
-          q: "Posso tocar nos golfinhos ou outros animais?",
-          a: "NÃO. Mantemos distância respeitosa da vida selvagem.",
-        },
-        {
-          q: "E se eu tiver medo de água?",
-          a: "Converse com Eduardo antes de reservar. Se for um medo leve, ele pode ajudar.",
-        },
-      ],
-    },
-    {
-      title: "🐬 Sobre Golfinhos e Vida Selvagem",
-      items: [
-        {
-          q: "Vou ver golfinhos?",
-          a: "Não garantimos avistamentos, mas as chances são boas, especialmente no tour da manhã.",
-        },
-        {
-          q: "Por que não garantem golfinhos?",
-          a: "Porque seria antiético perseguir animais. Se aparecerem naturalmente, incrível! Se não, respeitamos a natureza.",
-        },
-        {
-          q: "Qual tour tem mais chance de ver golfinhos?",
-          a: "O Sunrise (manhã cedo).",
-        },
-        {
-          q: "Que outros animais posso ver?",
-          a: "Aves, caranguejos, peixes, tartarugas marinhas e raias.",
-        },
-      ],
-    },
-    {
-      title: "📍 Logística",
-      items: [
-        {
-          q: "Onde é o ponto de encontro?",
-          a: "O transporte sai de um ponto em Praia de Pipa. O horário e local exatos são confirmados na reserva.",
-        },
-        {
-          q: "Preciso de carro?",
-          a: "Não! O transporte está disponível (pago à parte para Sunrise/Sunset, incluso no Dia Completo).",
-        },
-        {
-          q: "Onde fica Tibau do Sul?",
-          a: "Bem pertinho de Pipa! São cerca de 10-15 minutos de carro.",
-        },
-        {
-          q: "Tem banheiro no local de partida?",
-          a: "Recomendamos usar o banheiro antes de sair de Pipa. Durante os tours, fazemos pausas na natureza.",
-        },
-        {
-          q: "O que acontece se eu me atrasar?",
-          a: "O tour começa no horário e não podemos esperar. Se você se atrasar, não há reembolso.",
-        },
-      ],
-    },
-    {
-      title: "👨‍👩‍👧‍👦 Famílias e Crianças",
-      items: [
-        {
-          q: "Posso levar meus filhos?",
-          a: "Sim! Sunset: Todas as idades. Sunrise: 12+ anos. Dia Completo: 10+ anos.",
-        },
-        {
-          q: "Meu filho tem 9 anos mas é bem ativo. Pode fazer o Dia Completo?",
-          a: "Entre em contato! Eduardo avalia caso a caso.",
-        },
-        {
-          q: "É seguro para crianças?",
-          a: "Muito seguro! Crianças usam coletes ajustados e ficam sempre supervisionadas.",
-        },
-        {
-          q: "Meu bebê pode ir?",
-          a: "Consulte Eduardo. Geralmente recomendamos esperar até a criança ter mais controle corporal.",
-        },
-      ],
-    },
-    {
-      title: "📸 Fotografia",
-      items: [
-        {
-          q: "Posso tirar fotos?",
-          a: "Claro! Incentivamos muito. Eduardo ajuda com os melhores ângulos.",
-        },
-        {
-          q: "Qual a melhor câmera para levar?",
-          a: "Seu celular já é ótimo!",
-        },
-        {
-          q: "Eduardo tira fotos do grupo?",
-          a: "Em momentos especiais sim, mas o foco dele é a segurança e guiar o grupo.",
-        },
-      ],
-    },
-    {
-      title: "🌐 Idiomas e Comunicação",
-      items: [
-        {
-          q: "Eduardo fala inglês?",
-          a: "Sim! Eduardo fala português, inglês e espanhol fluentemente.",
-        },
-        {
-          q: "Posso fazer o tour em inglês?",
-          a: "Perfeitamente! Avise na reserva qual idioma prefere.",
-        },
-        {
-          q: "E se meu grupo fala idiomas diferentes?",
-          a: "Eduardo pode alternar entre idiomas. É bem flexível!",
-        },
-      ],
-    },
-    {
-      title: "🌿 Sustentabilidade e Impacto",
-      items: [
-        {
-          q: "É uma atividade sustentável?",
-          a: "Muito! Canoagem é silenciosa e não deixa rastro.",
-        },
-        {
-          q: "O que vocês fazem pelo meio ambiente?",
-          a: "Não deixamos lixo, respeitamos a vida selvagem, educamos sobre preservação e apoiamos a comunidade local.",
-        },
-      ],
-    },
-    {
-      title: "❓ Outras Perguntas",
-      items: [
-        {
-          q: "Posso fazer um tour privado só para meu grupo?",
-          a: "Sim! Se você reservar todas as 9 vagas, o tour é automaticamente privado.",
-        },
-        {
-          q: "Tem algum tour que combina tudo?",
-          a: "Sim! O Tour Dia Completo.",
-        },
-        {
-          q: "Qual tour vocês mais recomendam?",
-          a: "Primeira vez: Sunset. Fotógrafos: Sunrise. Aventureiros: Dia Completo.",
-        },
-        {
-          q: "Posso fazer mais de um tour?",
-          a: "Sim! Temos pacotes combinados com desconto.",
-        },
-        {
-          q: "Qual a diferença entre canoa havaiana e caiaque?",
-          a: "Canoas havaianas são mais estáveis e culturais. Caiaques são mais esportivos.",
-        },
-        {
-          q: "Vocês fazem tours em outros locais?",
-          a: "Tours regulares saem de Tibau do Sul. Consulte para personalizados.",
-        },
-        {
-          q: "Posso dar gorjeta para Eduardo?",
-          a: "Não é obrigatório, mas sempre apreciado!",
-        },
-        {
-          q: "Como posso deixar uma avaliação?",
-          a: "No Google, Instagram ou WhatsApp. Agradecemos muito!",
+          q: "What should I bring?",
+          a: "Wear swimwear or light clothing that can get wet. Bring a towel, sunscreen, a hat, water, and a camera or phone (we provide waterproof bags for gear). For the Full Moon tour, we also recommend a light jacket for the evening breeze.",
         },
       ],
     },
   ],
-  en: [
+  pt: [
     {
-      title: "🌊 About the Canoes and Experience",
+      id: "experience",
+      title: "Experiência e Segurança",
+      icon: "🛶",
       items: [
         {
-          q: "I've never been in a canoe. Can I do the tours?",
-          a: "Yes! Our Sunrise and Sunset tours are perfect for beginners. Eduardo teaches you everything you need to know in the briefing before starting. Hawaiian canoes are very stable and you always wear a life vest.",
+          q: "Nunca andei de canoa antes. Posso participar?",
+          a: "Com certeza. Nosso Passeio ao Pôr do Sol é perfeito para iniciantes. Eduardo fornece um briefing completo de segurança e instruções de remada antes de entrarmos na água. Nossas canoas havaianas são equipadas com estabilizadores laterais, tornando-as extremamente estáveis e quase impossíveis de virar.",
         },
         {
-          q: "Do I need to know how to swim?",
-          a: "Not mandatory. Everyone wears life vests throughout the entire tour. But it's important that you feel comfortable around water.",
+          q: "Preciso saber nadar?",
+          a: "Não é obrigatório, mas você deve se sentir confortável na água. Fornecemos coletes salva-vidas de padrão profissional, e o uso é obrigatório para todos os participantes durante toda a duração do passeio.",
         },
         {
-          q: "Are the canoes safe?",
-          a: "Very safe! We use traditional Hawaiian canoes with outriggers, which are extremely stable. Eduardo has years of experience and certification in water safety.",
+          q: "Os passeios exigem muito esforço físico?",
+          a: "A remada é suave e contemplativa. Movemo-nos ao ritmo do grupo e há várias pausas para apreciar a paisagem e nadar. É mais sobre a conexão com a natureza do que um exercício físico intenso.",
         },
         {
-          q: "How many people will be in the canoe with me?",
-          a: "We work with small groups of maximum 9 people per tour. This ensures personalized attention.",
+          q: "Posso levar meu cachorro ou outros animais de estimação?",
+          a: "Para garantir a segurança de todos os hóspedes e respeitar a vida selvagem local nos manguezais, não permitimos animais de estimação em nenhum de nossos passeios.",
         },
         {
-          q: "Will I paddle alone or with someone?",
-          a: "You're never alone - there's always a guide or other participants in the same canoe.",
-        },
-        {
-          q: "What if I get tired of paddling?",
-          a: "No problem! Eduardo adapts the pace to the group. You can take breaks whenever needed.",
-        },
-        {
-          q: "How long is the actual paddling time?",
-          a: "Sunrise and Sunset: ~1 to 1.5 hours. Full Day: 3-4 hours distributed over 8 hours.",
+          q: "Qual é a sua política ambiental?",
+          a: "Operamos sob uma política rigorosa de 'Não Deixe Rastros'. Somos convidados no ecossistema da Lagoa das Guaraíras. Não deixamos lixo, não alimentamos nem tocamos na vida selvagem e usamos propulsão silenciosa para minimizar nosso impacto no meio ambiente.",
         },
       ],
     },
     {
-      title: "📅 Reservations and Booking",
+      id: "booking",
+      title: "Reservas e Pagamentos",
+      icon: "💰",
       items: [
         {
-          q: "How do I book?",
-          a: "Contact us via WhatsApp. Reservations must be made at least 24 hours in advance (48 hours for Full Day Tour).",
+          q: "Como confirmo minha reserva?",
+          a: "Utilizamos um sistema automatizado. Sua reserva só é confirmada oficialmente após a conclusão do pagamento via Pix pelo site e o recebimento do e-mail de confirmação.",
         },
         {
-          q: "Can I book for the same day?",
-          a: "We don't accept same-day reservations through the system. Contact Eduardo directly for emergencies.",
+          q: "Qual é o preço para crianças?",
+          a: "Vendemos lugares na canoa. Como uma criança ocupa um assento dedicado e requer colete salva-vidas e seguro, o preço é o mesmo de um adulto.",
         },
         {
-          q: "Do I need to pay in advance?",
-          a: "Yes, tour payment is made when booking. Transportation is paid directly to the driver on the day.",
-        },
-        {
-          q: "Can I reschedule if my plans change?",
-          a: "Yes! Free rescheduling if notified 24 hours in advance (48h for Full Day).",
-        },
-        {
-          q: "What if it rains?",
-          a: "If it's not safe, we cancel and you choose between rescheduling or full refund.",
+          q: "O que acontece se chover ou o tempo estiver ruim?",
+          a: "Eduardo monitora constantemente as condições de tempo e vento. Se as condições forem consideradas inseguras, cancelaremos o passeio. Nesse caso, você pode escolher entre remarcar ou receber um reembolso total em até 5 dias.",
         },
       ],
     },
     {
-      title: "🌅 Sunrise Tour",
+      id: "sunset",
+      title: "Pôr do Sol (Diário)",
+      icon: "🌅",
       items: [
         {
-          q: "What time do I need to wake up?",
-          a: "Departure from Pipa is at 3:50 AM. We recommend waking up at 3:30 AM.",
+          q: "Qual é o preço e a duração?",
+          a: "O Passeio ao Pôr do Sol custa R$ 100 por pessoa. A experiência dura aproximadamente 3 horas, saindo às 15:00 e retornando às 18:00.",
         },
         {
-          q: "Isn't that too early?",
-          a: "It's early, but SO worth it! It's the most magical moment of the trip.",
-        },
-        {
-          q: "What time does the sun rise?",
-          a: "Approximately 5:00 AM.",
-        },
-        {
-          q: "Will it be cold?",
-          a: "It can be cool. Bring a light jacket.",
-        },
-        {
-          q: "What's the price?",
-          a: "R$ 150 per person + R$ 30 transportation. Contact us for group rates.",
-        },
-        {
-          q: "Is it worth waking up so early?",
-          a: "Absolutely! It's an exclusive and intimate experience.",
+          q: "Quantas pessoas podem participar?",
+          a: "Temos capacidade para 30 pessoas por dia no Passeio ao Pôr do Sol, distribuídas em nossa frota de canoas.",
         },
       ],
     },
     {
-      title: "🌇 Sunset Tour",
+      id: "fullmoon",
+      title: "Passeio da Lua Cheia",
+      icon: "🌕",
       items: [
         {
-          q: "Which tour is best to start with?",
-          a: "The Sunset is our signature tour and most popular! Perfect for everyone.",
+          q: "Como este passeio difere do Pôr do Sol?",
+          a: "Este é um evento especial premium de 4 horas. Inclui a remada ao pôr do sol, mas continua pela noite. Conta com uma banda de Forró ao vivo em barcos de apoio, frutas tropicais frescas e uma experiência de fogueira nas dunas da Malembar para ver a lua nascer sobre o oceano.",
         },
         {
-          q: "What time is sunset?",
-          a: "Around 5:15 PM. We leave Pipa at 3 PM and return at 6 PM.",
+          q: "Qual é o preço?",
+          a: "A Celebração da Lua Cheia custa R$ 200 por pessoa.",
         },
         {
-          q: "What's the price?",
-          a: "R$ 150 per person + R$ 30 transportation.",
-        },
-        {
-          q: "Can I bring small children?",
-          a: "Yes! Sunset is perfect for all ages.",
-        },
-        {
-          q: "Are there many people?",
-          a: "No! Small groups of maximum 9 people.",
+          q: "E se estiver nublado durante o passeio da Lua Cheia?",
+          a: "O passeio prossegue mesmo com cobertura de nuvens. A atmosfera criada pela música ao vivo, a fogueira e a remada noturna continua sendo uma experiência mágica. Só cancelamos se o vento ou a chuva tornarem a água insegura.",
         },
       ],
     },
     {
-      title: "☀️ Full Day Tour",
+      id: "logistics",
+      title: "Logística",
+      icon: "📍",
       items: [
         {
-          q: "What's included in the Full Day Tour?",
-          a: "Everything! Lagoon, mangroves, secret beaches, sunset. 8 hours + snacks/lunch + transportation included.",
+          q: "Onde é o ponto de encontro?",
+          a: "Todos os passeios partem de Tibau do Sul. O ponto de encontro específico é a Escadaria do Pôr do Sol, localizada em frente ao Condomínio Lagoa Flat.",
         },
         {
-          q: "What's the price?",
-          a: "R$ 500 per person (all inclusive).",
+          q: "O transporte está incluído?",
+          a: "Não. Nossos preços são apenas para a experiência do passeio. Os hóspedes são responsáveis pelo seu próprio transporte até o ponto de encontro em Tibau do Sul. Fica a cerca de 10-15 minutos de carro do centro de Pipa.",
         },
         {
-          q: "What food is provided?",
-          a: "The menu is set the day before based on your preferences and restrictions.",
-        },
-        {
-          q: "Where is lunch?",
-          a: "On an isolated beach, sandbar, or special area.",
-        },
-        {
-          q: "Do I need to be an athlete?",
-          a: "No! Just good disposition. Paddling is distributed over 8 hours with breaks.",
-        },
-        {
-          q: "Is it worth it?",
-          a: "Clients say it's the best day of their trip! You see multiple ecosystems and save money compared to separate tours.",
-        },
-        {
-          q: "Is it too tiring?",
-          a: "It's a full day, but with many breaks. It's a 'good tired'.",
-        },
-      ],
-    },
-    {
-      title: "💰 Prices and Payment",
-      items: [
-        {
-          q: "What are the prices?",
-          a: "Sunrise: R$ 180 total. Sunset: R$ 180 total. Full Day: R$ 500 total.",
-        },
-        {
-          q: "Why is transportation charged separately for Sunrise/Sunset?",
-          a: "It gives flexibility for those with their own car to meet us in Tibau do Sul.",
-        },
-        {
-          q: "If I have a car, can I go on my own?",
-          a: "Yes! You save the R$ 30 transportation fee.",
-        },
-        {
-          q: "Are there group discounts?",
-          a: "Yes, for groups larger than 2 on the Sunrise tour.",
-        },
-        {
-          q: "Are there combo packages?",
-          a: "Yes! Dawn & Dusk, Weekend, and Total Immersion packages available.",
-        },
-        {
-          q: "Do you accept credit cards?",
-          a: "PIX and cash preferred. Check for card availability.",
-        },
-      ],
-    },
-    {
-      title: "🎒 What to Bring",
-      items: [
-        {
-          q: "What do I need to bring?",
-          a: "ALL TOURS: Camera/phone, swimwear, towel, sunglasses. SUNRISE: Light jacket. FULL DAY: Sunscreen, backpack.",
-        },
-        {
-          q: "Can I bring my phone/camera?",
-          a: "Yes! Waterproof bag provided. Bring at your own risk.",
-        },
-        {
-          q: "Do I need to bring food?",
-          a: "Sunrise/Sunset: No. Full Day: Food included!",
-        },
-        {
-          q: "What about sunscreen?",
-          a: "Apply before leaving. Bring to reapply for Full Day.",
-        },
-        {
-          q: "What clothes to wear?",
-          a: "Swimwear + light clothes. Flip-flops or sandals.",
-        },
-      ],
-    },
-    {
-      title: "⚠️ Safety and Rules",
-      items: [
-        {
-          q: "Is it safe?",
-          a: "Very safe! Certified guide, stable canoes, mandatory vests.",
-        },
-        {
-          q: "What happens if someone falls in?",
-          a: "Rare, but if it happens, you have a vest and the guide is trained for rescue.",
-        },
-        {
-          q: "Can I drink before the tour?",
-          a: "NO. Intoxicated guests are not accepted.",
-        },
-        {
-          q: "Can I touch dolphins?",
-          a: "NO. We maintain a respectful distance.",
-        },
-        {
-          q: "What if I'm afraid of water?",
-          a: "Talk to Eduardo beforehand. Mild fear can be managed.",
-        },
-      ],
-    },
-    {
-      title: "🐬 Dolphins and Wildlife",
-      items: [
-        {
-          q: "Will I see dolphins?",
-          a: "No guarantees (wild animals), but chances are good, especially morning.",
-        },
-        {
-          q: "Why don't you guarantee dolphins?",
-          a: "It would be unethical to harass them. We respect nature.",
-        },
-        {
-          q: "Which tour has best chances?",
-          a: "Sunrise.",
-        },
-        {
-          q: "What other animals?",
-          a: "Birds, crabs, fish, turtles, rays.",
-        },
-      ],
-    },
-    {
-      title: "📍 Logistics",
-      items: [
-        {
-          q: "Where is the meeting point?",
-          a: "Praia de Pipa. Exact location confirmed on reservation.",
-        },
-        {
-          q: "Do I need a car?",
-          a: "No! Transportation is available.",
-        },
-        {
-          q: "Where is Tibau do Sul?",
-          a: "10-15 mins from Pipa.",
-        },
-        {
-          q: "Is there a bathroom?",
-          a: "Use one before leaving Pipa. Nature stops during tour.",
-        },
-        {
-          q: "What if I'm late?",
-          a: "We cannot wait. No refunds for lateness.",
-        },
-      ],
-    },
-    {
-      title: "👨‍👩‍👧‍👦 Families and Children",
-      items: [
-        {
-          q: "Can I bring children?",
-          a: "Sunset: All ages. Sunrise: 12+. Full Day: 10+.",
-        },
-        {
-          q: "Active 9 year old for Full Day?",
-          a: "Contact us for evaluation.",
-        },
-        {
-          q: "Is it safe for kids?",
-          a: "Yes! Fitted vests and supervision provided.",
-        },
-        {
-          q: "Can my baby come?",
-          a: "Consult Eduardo (usually 2+ years recommended).",
-        },
-      ],
-    },
-    {
-      title: "📸 Photography",
-      items: [
-        {
-          q: "Can I take photos?",
-          a: "Yes! Encouraged.",
-        },
-        {
-          q: "Best camera?",
-          a: "Phone is great. Waterproof camera for Full Day.",
-        },
-        {
-          q: "Does guide take photos?",
-          a: "He focuses on safety but can help with some shots.",
-        },
-      ],
-    },
-    {
-      title: "🌐 Languages",
-      items: [
-        {
-          q: "Does Eduardo speak English?",
-          a: "Yes! Portuguese, English, and Spanish.",
-        },
-        {
-          q: "Tour in English?",
-          a: "Yes, request when booking.",
-        },
-        {
-          q: "Mixed language group?",
-          a: "Eduardo can switch between languages.",
-        },
-      ],
-    },
-    {
-      title: "🌿 Sustainability",
-      items: [
-        {
-          q: "Is it sustainable?",
-          a: "Yes. Silent, no pollution, leave no trace.",
-        },
-        {
-          q: "Environmental actions?",
-          a: "We clean trash, respect wildlife, and educate guests.",
-        },
-      ],
-    },
-    {
-      title: "❓ Other Questions",
-      items: [
-        {
-          q: "Private tours?",
-          a: "Yes, if you book all 9 spots.",
-        },
-        {
-          q: "Combined tour?",
-          a: "Full Day Tour combines everything.",
-        },
-        {
-          q: "Recommended tour?",
-          a: "First time: Sunset. Photographers: Sunrise. Adventurers: Full Day.",
-        },
-        {
-          q: "Multiple tours?",
-          a: "Yes! Combo packages available.",
-        },
-        {
-          q: "Canoe vs Kayak?",
-          a: "Canoes are stable, cultural, group-oriented. Kayaks are solo sport.",
-        },
-        {
-          q: "Other locations?",
-          a: "Regular tours in Tibau do Sul. Contact for custom.",
-        },
-        {
-          q: "Tipping?",
-          a: "Not mandatory, but appreciated.",
-        },
-        {
-          q: "Reviews?",
-          a: "Google, Instagram, or WhatsApp. Thanks!",
+          q: "O que devo levar?",
+          a: "Use roupa de banho ou roupas leves que possam molhar. Traga toalha, protetor solar, chapéu, água e uma câmera ou celular (fornecemos sacos impermeáveis para os equipamentos). Para o passeio da Lua Cheia, também recomendamos um casaco leve para a brisa da noite.",
         },
       ],
     },
   ],
   es: [
     {
-      title: "🌊 Sobre las Canoas y la Experiencia",
+      id: "experience",
+      title: "Experiencia y Seguridad",
+      icon: "🛶",
       items: [
         {
-          q: "Nunca he estado en una canoa. ¿Puedo hacer los tours?",
-          a: "¡Sí! Nuestros tours de Amanecer y Atardecer son perfectos para principiantes. Eduardo te enseña todo lo necesario.",
+          q: "¿Nunca he remado en una canoa antes. ¿Puedo unirme?",
+          a: "Absolutamente. Nuestro Tour Atardecer es perfecto para principiantes. Eduardo ofrece una charla de seguridad completa e instrucciones de remado antes de entrar al agua. Nuestras canoas hawaianas están equipadas con estabilizadores laterales, lo que las hace extremadamente estables y casi imposibles de volcar.",
         },
         {
           q: "¿Necesito saber nadar?",
-          a: "No es obligatorio. Todos usan chalecos salvavidas.",
+          a: "No es obligatorio, pero debes sentirte cómodo en el agua. Proporcionamos chalecos salvavidas de nivel profesional, y su uso es obligatorio para todos los participantes durante toda la duración del tour.",
         },
         {
-          q: "¿Las canoas son seguras?",
-          a: "¡Muy seguras! Son canoas hawaianas tradicionales con estabilizadores.",
+          q: "¿Los tours son físicamente exigentes?",
+          a: "El remado es suave y contemplativo. Nos movemos al ritmo del grupo y hay muchos descansos para disfrutar del paisaje y nadar. Se trata más de la conexión con la naturaleza que de un entrenamiento intenso.",
         },
         {
-          q: "¿Cuántas personas irán conmigo?",
-          a: "Máximo 9 personas por tour.",
+          q: "¿Puedo llevar a mi perro u otras mascotas?",
+          a: "Para garantizar la seguridad de todos los huéspedes y respetar la vida silvestre local en los manglares, no permitimos mascotas en ninguno de nuestros tours.",
         },
         {
-          q: "¿Remaré solo o en pareja?",
-          a: "Nunca estás solo. Siempre hay un guía u otros participantes contigo.",
-        },
-        {
-          q: "¿Y si me canso de remar?",
-          a: "¡Sin problemas! Eduardo adapta el ritmo. Puedes descansar.",
-        },
-        {
-          q: "¿Cuánto dura el remado efectivo?",
-          a: "Amanecer/Atardecer: ~1-1.5h. Día Completo: 3-4h distribuidas en 8h.",
+          q: "¿Cuál es su política ambiental?",
+          a: "Operamos bajo una estricta política de 'No Dejar Rastro'. Somos invitados en el ecosistema de la Laguna de Guaraíras. No dejamos basura, no alimentamos ni tocamos a los animales salvajes y utilizamos propulsión silenciosa para minimizar nuestro impacto en el medio ambiente.",
         },
       ],
     },
     {
-      title: "📅 Reservas y Agendamiento",
+      id: "booking",
+      title: "Reservas y Pagos",
+      icon: "💰",
       items: [
         {
-          q: "¿Cómo hago para reservar?",
-          a: "Contacta por WhatsApp. Mínimo 24 horas de anticipación.",
+          q: "¿Cómo confirmo mi reserva?",
+          a: "Utilizamos un sistema automatizado. Tu reserva solo se confirma oficialmente una vez que hayas completado el pago vía Pix a través del sitio web y hayas recibido tu correo electrónico de confirmación.",
         },
         {
-          q: "¿Puedo reservar para el mismo día?",
-          a: "No aceptamos reservas el mismo día por sistema.",
+          q: "¿Cuál es el precio para niños?",
+          a: "Vendemos espacios en la canoa. Debido a que un niño ocupa un asiento dedicado y requiere chaleco salvavidas y seguro, el precio es el mismo que el de un adulto.",
         },
         {
-          q: "¿Necesito pagar por adelantado?",
-          a: "Sí, el tour se paga al reservar. El transporte se paga al conductor.",
-        },
-        {
-          q: "¿Puedo reprogramar?",
-          a: "Sí, con 24h de anticipación (48h para Día Completo).",
-        },
-        {
-          q: "¿Y si llueve?",
-          a: "Si no es seguro, cancelamos y reprogramamos o reembolsamos.",
+          q: "¿Qué pasa si llueve o el clima es malo?",
+          a: "Eduardo monitorea constantemente las condiciones del viento y el clima. Si las condiciones se consideran inseguras, cancelaremos el tour. En este caso, puedes elegir entre reprogramar o recibir un reembolso completo en un plazo de 5 días.",
         },
       ],
     },
     {
-      title: "🌅 Tour Amanecer",
+      id: "sunset",
+      title: "Atardecer (Diario)",
+      icon: "🌅",
       items: [
         {
-          q: "¿A qué hora necesito despertar?",
-          a: "Salida de Pipa a las 3:50 AM. Despierta a las 3:30 AM.",
+          q: "¿Cuál es el precio y la duración?",
+          a: "El Tour Atardecer cuesta R$ 100 por persona. La experiencia dura aproximadamente 3 horas, saliendo a las 15:00 y regresando a las 18:00.",
         },
         {
-          q: "¿No es muy temprano?",
-          a: "Es temprano, ¡pero vale la pena! Es mágico.",
+          q: "¿Cuántas personas pueden unirse?",
+          a: "Tenemos una capacidad de 30 personas por día para el Tour Atardecer, distribuidas en nuestra flota de canoas.",
         },
+      ],
+    },
+    {
+      id: "fullmoon",
+      title: "Celebración de Luna Llena",
+      icon: "🌕",
+      items: [
         {
-          q: "¿A qué hora sale el sol?",
-          a: "Aprox. 5:00 AM.",
-        },
-        {
-          q: "¿Hará frío?",
-          a: "Puede hacer fresco. Trae chaqueta ligera.",
+          q: "¿En qué se diferencia del Tour Atardecer?",
+          a: "Este es un evento especial premium de 4 horas. Incluye el remado al atardecer, pero continúa en la noche. Cuenta con una banda de Forró en vivo en botes de apoyo, frutas tropicales frescas y una experiencia de fogata en las dunas de Malombar para ver la luna salir sobre el océano.",
         },
         {
           q: "¿Cuál es el precio?",
-          a: "R$ 150 por persona + R$ 30 transporte.",
+          a: "La Celebración de Luna Llena cuesta R$ 200 por persona.",
         },
         {
-          q: "¿Vale la pena despertar tan temprano?",
-          a: "¡Absolutamente! Es una experiencia exclusiva.",
-        },
-      ],
-    },
-    {
-      title: "🌇 Tour Atardecer",
-      items: [
-        {
-          q: "¿Cuál es el mejor tour para empezar?",
-          a: "¡El Atardecer es el más popular! Perfecto para todos.",
-        },
-        {
-          q: "¿A qué hora es el atardecer?",
-          a: "Cerca de las 17:15. Salimos a las 15h, volvemos a las 18h.",
-        },
-        {
-          q: "¿Cuál es el precio?",
-          a: "R$ 150 por persona + R$ 30 transporte.",
-        },
-        {
-          q: "¿Puedo llevar niños pequeños?",
-          a: "¡Sí! Perfecto para todas las edades.",
-        },
-        {
-          q: "¿Hay mucha gente?",
-          a: "¡No! Grupos pequeños de máx. 9 personas.",
+          q: "¿Qué pasa si está nublado durante el tour de Luna Llena?",
+          a: "El tour continúa incluso si hay nubes. La atmósfera creada por la música en vivo, la fogata y el remado nocturno sigue siendo una experiencia mágica. Solo cancelamos si el viento o la lluvia hacen que el agua sea insegura.",
         },
       ],
     },
     {
-      title: "☀️ Tour Día Completo",
+      id: "logistics",
+      title: "Logística",
+      icon: "📍",
       items: [
         {
-          q: "¿Qué está incluido?",
-          a: "¡Todo! Laguna, manglar, playas, atardecer. 8 horas + comida + transporte.",
+          q: "¿Dónde está el punto de encuentro?",
+          a: "Todos los tours salen de Tibau do Sul. El punto de encuentro específico es la Escalera del Atardecer (Escadaria do Pôr do Sol), ubicada frente al Condominio Lagoa Flat.",
         },
         {
-          q: "¿Cuál es el precio?",
-          a: "R$ 500 por persona (todo incluido).",
+          q: "¿El transporte está incluido?",
+          a: "No. Nuestros precios son solo por la experiencia del tour. Los huéspedes son responsables de su propio transporte hasta el punto de encuentro en Tibau do Sul. Está a unos 10-15 minutos en auto desde el centro de Pipa.",
         },
         {
-          q: "¿Qué comida se proporciona?",
-          a: "Menú definido la víspera según preferencias.",
+          q: "¿Qué debo llevar?",
+          a: "Usa traje de baño o ropa ligera que se pueda mojar. Trae una toalla, protector solar, un sombrero, agua y una cámara o teléfono (proporcionamos bolsas impermeables para el equipo). Para el tour de Luna Llena, también recomendamos una chaqueta ligera para la brisa nocturna.",
+        },
+      ],
+    },
+  ],
+  fr: [
+    {
+      id: "experience",
+      title: "L'Expérience et Sécurité",
+      icon: "🛶",
+      items: [
+        {
+          q: "Je n'ai jamais fait de canoë. Puis-je quand même participer ?",
+          a: "Absolument. Notre Tour au Coucher du Soleil est parfait pour les débutants. Eduardo donne un briefing de sécurité complet et des instructions de pagaie avant d'entrer dans l'eau. Nos pirogues hawaiennes sont équipées de stabilisateurs latéraux, ce qui les rend extrêmement stables et presque impossibles à renverser.",
         },
         {
-          q: "¿Dónde es el almuerzo?",
-          a: "Playa aislada o banco de arena.",
+          q: "Dois-je savoir nager ?",
+          a: "Ce n'est pas obligatoire, mais vous devez vous sentir à l'aise sur l'eau. Nous fournissons des gilets de sauvetage de qualité professionnelle, et leur port est obligatoire pour tous les participants pendant toute la durée de l'excursion.",
         },
         {
-          q: "¿Necesito ser atleta?",
-          a: "¡No! Solo buena disposición.",
+          q: "Les excursions sont-elles physiquement exigeantes ?",
+          a: "La pagaie est douce et contemplative. Nous avançons au rythme du groupe, et il y a de nombreuses pauses pour profiter du paysage et se baigner. C'est plus une question de connexion avec la nature qu'une séance de sport.",
         },
         {
-          q: "¿Vale la pena?",
-          a: "¡Es el mejor día del viaje según los clientes!",
+          q: "Puis-je emmener mon chien ou d'autres animaux ?",
+          a: "Pour garantir la sécurité de tous les clients et respecter la faune locale dans les mangroves, nous n'autorisons pas les animaux de compagnie lors de nos excursions.",
         },
         {
-          q: "¿Es muy cansador?",
-          a: "Día activo, pero con descansos.",
+          q: "Quelle est votre politique environnementale ?",
+          a: "Nous opérons selon une politique stricte 'Sans Trace'. Nous sommes les invités de l'écosystème de la lagune de Guaraíras. Nous ne laissons pas de déchets, nous ne nourrissons pas et ne touchons pas les animaux sauvages, et nous utilisons une propulsion silencieuse pour minimiser notre impact sur l'environnement.",
         },
       ],
     },
     {
-      title: "💰 Precios y Pago",
+      id: "booking",
+      title: "Réservations et Paiements",
+      icon: "💰",
       items: [
         {
-          q: "¿Cuáles son los precios?",
-          a: "Amanecer: R$ 180 total. Atardecer: R$ 180 total. Día Completo: R$ 500 total.",
+          q: "Comment confirmer ma réservation ?",
+          a: "Nous utilisons un système automatisé. Votre réservation n'est officiellement confirmée qu'une fois que vous avez effectué le paiement Pix via le site web et reçu votre e-mail de confirmation.",
         },
         {
-          q: "¿Por qué el transporte se cobra aparte?",
-          a: "Da flexibilidad a quienes tienen carro.",
+          q: "Quel est le prix pour les enfants ?",
+          a: "Nous vendons des places dans le canoë. Comme un enfant occupe un siège dédié et nécessite un gilet de sauvetage et une assurance, le prix est le même que pour un adulte.",
         },
         {
-          q: "¿Si tengo carro, puedo ir solo?",
-          a: "¡Sí! Ahorras los R$ 30 de transporte.",
-        },
-        {
-          q: "¿Hay descuentos para grupos?",
-          a: "Sí, para grupos > 2 en Amanecer.",
-        },
-        {
-          q: "¿Hay paquetes combinados?",
-          a: "¡Sí! Alba & Ocaso, Fin de Semana, Inmersión Total.",
-        },
-        {
-          q: "¿Aceptan tarjetas?",
-          a: "PIX y efectivo preferidos.",
+          q: "Que se passe-t-il s'il pleut ou si le temps est mauvais ?",
+          a: "Eduardo surveille constamment les conditions météo et le vent. Si les conditions sont jugées dangereuses, nous annulerons l'excursion. Dans ce cas, vous pouvez choisir entre un report ou un remboursement complet sous 5 jours.",
         },
       ],
     },
     {
-      title: "🎒 Qué llevar",
+      id: "sunset",
+      title: "Coucher du Soleil (Quotidien)",
+      icon: "🌅",
       items: [
         {
-          q: "¿Qué necesito llevar?",
-          a: "TODOS: Cámara, ropa de baño, toalla. AMANECER: Chaqueta. DÍA COMPLETO: Protector solar, mochila.",
+          q: "Quel est le prix et la durée ?",
+          a: "Le Tour au Coucher du Soleil est à 100 R$ par personne. L'expérience dure environ 3 heures, avec un départ à 15h00 et un retour à 18h00.",
         },
         {
-          q: "¿Puedo llevar teléfono?",
-          a: "Sí, damos bolsa impermeable (bajo tu riesgo).",
-        },
-        {
-          q: "¿Necesito llevar comida?",
-          a: "Solo si quieres snacks extra. Día Completo incluye comida.",
-        },
-        {
-          q: "¿Protector solar?",
-          a: "Aplica antes de salir.",
-        },
-        {
-          q: "¿Qué ropa usar?",
-          a: "Traje de baño + ropa ligera.",
+          q: "Combien de personnes peuvent participer ?",
+          a: "Nous avons une capacité de 30 personnes par jour pour le Tour au Coucher du Soleil, réparties sur notre flotte de canoës.",
         },
       ],
     },
     {
-      title: "⚠️ Seguridad y Reglas",
+      id: "fullmoon",
+      title: "Célébration de la Pleine Lune",
+      icon: "🌕",
       items: [
         {
-          q: "¿Es seguro?",
-          a: "¡Muy seguro! Guía certificado y canoas estables.",
+          q: "En quoi cela diffère-t-il du Tour au Coucher du Soleil ?",
+          a: "Il s'agit d'un événement spécial premium de 4 heures. Il comprend la pagaie au coucher du soleil, mais se poursuit dans la nuit. Il propose un groupe de Forró en direct sur des bateaux de soutien, des fruits tropicaux frais et une expérience de feu de camp sur les dunes de Malombar pour regarder la lune se lever sur l'océan.",
         },
         {
-          q: "¿Qué pasa si alguien cae?",
-          a: "Raro, pero llevas chaleco y el guía está entrenado.",
+          q: "Quel est le prix ?",
+          a: "La Célébration de la Pleine Lune est à 200 R$ par personne.",
         },
         {
-          q: "¿Puedo beber antes?",
-          a: "NO. Seguridad ante todo.",
-        },
-        {
-          q: "¿Puedo tocar delfines?",
-          a: "NO. Respetamos la fauna.",
-        },
-        {
-          q: "¿Y si tengo miedo al agua?",
-          a: "Habla con Eduardo. Podemos ayudar.",
+          q: "Et s'il y a des nuages pendant le tour de la Pleine Lune ?",
+          a: "L'excursion a lieu même si le ciel est couvert. L'atmosphère créée par la musique en direct, le feu de camp et la pagaie nocturne reste une expérience magique. Nous n'annulons que si le vent ou la pluie rendent l'eau dangereuse.",
         },
       ],
     },
     {
-      title: "🐬 Delfines y Vida Silvestre",
+      id: "logistics",
+      title: "Logistique",
+      icon: "📍",
       items: [
         {
-          q: "¿Veré delfines?",
-          a: "No garantizado, pero buenas posibilidades.",
+          q: "Où est le point de rendez-vous ?",
+          a: "Toutes les excursions partent de Tibau do Sul. Le point de rendez-vous spécifique est l'Escalier du Coucher de Soleil (Escadaria do Pôr do Sol), situé devant le Condominium Lagoa Flat.",
         },
         {
-          q: "¿Por qué no garantizan?",
-          a: "Sería antiético acosarlos.",
+          q: "Le transport est-il inclus ?",
+          a: "Non. Nos tarifs concernent uniquement l'expérience de l'excursion. Les clients sont responsables de leur propre transport jusqu'au point de rendez-vous à Tibau do Sul. C'est à environ 10-15 minutes en voiture du centre de Pipa.",
         },
         {
-          q: "¿Mejor tour para verlos?",
-          a: "Amanecer.",
-        },
-        {
-          q: "¿Qué otros animales?",
-          a: "Aves, peces, tortugas, rayas.",
-        },
-      ],
-    },
-    {
-      title: "📍 Logística",
-      items: [
-        {
-          q: "¿Punto de encuentro?",
-          a: "Praia de Pipa. Ubicación confirmada al reservar.",
-        },
-        {
-          q: "¿Necesito carro?",
-          a: "No, hay transporte.",
-        },
-        {
-          q: "¿Dónde queda Tibau do Sul?",
-          a: "10-15 min de Pipa.",
-        },
-        {
-          q: "¿Hay baño?",
-          a: "Usa baño antes de salir.",
-        },
-        {
-          q: "¿Qué pasa si llego tarde?",
-          a: "No podemos esperar. Sin reembolso.",
-        },
-      ],
-    },
-    {
-      title: "👨‍👩‍👧‍👦 Familias y Niños",
-      items: [
-        {
-          q: "¿Puedo llevar hijos?",
-          a: "Atardecer: Todos. Amanecer: 12+. Día Completo: 10+.",
-        },
-        {
-          q: "¿Niño activo de 9 años?",
-          a: "Contacta para evaluar.",
-        },
-        {
-          q: "¿Es seguro para niños?",
-          a: "¡Sí! Chalecos y supervisión.",
-        },
-        {
-          q: "¿Puede ir mi bebé?",
-          a: "Consulta (normalmente 2+ años).",
-        },
-      ],
-    },
-    {
-      title: "📸 Fotografía",
-      items: [
-        {
-          q: "¿Puedo tomar fotos?",
-          a: "¡Sí!",
-        },
-        {
-          q: "¿Mejor cámara?",
-          a: "Teléfono.",
-        },
-        {
-          q: "¿Eduardo toma fotos?",
-          a: "Ayuda en momentos especiales.",
-        },
-      ],
-    },
-    {
-      title: "🌐 Idiomas",
-      items: [
-        {
-          q: "¿Eduardo habla inglés?",
-          a: "Sí: Portugués, Inglés, Español.",
-        },
-        {
-          q: "¿Tour en español?",
-          a: "Sí, solicítalo al reservar.",
-        },
-        {
-          q: "¿Grupo mixto?",
-          a: "Eduardo alterna idiomas.",
-        },
-      ],
-    },
-    {
-      title: "🌿 Sostenibilidad",
-      items: [
-        {
-          q: "¿Es sostenible?",
-          a: "¡Muy! Sin ruido, sin basura.",
-        },
-        {
-          q: "¿Qué hacen por el ambiente?",
-          a: "Limpiamos basura, educamos, respetamos fauna.",
-        },
-      ],
-    },
-    {
-      title: "❓ Otras Preguntas",
-      items: [
-        {
-          q: "¿Tour privado?",
-          a: "Sí, reservando los 9 cupos.",
-        },
-        {
-          q: "¿Tour combinado?",
-          a: "Tour Día Completo.",
-        },
-        {
-          q: "¿Cuál recomiendan?",
-          a: "Atardecer (general), Amanecer (romántico), Día Completo (aventura).",
-        },
-        {
-          q: "¿Más de un tour?",
-          a: "¡Sí! Hay paquetes.",
-        },
-        {
-          q: "¿Canoa vs Kayak?",
-          a: "Canoa es estable y cultural.",
-        },
-        {
-          q: "¿Otros lugares?",
-          a: "Consultar para tours personalizados.",
-        },
-        {
-          q: "¿Propina?",
-          a: "No obligatoria, pero apreciada.",
-        },
-        {
-          q: "¿Reseñas?",
-          a: "Google, Instagram, WhatsApp. ¡Gracias!",
+          q: "Que dois-je apporter ?",
+          a: "Portez un maillot de bain ou des vêtements légers qui peuvent être mouillés. Apportez une serviette, de la crème solaire, un chapeau, de l'eau et un appareil photo ou un téléphone (nous fournissons des sacs étanches pour le matériel). Pour le tour de la Pleine Lune, nous recommandons également une veste légère pour la brise du soir.",
         },
       ],
     },

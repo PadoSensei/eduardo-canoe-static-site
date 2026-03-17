@@ -22,9 +22,9 @@ const Footer = () => {
                   Pipa Canoa <br />
                   <span className="text-[#FF6B6B]">Havaiana</span>
                 </h2>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.3em] text-gray-500 font-bold">
+                {/* <p className="mt-1 text-[10px] uppercase tracking-[0.3em] text-gray-500 font-bold">
                   Adventures
-                </p>
+                </p> */}
               </div>
             </div>
 
