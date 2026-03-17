@@ -29,8 +29,9 @@ const Header = () => {
     : "bg-gray-900 text-white shadow-md px-4 md:px-8 py-4 sticky top-0 z-50";
 
   const navLinkClass = `
-    text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300
-    hover:text-[#FF6B6B] hover:translate-y-[-1px] relative group
+    text-[10px] font-black uppercase tracking-[0.15em] px-4 py-1.5 rounded-full
+    transition-all duration-300 relative group
+    hover:text-[#FF6B6B]
   `;
 
   const langBtnClass = (active) => `
@@ -57,18 +58,31 @@ const Header = () => {
         </div>
 
         {/* Desktop Nav - Using the same visual language as Footer headers */}
-        <nav className="items-center hidden space-x-8 md:flex">
-          {[
-            { to: "/tours", label: t("navTours") },
-            { to: "/book", label: t("navBook") },
-            { to: "/about", label: t("navAbout") },
-            { to: "/faq", label: t("navFaq") },
-          ].map((link) => (
-            <Link key={link.to} to={link.to} className={navLinkClass}>
-              {link.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#FF6B6B] transition-all duration-300 group-hover:w-full" />
-            </Link>
-          ))}
+        <nav className="items-center hidden md:flex">
+          <div className="flex items-center px-2 py-1 border rounded-full shadow-sm bg-black/20 backdrop-blur-md border-white/10">
+            {[
+              { to: "/tours", label: t("navTours") },
+              { to: "/book", label: t("navBook") },
+              { to: "/about", label: t("navAbout") },
+              { to: "/faq", label: t("navFaq") },
+            ].map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`${navLinkClass} ${
+                  location.pathname === link.to
+                    ? "text-[#FF6B6B]"
+                    : "text-gray-300"
+                }`}
+              >
+                {link.label}
+                {/* Subtle active indicator dot - optional but premium */}
+                {location.pathname === link.to && (
+                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#FF6B6B] rounded-full" />
+                )}
+              </Link>
+            ))}
+          </div>
         </nav>
 
         {/* Language & Mobile Toggle */}

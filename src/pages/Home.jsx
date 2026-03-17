@@ -1,16 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
-import { Anchor, Sun, Waves } from "lucide-react"; // Icons
+import { ChevronRight } from "lucide-react";
 
 const Home = () => {
   const { t } = useLanguage();
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-gray-900">
       {/* --- HERO SECTION --- */}
       <section className="relative flex items-center justify-center w-full h-screen overflow-hidden text-center">
-        {/* Video Background */}
+        {/* Video Background Layer */}
         <div className="absolute inset-0 w-full h-full">
           <video
             playsInline
@@ -18,130 +18,70 @@ const Home = () => {
             muted
             loop
             preload="metadata"
-            fetchpriority="high"
-            poster="/img/pipa-canoe-poster.jpg"
             className="object-cover w-full h-full"
           >
             <source src="/img/Pipa-Canoe_1.mp4" type="video/mp4" />
           </video>
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/40 bg-gradient-to-b from-black/60 via-transparent to-black/60"></div>
+
+          {/* Overlay 1: Vignette for text readability */}
+          <div className="absolute inset-0 bg-black/30 bg-gradient-to-b from-black/60 via-transparent to-black/20"></div>
+
+          {/* Overlay 2: THE CINEMATIC TRANSITION 
+              Fades the video into the exact background color of the footer */}
+          <div className="absolute bottom-0 left-0 right-0 z-10 h-64 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent"></div>
+
+          {/* Subtle Brand Horizon Line */}
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-[#FF6B6B] opacity-20 z-20"></div>
         </div>
 
-        {/* Content */}
-        <div className="relative z-20 max-w-5xl px-4 mx-auto sm:px-6">
-          <h1 className="mb-6 text-4xl font-black text-white sm:text-5xl md:text-7xl drop-shadow-lg">
+        {/* Content Layer */}
+        <div className="relative z-30 max-w-5xl px-6 mx-auto">
+          {/* <div className="inline-block mb-4 px-4 py-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF6B6B]">
+              Tibau do Sul • RN
+            </span>
+          </div> */}
+
+          <h1 className="mb-6 text-5xl font-black leading-tight text-white sm:text-6xl md:text-8xl font-lora drop-shadow-2xl">
             {t("heroTitle")}
           </h1>
-          <p className="max-w-3xl mx-auto mb-8 text-lg font-light sm:text-xl md:text-2xl text-white/90 drop-shadow-md">
+
+          <p className="max-w-2xl mx-auto mb-10 text-lg font-medium leading-relaxed sm:text-xl text-white/80 drop-shadow-lg">
             {t("heroSubtitle")}
           </p>
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
+
+          <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
             <Link
               to="/book"
-              className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white px-8 py-4 rounded-lg font-bold text-lg shadow-lg transition-all transform hover:scale-105"
+              className="group bg-[#FF6B6B] hover:bg-white hover:text-[#FF6B6B] text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-2"
             >
               {t("ctaButton")}
+              <ChevronRight
+                size={18}
+                className="transition-transform group-hover:translate-x-1"
+              />
             </Link>
-            <a
-              href="#details"
-              className="px-8 py-4 text-lg font-bold text-white transition-all border-2 border-white rounded-lg hover:bg-white hover:text-gray-900"
+
+            <Link
+              to="/tours"
+              className="px-10 py-4 text-sm font-black tracking-widest text-white uppercase transition-all border-2 border-white/30 rounded-2xl hover:bg-white/10 hover:border-white backdrop-blur-sm"
             >
               {t("learnMore")}
-            </a>
+            </Link>
           </div>
+        </div>
+
+        {/* Subtle Scroll Indicator */}
+        <div className="absolute z-30 -translate-x-1/2 opacity-50 bottom-12 left-1/2 animate-bounce">
+          <div className="w-[1px] h-12 bg-gradient-to-b from-white to-transparent"></div>
         </div>
       </section>
 
-      {/* --- FEATURES SECTION --- */}
-      {/* <section id="details" className="py-16 bg-white md:py-24">
-        <div className="container px-6 mx-auto text-center">
-          <h2 className="mb-4 text-3xl font-bold text-gray-800 md:text-4xl">
-            {t("detailsTitle")}
-          </h2>
-          <p className="max-w-3xl mx-auto mb-16 text-lg text-gray-600">
-            {t("detailsSubtitle")}
-          </p>
-
-          <div className="grid max-w-6xl gap-8 mx-auto md:grid-cols-3">
-            {/* Card 1 */}
-      {/* <div className="p-8 transition-shadow shadow-lg bg-orange-50 rounded-xl hover:shadow-xl">
-              <div className="flex justify-center mb-6 text-[#FF6B6B]">
-                <Waves size={64} strokeWidth={1.5} />
-              </div>
-              <h3 className="mb-4 text-xl font-bold text-gray-800">
-                {t("card1Title")}
-              </h3>
-              <p className="text-gray-700">{t("card1Text")}</p>
-            </div> */}
-
-      {/* Card 2 */}
-      {/* <div className="p-8 transition-shadow shadow-lg bg-orange-50 rounded-xl hover:shadow-xl">
-              <div className="flex justify-center mb-6 text-[#FF6B6B]">
-                <Anchor size={64} strokeWidth={1.5} />
-              </div>
-              <h3 className="mb-4 text-xl font-bold text-gray-800">
-                {t("card2Title")}
-              </h3>
-              <p className="text-gray-700">{t("card2Text")}</p>
-            </div> */}
-
-      {/* Card 3 */}
-      {/* <div className="p-8 transition-shadow shadow-lg bg-orange-50 rounded-xl hover:shadow-xl">
-              <div className="flex justify-center mb-6 text-[#FF6B6B]">
-                <Sun size={64} strokeWidth={1.5} />
-              </div>
-              <h3 className="mb-4 text-xl font-bold text-gray-800">
-                {t("card3Title")}
-              </h3>
-              <p className="text-gray-700">{t("card3Text")}</p>
-            </div>
-          </div>
-        </div>
-      </section> */}
-
-      {/* --- GALLERY SECTION --- */}
-      {/* <section className="py-16 bg-gray-50 md:py-24">
-        <div className="container px-6 mx-auto text-center">
-          <h2 className="mb-4 text-3xl font-bold text-gray-800 md:text-4xl">
-            {t('carouselTitle')}
-          </h2>
-          <p className="mb-12 text-lg text-gray-600">{t('carouselSubtitle')}</p> */}
-
-      {/* Simple Grid Gallery for React (Easier than Carousel logic for now) */}
-      {/* <div className="grid max-w-6xl grid-cols-1 gap-4 mx-auto md:grid-cols-2 lg:grid-cols-3">
-             <img src="/img/Vibe_Beach.jpg" className="object-cover w-full h-64 transition-transform rounded-lg shadow-md hover:scale-105" alt="Gallery 1" />
-             <img src="/img/Whatsapp_1.jpeg" className="object-cover w-full h-64 transition-transform rounded-lg shadow-md hover:scale-105" alt="Gallery 2" />
-             <img src="/img/Whatsapp_2.jpeg" className="object-cover w-full h-64 transition-transform rounded-lg shadow-md hover:scale-105" alt="Gallery 3" />
-             <img src="/img/Whatsapp_3.jpeg" className="object-cover w-full h-64 transition-transform rounded-lg shadow-md hover:scale-105" alt="Gallery 4" />
-             <img src="/img/Vibe_Forest.jpg" className="object-cover w-full h-64 transition-transform rounded-lg shadow-md hover:scale-105" alt="Gallery 5" />
-          </div> */}
-      {/* </div>
-      </section> */}
-
-      {/* --- MAP SECTION --- */}
-      {/* <section className="py-16 bg-white md:py-24">
-        <div className="container px-6 mx-auto text-center">
-          <h2 className="mb-4 text-3xl font-bold text-gray-800 md:text-4xl">
-            {t("mapTitle")}
-          </h2>
-          <p className="max-w-2xl mx-auto mb-12 text-lg text-gray-600">
-            {t("mapSubtitle")}
-          </p>
-          <div className="max-w-4xl mx-auto overflow-hidden border-4 border-gray-100 shadow-2xl h-96 rounded-xl">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31719.98894129596!2d-35.06209282568359!3d-6.231932399999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7b28e4438342429%3A0xe7a55a4b4fc34e4a!2sPraia%20de%20Pipa%2C%20Tibau%20do%20Sul%20-%20State%20of%20Rio%20Grande%20do%20Norte%2C%20Brazil!5e0!3m2!1sen!2sus!4v1672925100000!5m2!1sen!2sus"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen=""
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Google Map"
-            ></iframe>
-          </div>
-        </div>
-      </section> */}
+      {/* 
+          Note: intermediate sections are commented out.
+          The gray-900 background on the parent div ensures 
+          a seamless merge with the footer.
+      */}
     </div>
   );
 };
