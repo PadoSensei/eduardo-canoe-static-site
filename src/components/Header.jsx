@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
-import { Menu, X, Globe } from "lucide-react"; // Added Globe for a premium touch
+import { Menu, X, Globe } from "lucide-react";
 import BrandLogo from "./BrandLogo";
 
 const Header = () => {
@@ -11,6 +11,14 @@ const Header = () => {
 
   const location = useLocation();
   const isHome = location.pathname === "/";
+
+  // Accessibility labels for tests and screen readers
+  const langLabels = {
+    en: "Change language to English",
+    pt: "Mudar idioma para Português",
+    es: "Cambiar idioma a Español",
+    fr: "Changer la langue en Français",
+  };
 
   // Effect to handle glassmorphism on scroll
   useEffect(() => {
@@ -76,7 +84,6 @@ const Header = () => {
                 }`}
               >
                 {link.label}
-                {/* Subtle active indicator dot - optional but premium */}
                 {location.pathname === link.to && (
                   <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#FF6B6B] rounded-full" />
                 )}
@@ -95,6 +102,7 @@ const Header = () => {
                 key={lang}
                 onClick={() => setLanguage(lang)}
                 className={langBtnClass(language === lang)}
+                aria-label={langLabels[lang]}
               >
                 {lang.toUpperCase()}
               </button>
@@ -150,6 +158,7 @@ const Header = () => {
                       ? "text-[#FF6B6B] scale-125"
                       : "text-gray-400"
                   }`}
+                  aria-label={langLabels[lang]}
                 >
                   {lang.toUpperCase()}
                 </button>

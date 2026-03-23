@@ -16,7 +16,8 @@
   "scripts": {
     "test": "jest",
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "test:debug": "jest --detectOpenHandles --runInBand"
   },
   "devDependencies": {
     "@babel/core": "^7.28.5",

@@ -5,15 +5,20 @@ import Tours from "../../src/pages/Tours";
 import Layout from "../../src/components/Layout";
 import { LanguageProvider } from "../../src/context/LanguageContext";
 
-// Mock the API so tours actually load
+// 1. Updated Mock: Match the new API call used in Tours.jsx
 jest.mock("../../src/api", () => ({
-  getAvailableTours: jest.fn(() =>
+  getTourTemplates: jest.fn(() =>
     Promise.resolve([
       {
         id: "1",
         tourType: "sunset",
         name: "Sunset Tour",
         price: 100,
+        // Adding arrays so the Modal doesn't have empty list warnings
+        inclusions: ["Canoe"],
+        requirements: ["Water"],
+        description: "A soulful sunset experience.",
+        shortDescription: "Short sunset blurb.",
       },
     ])
   ),
@@ -34,13 +39,16 @@ test("Tour Modal reflects the language selected in the Header", async () => {
     </Layout>
   );
 
+  // 2. Click the PT button (The aria-label we restored in the Header)
   const ptButton = screen.getByLabelText(/Mudar idioma para Português/i);
   fireEvent.click(ptButton);
 
-  // WAIT for the async load
+  // 3. WAIT for the async load of the tour cards
+  // findAllByText handles the transition from "Loading adventures..." to the data
   const viewDetailsBtns = await screen.findAllByText(/Ver Detalhes/i);
   fireEvent.click(viewDetailsBtns[0]);
 
-  // Check modal content (Portuguese translation for "What to bring")
+  // 4. ASSERT: The modal opened and correctly translated the static UI string
+  // "What to bring" in en -> "O que levar" in pt
   expect(screen.getByText(/O que levar/i)).toBeInTheDocument();
 });

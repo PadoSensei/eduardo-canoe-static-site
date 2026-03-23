@@ -88,6 +88,7 @@ export async function createBooking(bookingData, options = {}) {
     total_price: bookingData.totalPrice,
     special_notes: bookingData.specialNotes,
     accepted_terms: bookingData.acceptedTerms,
+    language: bookingData.language || "en",
   };
 
   try {
