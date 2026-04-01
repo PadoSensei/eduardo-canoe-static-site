@@ -1,0 +1,192 @@
+import { test, expect } from "@playwright/test";
+
+const testDate = "2026-04-02";
+const [, , testDay] = testDate.split("-");
+const dayNumber = testDay.replace(/^0+/, ""); // "2"
+
+test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
+  test.beforeEach(async ({ page }) => {
+    // Register ALL route mocks BEFORE navigating so no real fetch fires first
+    await page.route("**/api/v1/admin/schedule*", (route) =>
+      route.fulfill({
+        status: 200,
+        json: {
+          [testDate]: {
+            booked_count: 8,
+            capacity: 10,
+            status: "available",
+            price: 100.0,
+          },
+        },
+      })
+    );
+
+    await page.route(`**/api/v1/admin/manifest/${testDate}`, (route) =>
+      route.fulfill({
+        status: 200,
+        json: [
+          {
+            tour_id: 101,
+            display_name: "Sunset Tour",
+            status: "available",
+            capacity: 10,
+            booked_count: 8,
+            passengers: [
+              {
+                name: "John Doe",
+                pax: 2,
+                email: "john@example.com",
+                uuid: "test-uuid-123",
+                payment_transaction_id: "WVI-TRX-999",
+              },
+            ],
+          },
+        ],
+      })
+    );
+
+    // Navigate after mocks are in place
+    await page.goto("/admin?bypass=true");
+    await page.waitForLoadState("networkidle");
+  });
+
+  test("should display monthly revenue in the header", async ({ page }) => {
+    await expect(page.getByText(/Revenue:/i)).toBeVisible();
+    await expect(page.getByText(/R\$ 800/)).toBeVisible();
+  });
+
+  test("should show capacity heatmap detail (X/Y) in calendar cells", async ({
+    page,
+  }) => {
+    // Day cells are divs — find the in-month cell containing our day number
+    // and the booked/capacity stat rendered below it
+    const dateCell = page
+      .locator("div.cursor-pointer:not(.text-gray-300)")
+      .filter({
+        has: page.locator("span", {
+          hasText: new RegExp(`^${dayNumber}$`),
+        }),
+      })
+      .filter({ hasText: "8/10" })
+      .first();
+
+    await expect(dateCell).toBeVisible({ timeout: 10000 });
+  });
+
+  test("should display Woovi transaction IDs in the passenger list", async ({
+    page,
+  }) => {
+    // Click the correct in-month day cell
+    const dayCell = page
+      .locator("div.cursor-pointer:not(.text-gray-300)")
+      .filter({
+        has: page.locator("span", {
+          hasText: new RegExp(`^${dayNumber}$`),
+        }),
+      })
+      .first();
+
+    await dayCell.waitFor({ state: "visible", timeout: 10000 });
+    await dayCell.click();
+
+    // Wait for manifest panel to open
+    await expect(
+      page.getByRole("heading", { name: /Daily Schedule/i })
+    ).toBeVisible({ timeout: 10000 });
+
+    // Click the Sunset Tour card
+    const tourCard = page
+      .locator("div.shadow-sm")
+      .filter({ hasText: "Sunset Tour" })
+      .first();
+    await tourCard.waitFor({ state: "visible", timeout: 10000 });
+    await tourCard.click();
+
+    // Passenger list should now be visible
+    await expect(page.getByText(/Confirmed Bookings/i)).toBeVisible({
+      timeout: 10000,
+    });
+
+    await expect(page.getByText("WVI-TRX-999")).toBeVisible();
+  });
+
+  test("should handle passenger check-in toggle", async ({ page }) => {
+    const dayCell = page
+      .locator("div.cursor-pointer:not(.text-gray-300)")
+      .filter({
+        has: page.locator("span", {
+          hasText: new RegExp(`^${dayNumber}$`),
+        }),
+      })
+      .first();
+
+    await dayCell.waitFor({ state: "visible", timeout: 10000 });
+    await dayCell.click();
+
+    await expect(
+      page.getByRole("heading", { name: /Daily Schedule/i })
+    ).toBeVisible({ timeout: 10000 });
+
+    const tourCard = page
+      .locator("div.shadow-sm")
+      .filter({ hasText: "Sunset Tour" })
+      .first();
+    await tourCard.waitFor({ state: "visible", timeout: 10000 });
+    await tourCard.click();
+
+    await expect(page.getByText(/Confirmed Bookings/i)).toBeVisible({
+      timeout: 10000,
+    });
+
+    const row = page
+      .getByTestId("passenger-row")
+      .filter({ hasText: "John Doe" });
+
+    const checkInBtn = row.getByRole("button", { name: /Check-in/i });
+    await expect(checkInBtn).toBeVisible();
+    await checkInBtn.click();
+
+    await expect(row).toHaveClass(/opacity-40/);
+  });
+
+  test("should handle weather cancellation flow with alerts", async ({
+    page,
+  }) => {
+    await page.route("**/weather-cancel", (route) =>
+      route.fulfill({ status: 200, json: { message: "Success" } })
+    );
+
+    const dayCell = page
+      .locator("div.cursor-pointer:not(.text-gray-300)")
+      .filter({
+        has: page.locator("span", {
+          hasText: new RegExp(`^${dayNumber}$`),
+        }),
+      })
+      .first();
+
+    await dayCell.waitFor({ state: "visible", timeout: 10000 });
+    await dayCell.click();
+
+    await expect(
+      page.getByRole("heading", { name: /Daily Schedule/i })
+    ).toBeVisible({ timeout: 10000 });
+
+    // Handle the confirm dialog before clicking the button
+    page.once("dialog", async (dialog) => {
+      expect(dialog.type()).toBe("confirm");
+      await dialog.accept();
+    });
+
+    const weatherCancelBtn = page.getByRole("button", {
+      name: /Weather Cancel/i,
+    });
+    await weatherCancelBtn.waitFor({ state: "visible", timeout: 10000 });
+    await weatherCancelBtn.click();
+
+    // Handle the success alert
+    const successAlert = await page.waitForEvent("dialog", { timeout: 10000 });
+    expect(successAlert.message()).toContain("Success");
+    await successAlert.accept();
+  });
+});

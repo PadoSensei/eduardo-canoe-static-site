@@ -22,16 +22,14 @@ const captureApiError = (error, context) => {
   if (error.name === "AbortError") return;
   if (!Sentry.withScope) return;
 
-  // Safety: Sentry might be partially unmounted in tests
+  // FIXED: Removed 'require' which crashes in browser/Vite.
+  // Using the imported 'Sentry' directly.
   try {
-    const Sentry = require("@sentry/react");
-    if (Sentry && Sentry.withScope) {
-      Sentry.withScope((scope) => {
-        scope.setLevel("error");
-        scope.setTag("api_endpoint", context.endpoint);
-        Sentry.captureException(error);
-      });
-    }
+    Sentry.withScope((scope) => {
+      scope.setLevel("error");
+      scope.setTag("api_endpoint", context.endpoint);
+      Sentry.captureException(error);
+    });
   } catch (e) {
     // Fail silently in tests if Sentry is gone
   }
@@ -60,11 +58,11 @@ export async function getAvailableTours(date, options = {}) {
       duration: tour.duration || "2h",
       imageUrl: tour.image_url || "",
       tourDate: tour.tour_date,
-      name: tour.display_name,
-      description: tour.description, // Full blurb
+      // Logic preservation: ensure rich content fields are mapped
+      description: tour.description,
       shortDescription: tour.short_description,
-      inclusions: tour.inclusions || [], // Array of strings
-      requirements: tour.requirements || [], // Array of strings
+      inclusions: tour.inclusions || [],
+      requirements: tour.requirements || [],
     }));
   } catch (error) {
     if (error.name === "AbortError") return null;
@@ -77,7 +75,6 @@ export async function getAvailableTours(date, options = {}) {
   }
 }
 
-// FIX: Ensure this is a named export function
 export async function createBooking(bookingData, options = {}) {
   const url = `${API_BASE_URL}/bookings`;
   const payload = {
@@ -141,10 +138,9 @@ export async function getTourTemplates(options = {}) {
     }
     const data = await response.json();
 
-    // We map the backend Template model to the frontend Tour object
     return data.map((template) => ({
       id: template.id,
-      tourType: template.name, // e.g. "sunset", "full_moon"
+      tourType: template.name,
       name: template.display_name,
       price: template.price,
       duration: template.duration,

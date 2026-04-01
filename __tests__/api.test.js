@@ -1,6 +1,10 @@
-// __tests__/api.test.js
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
+import {
+  getAvailableTours,
+  createBooking,
+  getBookingStatus,
+} from "../src/api.js";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
@@ -34,26 +38,13 @@ const server = setupServer(
   )
 );
 
-beforeAll(() => server.listen());
-
-afterEach(async () => {
-  server.resetHandlers();
-  jest.resetModules();
-  await new Promise((resolve) => setTimeout(resolve, 0));
-});
-
+beforeAll(() => server.listen({ onUnhandledRequest: "bypass" }));
+afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe("API Module", () => {
-  // Dynamic import to get fresh module
-  const getApi = async () => {
-    return import("../src/api.js");
-  };
-
   describe("getAvailableTours", () => {
     test("fetches tours for a given date", async () => {
-      const { getAvailableTours } = await getApi();
-
       const result = await getAvailableTours("2026-01-19");
 
       expect(result).toEqual([
@@ -70,11 +61,8 @@ describe("API Module", () => {
     });
 
     test("transforms API response to frontend format", async () => {
-      const { getAvailableTours } = await getApi();
-
       const result = await getAvailableTours("2026-01-19");
 
-      // Verify all expected fields are present
       expect(result[0]).toHaveProperty("id");
       expect(result[0]).toHaveProperty("instanceId");
       expect(result[0]).toHaveProperty("tourType");
@@ -86,7 +74,6 @@ describe("API Module", () => {
     });
 
     test("returns null on abort", async () => {
-      const { getAvailableTours } = await getApi();
       const controller = new AbortController();
       controller.abort();
 
@@ -104,16 +91,12 @@ describe("API Module", () => {
         )
       );
 
-      const { getAvailableTours } = await getApi();
-
       await expect(getAvailableTours("2026-01-19")).rejects.toThrow();
     });
   });
 
   describe("createBooking", () => {
     test("returns success response with booking and payment info", async () => {
-      const { createBooking } = await getApi();
-
       const result = await createBooking({
         tourId: 1,
         guestName: "John",
@@ -141,8 +124,6 @@ describe("API Module", () => {
         )
       );
 
-      const { createBooking } = await getApi();
-
       const result = await createBooking({
         tourId: 1,
         guestName: "John",
@@ -161,10 +142,7 @@ describe("API Module", () => {
 
   describe("getBookingStatus", () => {
     test("fetches status for given booking UUID", async () => {
-      const { getBookingStatus } = await getApi();
-
       const result = await getBookingStatus("test-uuid-123");
-
       expect(result).toEqual({ status: "pending_payment" });
     });
 
@@ -175,10 +153,7 @@ describe("API Module", () => {
         )
       );
 
-      const { getBookingStatus } = await getApi();
-
       const result = await getBookingStatus("any-uuid");
-
       expect(result).toEqual({ status: "confirmed" });
     });
   });

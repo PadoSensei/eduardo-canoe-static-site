@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   startOfMonth,
   endOfMonth,
@@ -9,16 +9,15 @@ import {
   isSameMonth,
   isSameDay,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, DollarSign } from "lucide-react";
 import { fetchMonthlySchedule } from "../../api";
 
-const DashboardCalendar = ({ onDateSelect, selectedDate }) => {
+const DashboardCalendar = ({ onDateSelect, selectedDate, refreshKey }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [bookingData, setBookingData] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Initialize the controller to manage this specific request lifecycle
     const controller = new AbortController();
 
     const loadData = async () => {
@@ -27,12 +26,10 @@ const DashboardCalendar = ({ onDateSelect, selectedDate }) => {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth() + 1;
 
-        // 2. Pass the signal to the API call (requires api.js update to accept options)
         const data = await fetchMonthlySchedule(year, month, {
           signal: controller.signal,
         });
 
-        // 3. If the request was aborted, stop execution here
         if (controller.signal.aborted) return;
 
         const formattedData = {};
@@ -42,6 +39,7 @@ const DashboardCalendar = ({ onDateSelect, selectedDate }) => {
             formattedData[dateKey] = {
               ...dayStats,
               bookings: dayStats.booked_count || 0,
+              price: parseFloat(dayStats.price || 0),
               percent:
                 dayStats.capacity > 0
                   ? (dayStats.booked_count || 0) / dayStats.capacity
@@ -52,11 +50,9 @@ const DashboardCalendar = ({ onDateSelect, selectedDate }) => {
 
         setBookingData(formattedData);
       } catch (err) {
-        // 4. Ignore "errors" caused by component unmounting
         if (err.name === "AbortError") return;
         console.error("Failed to load live calendar data:", err);
       } finally {
-        // 5. Guard against setting loading state on an unmounted component
         if (!controller.signal.aborted) {
           setLoading(false);
         }
@@ -64,11 +60,15 @@ const DashboardCalendar = ({ onDateSelect, selectedDate }) => {
     };
 
     loadData();
-
-    // 6. CLEANUP: This is the critical line that fixes the test worker crashes.
-    // It kills any pending fetch when the component unmounts.
     return () => controller.abort();
-  }, [currentDate]);
+  }, [currentDate, refreshKey]); // RE-FETCH when Manifest triggers a change
+
+  const monthlyRevenue = useMemo(() => {
+    return Object.values(bookingData).reduce((total, day) => {
+      if (day.status?.includes("cancelled")) return total;
+      return total + day.bookings * day.price;
+    }, 0);
+  }, [bookingData]);
 
   const monthStart = startOfMonth(currentDate);
   const calendarDays = eachDayOfInterval({
@@ -81,7 +81,7 @@ const DashboardCalendar = ({ onDateSelect, selectedDate }) => {
     const data = bookingData[dateKey];
 
     let classes =
-      "relative border border-gray-100 cursor-pointer transition-all duration-200 h-14 md:h-32 ";
+      "relative border border-gray-100 cursor-pointer transition-all duration-200 h-16 md:h-32 ";
 
     if (!isSameMonth(day, monthStart))
       return classes + "bg-gray-50/50 text-gray-300";
@@ -92,7 +92,7 @@ const DashboardCalendar = ({ onDateSelect, selectedDate }) => {
 
     if (!data) return classes + "bg-white";
 
-    if (data.status === "cancelled" || data.status === "cancelled_weather")
+    if (data.status?.includes("cancelled"))
       return classes + "bg-gray-200 text-gray-400 striped-background";
 
     if (data.bookings === 0) return classes + "bg-white hover:bg-gray-50";
@@ -113,27 +113,50 @@ const DashboardCalendar = ({ onDateSelect, selectedDate }) => {
       )}
 
       <div className="flex items-center justify-between p-4 border-b border-gray-100">
-        <h2 className="text-lg font-bold text-gray-800 md:text-2xl">
-          {format(currentDate, "MMMM yyyy")}
-        </h2>
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold text-gray-800 md:text-2xl font-lora">
+            {format(currentDate, "MMMM yyyy")}
+          </h2>
+          <div className="flex items-center gap-1.5 text-teal-600 font-bold text-xs uppercase tracking-wider">
+            <DollarSign size={14} />
+            <span>
+              Revenue: R${" "}
+              {monthlyRevenue.toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+              })}
+            </span>
+          </div>
+        </div>
         <div className="flex gap-2">
           <button
             onClick={() =>
+              // FIX: Ensure we land on the 1st to avoid month-end length mismatches
               setCurrentDate(
-                new Date(currentDate.setMonth(currentDate.getMonth() - 1))
+                new Date(
+                  currentDate.getFullYear(),
+                  currentDate.getMonth() - 1,
+                  1
+                )
               )
             }
             className="p-2 border border-gray-200 rounded-lg hover:bg-gray-100"
+            aria-label="Previous Month"
           >
             <ChevronLeft size={20} />
           </button>
           <button
             onClick={() =>
+              // FIX: Ensure we land on the 1st to avoid month-end length mismatches
               setCurrentDate(
-                new Date(currentDate.setMonth(currentDate.getMonth() + 1))
+                new Date(
+                  currentDate.getFullYear(),
+                  currentDate.getMonth() + 1,
+                  1
+                )
               )
             }
             className="p-2 border border-gray-200 rounded-lg hover:bg-gray-100"
+            aria-label="Next Month"
           >
             <ChevronRight size={20} />
           </button>
@@ -155,30 +178,22 @@ const DashboardCalendar = ({ onDateSelect, selectedDate }) => {
         {calendarDays.map((day) => {
           const dateKey = format(day, "yyyy-MM-dd");
           const data = bookingData[dateKey];
-
           return (
             <div
               key={day.toString()}
               onClick={() => onDateSelect(day)}
               className={getStyleForDate(day)}
             >
-              <div className="flex items-center justify-between p-1 text-xs font-medium md:p-2 md:text-sm">
-                <span>{format(day, "d")}</span>
-                {data?.percent > 0.8 && isSameMonth(day, monthStart) && (
-                  <div className="md:hidden w-1.5 h-1.5 rounded-full bg-white/80"></div>
-                )}
-              </div>
-
-              {data?.bookings > 0 &&
-                isSameMonth(day, monthStart) &&
-                !data.status.includes("cancelled") && (
-                  <div className="absolute hidden text-right md:block bottom-2 right-2">
-                    <div className="text-xs font-bold">
-                      {data.bookings}/{data.capacity}
-                    </div>
-                    <div className="text-[10px] opacity-80">Booked</div>
+              <div className="flex flex-col items-start h-full p-2">
+                <span className="text-xs font-bold md:text-sm">
+                  {format(day, "d")}
+                </span>
+                {data && isSameMonth(day, monthStart) && data.capacity > 0 && (
+                  <div className="mt-auto text-[9px] md:text-xs font-black opacity-60">
+                    {data.bookings}/{data.capacity}
                   </div>
                 )}
+              </div>
             </div>
           );
         })}

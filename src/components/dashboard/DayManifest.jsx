@@ -1,34 +1,28 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { format } from "date-fns";
-import {
-  X,
-  ArrowLeft,
-  UserPlus,
-  Loader2,
-  Plus,
-  Minus,
-  CloudRain,
-} from "lucide-react";
-import {
-  adminCreateBooking,
-  fetchDayManifest,
-  cancelTourForWeather,
-} from "../../api";
+import { X, ArrowLeft, UserPlus, Loader2 } from "lucide-react";
+import { fetchDayManifest, cancelTourForWeather } from "../../api";
 
-const DayManifest = ({ date, onClose }) => {
+// Import sub-components for modular architecture
+import PassengerRow from "./manifest/PassengerRow";
+import TourCard from "./manifest/TourCard";
+import ManualBookingForm from "./manifest/ManualBookingForm";
+
+const DayManifest = ({ date, onClose, onActionSuccess }) => {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTour, setSelectedTour] = useState(null);
-
   const [isAddingGuest, setIsAddingGuest] = useState(false);
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
-  const [numPeople, setNumPeople] = useState(1);
-  const [specialNotes, setSpecialNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. Ref to prevent state updates after unmount (Fixes SIGABRT)
+  // Local UI state for check-ins (visual only for Eduardo's use at the lagoon)
+  const [checkedIn, setCheckedIn] = useState({});
+
   const isMounted = useRef(true);
+
+  const toggleCheckIn = (uuid) => {
+    setCheckedIn((prev) => ({ ...prev, [uuid]: !prev[uuid] }));
+  };
 
   const loadManifest = useCallback(
     async (signal) => {
@@ -40,6 +34,14 @@ const DayManifest = ({ date, onClose }) => {
 
         if (isMounted.current && !signal?.aborted) {
           setTours(data || []);
+
+          // If a tour was selected, refresh its specific data from the new payload
+          if (selectedTour) {
+            const updatedSelected = data.find(
+              (t) => t.tour_id === selectedTour.tour_id
+            );
+            if (updatedSelected) setSelectedTour(updatedSelected);
+          }
         }
       } catch (err) {
         if (err.name === "AbortError") return;
@@ -50,9 +52,10 @@ const DayManifest = ({ date, onClose }) => {
         }
       }
     },
-    [date]
+    [date, selectedTour]
   );
 
+  // Initial Load and Cleanup
   useEffect(() => {
     isMounted.current = true;
     const controller = new AbortController();
@@ -63,48 +66,18 @@ const DayManifest = ({ date, onClose }) => {
 
     return () => {
       isMounted.current = false;
-      controller.abort(); // Cancel all pending requests
+      controller.abort();
     };
-  }, [loadManifest]);
-
-  const handleManualBooking = async (e) => {
-    e.preventDefault();
-    const controller = new AbortController();
-    setIsSubmitting(true);
-
-    try {
-      const numericPrice = selectedTour.price || 0;
-      const payload = {
-        tour_id: selectedTour.tour_id, // Match backend schema naming
-        guest_name: guestName,
-        guest_email: guestEmail,
-        num_people: parseInt(numPeople, 10),
-        special_notes: specialNotes,
-        total_price: numericPrice * numPeople,
-        accepted_terms: true,
-      };
-
-      await adminCreateBooking(payload, { signal: controller.signal });
-
-      if (isMounted.current) {
-        alert("Booking added successfully!");
-        await loadManifest(controller.signal);
-        setIsAddingGuest(false);
-        setGuestName("");
-        setGuestEmail("");
-        setNumPeople(1);
-        setSpecialNotes("");
-        setSelectedTour(null);
-      }
-    } catch (err) {
-      if (err.name === "AbortError") return;
-      alert("Error: " + err.message);
-    } finally {
-      if (isMounted.current) setIsSubmitting(false);
-    }
-  };
+  }, [date]); // Only re-run when the date from the calendar changes
 
   const handleWeatherCancellation = async (tour) => {
+    if (
+      !window.confirm(
+        `Notify all guests of weather cancellation for ${tour.display_name}?`
+      )
+    )
+      return;
+
     const controller = new AbortController();
     try {
       setIsSubmitting(true);
@@ -117,6 +90,7 @@ const DayManifest = ({ date, onClose }) => {
 
       if (isMounted.current) {
         alert("Success: Tour cancelled and guests notified.");
+        if (onActionSuccess) onActionSuccess(); // Refresh the Dashboard Calendar stats
         await loadManifest(controller.signal);
       }
     } catch (err) {
@@ -131,217 +105,124 @@ const DayManifest = ({ date, onClose }) => {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full bg-white shadow-2xl">
         <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
-        <p className="mt-2 text-sm text-gray-500">Loading Manifest...</p>
+        <p className="mt-2 text-sm font-medium text-gray-500">
+          Loading Manifest...
+        </p>
       </div>
     );
   }
 
-  // --- VIEW: ADDING MANUAL GUEST ---
+  // --- VIEW 1: ADDING MANUAL GUEST ---
   if (selectedTour && isAddingGuest) {
     return (
-      <div className="flex flex-col w-full h-full bg-white shadow-2xl animate-in slide-in-from-bottom">
-        <div className="flex items-center gap-3 p-4 text-white bg-teal-700 shrink-0">
-          <button
-            onClick={() => setIsAddingGuest(false)}
-            className="p-2 rounded-full hover:bg-teal-600"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <h2 className="text-lg font-bold">Add Manual Guest</h2>
-        </div>
-        <form
-          onSubmit={handleManualBooking}
-          className="flex-1 p-6 space-y-4 overflow-y-auto bg-gray-50"
-        >
-          <div>
-            <label className="block mb-1 text-sm font-bold text-gray-700">
-              Guest Name
-            </label>
-            <input
-              required
-              className="w-full p-3 border rounded-xl"
-              value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block mb-1 text-sm font-bold text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              className="w-full p-3 border rounded-xl"
-              value={guestEmail}
-              onChange={(e) => setGuestEmail(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block mb-1 text-sm font-bold text-gray-700">
-              Passengers
-            </label>
-            <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={() => setNumPeople(Math.max(1, numPeople - 1))}
-                className="p-3 bg-white border rounded-full"
-              >
-                <Minus size={20} />
-              </button>
-              <span className="w-8 text-xl font-bold text-center">
-                {numPeople}
-              </span>
-              <button
-                type="button"
-                onClick={() =>
-                  setNumPeople(
-                    Math.min(
-                      selectedTour.capacity - selectedTour.booked_count,
-                      numPeople + 1
-                    )
-                  )
-                }
-                className="p-3 bg-white border rounded-full"
-              >
-                <Plus size={20} />
-              </button>
-            </div>
-          </div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-4 font-bold text-white bg-teal-600 rounded-xl disabled:bg-gray-400"
-          >
-            {isSubmitting ? (
-              <Loader2 className="mx-auto animate-spin" />
-            ) : (
-              "Confirm Manual Booking"
-            )}
-          </button>
-        </form>
-      </div>
+      <ManualBookingForm
+        selectedTour={selectedTour}
+        dateString={format(date, "yyyy-MM-dd")}
+        onCancel={() => setIsAddingGuest(false)}
+        onSuccess={() => {
+          setIsAddingGuest(false);
+          if (onActionSuccess) onActionSuccess(); // Sync Grandparent Calendar
+          loadManifest(); // Sync Local List
+        }}
+      />
     );
   }
 
-  // --- VIEW: PASSENGER LIST ---
+  // --- VIEW 2: PASSENGER LIST ---
   if (selectedTour) {
     return (
-      <div className="flex flex-col w-full h-full bg-white shadow-2xl animate-in slide-in-from-right">
+      <div className="flex flex-col w-full h-full duration-300 bg-white shadow-2xl animate-in slide-in-from-right">
         <div className="flex items-center justify-between p-4 text-white bg-teal-900 shadow-md">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSelectedTour(null)}
-              className="p-2 rounded-full hover:bg-teal-800"
+              className="p-2 transition-colors rounded-full hover:bg-teal-800"
             >
               <ArrowLeft size={24} />
             </button>
-            <h2 className="font-bold truncate">{selectedTour.display_name}</h2>
+            <div>
+              <h2 className="font-bold truncate max-w-[180px] leading-none">
+                {selectedTour.display_name}
+              </h2>
+              <p className="text-[10px] text-teal-400 font-bold uppercase mt-1">
+                Passenger List
+              </p>
+            </div>
           </div>
           <button
             onClick={() => setIsAddingGuest(true)}
-            className="p-2 rounded-lg bg-white/20"
+            className="p-2 transition-all rounded-lg bg-white/10 hover:bg-white/20 active:scale-95"
+            aria-label="Add passenger manually"
           >
-            <UserPlus size={18} />
+            <UserPlus size={20} />
           </button>
         </div>
-        <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
-          <h3 className="mb-4 text-sm font-bold tracking-wider text-gray-400 uppercase">
-            Confirmed Passengers
+
+        <div className="flex-1 p-4 pb-24 overflow-y-auto bg-gray-50/50">
+          <h3 className="mb-4 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase">
+            Confirmed Bookings
           </h3>
+
           {selectedTour.passengers?.length > 0 ? (
-            selectedTour.passengers.map((p, i) => (
-              <div
-                key={i}
-                className="p-4 mb-3 bg-white border rounded-lg shadow-sm"
-              >
-                <h4 className="text-lg font-bold">{p.name}</h4>
-                <p className="text-sm text-gray-500">
-                  {p.pax} Pax • {p.email}
-                </p>
-              </div>
+            selectedTour.passengers.map((p) => (
+              <PassengerRow
+                key={p.uuid}
+                passenger={p}
+                isCheckedIn={!!checkedIn[p.uuid]}
+                onCheckIn={toggleCheckIn}
+              />
             ))
           ) : (
-            <p className="py-10 text-center text-gray-400">
-              No passengers yet.
-            </p>
+            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+              <p className="italic">No passengers registered yet.</p>
+            </div>
           )}
         </div>
       </div>
     );
   }
 
-  // --- VIEW: DAY OVERVIEW ---
+  // --- VIEW 3: DAY OVERVIEW (LIST OF TOURS) ---
   return (
-    <div className="flex flex-col w-full h-full overflow-hidden bg-white shadow-2xl animate-in slide-in-from-right">
-      <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white border-b shrink-0">
-        <h2 className="text-xl font-bold">{format(date, "EEEE, MMM do")}</h2>
+    <div className="flex flex-col w-full h-full overflow-hidden duration-300 bg-white shadow-2xl animate-in slide-in-from-right">
+      <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white border-b shadow-sm shrink-0">
+        <div>
+          <h2 className="text-xl font-bold font-lora text-teal-950">
+            {format(date, "EEEE")}
+          </h2>
+          <p className="text-xs font-bold tracking-widest text-gray-400 uppercase">
+            {format(date, "MMM do, yyyy")}
+          </p>
+        </div>
         <button
           onClick={onClose}
-          className="p-3 text-gray-600 bg-gray-100 rounded-full hover:bg-gray-200"
+          className="p-2 text-gray-400 transition-colors rounded-full hover:bg-gray-100"
+          aria-label="Close manifest"
         >
           <X size={24} />
         </button>
       </div>
-      <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
-        <div className="p-4 mb-6 bg-white border border-gray-100 shadow-sm rounded-xl">
-          <h3 className="mb-3 text-xs font-bold tracking-wider text-gray-400 uppercase">
-            Day Controls
-          </h3>
-          <button className="w-full py-3 text-sm font-bold text-red-600 border border-red-200 rounded-lg opacity-50 cursor-not-allowed bg-red-50 hover:bg-red-100">
-            CANCEL ALL TOURS (ADMIN ONLY)
-          </button>
-        </div>
-        <div className="space-y-4">
-          {tours.map((tour) => {
-            const isCancelled = tour.status?.includes("cancelled");
-            return (
-              <div
-                key={tour.tour_id}
-                className={`p-5 bg-white border rounded-xl shadow-sm ${
-                  isCancelled
-                    ? "opacity-60 grayscale"
-                    : "hover:shadow-md cursor-pointer"
-                }`}
-                onClick={() => !isCancelled && setSelectedTour(tour)}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-bold text-teal-900">
-                      {tour.display_name}
-                    </h4>
-                    <span className="text-[10px] text-gray-400 uppercase font-bold">
-                      {tour.status}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xl font-bold text-teal-600">
-                      {tour.booked_count}
-                    </span>
-                    <span className="text-sm text-gray-400">
-                      {" "}
-                      / {tour.capacity}
-                    </span>
-                  </div>
-                </div>
-                {!isCancelled && (
-                  <button
-                    disabled={isSubmitting}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (
-                        window.confirm("Notify guests of weather cancellation?")
-                      )
-                        handleWeatherCancellation(tour);
-                    }}
-                    className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg text-[10px] font-black uppercase hover:bg-red-100"
-                  >
-                    <CloudRain size={14} /> Weather Cancel
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
+
+      <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-gray-50/30">
+        <h3 className="mb-2 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase">
+          Daily Schedule
+        </h3>
+
+        {tours.length > 0 ? (
+          tours.map((tour) => (
+            <TourCard
+              key={tour.tour_id}
+              tour={tour}
+              isSubmitting={isSubmitting}
+              onCancel={handleWeatherCancellation}
+              onSelect={setSelectedTour}
+            />
+          ))
+        ) : (
+          <p className="py-10 italic text-center text-gray-400">
+            No tours scheduled for this date.
+          </p>
+        )}
       </div>
     </div>
   );
