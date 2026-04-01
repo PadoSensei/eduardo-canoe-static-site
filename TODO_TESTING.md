@@ -83,3 +83,45 @@ isPastDate timezone edge case — Brazilian guests are UTC-3, a wrong date here 
 Manual booking form E2E — Eduardo uses this daily at the lagoon
 Weather cancellation real endpoint test — admin-critical action currently only mocked
 Test data cleanup in workflow.spec.mjs — already overdue given the 30+ ghost passengers in Railway
+
+#######
+
+The report from the other LLM is excellent and covers the standard technical "blind spots" very well. As a Senior Architect, I have analyzed your current state and found four high-risk areas that were not explicitly detailed in that list.
+
+To make your project truly "Live Money" ready, I suggest adding these specific items to your roadmap:
+
+1. Backend: Financial "Penny" Precision (Unit Test)
+
+The previous report mentions amount validation, but it misses the Float-to-Integer math risk.
+
+    The Gap: In PaymentService.py, we use int(round(total_price * 100)).
+
+    The Risk: Python floats can be imprecise (e.g., 19.99 * 100 can sometimes result in 1998.9999999999998). If the rounding is off by even 1 cent, the Woovi signature will fail or the user will underpay.
+
+    The Test: A unit test in test_payment_service.py that iterates through 100 "tricky" prices (like 19.99, 250.05, 100.10) to ensure they result in the exact integer cent value Eduardo expects.
+
+2. Security: The "Direct Link" PII Leak (Integration Test)
+
+   The Gap: We refactored the BookingStatusResponse to strip out Name and Email.
+
+   The Risk: A regression here is a major legal liability (LGPD).
+
+   The Test: A specific "Penetration Test" in test_bookings_api.py. It should call the GET /status/{uuid} endpoint and strictly assert: assert "guest_name" not in response.json(). This acts as a permanent "Guardrail" so no future developer accidentally re-adds PII to that public endpoint.
+
+3. Frontend: The "Double-Tap" Prevention (UX Test)
+
+   The Gap: In BookingForm.jsx and the Admin ManualBookingForm, users often double-click buttons if they are anxious or the network is slow.
+
+   The Risk: Two bookings created for the same person, or Eduardo accidentally adding a guest twice because the UI didn't visually "lock" fast enough.
+
+   The Test: A Playwright test that clicks "Confirm" twice in rapid succession.
+
+   The Requirement: The UI should immediately disable the button and show a "Submitting..." state (which we have, but we need to prove it blocks the second click).
+
+4. Observability: Sentry Breadcrumb Verification
+
+   The Gap: We integrated Sentry, but we don't know if the Context is actually working.
+
+   The Risk: If a payment fails in production, and Sentry doesn't tell us the booking_id or the error_detail from Woovi, the tool is useless.
+
+   The Test: A unit test in api.test.js that mocks a failed fetch and verifies that captureApiError was called with the correct metadata object.
