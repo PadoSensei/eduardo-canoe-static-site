@@ -30,7 +30,11 @@ const Dashboard = () => {
 
     // 1. Manual Bypass (Priority for E2E and Dev)
     if (shouldBypass) {
-      setSession({ user: { email: "dev-tester@ai-solutions.irish" } });
+      setSession((prev) =>
+        prev?.user?.email === "dev-tester@ai-solutions.irish"
+          ? prev
+          : { user: { email: "dev-tester@ai-solutions.irish" } }
+      );
       return;
     }
 

@@ -173,7 +173,7 @@ const FAQ = () => {
           ) : (
             <div className="text-center py-20 bg-white rounded-[2rem] border border-dashed border-slate-300">
               <p className="font-medium text-slate-400">
-                No questions found matching "{searchTerm}"
+                No questions found matching &quot;{searchTerm}&quot;
               </p>
               <button
                 onClick={() => {

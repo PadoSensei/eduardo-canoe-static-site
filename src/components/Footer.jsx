@@ -4,31 +4,31 @@ import { useLanguage } from "../context/LanguageContext";
 import { Instagram, ArrowUpRight } from "lucide-react";
 import BrandLogo from "./BrandLogo";
 
+// Optimized Link Component for Horizontal Layout
+const FooterLink = ({ to, children, primary }) => (
+  <li>
+    <Link
+      to={to}
+      className={`group relative flex items-center gap-1 transition-all duration-300 ${
+        primary
+          ? "text-[#FF6B6B] font-black"
+          : "text-gray-400 hover:text-white font-bold"
+      }`}
+    >
+      {children}
+      <ArrowUpRight
+        size={10}
+        className={`transition-all duration-300 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 ${
+          primary ? "text-[#FF6B6B]" : "text-gray-500"
+        }`}
+      />
+    </Link>
+  </li>
+);
+
 const Footer = () => {
   const { t } = useLanguage();
   const currentYear = new Date().getFullYear();
-
-  // Optimized Link Component for Horizontal Layout
-  const FooterLink = ({ to, children, primary }) => (
-    <li>
-      <Link
-        to={to}
-        className={`group relative flex items-center gap-1 transition-all duration-300 ${
-          primary
-            ? "text-[#FF6B6B] font-black"
-            : "text-gray-400 hover:text-white font-bold"
-        }`}
-      >
-        {children}
-        <ArrowUpRight
-          size={10}
-          className={`transition-all duration-300 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 ${
-            primary ? "text-[#FF6B6B]" : "text-gray-500"
-          }`}
-        />
-      </Link>
-    </li>
-  );
 
   return (
     <footer className="pt-20 pb-10 text-white bg-gray-900 border-t border-white/5">
@@ -50,7 +50,7 @@ const Footer = () => {
             </div>
 
             <p className="max-w-sm text-sm italic font-medium leading-relaxed text-gray-400/70">
-              "{t("heroSubtitle").substring(0, 115)}..."
+              &quot;{t("heroSubtitle").substring(0, 115)}...&quot;
             </p>
 
             <div className="flex items-center gap-6">
