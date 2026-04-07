@@ -69,7 +69,7 @@ describe("Sentry User Context", () => {
           labelEmail: "Email",
           ctaButton: "Book Now",
           btnConfirm: "Confirm Booking",
-        }[key] || key),
+        })[key] || key,
     });
 
     render(

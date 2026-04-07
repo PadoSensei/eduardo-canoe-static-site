@@ -119,7 +119,15 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
       controller.abort(); // Force-close any open network sockets
     };
     // Dependency Note: We only re-run if the UUID changes or completion states reset
-  }, [currentBooking?.uuid, isConfirmed, isExpired, isFailed, selectedDate]);
+  }, [
+    currentBooking?.uuid,
+    isConfirmed,
+    isExpired,
+    isFailed,
+    selectedDate,
+    paymentInfo,
+    setAvailableTours,
+  ]);
 
   const clearBooking = useCallback(() => {
     localStorage.removeItem("pending_booking");

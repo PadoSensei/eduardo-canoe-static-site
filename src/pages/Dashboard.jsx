@@ -49,7 +49,7 @@ const Dashboard = () => {
             if (data && data.user) return data;
           }
         }
-      } catch (e) {
+      } catch {
         return null;
       }
       return null;

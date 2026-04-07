@@ -88,7 +88,7 @@ const mockLanguageValue = {
       card1Title: "Sunrise Tour",
       duration: "Duration",
       spotsLeft: "spots left",
-    }[key] || key),
+    })[key] || key,
 };
 
 describe("Payment Failure Logic", () => {

@@ -154,8 +154,8 @@ export const getDayDetails = (date) => {
       status: isCancelled
         ? "cancelled"
         : bookedCount >= tpl.capacity
-        ? "sold_out"
-        : "available",
+          ? "sold_out"
+          : "available",
       booked: bookedCount,
       bookings: bookings,
     };

@@ -13,7 +13,7 @@ class TestErrorBoundary extends React.Component {
     return { hasError: true };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(_error, _errorInfo) {
     // Optionally log
   }
 

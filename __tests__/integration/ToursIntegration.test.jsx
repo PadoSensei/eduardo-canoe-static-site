@@ -3,9 +3,6 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Tours from "../../src/pages/Tours";
 import { LanguageProvider } from "../../src/context/LanguageContext";
-// 1. Import the new function (even though it doesn't exist yet)
-import { getTourTemplates } from "../../src/api";
-
 jest.mock("../../src/api", () => ({
   // 2. Mock the new 'Menu' API
   getTourTemplates: jest.fn(() =>
