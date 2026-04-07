@@ -1,0 +1,4770 @@
+==> src/context/LanguageContext.jsx <==
+import { createContext, useState, useContext } from "react";
+import { translations } from "../data/translations.js";
+
+const LanguageContext = createContext();
+
+export const LanguageProvider = ({ children }) => {
+  const [language, setLanguage] = useState("en");
+
+  // The function to get translation
+  const t = (key) => {
+    return translations[language][key] || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+// Custom hook for easy usage
+export const useLanguage = () => useContext(LanguageContext);
+
+==> src/App.jsx <==
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import * as Sentry from "@sentry/react"; // 1. Import Sentry
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+
+// Pages
+import Home from "./pages/Home";
+import Tours from "./pages/Tours";
+import FAQ from "./pages/FAQ";
+import Dashboard from "./pages/Dashboard";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import About from "./pages/About";
+
+// Components
+import BookingSystem from "./components/BookingSystem";
+
+const App = () => {
+  return (
+    // 2. Wrap the entire UI in an ErrorBoundary
+    <Sentry.ErrorBoundary
+      fallback={
+        <div className="flex items-center justify-center min-h-screen px-6 text-center bg-gray-50">
+          <div className="max-w-md">
+            <h1 className="mb-4 text-3xl font-bold text-gray-900 font-lora">
+              Oops!
+            </h1>
+            <p className="mb-8 text-gray-600">
+              Something went wrong on our end. Please try refreshing the page or
+              contact support if the issue persists.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-[#FF6B6B] text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:bg-[#FF5252] transition-all"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      }
+    >
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/tours" element={<Tours />} />
+            <Route
+              path="/book"
+              element={
+                <div className="pt-24">
+                  <BookingSystem />
+                </div>
+              }
+            />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/about" element={<About />} />
+
+            {/* Admin Route */}
+            <Route path="/admin" element={<Dashboard />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </Sentry.ErrorBoundary>
+  );
+};
+
+export default App;
+
+==> src/api.js <==
+// src/api.js
+import * as Sentry from "@sentry/react";
+import { supabase } from "./supabaseClient";
+
+const DOMAIN = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_BASE_URL = `${DOMAIN}/api/v1`;
+
+const getHeaders = async (includeAuth = false) => {
+  const headers = { "Content-Type": "application/json" };
+  if (includeAuth) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      headers["Authorization"] = `Bearer ${session.access_token}`;
+    }
+  }
+  return headers;
+};
+
+const captureApiError = (error, context) => {
+  if (error.name === "AbortError") return;
+  if (!Sentry.withScope) return;
+
+  // Safety: Sentry might be partially unmounted in tests
+  try {
+    const Sentry = require("@sentry/react");
+    if (Sentry && Sentry.withScope) {
+      Sentry.withScope((scope) => {
+        scope.setLevel("error");
+        scope.setTag("api_endpoint", context.endpoint);
+        Sentry.captureException(error);
+      });
+    }
+  } catch (e) {
+    // Fail silently in tests if Sentry is gone
+  }
+};
+
+export async function getAvailableTours(date, options = {}) {
+  const url = `${API_BASE_URL}/tours/available?tour_date=${date}`;
+  try {
+    const response = await fetch(url, { signal: options.signal });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        `HTTP error ${response.status}: ${errorData.detail || "Error"}`
+      );
+    }
+    const data = await response.json();
+    return data.map((tour) => ({
+      id: `${tour.tour_type}-${tour.tour_date}`,
+      instanceId: tour.tour_instance_id,
+      tourType: tour.tour_type,
+      name: tour.display_name,
+      price: tour.price,
+      remaining: tour.seats_available,
+      isBookable: tour.is_bookable,
+      capacity: tour.capacity,
+      duration: tour.duration || "2h",
+      imageUrl: tour.image_url || "",
+      tourDate: tour.tour_date,
+      name: tour.display_name,
+      description: tour.description, // Full blurb
+      shortDescription: tour.short_description,
+      inclusions: tour.inclusions || [], // Array of strings
+      requirements: tour.requirements || [], // Array of strings
+    }));
+  } catch (error) {
+    if (error.name === "AbortError") return null;
+    captureApiError(error, {
+      endpoint: "getAvailableTours",
+      status: 500,
+      payload: { date },
+    });
+    throw error;
+  }
+}
+
+// FIX: Ensure this is a named export function
+export async function createBooking(bookingData, options = {}) {
+  const url = `${API_BASE_URL}/bookings`;
+  const payload = {
+    tour_id: bookingData.tourId,
+    guest_name: bookingData.guestName,
+    guest_email: bookingData.guestEmail,
+    num_people: bookingData.numPeople,
+    total_price: bookingData.totalPrice,
+    special_notes: bookingData.specialNotes,
+    accepted_terms: bookingData.acceptedTerms,
+    language: bookingData.language || "en",
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: await getHeaders(false),
+      body: JSON.stringify(payload),
+      signal: options.signal,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Server error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return {
+      success: true,
+      booking: result.booking,
+      paymentInfo: result.payment_info,
+    };
+  } catch (error) {
+    if (error.name === "AbortError") return null;
+    captureApiError(error, { endpoint: "createBooking", payload });
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getBookingStatus(bookingUuid, options = {}) {
+  const url = `${API_BASE_URL}/bookings/status/${bookingUuid}`;
+  try {
+    const response = await fetch(url, { signal: options.signal });
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    if (error.name === "AbortError") return null;
+    throw error;
+  }
+}
+
+export async function getTourTemplates(options = {}) {
+  const url = `${API_BASE_URL}/tour-templates/`;
+  try {
+    const response = await fetch(url, { signal: options.signal });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        `HTTP error ${response.status}: ${errorData.detail || "Error"}`
+      );
+    }
+    const data = await response.json();
+
+    // We map the backend Template model to the frontend Tour object
+    return data.map((template) => ({
+      id: template.id,
+      tourType: template.name, // e.g. "sunset", "full_moon"
+      name: template.display_name,
+      price: template.price,
+      duration: template.duration,
+      imageUrl: template.image_url,
+      description: template.description,
+      shortDescription: template.short_description,
+      inclusions: template.inclusions || [],
+      requirements: template.requirements || [],
+    }));
+  } catch (error) {
+    if (error.name === "AbortError") return null;
+    captureApiError(error, { endpoint: "getTourTemplates" });
+    throw error;
+  }
+}
+
+export async function fetchMonthlySchedule(year, month, options = {}) {
+  try {
+    const headers = await getHeaders(true);
+    const response = await fetch(
+      `${API_BASE_URL}/admin/schedule?year=${year}&month=${month}`,
+      { headers, signal: options.signal }
+    );
+    if (!response.ok) throw new Error("Unauthorized Access");
+    return await response.json();
+  } catch (error) {
+    if (error.name === "AbortError") return null;
+    captureApiError(error, {
+      endpoint: "fetchMonthlySchedule",
+      payload: { year, month },
+    });
+    throw error;
+  }
+}
+
+export async function fetchDayManifest(dateString, options = {}) {
+  try {
+    const headers = await getHeaders(true);
+    const response = await fetch(
+      `${API_BASE_URL}/admin/manifest/${dateString}`,
+      {
+        headers,
+        signal: options.signal,
+      }
+    );
+    if (!response.ok) throw new Error("Unauthorized");
+    return await response.json();
+  } catch (error) {
+    if (error.name === "AbortError") return null;
+    captureApiError(error, {
+      endpoint: "fetchDayManifest",
+      payload: { dateString },
+    });
+    throw error;
+  }
+}
+
+export async function adminCreateBooking(bookingData, options = {}) {
+  try {
+    const headers = await getHeaders(true);
+    const response = await fetch(`${API_BASE_URL}/admin/bookings`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(bookingData),
+      signal: options.signal,
+    });
+    if (!response.ok) throw new Error("Manual booking failed");
+    return await response.json();
+  } catch (error) {
+    if (error.name === "AbortError") return null;
+    throw error;
+  }
+}
+
+export async function cancelTourForWeather(
+  tourId,
+  tourName,
+  tourDate,
+  options = {}
+) {
+  try {
+    const headers = await getHeaders(true);
+    const response = await fetch(
+      `${API_BASE_URL}/admin/tours/${tourId}/weather-cancel`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ tour_name: tourName, tour_date: tourDate }),
+        signal: options.signal,
+      }
+    );
+    if (!response.ok) throw new Error("Cancellation failed");
+    return await response.json();
+  } catch (error) {
+    if (error.name === "AbortError") return null;
+    throw error;
+  }
+}
+
+==> src/hooks/useBooking.js <==
+// src/hooks/useBooking.js
+import { useState, useEffect, useCallback, useRef } from "react";
+import { getBookingStatus, getAvailableTours } from "../api";
+
+export function useBooking(initialSession, selectedDate, setAvailableTours) {
+  const [currentBooking, setCurrentBooking] = useState(
+    initialSession?.currentBooking || null
+  );
+  const [paymentInfo, setPaymentInfo] = useState(
+    initialSession?.paymentInfo || null
+  );
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
+  const [isFailed, setIsFailed] = useState(false);
+  const [consecutiveErrors, setConsecutiveErrors] = useState(0);
+
+  const isMounted = useRef(true);
+  const intervalRef = useRef(null);
+
+  // Persistence: Save pending bookings to localStorage
+  useEffect(() => {
+    if (
+      currentBooking &&
+      paymentInfo &&
+      !isConfirmed &&
+      !isExpired &&
+      !isFailed
+    ) {
+      localStorage.setItem(
+        "pending_booking",
+        JSON.stringify({ currentBooking, paymentInfo })
+      );
+    }
+  }, [currentBooking, paymentInfo, isConfirmed, isExpired, isFailed]);
+
+  // Polling Lifecycle
+  useEffect(() => {
+    isMounted.current = true;
+    const controller = new AbortController();
+
+    const checkStatus = async () => {
+      // Guard 1: Immediate exit if unmounted or aborted before starting
+      if (
+        !currentBooking?.uuid ||
+        controller.signal.aborted ||
+        !isMounted.current
+      )
+        return;
+
+      try {
+        const statusData = await getBookingStatus(currentBooking.uuid, {
+          signal: controller.signal,
+        });
+
+        // Guard 2: Exit if the component unmounted while waiting for the network
+        if (!isMounted.current || controller.signal.aborted || !statusData)
+          return;
+
+        setConsecutiveErrors(0);
+
+        if (statusData.status === "confirmed") {
+          setIsConfirmed(true);
+          setPaymentInfo(null);
+          localStorage.removeItem("pending_booking");
+
+          // Stop polling immediately upon confirmation
+          if (intervalRef.current) clearInterval(intervalRef.current);
+
+          // Refresh the parent's tour list so seats update immediately
+          if (setAvailableTours) {
+            const updated = await getAvailableTours(selectedDate, {
+              signal: controller.signal,
+            });
+            // Guard 3: Final check before updating parent state
+            if (isMounted.current && !controller.signal.aborted && updated) {
+              setAvailableTours(updated);
+            }
+          }
+        } else if (
+          statusData.status === "expired" ||
+          statusData.status === "failed"
+        ) {
+          statusData.status === "expired"
+            ? setIsExpired(true)
+            : setIsFailed(true);
+          localStorage.removeItem("pending_booking");
+          if (intervalRef.current) clearInterval(intervalRef.current);
+        }
+      } catch (err) {
+        // Silent exit for intended cancellations (SIGABRT fix)
+        if (err.name === "AbortError") return;
+
+        if (isMounted.current) {
+          setConsecutiveErrors((prev) => prev + 1);
+        }
+      }
+    };
+
+    // Derive polling necessity
+    const shouldPoll =
+      currentBooking?.uuid &&
+      paymentInfo &&
+      !isConfirmed &&
+      !isExpired &&
+      !isFailed;
+
+    if (shouldPoll) {
+      checkStatus(); // Initial check
+      intervalRef.current = setInterval(checkStatus, 3000);
+    }
+
+    // Cleanup: This is the most critical block for passing tests
+    return () => {
+      isMounted.current = false;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      controller.abort(); // Force-close any open network sockets
+    };
+    // Dependency Note: We only re-run if the UUID changes or completion states reset
+  }, [currentBooking?.uuid, isConfirmed, isExpired, isFailed, selectedDate]);
+
+  const clearBooking = useCallback(() => {
+    localStorage.removeItem("pending_booking");
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    setPaymentInfo(null);
+    setCurrentBooking(null);
+    setIsConfirmed(false);
+    setIsExpired(false);
+    setIsFailed(false);
+    setConsecutiveErrors(0);
+  }, []);
+
+  return {
+    currentBooking,
+    setCurrentBooking,
+    paymentInfo,
+    setPaymentInfo,
+    isConfirmed,
+    setIsConfirmed,
+    isExpired,
+    setIsExpired,
+    isFailed,
+    setIsFailed,
+    consecutiveErrors,
+    hasConnectionIssue: consecutiveErrors >= 5,
+    clearBooking,
+  };
+}
+
+==> src/supabaseClient.js <==
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl =
+  import.meta.env.VITE_SUPABASE_URL || "https://placeholder.supabase.co";
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY || "placeholder-key";
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    // Disable persistence and auto-refresh in tests to prevent process leaks
+    persistSession:
+      typeof window !== "undefined" && process.env.NODE_ENV !== "test",
+    detectSessionInUrl: false,
+    autoRefreshToken: process.env.NODE_ENV !== "test",
+  },
+});
+
+==> src/index.jsx <==
+import React, { useEffect } from "react";
+import ReactDOM from "react-dom/client";
+import {
+  BrowserRouter,
+  useLocation,
+  useNavigationType,
+  createRoutesFromChildren,
+  matchRoutes,
+} from "react-router-dom";
+import * as Sentry from "@sentry/react";
+import { LanguageProvider } from "./context/LanguageContext";
+import App from "./App";
+import "../src/styles.css";
+
+// --- 1. Sentry Initialization ---
+// We initialize this as the very first thing to catch any startup errors.
+Sentry.init({
+  // Uses Vite environment variable: VITE_SENTRY_DSN
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+
+  integrations: [
+    // Automatically instruments React Router v6 for performance monitoring
+    Sentry.reactRouterV6BrowserTracingIntegration({
+      useEffect,
+      useLocation,
+      useNavigationType,
+      createRoutesFromChildren,
+      matchRoutes,
+    }),
+    // Replay allows you to watch a video-like reconstruction of a user session when it crashes
+    Sentry.replayIntegration(),
+  ],
+
+  // Performance Monitoring
+  // 1.0 (100%) during dev, usually 0.1 (10%) in production to manage quota
+  tracesSampleRate: 1.0,
+
+  // Set levels for Session Replay
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+
+  // Automatically sets the environment based on Vite mode (development/production)
+  environment: import.meta.env.MODE,
+});
+
+const rootElement = document.getElementById("root");
+
+ReactDOM.createRoot(rootElement).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
+    </BrowserRouter>
+  </React.StrictMode>
+);
+
+==> src/pages/About.jsx <==
+import React from "react";
+import { useLanguage } from "../context/LanguageContext";
+
+const About = () => {
+  const { t } = useLanguage();
+
+  // Call the function to get the bio array
+  const bioData = t("about_bio");
+
+  // Since your t() function returns the 'key' string if not found,
+  // we check if we actually got an array back.
+  const bioParagraphs = Array.isArray(bioData) ? bioData : [];
+
+  return (
+    <div className="max-w-3xl px-6 pt-32 pb-20 mx-auto leading-relaxed text-gray-800">
+      {/* Function calls: t("key") */}
+      <h1 className="mb-8 text-4xl font-bold font-lora text-slate-900">
+        {t("about_title")}
+      </h1>
+
+      <div className="mb-10 overflow-hidden bg-gray-100 shadow-lg rounded-xl aspect-video">
+        <img
+          src="/img/Edu_Cover.jpeg"
+          alt="Instructor"
+          className="object-cover w-full h-full"
+          onError={(e) => {
+            e.target.style.display = "none";
+          }}
+        />
+      </div>
+
+      <section className="space-y-6">
+        {bioParagraphs.length > 0 ? (
+          bioParagraphs.map((paragraph, index) => (
+            <p key={index} className="text-lg leading-relaxed text-gray-700">
+              {paragraph}
+            </p>
+          ))
+        ) : (
+          /* This shows if t("about_bio") didn't return an array */
+          <p className="italic text-gray-400">Biography content not found.</p>
+        )}
+      </section>
+
+      <div className="p-6 mt-12 border-l-4 border-blue-500 rounded-r-lg bg-blue-50">
+        <p className="font-semibold text-blue-900">{t("about_iko_status")}</p>
+        <p className="text-sm italic text-blue-800">{t("about_projects")}</p>
+      </div>
+    </div>
+  );
+};
+
+export default About;
+
+==> src/pages/Privacy.jsx <==
+import React from "react";
+
+const Privacy = () => (
+  <div className="pt-32 pb-20 max-w-3xl mx-auto px-6 text-gray-800 leading-relaxed">
+    <h1 className="text-3xl font-bold mb-6 font-lora">Privacy Policy (v1.0)</h1>
+    <section className="space-y-4">
+      <p>
+        In compliance with the Brazilian General Data Protection Law (LGPD), we
+        inform you that:
+      </p>
+      <ul className="list-disc ml-6">
+        <li>
+          <strong>Data Collected:</strong> We collect your name and email to
+          execute the booking contract.
+        </li>
+        <li>
+          <strong>Purpose:</strong> To send your tickets and provide tour
+          updates.
+        </li>
+        <li>
+          <strong>Storage:</strong> Your data is stored securely via Supabase.
+          We do not share your data with third-party marketers.
+        </li>
+      </ul>
+    </section>
+  </div>
+);
+
+export default Privacy;
+
+==> src/pages/Dashboard.jsx <==
+import React, { useState, useEffect, useRef } from "react";
+import { supabase } from "../supabaseClient";
+import DashboardCalendar from "../components/dashboard/DashboardCalendar";
+import DayManifest from "../components/dashboard/DayManifest";
+import { Lock, Mail, Loader2, LogOut } from "lucide-react";
+
+const Dashboard = () => {
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [session, setSession] = useState(null);
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [authMessage, setAuthMessage] = useState(null);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+
+    // 1. Initial check
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      if (isMounted.current) setSession(currentSession);
+    });
+
+    // 2. Single source of truth for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      if (isMounted.current) setSession(currentSession);
+    });
+
+    return () => {
+      isMounted.current = false;
+      if (subscription) subscription.unsubscribe(); // KILL the listener
+    };
+  }, []);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!isMounted.current) return;
+    setLoading(true);
+    setAuthMessage(null);
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.origin + "/admin" },
+    });
+
+    if (isMounted.current) {
+      if (error) {
+        setAuthMessage({ type: "error", text: error.message });
+      } else {
+        setAuthMessage({ type: "success", text: "Check your email!" });
+      }
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    if (isMounted.current) {
+      setSelectedDate(null);
+      setSession(null);
+    }
+  };
+
+  if (!session) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-6 bg-gray-50">
+        <div className="w-full max-w-md p-10 bg-white border border-gray-100 shadow-xl rounded-3xl">
+          <div className="flex justify-center mb-6">
+            <div className="p-4 text-teal-600 rounded-full bg-teal-50">
+              <Lock size={32} />
+            </div>
+          </div>
+          <h1 className="mb-2 text-2xl font-bold text-center text-teal-900">
+            Admin Access
+          </h1>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="relative">
+              <Mail className="absolute text-gray-400 left-3 top-3" size={20} />
+              <input
+                type="email"
+                required
+                placeholder="eduardo@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full py-3 pl-10 pr-4 border border-gray-200 outline-none rounded-xl focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 font-bold text-white bg-teal-600 rounded-xl disabled:bg-gray-300"
+            >
+              {loading ? (
+                <Loader2 className="mx-auto animate-spin" />
+              ) : (
+                "Send Magic Link"
+              )}
+            </button>
+          </form>
+          {authMessage && (
+            <div
+              className={`mt-6 p-4 rounded-lg text-sm text-center ${
+                authMessage.type === "error"
+                  ? "bg-red-50 text-red-600"
+                  : "bg-green-50 text-green-600"
+              }`}
+            >
+              {authMessage.text}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="p-2 mx-auto max-w-7xl md:p-6">
+        <div
+          className={`flex justify-between items-end mb-4 md:mb-6 ${
+            selectedDate ? "hidden md:flex" : "flex"
+          }`}
+        >
+          <div>
+            <h1 className="text-2xl font-bold text-teal-900 md:text-3xl">
+              Operations
+            </h1>
+            <p className="text-xs text-gray-500 md:text-sm">
+              Logged in as{" "}
+              <span className="font-semibold">{session.user.email}</span>
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-xs font-bold tracking-widest text-gray-400 uppercase hover:text-red-500"
+          >
+            <LogOut size={16} /> Logout
+          </button>
+        </div>
+        <div className="relative flex flex-col items-start gap-6 lg:flex-row">
+          <div className="w-full lg:flex-1">
+            <DashboardCalendar
+              onDateSelect={setSelectedDate}
+              selectedDate={selectedDate}
+            />
+          </div>
+          {selectedDate && (
+            <div className="fixed inset-0 z-50 lg:static lg:z-auto lg:w-[400px] lg:shrink-0 lg:h-[calc(100vh-100px)]">
+              <DayManifest
+                date={selectedDate}
+                onClose={() => setSelectedDate(null)}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
+
+==> src/pages/Terms.jsx <==
+import React from "react";
+
+const Terms = () => (
+  <div className="pt-32 pb-20 max-w-3xl mx-auto px-6 text-gray-800 leading-relaxed">
+    <h1 className="text-3xl font-bold mb-6 font-lora">
+      Terms of Service (v1.0)
+    </h1>
+    <section className="space-y-4">
+      <h2 className="text-xl font-semibold">1. Cancellation Policy</h2>
+      <p>
+        Cancellations made more than 24 hours before the tour start time are
+        eligible for a full refund. Cancellations made within 24 hours are
+        non-refundable.
+      </p>
+
+      <h2 className="text-xl font-semibold">2. Pix Refunds</h2>
+      <p>
+        Refunds for payments made via Pix will be processed manually within 5
+        business days to the original account used.
+      </p>
+
+      <h2 className="text-xl font-semibold">3. Safety</h2>
+      <p>
+        The tour guide reserves the right to cancel or reschedule tours due to
+        unsafe weather conditions (wind/rain). In such cases, a full refund or
+        rescheduling will be offered.
+      </p>
+    </section>
+  </div>
+);
+
+export default Terms;
+
+==> src/pages/Home.jsx <==
+import React from "react";
+import { Link } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
+import { ChevronRight } from "lucide-react";
+
+const Home = () => {
+  const { t } = useLanguage();
+
+  return (
+    <div className="flex flex-col bg-gray-900">
+      {/* --- HERO SECTION --- */}
+      <section className="relative flex items-center justify-center w-full h-screen overflow-hidden text-center">
+        {/* Video Background Layer */}
+        <div className="absolute inset-0 w-full h-full">
+          <video
+            playsInline
+            autoPlay
+            muted
+            loop
+            preload="metadata"
+            className="object-cover w-full h-full"
+          >
+            <source src="/img/Pipa-Canoe_1.mp4" type="video/mp4" />
+          </video>
+
+          {/* Overlay 1: Vignette for text readability */}
+          <div className="absolute inset-0 bg-black/30 bg-gradient-to-b from-black/60 via-transparent to-black/20"></div>
+
+          {/* Overlay 2: THE CINEMATIC TRANSITION 
+              Fades the video into the exact background color of the footer */}
+          <div className="absolute bottom-0 left-0 right-0 z-10 h-64 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent"></div>
+
+          {/* Subtle Brand Horizon Line */}
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-[#FF6B6B] opacity-20 z-20"></div>
+        </div>
+
+        {/* Content Layer */}
+        <div className="relative z-30 max-w-5xl px-6 mx-auto">
+          {/* <div className="inline-block mb-4 px-4 py-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF6B6B]">
+              Tibau do Sul • RN
+            </span>
+          </div> */}
+
+          <h1 className="mb-6 text-5xl font-black leading-tight text-white sm:text-6xl md:text-8xl font-lora drop-shadow-2xl">
+            {t("heroTitle")}
+          </h1>
+
+          <p className="max-w-2xl mx-auto mb-10 text-lg font-medium leading-relaxed sm:text-xl text-white/80 drop-shadow-lg">
+            {t("heroSubtitle")}
+          </p>
+
+          <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
+            <Link
+              to="/book"
+              className="group bg-[#FF6B6B] hover:bg-white hover:text-[#FF6B6B] text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-2"
+            >
+              {t("ctaButton")}
+              <ChevronRight
+                size={18}
+                className="transition-transform group-hover:translate-x-1"
+              />
+            </Link>
+
+            <Link
+              to="/tours"
+              className="px-10 py-4 text-sm font-black tracking-widest text-white uppercase transition-all border-2 border-white/30 rounded-2xl hover:bg-white/10 hover:border-white backdrop-blur-sm"
+            >
+              {t("learnMore")}
+            </Link>
+          </div>
+        </div>
+
+        {/* Subtle Scroll Indicator */}
+        <div className="absolute z-30 -translate-x-1/2 opacity-50 bottom-12 left-1/2 animate-bounce">
+          <div className="w-[1px] h-12 bg-gradient-to-b from-white to-transparent"></div>
+        </div>
+      </section>
+
+      {/* 
+          Note: intermediate sections are commented out.
+          The gray-900 background on the parent div ensures 
+          a seamless merge with the footer.
+      */}
+    </div>
+  );
+};
+
+export default Home;
+
+==> src/pages/Tours.jsx <==
+import React, { useState, useEffect } from "react";
+import { useLanguage } from "../context/LanguageContext";
+import { getTourTemplates } from "../api";
+import TourModal from "../components/TourModal";
+import { Loader2 } from "lucide-react"; // Added for professional spinner
+
+const Tours = () => {
+  const { t } = useLanguage();
+  const [tours, setTours] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedTour, setSelectedTour] = useState(null);
+
+  useEffect(() => {
+    const loadMenu = async () => {
+      try {
+        const data = await getTourTemplates();
+        setTours(data || []);
+      } catch (err) {
+        console.error("Failed to load tour menu:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadMenu();
+  }, []);
+
+  return (
+    <div className="min-h-screen pt-24 pb-12 bg-gray-50">
+      <div className="container px-6 mx-auto">
+        {/* Header Section remains visible to maintain layout */}
+        <h1 className="mb-4 text-4xl font-bold text-center text-gray-900 md:text-5xl font-lora">
+          {t("navTours")}
+        </h1>
+        <p className="max-w-2xl mx-auto mb-12 text-xl text-center text-gray-600">
+          {t("detailsSubtitle")}
+        </p>
+
+        {loading ? (
+          /* 1. Refactored Loading State: Centered Spinner with reserved space */
+          <div className="flex flex-col items-center justify-center min-h-[400px]">
+            <Loader2 className="w-12 h-12 text-[#FF6B6B] animate-spin mb-4" />
+            <p className="text-xs font-medium tracking-widest text-gray-400 uppercase animate-pulse">
+              {t("loading")}
+            </p>
+          </div>
+        ) : (
+          /* 2. Refactored Grid: justify-center ensures cards stay in the middle if < 3 */
+          <div className="grid justify-center gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {tours.map((tour) => (
+              <div
+                key={tour.id}
+                className="flex flex-col w-full max-w-sm mx-auto overflow-hidden transition-all duration-300 bg-white border border-gray-100 shadow-md cursor-pointer rounded-3xl hover:shadow-xl group"
+                onClick={() => setSelectedTour(tour)}
+              >
+                <div className="relative h-64 overflow-hidden">
+                  <img
+                    src={tour.imageUrl || "/img/sunrise_pic.jpg"}
+                    alt={tour.name}
+                    className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center transition-colors bg-teal-900/0 group-hover:bg-teal-900/20">
+                    <span className="px-6 py-2 font-bold text-teal-900 transition-all duration-300 translate-y-4 bg-white rounded-full shadow-xl opacity-0 group-hover:translate-y-0 group-hover:opacity-100">
+                      {t("viewDetails")}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col flex-grow p-8">
+                  <h3 className="mb-3 text-2xl font-bold text-teal-950 font-lora">
+                    {tour.name}
+                  </h3>
+                  <p className="flex-grow mb-6 leading-relaxed text-gray-600">
+                    {t(`tour_${tour.tourType}_short`) || tour.shortDescription}
+                  </p>
+
+                  <div className="flex items-center justify-between mt-auto">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                        {t("pricePrefix")}
+                      </span>
+                      <span className="text-xl font-black text-teal-900">
+                        R$ {tour.price}
+                      </span>
+                    </div>
+                    <span className="text-[#FF6B6B] font-bold group-hover:translate-x-1 transition-transform">
+                      {t("viewDetails")} →
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <TourModal tour={selectedTour} onClose={() => setSelectedTour(null)} />
+    </div>
+  );
+};
+
+export default Tours;
+
+==> src/pages/FAQ.jsx <==
+import React, { useState, useMemo } from "react";
+import { useLanguage } from "../context/LanguageContext";
+import { faqData } from "../data/faqData";
+import { ChevronDown, Search, X } from "lucide-react";
+
+const FAQItem = ({ question, answer, searchTerm }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Simple highlight logic for the search term
+  const highlightText = (text, highlight) => {
+    if (!highlight.trim()) return text;
+    const parts = text.split(new RegExp(`(${highlight})`, "gi"));
+    return (
+      <span>
+        {parts.map((part, i) =>
+          part.toLowerCase() === highlight.toLowerCase() ? (
+            <mark
+              key={i}
+              className="bg-yellow-100 text-gray-900 rounded-sm px-0.5"
+            >
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
+  };
+
+  return (
+    <div className="border-b border-gray-100 last:border-0">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-start justify-between w-full py-5 text-left group"
+      >
+        <span
+          className={`font-bold text-lg pr-4 transition-colors ${
+            isOpen ? "text-[#FF6B6B]" : "text-slate-800"
+          }`}
+        >
+          {highlightText(question, searchTerm)}
+        </span>
+        <ChevronDown
+          size={20}
+          className={`mt-1 text-gray-400 transition-transform duration-300 ${
+            isOpen ? "rotate-180 text-[#FF6B6B]" : ""
+          }`}
+        />
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-300 ${
+          isOpen ? "max-h-[500px] opacity-100 pb-6" : "max-h-0 opacity-0"
+        }`}
+      >
+        <p className="text-base leading-relaxed text-gray-600">
+          {highlightText(answer, searchTerm)}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const FAQ = () => {
+  const { language, t } = useLanguage();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
+
+  const currentFaqData = faqData[language] || faqData["en"];
+
+  // Filter Logic
+  const filteredFaq = useMemo(() => {
+    return currentFaqData
+      .filter((cat) => activeCategory === "all" || cat.id === activeCategory)
+      .map((cat) => ({
+        ...cat,
+        items: cat.items.filter(
+          (item) =>
+            item.q.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.a.toLowerCase().includes(searchTerm.toLowerCase())
+        ),
+      }))
+      .filter((cat) => cat.items.length > 0);
+  }, [currentFaqData, searchTerm, activeCategory]);
+
+  return (
+    <div className="min-h-screen pt-32 pb-20 bg-slate-50">
+      <div className="container max-w-4xl px-6 mx-auto">
+        {/* Header Section */}
+        <div className="mb-12 text-center">
+          <h1 className="mb-4 text-4xl font-black md:text-5xl text-slate-900 font-lora">
+            {t("faqSectionTitle")}
+          </h1>
+          <p className="max-w-2xl mx-auto text-lg text-slate-500">
+            {t("faqSubtitle")}
+          </p>
+        </div>
+
+        {/* Search Bar Component */}
+        <div className="relative max-w-2xl mx-auto mb-10">
+          <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 pointer-events-none">
+            <Search size={20} />
+          </div>
+          <input
+            type="text"
+            placeholder="Search for questions (e.g. 'swim', 'price', 'moon')..."
+            className="w-full pl-12 pr-12 py-4 bg-white rounded-2xl border-none shadow-lg focus:ring-4 focus:ring-[#FF6B6B]/10 transition-all outline-none text-slate-700 font-medium"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600"
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+
+        {/* Category Filter Chips */}
+        <div className="flex flex-wrap justify-center gap-3 mb-12">
+          <button
+            onClick={() => setActiveCategory("all")}
+            className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
+              activeCategory === "all"
+                ? "bg-[#FF6B6B] text-white shadow-md"
+                : "bg-white text-slate-500 hover:bg-slate-100"
+            }`}
+          >
+            All Questions
+          </button>
+          {currentFaqData.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`px-5 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2 ${
+                activeCategory === Math.floor(cat.id) ||
+                activeCategory === cat.id
+                  ? "bg-teal-900 text-white shadow-md"
+                  : "bg-white text-slate-500 hover:bg-slate-100"
+              }`}
+            >
+              <span>{cat.icon}</span> {cat.title}
+            </button>
+          ))}
+        </div>
+
+        {/* Content Area */}
+        <div className="space-y-10">
+          {filteredFaq.length > 0 ? (
+            filteredFaq.map((category) => (
+              <div key={category.id} className="animate-fadeIn">
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="text-2xl">{category.icon}</span>
+                  <h2 className="text-xl font-black tracking-widest uppercase text-slate-800">
+                    {category.title}
+                  </h2>
+                  <div className="flex-grow h-px ml-4 bg-slate-200"></div>
+                </div>
+                <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 px-8">
+                  {category.items.map((item, idx) => (
+                    <FAQItem
+                      key={idx}
+                      question={item.q}
+                      answer={item.a}
+                      searchTerm={searchTerm}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-20 bg-white rounded-[2rem] border border-dashed border-slate-300">
+              <p className="font-medium text-slate-400">
+                No questions found matching "{searchTerm}"
+              </p>
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setActiveCategory("all");
+                }}
+                className="mt-4 text-[#FF6B6B] font-bold underline"
+              >
+                Clear all filters
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FAQ;
+
+==> src/styles.css <==
+@import "tailwindcss";
+
+/* --- 1. Tailwind v4 Theme Configuration --- */
+@theme {
+  /* Define custom fonts - must match the names in index.html */
+  --font-lora: "Lora", serif;
+  --font-sans: "Open Sans", sans-serif;
+
+  /* Define Brand Colors */
+  --color-brand-red: #ff6b6b;
+  --color-brand-red-hover: #ff5252;
+
+  /* Custom Animations */
+  --animate-bounce-short: bounce-short 1s ease-in-out infinite;
+}
+
+/* --- 2. Base Styles --- */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    width: 100%;
+    overflow-x: hidden;
+    font-family: var(--font-sans);
+    @apply bg-gray-50 text-gray-800 antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-lora);
+  }
+}
+
+/* --- 3. Hero & Video Background --- */
+.video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: -20;
+}
+
+.hero-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100vw;
+  min-height: 100vh;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+}
+
+.hero-video-ken-burns {
+  animation: kenburns 20s ease-out infinite alternate;
+}
+
+@keyframes kenburns {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+.gradient-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+}
+
+/* --- 4. Utilities & Effects --- */
+.text-shadow-lg {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+}
+
+.text-shadow-md {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.hero-text {
+  animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scroll-indicator {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%,
+  43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+@keyframes bounce-short {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* --- 5. Custom UI Components --- */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* --- 6. Deep Chat Component Overrides --- */
+deep-chat {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 1000 !important;
+
+  --deep-chat-button-background-color: var(--color-brand-red);
+  --deep-chat-button-icon-color: #ffffff;
+  --deep-chat-header-background-color: var(--color-brand-red);
+  --deep-chat-title-text-color: #ffffff;
+  --deep-chat-primary-color: var(--color-brand-red);
+  --deep-chat-font-family: var(--font-sans);
+  --deep-chat-panel-color: #ffffff;
+}
+
+deep-chat .intro-panel {
+  width: 280px !important;
+  background-color: #f3f3f3 !important;
+  border-radius: 10px !important;
+  padding: 15px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Striped background for closed days in dashboard */
+.striped-background {
+  background-image: linear-gradient(
+    45deg,
+    #f3f4f6 25%,
+    transparent 25%,
+    transparent 50%,
+    #f3f4f6 50%,
+    #f3f4f6 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 20px 20px;
+}
+
+==> src/components/BookingSystem.jsx <==
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import * as Sentry from "@sentry/react";
+import { getAvailableTours, createBooking } from "../api";
+import { useLanguage } from "../context/LanguageContext";
+import { PaymentView } from "./booking/PaymentView";
+import { SuccessView } from "./booking/SuccessView";
+import { BookingForm } from "./booking/BookingForm";
+import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
+import { useBooking } from "../hooks/useBooking";
+
+const getStoredSession = () => {
+  try {
+    const saved = localStorage.getItem("pending_booking");
+    return saved ? JSON.parse(saved) : null;
+  } catch (e) {
+    return null;
+  }
+};
+
+function BookingSystem() {
+  const { language, t } = useLanguage();
+
+  // Ref to track component mount status for async safety
+  const isMounted = useRef(true);
+
+  // --- 1. STATE INITIALIZATION ---
+  const [session] = useState(() => getStoredSession());
+  const [availableTours, setAvailableTours] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(getTodayLocalDate());
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [showBookingModal, setShowBookingModal] = useState(!!session);
+  const [selectedTour, setSelectedTour] = useState(null);
+  const [bookingTourId, setBookingTourId] = useState(null);
+
+  const [guestName, setGuestName] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
+  const [numPeople, setNumPeople] = useState(1);
+  const [specialNotes, setSpecialNotes] = useState("");
+  const [formError, setFormError] = useState(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  const {
+    currentBooking,
+    setCurrentBooking,
+    paymentInfo,
+    setPaymentInfo,
+    isConfirmed,
+    setIsConfirmed,
+    isExpired,
+    isFailed,
+    hasConnectionIssue,
+    clearBooking,
+  } = useBooking(session, selectedDate, setAvailableTours);
+
+  // --- 2. LOGIC HELPERS ---
+
+  const getTourName = useCallback(
+    (tourType) => {
+      const mapping = {
+        sunrise: "card1Title",
+        morning: "card1Title",
+        full_day: "card2Title",
+        all_day: "card2Title",
+        sunset: "card3Title",
+        evening: "card3Title",
+      };
+      const key = mapping[tourType];
+      return key ? t(key) : "Unknown Tour";
+    },
+    [t]
+  );
+
+  // --- 3. ASYNC DATA LOADING ---
+
+  const loadAvailability = useCallback(
+    async (signal) => {
+      if (!isMounted.current) return;
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await getAvailableTours(selectedDate, { signal });
+        if (isMounted.current && !signal?.aborted) {
+          setAvailableTours(data || []);
+        }
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        if (isMounted.current) setError("LOAD_ERROR");
+      } finally {
+        if (isMounted.current && !signal?.aborted) setIsLoading(false);
+      }
+    },
+    [selectedDate]
+  );
+
+  // Lifecycle Management
+  useEffect(() => {
+    isMounted.current = true;
+    const controller = new AbortController();
+
+    loadAvailability(controller.signal);
+
+    return () => {
+      isMounted.current = false;
+      controller.abort();
+    };
+  }, [selectedDate, language, loadAvailability]);
+
+  // Modal Escape Key Listener
+  useEffect(() => {
+    if (!showBookingModal) return;
+    const handleEsc = (e) => {
+      if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [showBookingModal]);
+
+  // --- 4. EVENT HANDLERS ---
+
+  const handleBookTour = async () => {
+    if (bookingTourId || !selectedTour) return;
+    setFormError(null);
+
+    if (!acceptedTerms) {
+      setFormError(t("errorTerms"));
+      return;
+    }
+
+    if (!guestName || !guestEmail) {
+      setFormError(t("alertMissing"));
+      return;
+    }
+
+    Sentry.setUser({ email: guestEmail, username: guestName });
+
+    const controller = new AbortController();
+    setBookingTourId(selectedTour.instanceId);
+
+    try {
+      const total = selectedTour.price * numPeople;
+      const result = await createBooking(
+        {
+          tourId: selectedTour.instanceId,
+          guestName,
+          guestEmail,
+          numPeople,
+          totalPrice: total,
+          specialNotes,
+          acceptedTerms,
+        },
+        { signal: controller.signal }
+      );
+
+      if (isMounted.current && !controller.signal.aborted) {
+        if (result.success) {
+          setPaymentInfo(result.paymentInfo);
+          setCurrentBooking(result.booking);
+          setIsConfirmed(false);
+        } else {
+          setFormError(`${t("alertFailed")}: ${result.message}`);
+        }
+      }
+    } catch (error) {
+      if (error.name === "AbortError") return;
+      if (isMounted.current) {
+        setFormError(t("alertError"));
+        Sentry.captureException(error);
+      }
+    } finally {
+      if (isMounted.current) setBookingTourId(null);
+    }
+  };
+
+  const closeModal = async () => {
+    clearBooking();
+    setShowBookingModal(false);
+    setSelectedTour(null);
+    setGuestName("");
+    setGuestEmail("");
+    setNumPeople(1);
+    setSpecialNotes("");
+    setAcceptedTerms(false);
+    setFormError(null);
+    Sentry.setUser(null);
+    await loadAvailability();
+  };
+
+  const openModal = (tour) => {
+    if (isPastDate(selectedDate)) {
+      setFormError(t("alertPastDate"));
+      return;
+    }
+    setFormError(null);
+    setSelectedTour(tour);
+    setNumPeople(1);
+    setShowBookingModal(true);
+  };
+
+  // --- 5. RENDER HELPERS ---
+
+  const renderTourList = () => {
+    if (isLoading)
+      return (
+        <div
+          className="flex flex-col items-center gap-4 py-16"
+          data-testid="loading-state"
+        >
+          <div className="w-10 h-10 border-4 border-[#FF6B6B] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">
+            {t("loading")}
+          </p>
+        </div>
+      );
+
+    if (error)
+      return (
+        <p className="py-12 font-medium text-center text-red-500">
+          {t("errorGeneric")}
+        </p>
+      );
+
+    if (availableTours.length === 0)
+      return (
+        <p className="py-16 italic text-center text-gray-500">{t("noTours")}</p>
+      );
+
+    return availableTours
+      .filter((t) => t.isBookable)
+      .map((tour) => (
+        <div
+          key={tour.id}
+          onClick={() => openModal(tour)}
+          className="flex flex-col items-center gap-6 p-5 transition-all border-b cursor-pointer group last:border-b-0 hover:bg-gray-50/80 sm:flex-row"
+        >
+          {/* 1. IMAGE THUMBNAIL - Fixed Aspect Ratio */}
+          <div className="w-full h-40 overflow-hidden border border-gray-100 shadow-sm sm:w-48 sm:h-32 shrink-0 rounded-2xl">
+            <img
+              src={tour.imageUrl || "/img/sunset_pic.jpeg"}
+              alt={tour.name}
+              className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+            />
+          </div>
+
+          {/* 2. TOUR INFO - Better Typography */}
+          <div className="flex-grow space-y-2 text-center sm:text-left">
+            <h4 className="text-2xl font-bold text-teal-950 font-lora">
+              {tour.name || getTourName(tour.tourType)}
+            </h4>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 font-medium text-gray-500 sm:justify-start">
+              <span className="flex items-center gap-1.5 text-sm bg-gray-100 px-3 py-1 rounded-full text-gray-600">
+                <span className="text-orange-500">⏳</span>{" "}
+                {tour.duration || "2h"}
+              </span>
+
+              <span className="text-[10px] bg-teal-50 text-teal-700 px-2.5 py-1 rounded-md font-black uppercase tracking-widest border border-teal-100">
+                {t("navTours")}
+              </span>
+            </div>
+          </div>
+
+          {/* 3. PRICE & CTA - Clear Visual Hierarchy */}
+          <div className="flex flex-row items-center justify-between w-full gap-6 sm:flex-col sm:w-auto sm:items-end sm:justify-center">
+            <div className="text-left sm:text-right">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter block mb-[-4px]">
+                Total
+              </span>
+              <p className="text-3xl font-black text-teal-950">
+                <span className="text-sm font-bold text-teal-600 mr-0.5">
+                  {t("pricePrefix")}
+                </span>
+                {Math.floor(tour.price)}
+                <span className="text-lg font-bold opacity-40">
+                  .{(tour.price % 1).toFixed(2).split(".")[1]}
+                </span>
+              </p>
+            </div>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent double trigger since card is clickable
+                openModal(tour);
+              }}
+              className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-black py-3 px-10 rounded-2xl shadow-lg shadow-orange-200 transition-all active:scale-95 group-hover:shadow-orange-300"
+            >
+              {t("ctaButton")}
+            </button>
+          </div>
+        </div>
+      ));
+  };
+
+  return (
+    <section className="min-h-screen py-16 bg-gray-100 md:py-24">
+      <div className="container px-6 mx-auto">
+        <h2 className="mb-2 text-3xl font-bold text-center text-gray-800 md:text-4xl font-lora">
+          {t("bookingTitle")}
+        </h2>
+        <p className="mb-12 font-medium text-center text-gray-600">
+          {t("bookingSubtitle")}
+        </p>
+
+        <div className="flex flex-col items-center justify-center mb-10">
+          {formError && !showBookingModal && (
+            <div
+              role="alert"
+              className="w-full max-w-3xl p-4 mb-4 text-red-700 bg-red-100 border-l-4 border-red-500 rounded shadow-sm"
+            >
+              {formError}
+            </div>
+          )}
+          <label
+            htmlFor="tour-date-input"
+            className="mb-2 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase"
+          >
+            {t("selectDateLabel")}
+          </label>
+          <div className="relative group">
+            <input
+              id="tour-date-input"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              min={getTodayLocalDate()}
+              className="p-3 bg-white px-6 rounded-xl border border-gray-200 shadow-sm focus:ring-4 focus:ring-[#FF6B6B]/20 focus:border-[#FF6B6B] transition-all outline-none font-bold text-gray-700"
+            />
+          </div>
+        </div>
+
+        <div className="max-w-3xl mx-auto overflow-hidden bg-white border border-white shadow-xl rounded-3xl">
+          {renderTourList()}
+        </div>
+
+        {showBookingModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            role="presentation"
+            onClick={closeModal}
+          >
+            <div
+              className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-title"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {isConfirmed ? (
+                <SuccessView
+                  guestEmail={guestEmail || currentBooking?.guest_email}
+                  onClose={closeModal}
+                />
+              ) : paymentInfo ? (
+                <PaymentView
+                  paymentInfo={paymentInfo}
+                  onClose={closeModal}
+                  hasConnectionIssue={hasConnectionIssue}
+                  isExpired={isExpired}
+                  isFailed={isFailed}
+                />
+              ) : selectedTour ? (
+                <BookingForm
+                  tour={{
+                    ...selectedTour,
+                    name:
+                      selectedTour.name || getTourName(selectedTour.tourType),
+                  }}
+                  selectedDate={selectedDate}
+                  guestName={guestName}
+                  setGuestName={setGuestName}
+                  guestEmail={guestEmail}
+                  setGuestEmail={setGuestEmail}
+                  numPeople={numPeople}
+                  setNumPeople={setNumPeople}
+                  specialNotes={specialNotes}
+                  setSpecialNotes={setSpecialNotes}
+                  onConfirm={handleBookTour}
+                  onCancel={closeModal}
+                  isSubmitting={!!bookingTourId}
+                  error={formError}
+                  acceptedTerms={acceptedTerms}
+                  setAcceptedTerms={setAcceptedTerms}
+                />
+              ) : null}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+export default BookingSystem;
+
+==> src/components/Footer.jsx <==
+import React from "react";
+import { Link } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
+import { Instagram, ArrowUpRight } from "lucide-react";
+import BrandLogo from "./BrandLogo";
+
+const Footer = () => {
+  const { t } = useLanguage();
+  const currentYear = new Date().getFullYear();
+
+  // Optimized Link Component for Horizontal Layout
+  const FooterLink = ({ to, children, primary }) => (
+    <li>
+      <Link
+        to={to}
+        className={`group relative flex items-center gap-1 transition-all duration-300 ${
+          primary
+            ? "text-[#FF6B6B] font-black"
+            : "text-gray-400 hover:text-white font-bold"
+        }`}
+      >
+        {children}
+        <ArrowUpRight
+          size={10}
+          className={`transition-all duration-300 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 ${
+            primary ? "text-[#FF6B6B]" : "text-gray-500"
+          }`}
+        />
+      </Link>
+    </li>
+  );
+
+  return (
+    <footer className="pt-20 pb-10 text-white bg-gray-900 border-t border-white/5">
+      <div className="container px-6 mx-auto">
+        <div className="grid items-start grid-cols-1 gap-16 mb-20 md:grid-cols-12">
+          {/* Column 1: Brand (4 Cols) */}
+          <div className="space-y-8 md:col-span-4">
+            <div className="flex items-center gap-5">
+              <BrandLogo className="w-16 h-16 transition-transform shadow-2xl hover:-rotate-3" />
+              <div>
+                <h2 className="text-2xl font-bold leading-none tracking-tighter font-lora">
+                  Pipa Canoa <br />
+                  <span className="text-[#FF6B6B]">Havaiana</span>
+                </h2>
+                <p className="mt-2 text-[9px] uppercase tracking-[0.4em] text-gray-500 font-black">
+                  Experience the Soul
+                </p>
+              </div>
+            </div>
+
+            <p className="max-w-sm text-sm italic font-medium leading-relaxed text-gray-400/70">
+              "{t("heroSubtitle").substring(0, 115)}..."
+            </p>
+
+            <div className="flex items-center gap-6">
+              <a
+                href="https://www.instagram.com/pipa_canoa_havaiana"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 group"
+              >
+                <div className="p-3 rounded-2xl bg-white/5 border border-white/10 group-hover:bg-[#FF6B6B] group-hover:border-[#FF6B6B] transition-all duration-500">
+                  <Instagram size={18} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                    Instagram
+                  </span>
+                  <span className="text-xs text-gray-400 group-hover:text-[#FF6B6B] transition-colors">
+                    @pipacanoe
+                  </span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          {/* Column 2: Center Navigation (5 Cols) - THE HORIZONTAL GRID */}
+          <div className="py-2 md:col-span-5">
+            <ul className="flex flex-row flex-wrap justify-start md:justify-center gap-x-10 gap-y-6 text-[11px] uppercase tracking-[0.2em]">
+              <FooterLink to="/">{t("navHome")}</FooterLink>
+              <FooterLink to="/tours">{t("navTours")}</FooterLink>
+              <FooterLink to="/about">{t("navAbout")}</FooterLink>
+              <FooterLink to="/faq">{t("navFaq")}</FooterLink>
+              <FooterLink to="/book" primary>
+                {t("navBook")}
+              </FooterLink>
+            </ul>
+          </div>
+
+          {/* Column 3: Legal & Local (3 Cols) */}
+          <div className="flex flex-col text-left md:col-span-3 md:items-end md:text-right">
+            <h3 className="mb-6 text-[9px] font-black uppercase tracking-[0.3em] text-gray-600">
+              {t("footerLegal")}
+            </h3>
+            <ul className="flex flex-col gap-4 text-[11px] uppercase tracking-widest mb-10">
+              <FooterLink to="/terms">{t("footerTerms")}</FooterLink>
+              <FooterLink to="/privacy">{t("footerPrivacy")}</FooterLink>
+            </ul>
+
+            <div className="w-full pt-6 space-y-4 border-t border-white/5 md:w-auto">
+              <div>
+                <p className="text-[9px] font-black text-[#FF6B6B] uppercase tracking-widest mb-1">
+                  Base Pipa
+                </p>
+                <p className="text-sm italic text-gray-300 font-lora">
+                  Tibau do Sul, RN
+                </p>
+              </div>
+              <div>
+                <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest mb-1">
+                  Local
+                </p>
+                <p className="text-xs text-gray-500">Lagoa das Guaraíras</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="flex flex-col items-center justify-between gap-8 pt-10 border-t border-white/5 md:flex-row">
+          <p className="text-[9px] tracking-[0.2em] text-gray-600 uppercase font-bold">
+            © {currentYear} Pipa Canoa Havaiana
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+            <span className="text-[9px] text-gray-500 uppercase tracking-[0.2em]">
+              {t("footer_powered_by")}
+            </span>
+            <div className="hidden md:block w-6 h-[1px] bg-white/10"></div>
+            <span className="text-[9px] text-gray-500 uppercase tracking-[0.2em]">
+              {t("footer_developed_by")}{" "}
+              <a
+                href="https://aisolutions.irish"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-black text-gray-400 hover:text-[#FF6B6B] transition-colors"
+              >
+                AI Solutions
+              </a>
+            </span>
+            <div className="hidden md:block w-6 h-[1px] bg-white/10"></div>
+            <span className="text-[9px] text-[#FF6B6B] font-bold uppercase tracking-[0.1em] italic">
+              Aloha Spirit
+            </span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
+
+==> src/components/BrandLogo.jsx <==
+import React from "react";
+import { useLanguage } from "../context/LanguageContext";
+
+const BrandLogo = ({ className = "w-16 h-16" }) => {
+  const { t } = useLanguage();
+
+  return (
+    /* 
+      1. bg-white: This is the 'frame'. Because your logo is a black circle, 
+         putting it on white creates an immediate 'pop' against the dark header.
+      2. p-0.5: Just a tiny bit of white padding to create a clean 'ring' effect.
+    */
+    <div
+      className={`overflow-hidden rounded-full bg-white shadow-xl flex items-center justify-center border-2 border-white ${className}`}
+    >
+      <img
+        src="/img/logo.png"
+        alt={t("logoAlt")}
+        /* 
+           object-cover + w-full: This ensures the black background 
+           of your image fills the entire white circle.
+        */
+        className="block object-cover w-full h-full"
+        onError={(e) => {
+          e.target.style.display = "none";
+        }}
+      />
+    </div>
+  );
+};
+
+export default BrandLogo;
+
+==> src/components/booking/BookingForm.jsx <==
+import React from "react";
+import { Link } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
+import { Plus, Minus } from "lucide-react";
+
+export function BookingForm({
+  tour,
+  selectedDate,
+  guestName,
+  setGuestName,
+  guestEmail,
+  setGuestEmail,
+  numPeople,
+  setNumPeople,
+  specialNotes,
+  setSpecialNotes,
+  acceptedTerms,
+  setAcceptedTerms,
+  onConfirm,
+  onCancel,
+  isSubmitting,
+  error,
+}) {
+  const { t } = useLanguage();
+
+  // Calculation uses a fallback to 0 if the input is temporarily empty
+  const currentNum = parseInt(numPeople, 10) || 0;
+  const totalPrice = tour.price * currentNum;
+
+  /**
+   * Allows users to type freely.
+   * Prevents snapping to "1" immediately when they backspace.
+   */
+  const handlePeopleChange = (e) => {
+    const rawValue = e.target.value;
+
+    // Allow empty string so user can clear the field to type a new number
+    if (rawValue === "") {
+      setNumPeople("");
+      return;
+    }
+
+    let val = parseInt(rawValue, 10);
+    if (isNaN(val)) return;
+
+    // Constrain to available capacity
+    if (val > tour.remaining) val = tour.remaining;
+    if (val < 0) val = 0; // Allow 0 while typing, we fix it on Blur
+
+    setNumPeople(val);
+  };
+
+  /**
+   * Helper for the +/- buttons
+   */
+  const adjustPeople = (amount) => {
+    const nextValue = (parseInt(numPeople, 10) || 0) + amount;
+    if (nextValue >= 1 && nextValue <= tour.remaining) {
+      setNumPeople(nextValue);
+    }
+  };
+
+  /**
+   * Final validation when the user clicks away
+   */
+  const handleBlur = () => {
+    if (!numPeople || numPeople < 1) {
+      setNumPeople(1);
+    }
+  };
+
+  return (
+    <>
+      <h3 id="modal-title" className="mb-4 text-2xl font-bold text-gray-800">
+        {t("bookTitle")} <span className="text-[#FF6B6B]">{tour.name}</span>
+      </h3>
+
+      {error && (
+        <div
+          role="alert"
+          className="p-3 mb-4 text-sm font-medium text-red-600 border border-red-200 rounded-lg bg-red-50"
+        >
+          {error}
+        </div>
+      )}
+
+      {/* Booking Summary Card */}
+      <div className="p-4 mb-6 border border-gray-100 rounded-lg bg-gray-50">
+        <p className="flex justify-between text-gray-600">
+          <span className="font-semibold">{t("labelDate")}:</span>
+          <span>{selectedDate}</span>
+        </p>
+        <p className="flex justify-between mt-1 text-gray-600">
+          <span className="font-semibold">Price per person:</span>
+          <span>
+            {t("pricePrefix")} {tour.price.toFixed(2)}
+          </span>
+        </p>
+        <div className="flex items-center justify-between pt-3 mt-3 text-lg border-t border-gray-200">
+          <span className="font-bold text-gray-800">Total:</span>
+          <span className="font-bold text-[#FF6B6B]">
+            {t("pricePrefix")} {totalPrice.toFixed(2)}
+          </span>
+        </div>
+      </div>
+
+      {/* Guest Count Stepper */}
+      <div className="mb-8">
+        <label
+          htmlFor="num-people"
+          className="block mb-3 font-semibold text-gray-700"
+        >
+          Number of Guests (Max {tour.remaining})
+        </label>
+        <div className="flex items-center gap-6">
+          <button
+            type="button"
+            onClick={() => adjustPeople(-1)}
+            disabled={currentNum <= 1}
+            className="p-3 transition-all bg-white border border-gray-300 rounded-full hover:bg-gray-50 active:scale-90 disabled:opacity-30"
+          >
+            <Minus size={24} className="text-gray-600" />
+          </button>
+
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            id="num-people"
+            value={numPeople}
+            onChange={handlePeopleChange}
+            onBlur={handleBlur}
+            className="w-16 p-2 text-center font-bold text-3xl bg-transparent focus:outline-none border-b-2 border-gray-100 focus:border-[#FF6B6B]"
+            required
+          />
+
+          <button
+            type="button"
+            onClick={() => adjustPeople(1)}
+            disabled={currentNum >= tour.remaining}
+            className="p-3 transition-all bg-white border border-gray-300 rounded-full hover:bg-gray-50 active:scale-90 disabled:opacity-30"
+          >
+            <Plus size={24} className="text-gray-600" />
+          </button>
+        </div>
+      </div>
+
+      {/* Name Input */}
+      <div className="mb-4">
+        <label
+          htmlFor="guest-name"
+          className="block mb-2 font-semibold text-gray-700"
+        >
+          {t("labelName")} *
+        </label>
+        <input
+          type="text"
+          id="guest-name"
+          value={guestName}
+          onChange={(e) => setGuestName(e.target.value)}
+          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
+          placeholder={t("placeholderName")}
+          required
+        />
+      </div>
+
+      {/* Email Input */}
+      <div className="mb-6">
+        <label
+          htmlFor="guest-email"
+          className="block mb-2 font-semibold text-gray-700"
+        >
+          {t("labelEmail")} *
+        </label>
+        <input
+          type="email"
+          id="guest-email"
+          value={guestEmail}
+          onChange={(e) => setGuestEmail(e.target.value)}
+          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
+          placeholder={t("placeholderEmail")}
+          required
+        />
+      </div>
+
+      {/* Notes Input */}
+      <div className="mb-6">
+        <label
+          htmlFor="special-notes"
+          className="block mb-2 font-semibold text-gray-700"
+        >
+          {t("labelNotes")}
+        </label>
+        <textarea
+          id="special-notes"
+          value={specialNotes}
+          onChange={(e) => setSpecialNotes(e.target.value)}
+          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
+          placeholder={t("placeholderNotes")}
+          rows="3"
+        />
+      </div>
+
+      {/* LGPD COMPLIANCE CHECKBOX */}
+      <div className="flex items-start gap-3 p-3 mb-6 border border-gray-200 rounded-lg bg-gray-50">
+        <input
+          type="checkbox"
+          id="accept-terms"
+          checked={acceptedTerms}
+          onChange={(e) => setAcceptedTerms(e.target.checked)}
+          className="mt-1 h-5 w-5 rounded border-gray-300 text-[#FF6B6B] focus:ring-[#FF6B6B] cursor-pointer"
+        />
+        <label
+          htmlFor="accept-terms"
+          className="text-sm leading-tight text-gray-600 cursor-pointer"
+        >
+          {t("labelAcceptTerms")}
+          <Link
+            to="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#FF6B6B] underline font-medium mx-1 hover:text-[#FF5252]"
+          >
+            {t("linkTerms")}
+          </Link>
+          {t("linkAnd")}
+          <Link
+            to="/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#FF6B6B] underline font-medium mx-1 hover:text-[#FF5252]"
+          >
+            {t("linkPrivacy")}
+          </Link>
+          .
+        </label>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-4">
+        <button
+          onClick={onConfirm}
+          disabled={isSubmitting || !acceptedTerms || currentNum < 1}
+          className="flex-1 bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all 
+                     disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed flex justify-center items-center"
+        >
+          {isSubmitting ? t("btnSubmitting") : t("btnConfirm")}
+        </button>
+        <button
+          onClick={onCancel}
+          disabled={isSubmitting}
+          className="flex-1 px-6 py-3 font-bold text-gray-800 transition-colors bg-gray-300 rounded-lg shadow-md hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed"
+        >
+          {t("btnCancel")}
+        </button>
+      </div>
+    </>
+  );
+}
+
+==> src/components/booking/PaymentView.jsx <==
+import React, { useState, useEffect } from "react";
+import { useLanguage } from "../../context/LanguageContext";
+
+export function PaymentView({
+  paymentInfo,
+  onClose,
+  hasConnectionIssue,
+  isExpired,
+  isFailed,
+}) {
+  const { t } = useLanguage();
+  const [copied, setCopied] = useState(false);
+  // Default to 15 mins if metadata is missing
+  const [timeLeft, setTimeLeft] = useState(paymentInfo?.expires_in || 900);
+
+  // Countdown timer logic
+  useEffect(() => {
+    if (isExpired || isFailed || timeLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, isExpired, isFailed]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handleCopyPix = async () => {
+    if (!paymentInfo) return;
+    try {
+      await navigator.clipboard.writeText(paymentInfo.qr_code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      alert(t("alertCopyFail"));
+    }
+  };
+
+  return (
+    <div className="text-center animate-fadeIn">
+      {isFailed ? (
+        /* --- STATE: BANK REJECTION --- */
+        <div className="py-4">
+          <div className="mb-4 text-red-600">
+            <svg
+              className="w-16 h-16 mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h3
+            id="modal-title"
+            className="mb-2 text-2xl font-bold text-gray-800"
+          >
+            {t("failedTitle")}
+          </h3>
+          <p className="mb-8 text-gray-600">{t("failedDetail")}</p>
+        </div>
+      ) : isExpired ? (
+        /* --- STATE: EXPIRED --- */
+        <div className="py-4">
+          <div className="mb-4 text-red-500">
+            <svg
+              className="w-16 h-16 mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h3
+            id="modal-title"
+            className="mb-2 text-2xl font-bold text-gray-800"
+          >
+            {t("expiredTitle")}
+          </h3>
+          <p className="mb-8 text-gray-600">{t("expiredDetail")}</p>
+        </div>
+      ) : (
+        /* --- STATE: ACTIVE PAYMENT --- */
+        <>
+          {hasConnectionIssue && (
+            <div className="flex items-center gap-3 p-3 mb-4 text-sm border rounded-lg bg-amber-50 border-amber-200 text-amber-700 animate-pulse">
+              <svg
+                className="w-5 h-5 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <p className="text-sm text-yellow-600">
+                {t("connectionWarning")}
+              </p>
+            </div>
+          )}
+
+          <div className="mb-4 text-green-600">
+            <svg
+              className="w-16 h-16 mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+
+          <h3
+            id="modal-title"
+            className="mb-1 text-2xl font-bold text-gray-800"
+          >
+            {t("paymentTitle")}
+          </h3>
+
+          <div className="mb-4">
+            <p
+              className={`text-sm font-medium ${
+                timeLeft < 60 ? "text-red-500 animate-pulse" : "text-gray-500"
+              }`}
+            >
+              ⏱️ {t("expiresIn")}: {formatTime(timeLeft)}
+            </p>
+          </div>
+
+          <p className="px-4 mb-6 text-gray-600">{t("paymentInstruction")}</p>
+
+          <div className="flex justify-center p-4 mb-6 border border-gray-200 shadow-inner bg-gray-50 rounded-xl">
+            <img
+              src={paymentInfo.qr_code_image}
+              alt={t("altQrCode")}
+              className="object-contain w-48 h-48 mix-blend-multiply"
+            />
+          </div>
+
+          <button
+            onClick={handleCopyPix}
+            className={`w-full mb-6 font-bold py-3 px-6 rounded-lg shadow-sm border transition-all duration-200 flex items-center justify-center gap-2
+              ${
+                copied
+                  ? "bg-green-100 text-green-700 border-green-200"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              }`}
+          >
+            {copied ? t("btnCopied") : t("btnCopy")}
+          </button>
+
+          <div className="mb-6 text-left">
+            <p className="mb-1 ml-1 text-xs font-bold tracking-wide text-gray-500 uppercase">
+              {t("labelPixString")}
+            </p>
+            <p className="p-3 font-mono text-xs text-gray-500 break-all border border-gray-200 rounded-lg select-all bg-gray-50">
+              {paymentInfo.qr_code}
+            </p>
+          </div>
+        </>
+      )}
+
+      <button
+        onClick={onClose}
+        className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors"
+      >
+        {isExpired || isFailed ? t("btnRetry") : t("btnClose")}
+      </button>
+    </div>
+  );
+}
+
+==> src/components/booking/SuccessView.jsx <==
+import React from "react";
+import { useLanguage } from "../../context/LanguageContext";
+import BrandLogo from "../BrandLogo";
+
+export function SuccessView({ guestEmail, onClose }) {
+  const { t } = useLanguage();
+
+  return (
+    <div className="text-center animate-fadeIn">
+      {/* Brand Header for Success */}
+      <div className="flex flex-col items-center mb-8">
+        <BrandLogo className="w-20 h-20 mb-4 shadow-xl" />
+        <div className="relative">
+          {/* The checkmark now sits as a badge on the brand */}
+          <div className="absolute flex items-center justify-center w-12 h-12 bg-green-100 border-2 border-white rounded-full shadow-sm animate-bounce-short -bottom-2 -right-2">
+            <svg
+              className="w-6 h-6 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="4"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <h3 id="modal-title" className="mb-4 text-2xl font-bold text-gray-800">
+        {t("successTitle")}
+      </h3>
+
+      <p className="px-4 mb-8 leading-relaxed text-gray-600">
+        {t("successMessage")}{" "}
+        <strong className="block mt-1 font-semibold text-gray-900">
+          {guestEmail}
+        </strong>
+      </p>
+
+      <button
+        onClick={onClose}
+        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all hover:shadow-lg transform hover:-translate-y-0.5"
+      >
+        {t("btnDone")}
+      </button>
+    </div>
+  );
+}
+
+==> src/components/TourModal.jsx <==
+import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { X, CheckCircle, Backpack, Clock, Users, MapPin } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
+import BrandLogo from "./BrandLogo";
+
+const TourModal = ({ tour, onClose }) => {
+  const { t } = useLanguage();
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
+
+  if (!tour) return null;
+
+  const description = t(`tour_${tour.tourType}_detail`) || tour.description;
+  const paragraphs = description.split("\n\n");
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-black/80 backdrop-blur-md transition-all animate-in fade-in duration-300"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="bg-white w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header Image Section */}
+        <div className="relative h-48 md:h-72 shrink-0">
+          <img
+            src={tour.imageUrl || "/img/sunset_pic.jpeg"}
+            className="object-cover w-full h-full"
+            alt={tour.name}
+          />
+          <div className="absolute top-6 left-6">
+            <BrandLogo className="w-12 h-12 border-2 border-white shadow-xl" />
+          </div>
+          <button
+            onClick={onClose}
+            className="absolute p-2 text-white transition-all border rounded-full top-6 right-6 bg-black/10 hover:bg-black/30 backdrop-blur-md border-white/20"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Content Section */}
+        <div className="p-8 pb-32 overflow-y-auto md:p-10">
+          {/* Header Metadata */}
+          <div className="flex flex-col justify-between gap-4 mb-8 md:flex-row md:items-start">
+            <div className="space-y-1">
+              <p className="text-[10px] uppercase tracking-[0.4em] text-[#FF6B6B] font-black">
+                {tour.tourType === "full_moon" ? "Monthly Event" : "Daily Tour"}
+              </p>
+              <h2 className="text-3xl font-bold md:text-4xl text-teal-950 font-lora">
+                {tour.name}
+              </h2>
+            </div>
+            <div className="px-4 py-2 border bg-teal-50 rounded-2xl border-teal-100/50">
+              <span className="text-[10px] text-teal-600 font-bold uppercase tracking-widest block text-center mb-0.5">
+                {t("pricePrefix")}
+              </span>
+              <span className="block text-2xl font-black text-teal-900">
+                R$ {tour.price}
+              </span>
+            </div>
+          </div>
+
+          {/* Logistics Strip */}
+          <div className="flex flex-wrap gap-6 pb-8 mb-10 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <Clock size={16} className="text-orange-500" />
+              <span className="text-xs font-bold tracking-tighter text-gray-500 uppercase">
+                {t("logistics_duration")}:
+              </span>
+              <span className="text-xs font-black text-teal-950">
+                {tour.duration}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users size={16} className="text-teal-500" />
+              <span className="text-xs font-bold tracking-tighter text-gray-500 uppercase">
+                {t("logistics_capacity")}:
+              </span>
+              <span className="text-xs font-black text-teal-950">
+                {tour.capacity} Pax
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin size={16} className="text-blue-500" />
+              <span className="text-xs font-bold tracking-tighter text-gray-500 uppercase">
+                {t("logistics_meeting")}:
+              </span>
+              <span className="text-xs font-black text-teal-950">
+                Sunset Stairs
+              </span>
+            </div>
+          </div>
+
+          {/* Narrative Body */}
+          <div className="mb-12 space-y-6 leading-relaxed text-gray-600">
+            {paragraphs.map((p, i) => (
+              <p
+                key={i}
+                className={`${
+                  i === 0 ? "text-lg text-teal-900 font-semibold" : "text-base"
+                }`}
+              >
+                {p}
+              </p>
+            ))}
+          </div>
+
+          {/* Lists Grid */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-black text-teal-700 uppercase tracking-[0.2em] flex items-center gap-2">
+                <CheckCircle size={14} /> {t("modalIncluded")}
+              </h4>
+              <ul className="space-y-2">
+                {(tour.inclusions || []).map((item, idx) => (
+                  <li
+                    key={idx}
+                    className="flex items-start gap-2 text-sm text-gray-500"
+                  >
+                    <span className="font-bold text-teal-400">✓</span> {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-black text-orange-700 uppercase tracking-[0.2em] flex items-center gap-2">
+                <Backpack size={14} /> {t("modalBring")}
+              </h4>
+              <ul className="space-y-2">
+                {(tour.requirements || []).map((item, idx) => (
+                  <li
+                    key={idx}
+                    className="flex items-start gap-2 text-sm text-gray-500"
+                  >
+                    <span className="font-bold text-orange-400">•</span> {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Bar - Fixed Bottom with Glassmorphism */}
+        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between gap-4 p-6 border-t border-gray-100 md:px-10 bg-white/90 backdrop-blur-md">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-bold text-gray-400 transition-colors hover:text-gray-600"
+          >
+            {t("btnCancel")}
+          </button>
+
+          <Link
+            to="/book"
+            className="bg-teal-950 hover:bg-black text-white px-8 py-3.5 rounded-2xl font-bold text-sm shadow-xl transition-all hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"
+          >
+            {t("ctaButton")}
+            <span className="text-teal-400">→</span>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TourModal;
+
+==> src/components/Layout.jsx <==
+import Header from "./Header";
+// You can create Footer.jsx similarly, for now we can omit or add later
+const Layout = ({ children }) => {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow">{children}</main>
+      {/* <Footer /> */}
+    </div>
+  );
+};
+export default Layout;
+
+==> src/components/dashboard/DashboardCalendar.jsx <==
+import React, { useState, useEffect } from "react";
+import {
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  format,
+  isSameMonth,
+  isSameDay,
+} from "date-fns";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { fetchMonthlySchedule } from "../../api";
+
+const DashboardCalendar = ({ onDateSelect, selectedDate }) => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [bookingData, setBookingData] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // 1. Initialize the controller to manage this specific request lifecycle
+    const controller = new AbortController();
+
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth() + 1;
+
+        // 2. Pass the signal to the API call (requires api.js update to accept options)
+        const data = await fetchMonthlySchedule(year, month, {
+          signal: controller.signal,
+        });
+
+        // 3. If the request was aborted, stop execution here
+        if (controller.signal.aborted) return;
+
+        const formattedData = {};
+        if (data) {
+          Object.keys(data).forEach((dateKey) => {
+            const dayStats = data[dateKey];
+            formattedData[dateKey] = {
+              ...dayStats,
+              bookings: dayStats.booked_count || 0,
+              percent:
+                dayStats.capacity > 0
+                  ? (dayStats.booked_count || 0) / dayStats.capacity
+                  : 0,
+            };
+          });
+        }
+
+        setBookingData(formattedData);
+      } catch (err) {
+        // 4. Ignore "errors" caused by component unmounting
+        if (err.name === "AbortError") return;
+        console.error("Failed to load live calendar data:", err);
+      } finally {
+        // 5. Guard against setting loading state on an unmounted component
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadData();
+
+    // 6. CLEANUP: This is the critical line that fixes the test worker crashes.
+    // It kills any pending fetch when the component unmounts.
+    return () => controller.abort();
+  }, [currentDate]);
+
+  const monthStart = startOfMonth(currentDate);
+  const calendarDays = eachDayOfInterval({
+    start: startOfWeek(monthStart),
+    end: endOfWeek(endOfMonth(monthStart)),
+  });
+
+  const getStyleForDate = (day) => {
+    const dateKey = format(day, "yyyy-MM-dd");
+    const data = bookingData[dateKey];
+
+    let classes =
+      "relative border border-gray-100 cursor-pointer transition-all duration-200 h-14 md:h-32 ";
+
+    if (!isSameMonth(day, monthStart))
+      return classes + "bg-gray-50/50 text-gray-300";
+
+    if (selectedDate && isSameDay(day, selectedDate)) {
+      classes += "ring-2 ring-teal-600 ring-inset z-10 ";
+    }
+
+    if (!data) return classes + "bg-white";
+
+    if (data.status === "cancelled" || data.status === "cancelled_weather")
+      return classes + "bg-gray-200 text-gray-400 striped-background";
+
+    if (data.bookings === 0) return classes + "bg-white hover:bg-gray-50";
+    if (data.percent < 0.4)
+      return classes + "bg-teal-50 hover:bg-teal-100 text-teal-900";
+    if (data.percent < 0.8)
+      return classes + "bg-teal-100 hover:bg-teal-200 text-teal-900";
+
+    return classes + "bg-teal-600 text-white font-semibold";
+  };
+
+  return (
+    <div className="relative overflow-hidden bg-white border border-gray-100 shadow-lg rounded-xl">
+      {loading && (
+        <div className="absolute inset-0 z-20 bg-white/50 backdrop-blur-[1px] flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
+        </div>
+      )}
+
+      <div className="flex items-center justify-between p-4 border-b border-gray-100">
+        <h2 className="text-lg font-bold text-gray-800 md:text-2xl">
+          {format(currentDate, "MMMM yyyy")}
+        </h2>
+        <div className="flex gap-2">
+          <button
+            onClick={() =>
+              setCurrentDate(
+                new Date(currentDate.setMonth(currentDate.getMonth() - 1))
+              )
+            }
+            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-100"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <button
+            onClick={() =>
+              setCurrentDate(
+                new Date(currentDate.setMonth(currentDate.getMonth() + 1))
+              )
+            }
+            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-100"
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-7 border-b border-gray-100 bg-gray-50">
+        {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
+          <div
+            key={i}
+            className="py-2 text-xs font-bold text-center text-gray-400"
+          >
+            {day}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7">
+        {calendarDays.map((day) => {
+          const dateKey = format(day, "yyyy-MM-dd");
+          const data = bookingData[dateKey];
+
+          return (
+            <div
+              key={day.toString()}
+              onClick={() => onDateSelect(day)}
+              className={getStyleForDate(day)}
+            >
+              <div className="flex items-center justify-between p-1 text-xs font-medium md:p-2 md:text-sm">
+                <span>{format(day, "d")}</span>
+                {data?.percent > 0.8 && isSameMonth(day, monthStart) && (
+                  <div className="md:hidden w-1.5 h-1.5 rounded-full bg-white/80"></div>
+                )}
+              </div>
+
+              {data?.bookings > 0 &&
+                isSameMonth(day, monthStart) &&
+                !data.status.includes("cancelled") && (
+                  <div className="absolute hidden text-right md:block bottom-2 right-2">
+                    <div className="text-xs font-bold">
+                      {data.bookings}/{data.capacity}
+                    </div>
+                    <div className="text-[10px] opacity-80">Booked</div>
+                  </div>
+                )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="p-3 bg-gray-50 text-[10px] md:text-xs grid grid-cols-3 md:flex md:gap-6 text-gray-600 border-t border-gray-100 gap-y-2">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-white border rounded"></div> Empty
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 border border-teal-100 rounded bg-teal-50"></div>{" "}
+          Low
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-teal-100 border border-teal-200 rounded"></div>{" "}
+          Busy
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-teal-600 border border-teal-700 rounded"></div>{" "}
+          Full
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-gray-200 border border-gray-300 rounded"></div>{" "}
+          Closed
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DashboardCalendar;
+
+==> src/components/dashboard/DayManifest.jsx <==
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { format } from "date-fns";
+import {
+  X,
+  ArrowLeft,
+  UserPlus,
+  Loader2,
+  Plus,
+  Minus,
+  CloudRain,
+} from "lucide-react";
+import {
+  adminCreateBooking,
+  fetchDayManifest,
+  cancelTourForWeather,
+} from "../../api";
+
+const DayManifest = ({ date, onClose }) => {
+  const [tours, setTours] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedTour, setSelectedTour] = useState(null);
+
+  const [isAddingGuest, setIsAddingGuest] = useState(false);
+  const [guestName, setGuestName] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
+  const [numPeople, setNumPeople] = useState(1);
+  const [specialNotes, setSpecialNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 1. Ref to prevent state updates after unmount (Fixes SIGABRT)
+  const isMounted = useRef(true);
+
+  const loadManifest = useCallback(
+    async (signal) => {
+      if (!date || !isMounted.current) return;
+      setLoading(true);
+      try {
+        const dateString = format(date, "yyyy-MM-dd");
+        const data = await fetchDayManifest(dateString, { signal });
+
+        if (isMounted.current && !signal?.aborted) {
+          setTours(data || []);
+        }
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        console.error("Failed to fetch manifest:", err);
+      } finally {
+        if (isMounted.current && !signal?.aborted) {
+          setLoading(false);
+        }
+      }
+    },
+    [date]
+  );
+
+  useEffect(() => {
+    isMounted.current = true;
+    const controller = new AbortController();
+
+    loadManifest(controller.signal);
+    setSelectedTour(null);
+    setIsAddingGuest(false);
+
+    return () => {
+      isMounted.current = false;
+      controller.abort(); // Cancel all pending requests
+    };
+  }, [loadManifest]);
+
+  const handleManualBooking = async (e) => {
+    e.preventDefault();
+    const controller = new AbortController();
+    setIsSubmitting(true);
+
+    try {
+      const numericPrice = selectedTour.price || 0;
+      const payload = {
+        tour_id: selectedTour.tour_id, // Match backend schema naming
+        guest_name: guestName,
+        guest_email: guestEmail,
+        num_people: parseInt(numPeople, 10),
+        special_notes: specialNotes,
+        total_price: numericPrice * numPeople,
+        accepted_terms: true,
+      };
+
+      await adminCreateBooking(payload, { signal: controller.signal });
+
+      if (isMounted.current) {
+        alert("Booking added successfully!");
+        await loadManifest(controller.signal);
+        setIsAddingGuest(false);
+        setGuestName("");
+        setGuestEmail("");
+        setNumPeople(1);
+        setSpecialNotes("");
+        setSelectedTour(null);
+      }
+    } catch (err) {
+      if (err.name === "AbortError") return;
+      alert("Error: " + err.message);
+    } finally {
+      if (isMounted.current) setIsSubmitting(false);
+    }
+  };
+
+  const handleWeatherCancellation = async (tour) => {
+    const controller = new AbortController();
+    try {
+      setIsSubmitting(true);
+      await cancelTourForWeather(
+        tour.tour_id,
+        tour.display_name,
+        format(date, "yyyy-MM-dd"),
+        { signal: controller.signal }
+      );
+
+      if (isMounted.current) {
+        alert("Success: Tour cancelled and guests notified.");
+        await loadManifest(controller.signal);
+      }
+    } catch (err) {
+      if (err.name === "AbortError") return;
+      alert("Failed to cancel: " + err.message);
+    } finally {
+      if (isMounted.current) setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-full bg-white shadow-2xl">
+        <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
+        <p className="mt-2 text-sm text-gray-500">Loading Manifest...</p>
+      </div>
+    );
+  }
+
+  // --- VIEW: ADDING MANUAL GUEST ---
+  if (selectedTour && isAddingGuest) {
+    return (
+      <div className="flex flex-col w-full h-full bg-white shadow-2xl animate-in slide-in-from-bottom">
+        <div className="flex items-center gap-3 p-4 text-white bg-teal-700 shrink-0">
+          <button
+            onClick={() => setIsAddingGuest(false)}
+            className="p-2 rounded-full hover:bg-teal-600"
+          >
+            <ArrowLeft size={24} />
+          </button>
+          <h2 className="text-lg font-bold">Add Manual Guest</h2>
+        </div>
+        <form
+          onSubmit={handleManualBooking}
+          className="flex-1 p-6 space-y-4 overflow-y-auto bg-gray-50"
+        >
+          <div>
+            <label className="block mb-1 text-sm font-bold text-gray-700">
+              Guest Name
+            </label>
+            <input
+              required
+              className="w-full p-3 border rounded-xl"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-bold text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              required
+              className="w-full p-3 border rounded-xl"
+              value={guestEmail}
+              onChange={(e) => setGuestEmail(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-bold text-gray-700">
+              Passengers
+            </label>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => setNumPeople(Math.max(1, numPeople - 1))}
+                className="p-3 bg-white border rounded-full"
+              >
+                <Minus size={20} />
+              </button>
+              <span className="w-8 text-xl font-bold text-center">
+                {numPeople}
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  setNumPeople(
+                    Math.min(
+                      selectedTour.capacity - selectedTour.booked_count,
+                      numPeople + 1
+                    )
+                  )
+                }
+                className="p-3 bg-white border rounded-full"
+              >
+                <Plus size={20} />
+              </button>
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full py-4 font-bold text-white bg-teal-600 rounded-xl disabled:bg-gray-400"
+          >
+            {isSubmitting ? (
+              <Loader2 className="mx-auto animate-spin" />
+            ) : (
+              "Confirm Manual Booking"
+            )}
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  // --- VIEW: PASSENGER LIST ---
+  if (selectedTour) {
+    return (
+      <div className="flex flex-col w-full h-full bg-white shadow-2xl animate-in slide-in-from-right">
+        <div className="flex items-center justify-between p-4 text-white bg-teal-900 shadow-md">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSelectedTour(null)}
+              className="p-2 rounded-full hover:bg-teal-800"
+            >
+              <ArrowLeft size={24} />
+            </button>
+            <h2 className="font-bold truncate">{selectedTour.display_name}</h2>
+          </div>
+          <button
+            onClick={() => setIsAddingGuest(true)}
+            className="p-2 rounded-lg bg-white/20"
+          >
+            <UserPlus size={18} />
+          </button>
+        </div>
+        <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
+          <h3 className="mb-4 text-sm font-bold tracking-wider text-gray-400 uppercase">
+            Confirmed Passengers
+          </h3>
+          {selectedTour.passengers?.length > 0 ? (
+            selectedTour.passengers.map((p, i) => (
+              <div
+                key={i}
+                className="p-4 mb-3 bg-white border rounded-lg shadow-sm"
+              >
+                <h4 className="text-lg font-bold">{p.name}</h4>
+                <p className="text-sm text-gray-500">
+                  {p.pax} Pax • {p.email}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p className="py-10 text-center text-gray-400">
+              No passengers yet.
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // --- VIEW: DAY OVERVIEW ---
+  return (
+    <div className="flex flex-col w-full h-full overflow-hidden bg-white shadow-2xl animate-in slide-in-from-right">
+      <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white border-b shrink-0">
+        <h2 className="text-xl font-bold">{format(date, "EEEE, MMM do")}</h2>
+        <button
+          onClick={onClose}
+          className="p-3 text-gray-600 bg-gray-100 rounded-full hover:bg-gray-200"
+        >
+          <X size={24} />
+        </button>
+      </div>
+      <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
+        <div className="p-4 mb-6 bg-white border border-gray-100 shadow-sm rounded-xl">
+          <h3 className="mb-3 text-xs font-bold tracking-wider text-gray-400 uppercase">
+            Day Controls
+          </h3>
+          <button className="w-full py-3 text-sm font-bold text-red-600 border border-red-200 rounded-lg opacity-50 cursor-not-allowed bg-red-50 hover:bg-red-100">
+            CANCEL ALL TOURS (ADMIN ONLY)
+          </button>
+        </div>
+        <div className="space-y-4">
+          {tours.map((tour) => {
+            const isCancelled = tour.status?.includes("cancelled");
+            return (
+              <div
+                key={tour.tour_id}
+                className={`p-5 bg-white border rounded-xl shadow-sm ${
+                  isCancelled
+                    ? "opacity-60 grayscale"
+                    : "hover:shadow-md cursor-pointer"
+                }`}
+                onClick={() => !isCancelled && setSelectedTour(tour)}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-teal-900">
+                      {tour.display_name}
+                    </h4>
+                    <span className="text-[10px] text-gray-400 uppercase font-bold">
+                      {tour.status}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xl font-bold text-teal-600">
+                      {tour.booked_count}
+                    </span>
+                    <span className="text-sm text-gray-400">
+                      {" "}
+                      / {tour.capacity}
+                    </span>
+                  </div>
+                </div>
+                {!isCancelled && (
+                  <button
+                    disabled={isSubmitting}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (
+                        window.confirm("Notify guests of weather cancellation?")
+                      )
+                        handleWeatherCancellation(tour);
+                    }}
+                    className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg text-[10px] font-black uppercase hover:bg-red-100"
+                  >
+                    <CloudRain size={14} /> Weather Cancel
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DayManifest;
+
+==> src/components/Header.jsx <==
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
+import { Menu, X, Globe } from "lucide-react"; // Added Globe for a premium touch
+import BrandLogo from "./BrandLogo";
+
+const Header = () => {
+  const { language, setLanguage, t } = useLanguage();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+
+  // Effect to handle glassmorphism on scroll
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Professional Class Logic
+  const headerClasses = isHome
+    ? `fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-4 md:px-8 py-4 ${
+        isScrolled
+          ? "bg-gray-900/95 backdrop-blur-md shadow-lg py-3"
+          : "bg-transparent"
+      }`
+    : "bg-gray-900 text-white shadow-md px-4 md:px-8 py-4 sticky top-0 z-50";
+
+  const navLinkClass = `
+    text-[10px] font-black uppercase tracking-[0.15em] px-4 py-1.5 rounded-full
+    transition-all duration-300 relative group
+    hover:text-[#FF6B6B]
+  `;
+
+  const langBtnClass = (active) => `
+    px-2 py-1 text-[10px] font-black transition-all duration-300
+    ${active ? "text-[#FF6B6B] scale-110" : "text-gray-400 hover:text-white"}
+  `;
+
+  return (
+    <header className={headerClasses}>
+      <div className="container flex items-center justify-between mx-auto">
+        {/* Logo Section */}
+        <div className="flex items-center">
+          <Link to="/" className="flex items-center gap-4 group">
+            <BrandLogo className="w-12 h-12 transition-all duration-500 md:w-14 md:h-14 group-hover:rotate-6 group-hover:scale-110" />
+            <div className="flex flex-col">
+              <h1 className="text-lg font-bold leading-none tracking-tight text-white font-lora md:text-xl">
+                Pipa Canoa <span className="text-[#FF6B6B]">Havaiana</span>
+              </h1>
+              <span className="text-[9px] uppercase tracking-[0.3em] text-gray-400 font-bold mt-1 group-hover:text-gray-200 transition-colors">
+                Tibau do Sul • Brasil
+              </span>
+            </div>
+          </Link>
+        </div>
+
+        {/* Desktop Nav - Using the same visual language as Footer headers */}
+        <nav className="items-center hidden md:flex">
+          <div className="flex items-center px-2 py-1 border rounded-full shadow-sm bg-black/20 backdrop-blur-md border-white/10">
+            {[
+              { to: "/tours", label: t("navTours") },
+              { to: "/book", label: t("navBook") },
+              { to: "/about", label: t("navAbout") },
+              { to: "/faq", label: t("navFaq") },
+            ].map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`${navLinkClass} ${
+                  location.pathname === link.to
+                    ? "text-[#FF6B6B]"
+                    : "text-gray-300"
+                }`}
+              >
+                {link.label}
+                {/* Subtle active indicator dot - optional but premium */}
+                {location.pathname === link.to && (
+                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#FF6B6B] rounded-full" />
+                )}
+              </Link>
+            ))}
+          </div>
+        </nav>
+
+        {/* Language & Mobile Toggle */}
+        <div className="flex items-center space-x-6 text-white">
+          {/* Desktop Language Switcher */}
+          <div className="items-center hidden px-3 py-1 border rounded-full bg-black/20 border-white/10 md:flex">
+            <Globe size={12} className="mr-2 text-gray-500" />
+            {["en", "pt", "es", "fr"].map((lang) => (
+              <button
+                key={lang}
+                onClick={() => setLanguage(lang)}
+                className={langBtnClass(language === lang)}
+              >
+                {lang.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          <button
+            className="p-2 transition-colors hover:text-[#FF6B6B] md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu - Refactored for Premium Feel */}
+      {isMenuOpen && (
+        <div className="fixed inset-x-0 top-[72px] p-6 flex flex-col space-y-6 text-white bg-gray-900/98 backdrop-blur-xl border-t border-white/5 shadow-2xl md:hidden rounded-b-[2rem] animate-in slide-in-from-top duration-300">
+          <div className="space-y-4">
+            {[
+              { to: "/tours", label: t("navTours") },
+              { to: "/book", label: t("navBook") },
+              { to: "/about", label: t("navAbout") },
+              { to: "/faq", label: t("navFaq") },
+            ].map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setIsMenuOpen(false)}
+                className="block text-2xl font-bold font-lora py-2 border-b border-white/5 hover:text-[#FF6B6B] transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Mobile Language Selection */}
+          <div className="pt-4">
+            <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-4">
+              Select Language
+            </p>
+            <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
+              {["en", "pt", "es", "fr"].map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => {
+                    setLanguage(lang);
+                    setIsMenuOpen(false);
+                  }}
+                  className={`text-sm font-black transition-all ${
+                    language === lang
+                      ? "text-[#FF6B6B] scale-125"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {lang.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+};
+
+export default Header;
+
+==> src/data/faqData.js <==
+// src/data/faqData.js
+
+export const faqData = {
+  en: [
+    {
+      id: "experience",
+      title: "The Experience & Safety",
+      icon: "🛶",
+      items: [
+        {
+          q: "I’ve never paddled a canoe before. Can I still join?",
+          a: "Absolutely. Our Sunset Tour is perfect for beginners. Eduardo provides a full safety briefing and paddling instruction before we hit the water. Our Hawaiian canoes are equipped with outriggers (lateral stabilizers), making them extremely stable and nearly impossible to flip.",
+        },
+        {
+          q: "Do I need to know how to swim?",
+          a: "It is not mandatory, but you should feel comfortable being on the water. We provide professional-grade life jackets, and wearing them is mandatory for all participants throughout the duration of the tour.",
+        },
+        {
+          q: "Are the tours physically demanding?",
+          a: "The paddling is gentle and contemplative. We move at the pace of the group, and there are plenty of breaks to enjoy the scenery and swim. It’s more about the connection with nature than a workout.",
+        },
+        {
+          q: "Can I bring my dog or other pets?",
+          a: "To ensure the safety of all guests and respect the local wildlife in the mangroves, we do not allow pets on any of our tours.",
+        },
+        {
+          q: "What is your environmental policy?",
+          a: "We operate under a strict 'Leave No Trace' policy. We are guests in the Guaraíras Lagoon ecosystem. We do not leave trash, we do not feed or touch wildlife, and we use silent propulsion to minimize our impact on the environment.",
+        },
+      ],
+    },
+    {
+      id: "booking",
+      title: "Booking & Payments",
+      icon: "💰",
+      items: [
+        {
+          q: "How do I confirm my booking?",
+          a: "We use an automated system. Your reservation is only officially confirmed once you have completed the Pix payment through the website and received your confirmation email.",
+        },
+        {
+          q: "What is the price for children?",
+          a: "We sell spaces in the canoe. Because a child occupies a dedicated seat and requires a life jacket and insurance, the price is the same as an adult.",
+        },
+        {
+          q: "What happens if it rains or the weather is bad?",
+          a: "Eduardo monitors weather and wind conditions constantly. If conditions are deemed unsafe, we will cancel the tour. In this event, you can choose between rescheduling or receiving a full refund within 5 days.",
+        },
+      ],
+    },
+    {
+      id: "sunset",
+      title: "Sunset Tour (Daily)",
+      icon: "🌅",
+      items: [
+        {
+          q: "What is the price and duration?",
+          a: "The Sunset Tour is R$ 100 per person. The experience lasts approximately 3 hours, departing at 3:00 PM and returning at 6:00 PM.",
+        },
+        {
+          q: "How many people can join?",
+          a: "We have a capacity of 30 people per day for the Sunset Tour, distributed across our fleet of canoes.",
+        },
+      ],
+    },
+    {
+      id: "fullmoon",
+      title: "Full Moon Celebration",
+      icon: "🌕",
+      items: [
+        {
+          q: "How is this different from the Sunset Tour?",
+          a: "This is a premium 4-hour special event. It includes the sunset paddle, but continues into the night. It features a live Forró band on support boats, fresh tropical fruits, and a bonfire experience on the Malombar dunes to watch the moon rise over the ocean.",
+        },
+        {
+          q: "What is the price?",
+          a: "The Full Moon Celebration is R$ 200 per person.",
+        },
+        {
+          q: "What if it is cloudy during the Full Moon tour?",
+          a: "The tour proceeds even if there is cloud cover. The atmosphere created by the live music, the bonfire, and the nighttime paddling is still a magical experience. We only cancel if wind or rain makes the water unsafe.",
+        },
+      ],
+    },
+    {
+      id: "logistics",
+      title: "Logistics",
+      icon: "📍",
+      items: [
+        {
+          q: "Where is the meeting point?",
+          a: "All tours depart from Tibau do Sul. The specific meeting point is the Sunset Stairs (Escadaria do Pôr do Sol), located in front of the Lagoa Flat Condominium.",
+        },
+        {
+          q: "Is transportation included?",
+          a: "No. Our prices are for the tour experience only. Guests are responsible for their own transportation to the meeting point in Tibau do Sul. It is a short 10-15 minute drive from the center of Pipa.",
+        },
+        {
+          q: "What should I bring?",
+          a: "Wear swimwear or light clothing that can get wet. Bring a towel, sunscreen, a hat, water, and a camera or phone (we provide waterproof bags for gear). For the Full Moon tour, we also recommend a light jacket for the evening breeze.",
+        },
+      ],
+    },
+  ],
+  pt: [
+    {
+      id: "experience",
+      title: "Experiência e Segurança",
+      icon: "🛶",
+      items: [
+        {
+          q: "Nunca andei de canoa antes. Posso participar?",
+          a: "Com certeza. Nosso Passeio ao Pôr do Sol é perfeito para iniciantes. Eduardo fornece um briefing completo de segurança e instruções de remada antes de entrarmos na água. Nossas canoas havaianas são equipadas com estabilizadores laterais, tornando-as extremamente estáveis e quase impossíveis de virar.",
+        },
+        {
+          q: "Preciso saber nadar?",
+          a: "Não é obrigatório, mas você deve se sentir confortável na água. Fornecemos coletes salva-vidas de padrão profissional, e o uso é obrigatório para todos os participantes durante toda a duração do passeio.",
+        },
+        {
+          q: "Os passeios exigem muito esforço físico?",
+          a: "A remada é suave e contemplativa. Movemo-nos ao ritmo do grupo e há várias pausas para apreciar a paisagem e nadar. É mais sobre a conexão com a natureza do que um exercício físico intenso.",
+        },
+        {
+          q: "Posso levar meu cachorro ou outros animais de estimação?",
+          a: "Para garantir a segurança de todos os hóspedes e respeitar a vida selvagem local nos manguezais, não permitimos animais de estimação em nenhum de nossos passeios.",
+        },
+        {
+          q: "Qual é a sua política ambiental?",
+          a: "Operamos sob uma política rigorosa de 'Não Deixe Rastros'. Somos convidados no ecossistema da Lagoa das Guaraíras. Não deixamos lixo, não alimentamos nem tocamos na vida selvagem e usamos propulsão silenciosa para minimizar nosso impacto no meio ambiente.",
+        },
+      ],
+    },
+    {
+      id: "booking",
+      title: "Reservas e Pagamentos",
+      icon: "💰",
+      items: [
+        {
+          q: "Como confirmo minha reserva?",
+          a: "Utilizamos um sistema automatizado. Sua reserva só é confirmada oficialmente após a conclusão do pagamento via Pix pelo site e o recebimento do e-mail de confirmação.",
+        },
+        {
+          q: "Qual é o preço para crianças?",
+          a: "Vendemos lugares na canoa. Como uma criança ocupa um assento dedicado e requer colete salva-vidas e seguro, o preço é o mesmo de um adulto.",
+        },
+        {
+          q: "O que acontece se chover ou o tempo estiver ruim?",
+          a: "Eduardo monitora constantemente as condições de tempo e vento. Se as condições forem consideradas inseguras, cancelaremos o passeio. Nesse caso, você pode escolher entre remarcar ou receber um reembolso total em até 5 dias.",
+        },
+      ],
+    },
+    {
+      id: "sunset",
+      title: "Pôr do Sol (Diário)",
+      icon: "🌅",
+      items: [
+        {
+          q: "Qual é o preço e a duração?",
+          a: "O Passeio ao Pôr do Sol custa R$ 100 por pessoa. A experiência dura aproximadamente 3 horas, saindo às 15:00 e retornando às 18:00.",
+        },
+        {
+          q: "Quantas pessoas podem participar?",
+          a: "Temos capacidade para 30 pessoas por dia no Passeio ao Pôr do Sol, distribuídas em nossa frota de canoas.",
+        },
+      ],
+    },
+    {
+      id: "fullmoon",
+      title: "Passeio da Lua Cheia",
+      icon: "🌕",
+      items: [
+        {
+          q: "Como este passeio difere do Pôr do Sol?",
+          a: "Este é um evento especial premium de 4 horas. Inclui a remada ao pôr do sol, mas continua pela noite. Conta com uma banda de Forró ao vivo em barcos de apoio, frutas tropicais frescas e uma experiência de fogueira nas dunas da Malembar para ver a lua nascer sobre o oceano.",
+        },
+        {
+          q: "Qual é o preço?",
+          a: "A Celebração da Lua Cheia custa R$ 200 por pessoa.",
+        },
+        {
+          q: "E se estiver nublado durante o passeio da Lua Cheia?",
+          a: "O passeio prossegue mesmo com cobertura de nuvens. A atmosfera criada pela música ao vivo, a fogueira e a remada noturna continua sendo uma experiência mágica. Só cancelamos se o vento ou a chuva tornarem a água insegura.",
+        },
+      ],
+    },
+    {
+      id: "logistics",
+      title: "Logística",
+      icon: "📍",
+      items: [
+        {
+          q: "Onde é o ponto de encontro?",
+          a: "Todos os passeios partem de Tibau do Sul. O ponto de encontro específico é a Escadaria do Pôr do Sol, localizada em frente ao Condomínio Lagoa Flat.",
+        },
+        {
+          q: "O transporte está incluído?",
+          a: "Não. Nossos preços são apenas para a experiência do passeio. Os hóspedes são responsáveis pelo seu próprio transporte até o ponto de encontro em Tibau do Sul. Fica a cerca de 10-15 minutos de carro do centro de Pipa.",
+        },
+        {
+          q: "O que devo levar?",
+          a: "Use roupa de banho ou roupas leves que possam molhar. Traga toalha, protetor solar, chapéu, água e uma câmera ou celular (fornecemos sacos impermeáveis para os equipamentos). Para o passeio da Lua Cheia, também recomendamos um casaco leve para a brisa da noite.",
+        },
+      ],
+    },
+  ],
+  es: [
+    {
+      id: "experience",
+      title: "Experiencia y Seguridad",
+      icon: "🛶",
+      items: [
+        {
+          q: "¿Nunca he remado en una canoa antes. ¿Puedo unirme?",
+          a: "Absolutamente. Nuestro Tour Atardecer es perfecto para principiantes. Eduardo ofrece una charla de seguridad completa e instrucciones de remado antes de entrar al agua. Nuestras canoas hawaianas están equipadas con estabilizadores laterales, lo que las hace extremadamente estables y casi imposibles de volcar.",
+        },
+        {
+          q: "¿Necesito saber nadar?",
+          a: "No es obligatorio, pero debes sentirte cómodo en el agua. Proporcionamos chalecos salvavidas de nivel profesional, y su uso es obligatorio para todos los participantes durante toda la duración del tour.",
+        },
+        {
+          q: "¿Los tours son físicamente exigentes?",
+          a: "El remado es suave y contemplativo. Nos movemos al ritmo del grupo y hay muchos descansos para disfrutar del paisaje y nadar. Se trata más de la conexión con la naturaleza que de un entrenamiento intenso.",
+        },
+        {
+          q: "¿Puedo llevar a mi perro u otras mascotas?",
+          a: "Para garantizar la seguridad de todos los huéspedes y respetar la vida silvestre local en los manglares, no permitimos mascotas en ninguno de nuestros tours.",
+        },
+        {
+          q: "¿Cuál es su política ambiental?",
+          a: "Operamos bajo una estricta política de 'No Dejar Rastro'. Somos invitados en el ecosistema de la Laguna de Guaraíras. No dejamos basura, no alimentamos ni tocamos a los animales salvajes y utilizamos propulsión silenciosa para minimizar nuestro impacto en el medio ambiente.",
+        },
+      ],
+    },
+    {
+      id: "booking",
+      title: "Reservas y Pagos",
+      icon: "💰",
+      items: [
+        {
+          q: "¿Cómo confirmo mi reserva?",
+          a: "Utilizamos un sistema automatizado. Tu reserva solo se confirma oficialmente una vez que hayas completado el pago vía Pix a través del sitio web y hayas recibido tu correo electrónico de confirmación.",
+        },
+        {
+          q: "¿Cuál es el precio para niños?",
+          a: "Vendemos espacios en la canoa. Debido a que un niño ocupa un asiento dedicado y requiere chaleco salvavidas y seguro, el precio es el mismo que el de un adulto.",
+        },
+        {
+          q: "¿Qué pasa si llueve o el clima es malo?",
+          a: "Eduardo monitorea constantemente las condiciones del viento y el clima. Si las condiciones se consideran inseguras, cancelaremos el tour. En este caso, puedes elegir entre reprogramar o recibir un reembolso completo en un plazo de 5 días.",
+        },
+      ],
+    },
+    {
+      id: "sunset",
+      title: "Atardecer (Diario)",
+      icon: "🌅",
+      items: [
+        {
+          q: "¿Cuál es el precio y la duración?",
+          a: "El Tour Atardecer cuesta R$ 100 por persona. La experiencia dura aproximadamente 3 horas, saliendo a las 15:00 y regresando a las 18:00.",
+        },
+        {
+          q: "¿Cuántas personas pueden unirse?",
+          a: "Tenemos una capacidad de 30 personas por día para el Tour Atardecer, distribuidas en nuestra flota de canoas.",
+        },
+      ],
+    },
+    {
+      id: "fullmoon",
+      title: "Celebración de Luna Llena",
+      icon: "🌕",
+      items: [
+        {
+          q: "¿En qué se diferencia del Tour Atardecer?",
+          a: "Este es un evento especial premium de 4 horas. Incluye el remado al atardecer, pero continúa en la noche. Cuenta con una banda de Forró en vivo en botes de apoyo, frutas tropicales frescas y una experiencia de fogata en las dunas de Malombar para ver la luna salir sobre el océano.",
+        },
+        {
+          q: "¿Cuál es el precio?",
+          a: "La Celebración de Luna Llena cuesta R$ 200 por persona.",
+        },
+        {
+          q: "¿Qué pasa si está nublado durante el tour de Luna Llena?",
+          a: "El tour continúa incluso si hay nubes. La atmósfera creada por la música en vivo, la fogata y el remado nocturno sigue siendo una experiencia mágica. Solo cancelamos si el viento o la lluvia hacen que el agua sea insegura.",
+        },
+      ],
+    },
+    {
+      id: "logistics",
+      title: "Logística",
+      icon: "📍",
+      items: [
+        {
+          q: "¿Dónde está el punto de encuentro?",
+          a: "Todos los tours salen de Tibau do Sul. El punto de encuentro específico es la Escalera del Atardecer (Escadaria do Pôr do Sol), ubicada frente al Condominio Lagoa Flat.",
+        },
+        {
+          q: "¿El transporte está incluido?",
+          a: "No. Nuestros precios son solo por la experiencia del tour. Los huéspedes son responsables de su propio transporte hasta el punto de encuentro en Tibau do Sul. Está a unos 10-15 minutos en auto desde el centro de Pipa.",
+        },
+        {
+          q: "¿Qué debo llevar?",
+          a: "Usa traje de baño o ropa ligera que se pueda mojar. Trae una toalla, protector solar, un sombrero, agua y una cámara o teléfono (proporcionamos bolsas impermeables para el equipo). Para el tour de Luna Llena, también recomendamos una chaqueta ligera para la brisa nocturna.",
+        },
+      ],
+    },
+  ],
+  fr: [
+    {
+      id: "experience",
+      title: "L'Expérience et Sécurité",
+      icon: "🛶",
+      items: [
+        {
+          q: "Je n'ai jamais fait de canoë. Puis-je quand même participer ?",
+          a: "Absolument. Notre Tour au Coucher du Soleil est parfait pour les débutants. Eduardo donne un briefing de sécurité complet et des instructions de pagaie avant d'entrer dans l'eau. Nos pirogues hawaiennes sont équipées de stabilisateurs latéraux, ce qui les rend extrêmement stables et presque impossibles à renverser.",
+        },
+        {
+          q: "Dois-je savoir nager ?",
+          a: "Ce n'est pas obligatoire, mais vous devez vous sentir à l'aise sur l'eau. Nous fournissons des gilets de sauvetage de qualité professionnelle, et leur port est obligatoire pour tous les participants pendant toute la durée de l'excursion.",
+        },
+        {
+          q: "Les excursions sont-elles physiquement exigeantes ?",
+          a: "La pagaie est douce et contemplative. Nous avançons au rythme du groupe, et il y a de nombreuses pauses pour profiter du paysage et se baigner. C'est plus une question de connexion avec la nature qu'une séance de sport.",
+        },
+        {
+          q: "Puis-je emmener mon chien ou d'autres animaux ?",
+          a: "Pour garantir la sécurité de tous les clients et respecter la faune locale dans les mangroves, nous n'autorisons pas les animaux de compagnie lors de nos excursions.",
+        },
+        {
+          q: "Quelle est votre politique environnementale ?",
+          a: "Nous opérons selon une politique stricte 'Sans Trace'. Nous sommes les invités de l'écosystème de la lagune de Guaraíras. Nous ne laissons pas de déchets, nous ne nourrissons pas et ne touchons pas les animaux sauvages, et nous utilisons une propulsion silencieuse pour minimiser notre impact sur l'environnement.",
+        },
+      ],
+    },
+    {
+      id: "booking",
+      title: "Réservations et Paiements",
+      icon: "💰",
+      items: [
+        {
+          q: "Comment confirmer ma réservation ?",
+          a: "Nous utilisons un système automatisé. Votre réservation n'est officiellement confirmée qu'une fois que vous avez effectué le paiement Pix via le site web et reçu votre e-mail de confirmation.",
+        },
+        {
+          q: "Quel est le prix pour les enfants ?",
+          a: "Nous vendons des places dans le canoë. Comme un enfant occupe un siège dédié et nécessite un gilet de sauvetage et une assurance, le prix est le même que pour un adulte.",
+        },
+        {
+          q: "Que se passe-t-il s'il pleut ou si le temps est mauvais ?",
+          a: "Eduardo surveille constamment les conditions météo et le vent. Si les conditions sont jugées dangereuses, nous annulerons l'excursion. Dans ce cas, vous pouvez choisir entre un report ou un remboursement complet sous 5 jours.",
+        },
+      ],
+    },
+    {
+      id: "sunset",
+      title: "Coucher du Soleil (Quotidien)",
+      icon: "🌅",
+      items: [
+        {
+          q: "Quel est le prix et la durée ?",
+          a: "Le Tour au Coucher du Soleil est à 100 R$ par personne. L'expérience dure environ 3 heures, avec un départ à 15h00 et un retour à 18h00.",
+        },
+        {
+          q: "Combien de personnes peuvent participer ?",
+          a: "Nous avons une capacité de 30 personnes par jour pour le Tour au Coucher du Soleil, réparties sur notre flotte de canoës.",
+        },
+      ],
+    },
+    {
+      id: "fullmoon",
+      title: "Célébration de la Pleine Lune",
+      icon: "🌕",
+      items: [
+        {
+          q: "En quoi cela diffère-t-il du Tour au Coucher du Soleil ?",
+          a: "Il s'agit d'un événement spécial premium de 4 heures. Il comprend la pagaie au coucher du soleil, mais se poursuit dans la nuit. Il propose un groupe de Forró en direct sur des bateaux de soutien, des fruits tropicaux frais et une expérience de feu de camp sur les dunes de Malombar pour regarder la lune se lever sur l'océan.",
+        },
+        {
+          q: "Quel est le prix ?",
+          a: "La Célébration de la Pleine Lune est à 200 R$ par personne.",
+        },
+        {
+          q: "Et s'il y a des nuages pendant le tour de la Pleine Lune ?",
+          a: "L'excursion a lieu même si le ciel est couvert. L'atmosphère créée par la musique en direct, le feu de camp et la pagaie nocturne reste une expérience magique. Nous n'annulons que si le vent ou la pluie rendent l'eau dangereuse.",
+        },
+      ],
+    },
+    {
+      id: "logistics",
+      title: "Logistique",
+      icon: "📍",
+      items: [
+        {
+          q: "Où est le point de rendez-vous ?",
+          a: "Toutes les excursions partent de Tibau do Sul. Le point de rendez-vous spécifique est l'Escalier du Coucher de Soleil (Escadaria do Pôr do Sol), situé devant le Condominium Lagoa Flat.",
+        },
+        {
+          q: "Le transport est-il inclus ?",
+          a: "Non. Nos tarifs concernent uniquement l'expérience de l'excursion. Les clients sont responsables de leur propre transport jusqu'au point de rendez-vous à Tibau do Sul. C'est à environ 10-15 minutes en voiture du centre de Pipa.",
+        },
+        {
+          q: "Que dois-je apporter ?",
+          a: "Portez un maillot de bain ou des vêtements légers qui peuvent être mouillés. Apportez une serviette, de la crème solaire, un chapeau, de l'eau et un appareil photo ou un téléphone (nous fournissons des sacs étanches pour le matériel). Pour le tour de la Pleine Lune, nous recommandons également une veste légère pour la brise du soir.",
+        },
+      ],
+    },
+  ],
+};
+
+==> src/data/translations.js <==
+/**
+ * Pipa Canoe Adventures - Unified Localization Dictionary
+ *
+ * STRUCTURE GUIDE:
+ * - nav: Navigation elements
+ * - hero: Landing page hero section
+ * - features: Adventure details section
+ * - tours: Tour list and card elements
+ * - modal: Tour detail modal specific strings
+ * - booking: Date selection and availability list
+ * - form: Booking input fields and validation
+ * - pay: Pix payment and polling states
+ * - success: Post-payment confirmation
+ * - footer: Site footer and legal links
+ */
+
+export const translations = {
+  en: {
+    // --- Navigation ---
+    navHome: "Home",
+    navTours: "Tours",
+    navBook: "Book",
+    navFaq: "FAQ",
+    navAbout: "About Us",
+
+    // --- Hero Section ---
+    heroTitle: "Feel the Ocean's Heartbeat",
+    heroSubtitle:
+      "Discover the soul of Pipa from a new perspective. Glide through serene waters, connect with nature, and create memories that last a lifetime.",
+    ctaButton: "Book Now",
+    learnMore: "Our Tours",
+
+    // --- Features Section ---
+    detailsTitle: "Your Adventure Awaits",
+    detailsSubtitle:
+      "We offer more than just a tour; we offer an experience. Each journey is designed to immerse you in the natural beauty of Pipa.",
+
+    // --- Tour Cards & Templates ---
+    card1Title: "Sunrise Tour",
+    card1Text: "Wake up before the world and paddle into magic.",
+    card2Title: "Full Day Tour",
+    card2Text:
+      "Pipa's ultimate experience! 8 hours. 4 ecosystems. Secret beaches. And maybe a dolphin or two!",
+    card3Title: "Sunset Tour",
+    card3Text:
+      "Don't just watch the sunset - live it from inside a Hawaiian canoe on Tibau's crystal waters.",
+    viewDetails: "View Details",
+    duration: "Duration",
+    spotsLeft: "spots left",
+    pricePrefix: "R$",
+
+    // --- Tour Detail Modal ---
+    tourSunriseDetail:
+      "Experience the ultimate tranquility. We depart while the stars are still out to witness the Atlantic sun emerge from the horizon. Perfect for photography and spotting dolphins in their most active hour.",
+    tourFullDayDetail:
+      "The total immersion. We explore the Guaraíras Lagoon, hidden mangrove tunnels, and secret sandbars. Includes local snacks and a specialized guide who knows every corner of this ecosystem.",
+    tourSunsetDetail:
+      "Our most popular tour. Watch the sky turn into a painting as you glide through the calm waters of Tibau. A relaxing, spiritual experience to end your day in Pipa.",
+    modalIncluded: "Included:",
+    modalBring: "What to bring:",
+    modalIncludedList: "Canoe, Lifejacket, Professional Guide, Waterproof bags",
+    modalBringList: "Sunscreen, Hat, Water, Towel, Swimwear",
+    tour_sunset_short: "Don't just watch the sunset - live it from the water.",
+    tour_sunset_detail:
+      "Our most popular tour. Watch the sky turn into a painting as you glide through the calm waters of Tibau. A relaxing, spiritual experience to end your day in Pipa.",
+
+    // --- Booking Search/List ---
+    bookingTitle: "Check Tour Availability",
+    bookingSubtitle: "Select a date to see available adventures",
+    selectDateLabel: "Select Date",
+    loading: "Loading available adventures...",
+    errorGeneric: "Sorry, we couldn't load tour availability.",
+    noTours: "No tours available for this date. Please try another day!",
+
+    // --- Booking Form ---
+    bookTitle: "Book",
+    labelDate: "Date",
+    labelName: "Your Name",
+    placeholderName: "Enter your full name",
+    labelEmail: "Your Email",
+    placeholderEmail: "your@email.com",
+    labelNotes: "Special Notes (Optional)",
+    placeholderNotes: "Food allergies or special occasions...",
+    btnSubmitting: "Booking...",
+    btnConfirm: "Confirm Booking",
+    btnCancel: "Cancel",
+
+    // --- Form Validation & LGPD ---
+    labelAcceptTerms: "I accept the ",
+    linkTerms: "Terms of Service",
+    linkAnd: " and ",
+    linkPrivacy: "Privacy Policy",
+    errorTerms: "You must accept the terms to proceed.",
+    alertMissing: "Please provide name and email.",
+    alertEmail: "Invalid email address.",
+    alertFailed: "Booking failed",
+    alertError: "An unexpected error occurred.",
+    alertPastDate:
+      "Cannot book tours for past dates. Please select today or a future date.",
+
+    // --- Payment View (Pix) ---
+    paymentTitle: "Booking Reserved!",
+    paymentInstruction: "Scan the QR code below to pay via Pix.",
+    btnCopy: "Copy Pix Code",
+    btnCopied: "Code Copied!",
+    labelPixString: "Pix Copy & Paste Code",
+    btnClose: "Close",
+    expiresIn: "QR Code expires in",
+    connectionWarning:
+      "Connection slow. We are still waiting for your payment confirmation...",
+    expiredTitle: "Payment Expired",
+    expiredDetail:
+      "This Pix code is no longer valid. Please close this window and try booking again.",
+    failedTitle: "Payment Rejected",
+    failedDetail:
+      "The payment was rejected by the bank. Please try again or use a different payment method.",
+
+    // --- Success View ---
+    successTitle: "Payment Confirmed!",
+    successMessage:
+      "Your adventure is booked. We have sent a confirmation email to",
+    btnDone: "Done",
+
+    // --- Site Footer & Meta ---
+    footerLegal: "Legal",
+    footerTerms: "Terms of Service",
+    footerPrivacy: "Privacy Policy",
+    footerText: "Paddle with passion.",
+    faqSectionTitle: "Your Questions Answered",
+    faqSubtitle:
+      "Everything you need to know about our canoe adventures in Pipa.",
+    mapTitle: "Find Your Starting Point",
+    mapSubtitle:
+      "Our main departure is from Tibau do Sul, next to the Guaraíras Lagoon.",
+    footer_developed_by: "Developed by",
+    footer_powered_by: "Powered by Innovation & Human Spirit",
+
+    // --- About Page
+    about_title: "Meet Your Guide, Edu!",
+    about_bio: [
+      "Born in Rio de Janeiro, I grew up with the sea as an extension of my own life. Between waves, salt, and horizon, surfing and swimming shaped my relationship with nature from an early age—a connection that was never just sport, but feeling, belonging, and freedom.",
+      "While still young, I went to live in the United States, where I matured, traveled, and carried this maritime identity with me. At 25, destiny took me to Hawaii, one of the most sacred places for those who live the ocean. There I dove deeply into Polynesian culture, learned about respect for the waters, ancestry, and community, and fell in love with Hawaiian canoe and kitesurfing. It was 10 years of learning, transformation, and experience living the sea in its purest form.",
+      "In 2011 I returned to Brazil and arrived at Praia da Pipa, and it was love at first sight. Here I found a place where wind, lagoon, sea, and nature meet in a unique way. Pipa wasn't just a new home; it was a calling to share everything I had learned.",
+      "I am a certified instructor with IKO (International Kiteboarding Organization) and since then I have been working in training, teaching, and promoting kitesurfing and Hawaiian canoe in Tibau do Sul and the region.",
+      "My purpose has always been to go beyond lessons: to create experiences, build community, and bring people closer to the ocean and Guaraíras Lagoon in a conscious and respectful way.",
+      "Today I follow this path through Pipa Canoa Havaiana, Pipa Kite Center, and Esporte Clube Guaraíras—projects that unite sport, culture, tourism, and connection with nature. My work is about movement, encounter, and transformation, in the water and in life.",
+      "More than teaching how to paddle or sail, I want every person who crosses my path to feel what the sea gave me: freedom, balance, and belonging.",
+    ],
+    about_iko_status: "IKO Certified Instructor",
+    about_projects:
+      "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
+    logoAlt: "Pipa Canoa Havaiana Logo",
+
+    tour_full_moon_short:
+      "A mystical 4-hour journey with live Forró music and a bonfire on the dunes.",
+    tour_full_moon_detail:
+      "Experience the most magical tour we offer – a journey that begins with the sunset and continues into the enchanted evening to witness the full moon rising over the Atlantic. \n\nMeeting at 2:40 PM at the Sunset Stairs (Escadaria do Pôr do Sol). Includes a live Forró band, fresh tropical fruits, and a bonfire experience on the Malombar dunes. A celebration of nature's celestial dance.",
+
+    logistics_meeting: "Meeting Point",
+    logistics_duration: "Duration",
+    logistics_capacity: "Capacity",
+  },
+
+  pt: {
+    // --- Navegação ---
+    navHome: "Início",
+    navTours: "Passeios",
+    navBook: "Reservar",
+    navFaq: "FAQ",
+    navAbout: "Sobre Nós",
+
+    // --- Hero Section ---
+    heroTitle: "Sinta a Pulsação do Oceano",
+    heroSubtitle:
+      "Descubra a alma de Pipa de uma nova perspectiva. Deslize por águas serenas, conecte-se com a natureza e crie memórias que durarão para sempre.",
+    ctaButton: "Reservar Agora",
+    learnMore: "Nossos Passeios",
+
+    // --- Features Section ---
+    detailsTitle: "Sua Aventura o Aguarda",
+    detailsSubtitle:
+      "Oferecemos mais do que um passeio; oferecemos uma experiência. Cada jornada é projetada para imergir você na beleza natural de Pipa.",
+
+    // --- Tour Cards & Templates ---
+    card1Title: "Passeio ao nascer do sol",
+    card1Text: "Acorde antes do mundo e reme em direção à magia.",
+    card2Title: "Tour Dia Completo",
+    card2Text:
+      "A experiência definitiva de Pipa! 8 horas. 4 ecossistemas. Praias secretas. E talvez um golfinho ou dois!",
+    card3Title: "Passeio ao pôr do sol",
+    card3Text:
+      "Não apenas assista ao pôr do sol - viva-o de dentro de uma canoa havaiana nas águas cristalinas de Tibau.",
+    viewDetails: "Ver Detalhes",
+    duration: "Duração",
+    spotsLeft: "vagas restantes",
+    pricePrefix: "R$",
+
+    // --- Tour Detail Modal ---
+    tourSunriseDetail:
+      "Experimente a tranquilidade suprema. Partimos enquanto as estrelas ainda estão fora para testemunhar o sol surgindo no horizonte. Perfeito para fotografia e observação de golfinhos.",
+    tourFullDayDetail:
+      "A imersão total. Exploramos a Lagoa de Guaraíras, túneis de mangue escondidos e bancos de areia secretos. Inclui lanches locais e guia especializado.",
+    tourSunsetDetail:
+      "Nosso passeio mais popular. Assista ao céu se transformar em uma pintura enquanto desliza pelas águas calmas de Tibau. Uma experiência relaxante e espiritual.",
+    modalIncluded: "Incluído:",
+    modalBring: "O que levar:",
+    modalIncludedList:
+      "Canoa, Colete salva-vidas, Guia Profissional, Sacos impermeáveis",
+    modalBringList: "Protetor solar, Chapéu, Água, Toalha, Roupa de banho",
+    tour_sunset_short:
+      "Não apenas assista ao pôr do sol - viva-o dentro d'água.",
+    tour_sunset_detail:
+      "Nosso passeio mais popular. Veja o céu se transformar em uma pintura enquanto desliza pelas águas calmas de Tibau. Uma experiência relaxante e espiritual.",
+
+    // --- Booking Search/List ---
+    bookingTitle: "Verificar Disponibilidade",
+    bookingSubtitle: "Selecione uma data para ver as aventuras disponíveis",
+    selectDateLabel: "Selecione a Data",
+    loading: "Carregando aventuras disponíveis...",
+    errorGeneric: "Desculpe, não conseguimos carregar a disponibilidade.",
+    noTours: "Nenhum passeio disponível nesta data. Tente outro dia!",
+
+    // --- Booking Form ---
+    bookTitle: "Reservar",
+    labelDate: "Data",
+    labelName: "Seu Nome",
+    placeholderName: "Digite seu nome completo",
+    labelEmail: "Seu E-mail",
+    placeholderEmail: "seu@email.com",
+    labelNotes: "Observações (Opcional)",
+    placeholderNotes: "Alergias alimentares ou ocasiões especiais...",
+    btnSubmitting: "Reservando...",
+    btnConfirm: "Confirmar Reserva",
+    btnCancel: "Cancelar",
+
+    // --- Form Validation & LGPD ---
+    labelAcceptTerms: "Eu aceito os ",
+    linkTerms: "Termos de Serviço",
+    linkAnd: " e a ",
+    linkPrivacy: "Política de Privacidade",
+    errorTerms: "Você deve aceitar os termos para continuar.",
+    alertMissing: "Por favor, forneça nome e e-mail.",
+    alertEmail: "Endereço de e-mail inválido.",
+    alertFailed: "Falha na reserva",
+    alertError: "Ocorreu um erro inesperado.",
+    alertPastDate: "Não é possível reservar passeios para datas passadas.",
+
+    // --- Payment View (Pix) ---
+    paymentTitle: "Reserva Iniciada!",
+    paymentInstruction: "Escaneie o QR code abaixo para pagar via Pix.",
+    btnCopy: "Copiar Código Pix",
+    btnCopied: "Código Copiado!",
+    labelPixString: "Pix Copia e Cola",
+    btnClose: "Fechar",
+    expiresIn: "O código expira em",
+    connectionWarning:
+      "Conexão lenta. Ainda estamos aguardando a confirmação do seu pagamento...",
+    expiredTitle: "Pagamento Expirado",
+    expiredDetail:
+      "Este código Pix não é mais válido. Por favor, feche esta janela e tente reservar novamente.",
+    failedTitle: "Pagamento Rejeitado",
+    failedDetail:
+      "O pagamento foi rejeitado pelo banco. Por favor, tente novamente.",
+
+    // --- Success View ---
+    successTitle: "Pagamento Confirmado!",
+    successMessage:
+      "Sua aventura está reservada. Enviamos um e-mail de confirmação para",
+    btnDone: "Concluído",
+
+    // --- Footer & Meta ---
+    footerLegal: "Jurídico",
+    footerTerms: "Termos de Serviço",
+    footerPrivacy: "Política de Privacidade",
+    footerText: "Reme com paixão.",
+    faqSectionTitle: "Perguntas Frequentes",
+    faqSubtitle: "Tudo o que você precisa saber sobre nossos passeios em Pipa.",
+    mapTitle: "Encontre Seu Ponto de Partida",
+    mapSubtitle:
+      "Nossa principal saída é de Tibau do Sul, ao lado da Lagoa de Guaraíras.",
+    footer_developed_by: "Desenvolvido por",
+    footer_powered_by: "Impulsionado por Inovação e Espírito Humano",
+
+    // --- About Page
+    about_title: "Conheça Seu Guia, Edu!",
+    about_bio: [
+      "Nascido no Rio de Janeiro, cresci com o mar como uma extensão da minha própria vida. Entre ondas, sal e horizonte, o surfe e a natação moldaram minha relação com a natureza desde cedo — uma conexão que nunca foi apenas esporte, mas sentimento, pertencimento e liberdade.",
+      "Ainda jovem, fui viver nos Estados Unidos, onde amadureci, viajei e carreguei essa identidade marítima comigo. Aos 25 anos, o destino me levou para o Havaí, um dos lugares mais sagrados para quem vive o oceano. Lá mergulhei profundamente na cultura polinésia, aprendi sobre respeito às águas, ancestralidade e comunidade, e me apaixonei pela canoa havaiana e pelo kitesurf. Foram 10 anos de aprendizado, transformação e experiência vivendo o mar em sua forma mais pura.",
+      "Em 2011 voltei para o Brasil e cheguei à Praia da Pipa, e foi amor à primeira vista. Aqui encontrei um lugar onde vento, lagoa, mar e natureza se encontram de uma forma única. Pipa não era apenas um novo lar; era um chamado para compartilhar tudo o que eu tinha aprendido.",
+      "Sou instrutor certificado pela IKO (International Kiteboarding Organization) e desde então venho trabalhando em treinamento, ensino e promoção do kitesurf e da canoa havaiana em Tibau do Sul e região.",
+      "Meu propósito sempre foi ir além das aulas: criar experiências, construir comunidade e aproximar as pessoas do oceano e da Lagoa de Guaraíras de uma forma consciente e respeitosa.",
+      "Hoje sigo esse caminho através da Pipa Canoa Havaiana, Pipa Kite Center e Esporte Clube Guaraíras — projetos que unem esporte, cultura, turismo e conexão com a natureza. Meu trabalho é sobre movimento, encontro e transformação, na água e na vida.",
+      "Mais do que ensinar a remar ou velejar, quero que cada pessoa que cruza meu caminho sinta o que o mar me deu: liberdade, equilíbrio e pertencimento.",
+    ],
+    about_iko_status: "Instrutor Certificado IKO",
+    about_projects:
+      "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
+    logoAlt: "Pipa Canoa Havaiana Logo",
+
+    tour_full_moon_short:
+      "Uma jornada mística de 4 horas com forró ao vivo e fogueira nas dunas.",
+    tour_full_moon_detail:
+      "Viva o passeio mais mágico que oferecemos – uma jornada que começa com o pôr do sol e continua pela noite encantada para testemunhar a lua cheia nascendo sobre o Oceano Atlântico. \n\nEncontro às 14:40 na Escadaria do Pôr do Sol. Inclui banda de Forró ao vivo, frutas tropicais frescas e fogueira nas dunas da Malembar. Uma celebração da dança celestial da natureza.",
+
+    logistics_meeting: "Ponto de Encontro",
+    logistics_duration: "Duração",
+    logistics_capacity: "Capacidade",
+  },
+
+  es: {
+    // --- Navegación ---
+    navHome: "Inicio",
+    navTours: "Tours",
+    navBook: "Reservar",
+    navFaq: "FAQ",
+    navAbout: "Sobre Nosotros",
+
+    // --- Hero Section ---
+    heroTitle: "Siente el Latido del Océano",
+    heroSubtitle:
+      "Descubre el alma de Pipa desde una nueva perspectiva. Deslízate por aguas serenas, conecta con la naturaleza y crea recuerdos que durarán toda la vida.",
+    ctaButton: "Reservar Ahora",
+    learnMore: "Nuestros Tours",
+
+    // --- Features Section ---
+    detailsTitle: "Tu Aventura te Espera",
+    detailsSubtitle:
+      "Ofrecemos más que un tour; ofrecemos una experiencia. Cada viaje está diseñado para sumergirte en la belleza natural de Pipa.",
+
+    // --- Tour Cards & Templates ---
+    card1Title: "Tour Amanecer",
+    card1Text: "Despierta antes que el mundo y rema hacia la magia.",
+    card2Title: "Tour Día Completo",
+    card2Text:
+      "¡La experiencia definitiva de Pipa! 8 horas. 4 ecosistemas. Playas secretas. ¡Y quizás un delfín o dos!",
+    card3Title: "Tour Atardecer",
+    card3Text:
+      "No solo mires el atardecer, vívelo desde dentro de una canoa hawaiana en las aguas cristalinas de Tibau.",
+    viewDetails: "Ver Detalles",
+    duration: "Duración",
+    spotsLeft: "lugares disponibles",
+    pricePrefix: "R$",
+
+    // --- Tour Detail Modal ---
+    tourSunriseDetail:
+      "Experimenta la máxima tranquilidad. Partimos mientras las estrellas aún están fuera para presenciar el sol emergiendo en el horizonte. Perfecto para el avistamiento de delfines.",
+    tourFullDayDetail:
+      "La inmersión total. Exploramos la Laguna Guaraíras, túneles de manglar ocultos y bancos de arena secretos. Incluye bocadillos locales y guía especializado.",
+    tourSunsetDetail:
+      "Nuestro tour más popular. Mira cómo el cielo se convierte en una pintura mientras te deslizas por las tranquilas aguas de Tibau.",
+    modalIncluded: "Incluido:",
+    modalBring: "Qué llevar:",
+    modalIncludedList:
+      "Canoa, Chaleco salvavidas, Guía Profesional, Bolsas impermeables",
+    modalBringList: "Protector solar, Gorra, Agua, Toalla, Ropa de baño",
+    tour_sunset_short: "No solo mires el atardecer, vívelo desde el agua.",
+    tour_sunset_detail:
+      "Nuestro tour más popular. Mira cómo el cielo se convierte en una pintura mientras te deslizas por las tranquilas aguas de Tibau.",
+
+    // --- Booking Search/List ---
+    bookingTitle: "Verificar Disponibilidad",
+    bookingSubtitle: "Selecciona una fecha para ver las aventuras disponibles",
+    selectDateLabel: "Selecciona Fecha",
+    loading: "Cargando aventuras disponibles...",
+    errorGeneric: "Lo siento, no pudimos cargar la disponibilidad.",
+    noTours: "No hay tours disponibles para esta fecha.",
+
+    // --- Booking Form ---
+    bookTitle: "Reservar",
+    labelDate: "Fecha",
+    labelName: "Tu Nombre",
+    placeholderName: "Ingresa tu nombre completo",
+    labelEmail: "Tu Correo",
+    placeholderEmail: "tu@email.com",
+    labelNotes: "Notas Especiales (Opcional)",
+    placeholderNotes: "Alergias u ocasiones especiales...",
+    btnSubmitting: "Reservando...",
+    btnConfirm: "Confirmar Reserva",
+    btnCancel: "Cancelar",
+
+    // --- Form Validation & LGPD ---
+    labelAcceptTerms: "Acepto los ",
+    linkTerms: "Términos de Servicio",
+    linkAnd: " y la ",
+    linkPrivacy: "Política de Privacidad",
+    errorTerms: "Debes aceptar los términos para continuar.",
+    alertMissing: "Por favor proporcione nombre y correo.",
+    alertEmail: "Correo electrónico inválido.",
+    alertFailed: "Fallo en la reserva",
+    alertError: "Ocurrió un error inesperado.",
+    alertPastDate: "No se pueden reservar tours para fechas pasadas.",
+
+    // --- Payment View (Pix) ---
+    paymentTitle: "¡Reserva Iniciada!",
+    paymentInstruction: "Escanea el código QR abajo para pagar vía Pix.",
+    btnCopy: "Copiar Código Pix",
+    btnCopied: "¡Código Copiado!",
+    labelPixString: "Código Pix Copia y Pega",
+    btnClose: "Cerrar",
+    expiresIn: "El código expira en",
+    connectionWarning:
+      "Conexión lenta. Todavía estamos esperando la confirmación de su pago...",
+    expiredTitle: "Pago Expirado",
+    expiredDetail:
+      "Este código Pix ya no es válido. Por favor, cierre esta ventana e intente reservar de nuevo.",
+    failedTitle: "Pago Rechazado",
+    failedDetail:
+      "El pago fue rechazado por el banco. Por favor, intente de nuevo.",
+
+    // --- Success View ---
+    successTitle: "¡Pago Confirmado!",
+    successMessage:
+      "Tu aventura está reservada. Hemos enviado un correo de confirmación a",
+    btnDone: "Listo",
+
+    // --- Footer & Meta ---
+    footerLegal: "Aviso Legal",
+    footerTerms: "Términos de Servicio",
+    footerPrivacy: "Política de Privacidad",
+    footerText: "Rema con pasión.",
+    faqSectionTitle: "Preguntas Frecuentes",
+    faqSubtitle:
+      "Todo lo que necesitas saber sobre nuestras aventuras en Pipa.",
+    mapTitle: "Encuentra Tu Punto de Partida",
+    mapSubtitle:
+      "Nuestra salida principal es desde Tibau do Sul, al lado de la Laguna de Guaraíras.",
+    footer_developed_by: "Desarrollado por",
+    footer_powered_by: "Impulsado por Innovación y Espíritu Humano",
+
+    // --- About Page
+    about_title: "Conoce a tu Guía, Edu!",
+    about_bio: [
+      "Nacido en Río de Janeiro, crecí con el mar como una extensión de mi propia vida. Entre olas, sal y horizonte, el surf y la natación moldearon mi relación con la naturaleza desde temprana edad—una conexión que nunca fue solo deporte, sino sentimiento, pertenencia y libertad.",
+      "Siendo aún joven, me fui a vivir a los Estados Unidos, donde maduré, viajé y llevé conmigo esta identidad marítima. A los 25 años, el destino me llevó a Hawái, uno de los lugares más sagrados para quienes viven el océano. Allí me sumergí profundamente en la cultura polinesia, aprendí sobre el respeto por las aguas, la ancestralidad y la comunidad, y me enamoré de la canoa hawaiana y el kitesurf. Fueron 10 años de aprendizaje, transformación y vivencia del mar en su forma más pura.",
+      "En 2011 regresé a Brasil y llegué a Praia da Pipa, y fue amor a primera vista. Aquí encontrei un lugar donde el viento, la laguna, el mar y la naturaleza se encuentran de una manera única. Pipa no fue solo un nuevo hogar; fue un llamado a compartir todo lo que había aprendido.",
+      "Soy instructor certificado por la IKO (International Kiteboarding Organization) y desde entonces trabajo en la formación, enseñanza y promoción del kitesurf y la canoa hawaiana en Tibau do Sul y la región.",
+      "Mi propósito siempre ha sido ir más allá de las clases: crear experiencias, construir comunidad y acercar a las personas al océano y a la Laguna de Guaraíras de una manera consciente y respetuosa.",
+      "Hoy sigo este camino a través de Pipa Canoa Havaiana, Pipa Kite Center y Esporte Clube Guaraíras—proyectos que unen deporte, cultura, turismo y conexión con la naturaleza. Mi trabajo se trata de movimiento, encuentro y transformación, en el agua y en la vida.",
+      "Más que enseñar a remar o navegar, quiero que cada persona que se cruce en mi camino sienta lo que el mar me dio: libertad, equilibrio y pertenencia.",
+    ],
+    about_iko_status: "Instructor Certificado IKO",
+    about_projects:
+      "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
+    logoAlt: "Pipa Canoa Havaiana Logo",
+
+    tour_full_moon_short:
+      "Un viaje místico de 4 horas con forró en vivo y fogata en las dunas.",
+    tour_full_moon_detail:
+      "Vive el tour más mágico que ofrecemos – un viaje que comienza con el atardecer y continúa en la noche encantada para presenciar la luna llena elevándose sobre el Océano Atlántico. \n\nEncuentro a las 14:40 en la Escalera del Atardecer. Incluye banda de Forró en vivo, frutas tropicales frescas y fogata en las dunas de Malembar. Una celebración de la danza celestial de la naturaleza.",
+    logistics_meeting: "Punto de Encuentro",
+    logistics_duration: "Duración",
+    logistics_capacity: "Capacidad",
+  },
+  fr: {
+    // --- Navigation ---
+    navHome: "Accueil",
+    navTours: "Tours",
+    navBook: "Réserver",
+    navFaq: "FAQ",
+    navAbout: "À Propos",
+
+    // --- Hero Section ---
+    heroTitle: "Ressentez le Pouls de l'Océan",
+    heroSubtitle:
+      "Découvrez l'âme de Pipa sous un nouvel angle. Glissez sur des eaux sereines, connectez-vous à la nature et créez des souvenirs impérissables.",
+    ctaButton: "Réserver",
+    learnMore: "Nos Tours",
+
+    // --- Features Section ---
+    detailsTitle: "Votre Aventure vous Attend",
+    detailsSubtitle:
+      "Nous offrons plus qu'un simple tour ; nous offrons une expérience. Chaque voyage est conçu pour vous immerger dans la beauté naturelle de Pipa.",
+
+    // --- Tour Cards & Templates ---
+    card1Title: "Tour au Lever du Soleil",
+    card1Text: "Éveillez-vous avant le monde et pagayez vers la magie.",
+    card2Title: "Tour Journée Complète",
+    card2Text:
+      "L'expérience ultime de Pipa ! 8 heures. 4 écosystèmes. Plages secrètes. Et peut-être un dauphin ou deux !",
+    card3Title: "Tour au Coucher du Soleil",
+    card3Text:
+      "Ne vous contentez pas de regarder le coucher du soleil - vivez-le depuis une pirogue hawaïenne sur les eaux cristallines de Tibau.",
+    viewDetails: "Détails",
+    duration: "Durée",
+    spotsLeft: "places restantes",
+    pricePrefix: "R$",
+
+    // --- Tour Detail Modal ---
+    tourSunriseDetail:
+      "Découvrez la tranquillité absolue. Nous partons sous les étoiles pour voir le soleil de l'Atlantique émerger de l'horizon. Idéal pour la photographie et l'observation des dauphins à leur heure la plus active.",
+    tourFullDayDetail:
+      "L'immersion totale. Nous explorons la lagune de Guaraíras, les tunnels de mangrove cachés et les bancs de sable secrets. Inclut des collations locales et un guide spécialisé qui connaît chaque recoin de cet écosystème.",
+    tourSunsetDetail:
+      "Notre tour le plus populaire. Regardez le ciel devenir une peinture alors que vous glissez sur les eaux calmes de Tibau. Une expérience relaxante et spirituelle pour terminer votre journée à Pipa.",
+    modalIncluded: "Inclus :",
+    modalBring: "À apporter :",
+    modalIncludedList:
+      "Pirogue, Gilet de sauvetage, Guide professionnel, Sacs étanches",
+    modalBringList: "Crème solaire, Chapeau, Eau, Serviette, Maillot de bain",
+    tour_sunset_short:
+      "Ne regardez pas seulement le coucher du soleil - vivez-le depuis l'eau.",
+    tour_sunset_detail:
+      "Notre tour le plus populaire. Regardez le ciel se transformer en tableau en glissant sur les eaux calmes de Tibau. Une expérience relaxante et spirituelle.",
+
+    // --- Booking Search/List ---
+    bookingTitle: "Vérifier la Disponibilité",
+    bookingSubtitle:
+      "Sélectionnez une date pour voir les aventures disponibles",
+    selectDateLabel: "Choisir une date",
+    loading: "Chargement des aventures...",
+    errorGeneric: "Désolé, nous n'avons pas pu charger les disponibilités.",
+    noTours: "Aucun tour disponible pour cette date. Essayez un autre jour !",
+
+    // --- Booking Form ---
+    bookTitle: "Réserver",
+    labelDate: "Date",
+    labelName: "Votre Nom",
+    placeholderName: "Entrez votre nom complet",
+    labelEmail: "Votre Email",
+    placeholderEmail: "votre@email.com",
+    labelNotes: "Notes Spéciales (Optionnel)",
+    placeholderNotes: "Allergies alimentaires ou occasions spéciales...",
+    btnSubmitting: "Réservation...",
+    btnConfirm: "Confirmer la réservation",
+    btnCancel: "Annuler",
+
+    // --- Form Validation & LGPD ---
+    labelAcceptTerms: "J'accepte les ",
+    linkTerms: "Conditions d'utilisation",
+    linkAnd: " et la ",
+    linkPrivacy: "Politique de confidentialité",
+    errorTerms: "Vous devez accepter les conditions pour continuer.",
+    alertMissing: "Veuillez fournir un nom et un email.",
+    alertEmail: "Adresse email invalide.",
+    alertFailed: "Échec de la réservation",
+    alertError: "Une erreur inattendue est survenue.",
+    alertPastDate:
+      "Impossible de réserver pour une date passée. Veuillez choisir aujourd'hui ou une date future.",
+
+    // --- Payment View (Pix) ---
+    paymentTitle: "Réservation Enregistrée !",
+    paymentInstruction: "Scannez le code QR ci-dessous pour payer via Pix.",
+    btnCopy: "Copier le code Pix",
+    btnCopied: "Code Copié !",
+    labelPixString: "Code Pix Copier-Coller",
+    btnClose: "Fermer",
+    expiresIn: "Le code QR expire dans",
+    connectionWarning:
+      "Connexion lente. Nous attendons toujours la confirmation de votre paiement...",
+    expiredTitle: "Paiement Expiré",
+    expiredDetail:
+      "Ce code Pix n'est plus valide. Veuillez fermer cette fenêtre et réessayer de réserver.",
+    failedTitle: "Paiement Rejeté",
+    failedDetail:
+      "Le paiement a été rejeté par la banque. Veuillez réessayer ou utiliser une autre méthode.",
+
+    // --- Success View ---
+    successTitle: "Paiement Confirmé !",
+    successMessage:
+      "Votre aventure est réservée. Nous avons envoyé un email de confirmation à",
+    btnDone: "Terminé",
+
+    // --- Site Footer & Meta ---
+    footerLegal: "Mentions Légales",
+    footerTerms: "Conditions d'utilisation",
+    footerPrivacy: "Politique de confidentialité",
+    footerText: "Pagayez avec passion.",
+    faqSectionTitle: "Vos Questions, nos Réponses",
+    faqSubtitle:
+      "Tout ce que vous devez savoir sur nos aventures en pirogue à Pipa.",
+    mapTitle: "Trouvez votre point de départ",
+    mapSubtitle:
+      "Notre départ principal se fait depuis Tibau do Sul, à côté de la lagune de Guaraíras.",
+    footer_developed_by: "Développé par",
+    footer_powered_by: "Propulsé par l'Innovation et l'Esprit Humain",
+
+    // --- About Page ---
+    about_title: "Rencontrez votre guide, Edu !",
+    about_bio: [
+      "Né à Rio de Janeiro, j'ai grandi avec la mer comme une extension de ma propre vie. Entre vagues, sel et horizon, le surf et la natation ont façonné ma relation avec la nature dès mon plus jeune âge — une connexion qui n'a jamais été qu'un sport, mais un sentiment, une appartenance et une liberté.",
+      "Encore jeune, je suis parti vivre aux États-Unis, où j'ai mûri, voyagé et porté cette identité maritime avec moi. À 25 ans, le destin m'a conduit à Hawaï, l'un des lieux les plus sacrés pour ceux qui vivent l'océan. Là-bas, j'ai plongé profondément dans la culture polynésienne, appris le respect des eaux, l'ancestralité et la communauté, et je suis tombé amoureux de la pirogue hawaïenne et du kitesurf. Ce furent 10 années d'apprentissage, de transformation et d'expérience de la mer dans sa forme la plus pure.",
+      "En 2011, je suis revenu au Brésil et je suis arrivé à Praia da Pipa, et ce fut le coup de foudre. J'y ai trouvé un endroit où le vent, la lagune, la mer et la nature se rencontrent de manière unique. Pipa n'était pas seulement un nouveau foyer ; c'était un appel à partager tout ce que j'avais appris.",
+      "Je suis instructeur certifié par l'IKO (International Kiteboarding Organization) et depuis lors, je travaille à la formation, l'enseignement et la promotion du kitesurf et de la pirogue hawaïenne à Tibau do Sul et dans la région.",
+      "Mon but a toujours été d'aller au-delà des leçons : créer des expériences, bâtir une communauté et rapprocher les gens de l'océan et de la lagune de Guaraíras de manière consciente et respectueuse.",
+      "Aujourd'hui, je poursuis ce chemin à travers Pipa Canoa Havaiana, Pipa Kite Center et l'Esporte Clube Guaraíras — des projets qui unissent sport, culture, tourisme et connexion avec la nature. Mon travail est une question de mouvement, de rencontre et de transformation, dans l'eau comme dans la vie.",
+      "Plus que d'enseigner à pagayer ou à naviguer, je veux que chaque personne qui croise mon chemin ressente ce que la mer m'a donné : liberté, équilibre et appartenance.",
+    ],
+    about_iko_status: "Instructeur certifié IKO",
+    about_projects:
+      "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
+    logoAlt: "Logo Pipa Canoa Havaiana",
+
+    // --- Special Tours ---
+    tour_full_moon_short:
+      "Un voyage mystique de 4 heures avec de la musique Forró en direct et un feu de camp sur les dunes.",
+    tour_full_moon_detail:
+      "Découvrez le tour le plus magique que nous proposons – un voyage qui commence par le coucher du soleil et se poursuit dans la soirée enchantée pour observer la pleine lune se lever sur l'Atlantique. \n\nRDV à 14h40 à l'Escalier du Coucher de Soleil (Escadaria do Pôr do Sol). Inclut un groupe de Forró en direct, des fruits tropicaux frais et un feu de camp sur les dunes de Malombar. Une célébration de la danse céleste de la nature.",
+
+    logistics_meeting: "Point de rencontre",
+    logistics_duration: "Durée",
+    logistics_capacity: "Capacité",
+  },
+};
+
+==> src/utils/dateUtils.js <==
+/**
+ * Returns today's date in YYYY-MM-DD format based on local time.
+ */
+export const getTodayLocalDate = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(now.getDate()).padStart(2, "0")}`;
+};
+
+/**
+ * Checks if a given date string (YYYY-MM-DD) is in the past.
+ */
+export const isPastDate = (dateString) => {
+  const selectedDate = new Date(dateString + "T00:00:00");
+  const today = new Date(getTodayLocalDate() + "T00:00:00");
+  return selectedDate < today;
+};
+
+==> src/utils/mockData.js <==
+import { format } from "date-fns";
+
+// --- DETERMINISTIC UTILS ---
+
+// A simple pseudo-random number generator that returns 0-1 based on a seed
+// This replaces Math.random() so our data is consistent for testing
+const seededRandom = (seed) => {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+};
+
+// Get a random integer between min and max using a seed
+const getSeededInt = (min, max, seed) => {
+  return Math.floor(seededRandom(seed) * (max - min + 1) + min);
+};
+
+// Get a random item from an array using a seed
+const getSeededItem = (arr, seed) => {
+  const index = Math.floor(seededRandom(seed) * arr.length);
+  return arr[index];
+};
+
+const NAMES = [
+  "Alice Smith",
+  "Bob Jones",
+  "Charlie Day",
+  "Diana Prince",
+  "Evan Wright",
+  "Fiona Gallagher",
+  "George Michael",
+  "Hannah Montana",
+  "Ian Malcolm",
+  "Julia Stiles",
+  "Kevin Hart",
+  "Laura Croft",
+];
+
+const NOTES = [
+  "Vegetarian meal request",
+  "Needs XL lifejacket",
+  "",
+  "",
+  "Bringing a dog",
+  "Celebrating anniversary",
+  "",
+  "Elderly passenger - needs assistance",
+  "",
+  "",
+  "Allergic to peanuts",
+];
+
+// --- GENERATOR ---
+
+export const generateBookingsForTour = (tourId, capacity, seedInput) => {
+  // Convert string seeds to numbers if necessary
+  let seed =
+    typeof seedInput === "string"
+      ? seedInput.split("").reduce((a, b) => a + b.charCodeAt(0), 0)
+      : seedInput;
+
+  // 1. Determine Status & Density
+  // We use the seed to decide if it's cancelled or how full it is
+  const cancelChance = seededRandom(seed++);
+  const isCancelled = cancelChance > 0.95; // 5% chance of cancellation
+
+  // Density factor (0.1 to 0.9)
+  const density = (seed % 10) / 10 || 0.5;
+
+  // Determine base number of booking groups (not pax)
+  const maxGroups = Math.floor(capacity / 2); // Roughly assume 2 pax per group
+  const groupCount = isCancelled ? 0 : Math.floor(maxGroups * density);
+
+  const bookings = [];
+  let currentBookedCount = 0;
+
+  for (let i = 0; i < groupCount; i++) {
+    // Increment seed for every decision so data varies per passenger
+
+    // Determine Party Size (1-4)
+    const partySize = getSeededInt(1, 4, seed++);
+
+    // Stop if we exceed capacity
+    if (currentBookedCount + partySize > capacity) break;
+
+    // Determine Attributes
+    const nameIndex = getSeededInt(0, NAMES.length - 1, seed++);
+    const note = getSeededItem(NOTES, seed++);
+    const isPaid = seededRandom(seed++) > 0.3;
+
+    bookings.push({
+      id: `b-${tourId}-${i}`,
+      guestName: NAMES[nameIndex] + (i > NAMES.length ? ` ${i}` : ""),
+      email: `guest${i}@example.com`,
+      phone: `+55 84 9999-${getSeededInt(1000, 9999, seed++)}`,
+      partySize: partySize,
+      paymentStatus: isPaid ? "confirmed" : "pending_payment",
+      notes: note,
+    });
+
+    currentBookedCount += partySize;
+  }
+
+  return {
+    isCancelled,
+    bookedCount: currentBookedCount,
+    bookings,
+  };
+};
+
+// Main function to get the full day object
+export const getDayDetails = (date) => {
+  const dateStr = format(date, "yyyy-MM-dd");
+
+  // Create a numeric hash from the date string to use as a master seed
+  const dayHash = dateStr.split("").reduce((a, b) => a + b.charCodeAt(0), 0);
+
+  const templates = [
+    {
+      id: 1,
+      name: "Morning Mangrove",
+      time: "09:00",
+      capacity: 15,
+      price: 250.0,
+    }, // Added price
+    {
+      id: 2,
+      name: "Sunset Adventure",
+      time: "16:00",
+      capacity: 20,
+      price: 200.0,
+    }, // Added price
+    {
+      id: 3,
+      name: "Full Moon Experience",
+      time: "20:00",
+      capacity: 12,
+      price: 500.0,
+    }, // Added price
+  ];
+
+  const tours = templates.map((tpl) => {
+    // We combine dayHash + tpl.id so each tour on the same day is different
+    const tourSeed = dayHash + tpl.id * 100;
+
+    const { bookings, isCancelled, bookedCount } = generateBookingsForTour(
+      dateStr,
+      tpl.capacity,
+      tourSeed
+    );
+
+    return {
+      ...tpl,
+      uniqueId: `${dateStr}-${tpl.id}`,
+      status: isCancelled
+        ? "cancelled"
+        : bookedCount >= tpl.capacity
+        ? "sold_out"
+        : "available",
+      booked: bookedCount,
+      bookings: bookings,
+    };
+  });
+
+  return tours;
+};
+==> package.json <==
+{
+  "type": "commonjs",
+  "dependencies": {
+    "@sentry/react": "^10.36.0",
+    "@supabase/supabase-js": "^2.93.3",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@vitejs/plugin-react": "^5.1.1",
+    "date-fns": "^4.1.0",
+    "deep-chat": "^2.2.2",
+    "lucide-react": "^0.556.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.10.1",
+    "vite": "^7.2.2"
+  },
+  "scripts": {
+    "test": "jest",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "@babel/preset-react": "^7.28.5",
+    "@sentry/vite-plugin": "^4.8.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "autoprefixer": "^10.4.23",
+    "babel-jest": "^30.2.0",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "jsdom": "^27.1.0",
+    "msw": "^2.12.7",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "whatwg-fetch": "^3.6.20"
+  }
+}
+
+==> tailwind.config.js <==
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+
+==> index.html <==
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pipa Canoa Havaiana | Pipa Canoe Adventures</title>
+
+    <meta
+      name="description"
+      content="Experience the magic of Pipa from the water. Authentic Hawaiian Canoe tours in Tibau do Sul, Brazil."
+    />
+
+    <!-- Favicon Block -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Optional: Add this if your generator gave you a site.webmanifest file -->
+    <!-- <link rel="manifest" href="/site.webmanifest" /> -->
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Pipa Canoa Havaiana" />
+    <meta
+      property="og:description"
+      content="Paddle through the heart of Pipa. Book your sunrise or sunset canoe adventure."
+    />
+    <meta property="og:image" content="/img/sunrise_pic.jpg" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Open+Sans:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="antialiased text-gray-800 bg-gray-50">
+    <!-- This is where React will mount the entire application -->
+    <div id="root"></div>
+
+    <!-- Point to your entry file -->
+    <script type="module" src="/src/index.jsx"></script>
+  </body>
+</html>
