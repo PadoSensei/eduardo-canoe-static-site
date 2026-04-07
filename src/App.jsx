@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import * as Sentry from "@sentry/react"; // 1. Import Sentry
+import { Toaster } from "sonner";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
@@ -41,6 +42,7 @@ const App = () => {
       }
     >
       <div className="flex flex-col min-h-screen">
+        <Toaster position="top-right" richColors closeButton />
         <Header />
         <main className="flex-grow">
           <Routes>

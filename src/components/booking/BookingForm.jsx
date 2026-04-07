@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { Plus, Minus } from "lucide-react";
+import ShieldedButton from "../common/ShieldedButton";
 
 export function BookingForm({
   tour,
@@ -238,14 +239,15 @@ export function BookingForm({
 
       {/* Actions */}
       <div className="flex gap-4">
-        <button
+        <ShieldedButton
           onClick={onConfirm}
-          disabled={isSubmitting || !acceptedTerms || currentNum < 1}
+          disabled={!acceptedTerms || currentNum < 1}
+          isLoading={isSubmitting}
           className="flex-1 bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all 
-                     disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed flex justify-center items-center"
+                     disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? t("btnSubmitting") : t("btnConfirm")}
-        </button>
+          {t("btnConfirm")}
+        </ShieldedButton>
         <button
           onClick={onCancel}
           disabled={isSubmitting}

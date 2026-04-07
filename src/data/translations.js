@@ -97,6 +97,8 @@ export const translations = {
     alertError: "An unexpected error occurred.",
     alertPastDate:
       "Cannot book tours for past dates. Please select today or a future date.",
+    error_system_overloaded:
+      "We're experiencing heavy traffic. Please try again in a moment.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "Booking Reserved!",
@@ -244,6 +246,8 @@ export const translations = {
     alertFailed: "Falha na reserva",
     alertError: "Ocorreu um erro inesperado.",
     alertPastDate: "Não é possível reservar passeios para datas passadas.",
+    error_system_overloaded:
+      "Estamos com alto tráfego. Por favor, tente novamente em alguns instantes.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "Reserva Iniciada!",
@@ -389,6 +393,8 @@ export const translations = {
     alertFailed: "Fallo en la reserva",
     alertError: "Ocurrió un error inesperado.",
     alertPastDate: "No se pueden reservar tours para fechas pasadas.",
+    error_system_overloaded:
+      "Estamos experimentando mucho tráfico. Por favor, inténtelo de nuevo en un momento.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "¡Reserva Iniciada!",
@@ -536,6 +542,8 @@ export const translations = {
     alertError: "Une erreur inattendue est survenue.",
     alertPastDate:
       "Impossible de réserver pour une date passée. Veuillez choisir aujourd'hui ou une date future.",
+    error_system_overloaded:
+      "Nous rencontrons un trafic important. Veuillez réessayer dans un instant.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "Réservation Enregistrée !",
