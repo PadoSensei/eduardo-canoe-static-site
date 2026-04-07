@@ -8,3 +8,4 @@
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
+11:23:53 PM [vite] (client) hmr update /src/styles.css

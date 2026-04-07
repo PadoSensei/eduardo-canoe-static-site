@@ -8,14 +8,14 @@
 - **Status**: Completed
 - **Owner**: Jules
 
-### [ ] Ticket #FE-1: Button Debouncing & Loading States (Money Loop)
+### [x] Ticket #FE-1: Button Debouncing & Loading States (Money Loop)
 
 - **Description**: Implement "Shielded Button" pattern and ensure all "Money Loop" states handle loading/processing visually.
-- **Status**: To Do
+- **Status**: ✅ COMPLETED
 - **Owner**: Jules
 
-### [ ] Ticket #FE-2: Global API Error Toast/Notification System
+### [x] Ticket #FE-2: Global API Error Toast/Notification System
 
 - **Description**: Centralize API error handling and implement a toast system for "Systemic" errors.
-- **Status**: To Do
+- **Status**: ✅ COMPLETED
 - **Owner**: Jules
