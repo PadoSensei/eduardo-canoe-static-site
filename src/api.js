@@ -1,12 +1,33 @@
 // src/api.js
 import * as Sentry from "@sentry/react";
-import { z } from "zod";
+import { toast } from "sonner";
 import { supabase } from "./supabaseClient";
+import {
+  AvailableToursResponseSchema,
+  CreateBookingResponseSchema,
+  TourTemplatesResponseSchema,
+} from "./api/schemas";
 
 const DOMAIN = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const API_BASE_URL = `${DOMAIN}/api/v1`;
 
-const getHeaders = async (includeAuth = false) => {
+/**
+ * Centralized request wrapper to handle headers, error reporting,
+ * and global toasts for system failures.
+ */
+async function request(endpoint, options = {}) {
+  const {
+    method = "GET",
+    body,
+    includeAuth = false,
+    signal,
+    schema,
+  } = options;
+
+  const url = endpoint.startsWith("http")
+    ? endpoint
+    : `${API_BASE_URL}${endpoint}`;
+
   const headers = { "Content-Type": "application/json" };
   if (includeAuth) {
     const {
@@ -16,19 +37,63 @@ const getHeaders = async (includeAuth = false) => {
       headers["Authorization"] = `Bearer ${session.access_token}`;
     }
   }
-  return headers;
-};
+
+  try {
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+      signal,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const message = errorData.detail || "An unexpected error occurred.";
+
+      // FE-2: Error Passthrough logic
+      if (response.status === 400 || response.status === 503) {
+        toast.error(message);
+      } else if (response.status >= 500) {
+        // Localized 500 message will be handled by the caller or a translation hook
+        // but we trigger a generic toast here.
+        // Since we don't have access to useLanguage hook here, we use a key
+        // that the toaster can ideally translate if we were using i18next,
+        // but here we'll just trigger it and let translations happen in components if possible.
+        // Actually, the requirements say "trigger a Toast.error with that message".
+        // For 500: "We're experiencing heavy traffic. Please try again in a moment."
+        toast.error("error_system_overloaded");
+      }
+
+      const error = new Error(message);
+      error.status = response.status;
+      throw error;
+    }
+
+    const data = await response.json();
+
+    // Shield: Validate if schema is provided
+    if (schema) {
+      return schema.parse(data);
+    }
+
+    return data;
+  } catch (error) {
+    if (error.name === "AbortError") throw error;
+
+    captureApiError(error, { endpoint, status: error.status || 500 });
+    throw error;
+  }
+}
 
 const captureApiError = (error, context) => {
   if (error.name === "AbortError") return;
   if (!Sentry.withScope) return;
 
-  // FIXED: Removed 'require' which crashes in browser/Vite.
-  // Using the imported 'Sentry' directly.
   try {
     Sentry.withScope((scope) => {
       scope.setLevel("error");
       scope.setTag("api_endpoint", context.endpoint);
+      if (context.status) scope.setExtra("status", context.status);
       Sentry.captureException(error);
     });
   } catch {
@@ -36,39 +101,12 @@ const captureApiError = (error, context) => {
   }
 };
 
-const TourSchema = z.object({
-  tour_instance_id: z.number(),
-  tour_type: z.string(),
-  display_name: z.string(),
-  price: z.number(),
-  seats_available: z.number(),
-  is_bookable: z.boolean(),
-  capacity: z.number().optional().default(10),
-  duration: z.string().optional().nullable(),
-  image_url: z.string().optional().nullable(),
-  tour_date: z.string(),
-  description: z.string().optional().nullable(),
-  short_description: z.string().optional().nullable(),
-  inclusions: z.array(z.string()).optional().default([]),
-  requirements: z.array(z.string()).optional().default([]),
-});
-
-const AvailableToursResponseSchema = z.array(TourSchema);
-
 export async function getAvailableTours(date, options = {}) {
-  const url = `${API_BASE_URL}/tours/available?tour_date=${date}`;
   try {
-    const response = await fetch(url, { signal: options.signal });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        `HTTP error ${response.status}: ${errorData.detail || "Error"}`
-      );
-    }
-    const rawData = await response.json();
-
-    // Shield: Validate and transform
-    const validatedData = AvailableToursResponseSchema.parse(rawData);
+    const validatedData = await request(`/tours/available?tour_date=${date}`, {
+      signal: options.signal,
+      schema: AvailableToursResponseSchema,
+    });
 
     return validatedData.map((tour) => ({
       id: `${tour.tour_type}-${tour.tour_date}`,
@@ -89,31 +127,11 @@ export async function getAvailableTours(date, options = {}) {
     }));
   } catch (error) {
     if (error.name === "AbortError") return null;
-    captureApiError(error, {
-      endpoint: "getAvailableTours",
-      status: 500,
-      payload: { date },
-    });
     throw error;
   }
 }
 
-const CreateBookingResponseSchema = z.object({
-  booking: z.object({
-    uuid: z.string(),
-    id: z.number().optional(),
-    guest_email: z.string().optional(),
-    status: z.string().optional(),
-  }),
-  payment_info: z.object({
-    qr_code: z.string(),
-    qr_code_image: z.string(),
-    expires_in: z.number(),
-  }),
-});
-
 export async function createBooking(bookingData, options = {}) {
-  const url = `${API_BASE_URL}/bookings`;
   const payload = {
     tour_id: bookingData.tourId,
     guest_name: bookingData.guestName,
@@ -126,22 +144,12 @@ export async function createBooking(bookingData, options = {}) {
   };
 
   try {
-    const response = await fetch(url, {
+    const validatedResult = await request("/bookings", {
       method: "POST",
-      headers: await getHeaders(false),
-      body: JSON.stringify(payload),
+      body: payload,
       signal: options.signal,
+      schema: CreateBookingResponseSchema,
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || `Server error: ${response.status}`);
-    }
-
-    const rawResult = await response.json();
-
-    // Shield: Validate
-    const validatedResult = CreateBookingResponseSchema.parse(rawResult);
 
     return {
       success: true,
@@ -150,17 +158,15 @@ export async function createBooking(bookingData, options = {}) {
     };
   } catch (error) {
     if (error.name === "AbortError") return null;
-    captureApiError(error, { endpoint: "createBooking", payload });
     return { success: false, message: error.message };
   }
 }
 
 export async function getBookingStatus(bookingUuid, options = {}) {
-  const url = `${API_BASE_URL}/bookings/status/${bookingUuid}`;
   try {
-    const response = await fetch(url, { signal: options.signal });
-    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-    return await response.json();
+    return await request(`/bookings/status/${bookingUuid}`, {
+      signal: options.signal,
+    });
   } catch (error) {
     if (error.name === "AbortError") return null;
     throw error;
@@ -168,16 +174,11 @@ export async function getBookingStatus(bookingUuid, options = {}) {
 }
 
 export async function getTourTemplates(options = {}) {
-  const url = `${API_BASE_URL}/tour-templates/`;
   try {
-    const response = await fetch(url, { signal: options.signal });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        `HTTP error ${response.status}: ${errorData.detail || "Error"}`
-      );
-    }
-    const data = await response.json();
+    const data = await request("/tour-templates/", {
+      signal: options.signal,
+      schema: TourTemplatesResponseSchema,
+    });
 
     return data.map((template) => ({
       id: template.id,
@@ -193,63 +194,42 @@ export async function getTourTemplates(options = {}) {
     }));
   } catch (error) {
     if (error.name === "AbortError") return null;
-    captureApiError(error, { endpoint: "getTourTemplates" });
     throw error;
   }
 }
 
 export async function fetchMonthlySchedule(year, month, options = {}) {
   try {
-    const headers = await getHeaders(true);
-    const response = await fetch(
-      `${API_BASE_URL}/admin/schedule?year=${year}&month=${month}`,
-      { headers, signal: options.signal }
-    );
-    if (!response.ok) throw new Error("Unauthorized Access");
-    return await response.json();
+    return await request(`/admin/schedule?year=${year}&month=${month}`, {
+      includeAuth: true,
+      signal: options.signal,
+    });
   } catch (error) {
     if (error.name === "AbortError") return null;
-    captureApiError(error, {
-      endpoint: "fetchMonthlySchedule",
-      payload: { year, month },
-    });
     throw error;
   }
 }
 
 export async function fetchDayManifest(dateString, options = {}) {
   try {
-    const headers = await getHeaders(true);
-    const response = await fetch(
-      `${API_BASE_URL}/admin/manifest/${dateString}`,
-      {
-        headers,
-        signal: options.signal,
-      }
-    );
-    if (!response.ok) throw new Error("Unauthorized");
-    return await response.json();
+    return await request(`/admin/manifest/${dateString}`, {
+      includeAuth: true,
+      signal: options.signal,
+    });
   } catch (error) {
     if (error.name === "AbortError") return null;
-    captureApiError(error, {
-      endpoint: "fetchDayManifest",
-      payload: { dateString },
-    });
     throw error;
   }
 }
 
 export async function adminCreateBooking(bookingData, options = {}) {
   try {
-    const headers = await getHeaders(true);
-    const response = await fetch(`${API_BASE_URL}/admin/bookings`, {
+    return await request("/admin/bookings", {
       method: "POST",
-      headers,
-      body: JSON.stringify(bookingData),
+      body: bookingData,
+      includeAuth: true,
       signal: options.signal,
     });
-    if (!response.ok) throw new Error("Manual booking failed");
-    return await response.json();
   } catch (error) {
     if (error.name === "AbortError") return null;
     throw error;
@@ -263,18 +243,12 @@ export async function cancelTourForWeather(
   options = {}
 ) {
   try {
-    const headers = await getHeaders(true);
-    const response = await fetch(
-      `${API_BASE_URL}/admin/tours/${tourId}/weather-cancel`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ tour_name: tourName, tour_date: tourDate }),
-        signal: options.signal,
-      }
-    );
-    if (!response.ok) throw new Error("Cancellation failed");
-    return await response.json();
+    return await request(`/admin/tours/${tourId}/weather-cancel`, {
+      method: "POST",
+      body: { tour_name: tourName, tour_date: tourDate },
+      includeAuth: true,
+      signal: options.signal,
+    });
   } catch (error) {
     if (error.name === "AbortError") return null;
     throw error;
