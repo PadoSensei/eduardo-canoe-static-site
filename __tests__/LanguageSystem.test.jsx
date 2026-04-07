@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { LanguageProvider, useLanguage } from "../src/context/LanguageContext";
 import { translations } from "../src/data/translations";
@@ -54,10 +54,6 @@ describe("Translation System", () => {
     const randomLang =
       availableLangs[Math.floor(Math.random() * availableLangs.length)];
 
-    console.log(
-      `🎲 Testing Random Language Switch to: ${randomLang.toUpperCase()}`
-    );
-
     // 3. Find the button for that random language and click it
     const button = screen.getByText(randomLang.toUpperCase());
     fireEvent.click(button);
@@ -77,7 +73,7 @@ describe("Translation System", () => {
   // If a key is missing, it should not crash, but return the key itself or English fallback
   test("Returns the key itself if translation is missing (Safety Check)", () => {
     // We create a specific test provider with a broken translation object
-    const BrokenProvider = ({ children }) => {
+    const BrokenProvider = () => {
       const t = (key) => key; // Simulating simple key return if missing
       return <div>{t("nonExistentKey")}</div>;
     };

@@ -2,7 +2,6 @@ import {
   generateBookingsForTour,
   getDayDetails,
 } from "../../src/utils/mockData";
-import { format } from "date-fns";
 
 describe("Mock Data Generator", () => {
   test("generateBookingsForTour returns consistent data for the same seed", () => {

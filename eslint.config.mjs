@@ -32,7 +32,11 @@ export default [
       ...hooksPlugin.configs.recommended.rules,
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
-      "no-unused-vars": "warn",
+      "no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+      "no-console": ["error", { allow: ["warn", "error"] }],
     },
   },
   prettierConfig,

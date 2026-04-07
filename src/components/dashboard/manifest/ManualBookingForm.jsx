@@ -6,7 +6,7 @@ const ManualBookingForm = ({
   selectedTour,
   onCancel,
   onSuccess,
-  dateString,
+  dateString: _dateString,
 }) => {
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");

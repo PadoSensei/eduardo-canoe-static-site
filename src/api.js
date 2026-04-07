@@ -31,7 +31,7 @@ const captureApiError = (error, context) => {
       scope.setTag("api_endpoint", context.endpoint);
       Sentry.captureException(error);
     });
-  } catch (e) {
+  } catch {
     // Fail silently in tests if Sentry is gone
   }
 };

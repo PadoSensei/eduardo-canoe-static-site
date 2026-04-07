@@ -34,14 +34,6 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
 
         if (isMounted.current && !signal?.aborted) {
           setTours(data || []);
-
-          // If a tour was selected, refresh its specific data from the new payload
-          if (selectedTour) {
-            const updatedSelected = data.find(
-              (t) => t.tour_id === selectedTour.tour_id
-            );
-            if (updatedSelected) setSelectedTour(updatedSelected);
-          }
         }
       } catch (err) {
         if (err.name === "AbortError") return;
@@ -52,8 +44,20 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
         }
       }
     },
-    [date, selectedTour]
+    [date]
   );
+
+  // Sync selectedTour with updated data from tours list
+  useEffect(() => {
+    if (selectedTour) {
+      const updated = tours.find(
+        (t) => (t.tour_id || t.id) === (selectedTour.tour_id || selectedTour.id)
+      );
+      if (updated && updated !== selectedTour) {
+        setSelectedTour(updated);
+      }
+    }
+  }, [tours, selectedTour]);
 
   // Initial Load and Cleanup
   useEffect(() => {
@@ -68,7 +72,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
       isMounted.current = false;
       controller.abort();
     };
-  }, [date]); // Only re-run when the date from the calendar changes
+  }, [date, loadManifest]); // Only re-run when the date from the calendar changes
 
   const handleWeatherCancellation = async (tour) => {
     if (
@@ -211,7 +215,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
         {tours.length > 0 ? (
           tours.map((tour) => (
             <TourCard
-              key={tour.tour_id}
+              key={tour.tour_id || tour.id}
               tour={tour}
               isSubmitting={isSubmitting}
               onCancel={handleWeatherCancellation}
