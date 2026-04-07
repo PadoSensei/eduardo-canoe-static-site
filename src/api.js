@@ -1,5 +1,6 @@
 // src/api.js
 import * as Sentry from "@sentry/react";
+import { z } from "zod";
 import { supabase } from "./supabaseClient";
 
 const DOMAIN = import.meta.env.VITE_API_URL || "http://localhost:8000";
@@ -35,6 +36,25 @@ const captureApiError = (error, context) => {
   }
 };
 
+const TourSchema = z.object({
+  tour_instance_id: z.number(),
+  tour_type: z.string(),
+  display_name: z.string(),
+  price: z.number(),
+  seats_available: z.number(),
+  is_bookable: z.boolean(),
+  capacity: z.number().optional().default(10),
+  duration: z.string().optional().nullable(),
+  image_url: z.string().optional().nullable(),
+  tour_date: z.string(),
+  description: z.string().optional().nullable(),
+  short_description: z.string().optional().nullable(),
+  inclusions: z.array(z.string()).optional().default([]),
+  requirements: z.array(z.string()).optional().default([]),
+});
+
+const AvailableToursResponseSchema = z.array(TourSchema);
+
 export async function getAvailableTours(date, options = {}) {
   const url = `${API_BASE_URL}/tours/available?tour_date=${date}`;
   try {
@@ -45,8 +65,12 @@ export async function getAvailableTours(date, options = {}) {
         `HTTP error ${response.status}: ${errorData.detail || "Error"}`
       );
     }
-    const data = await response.json();
-    return data.map((tour) => ({
+    const rawData = await response.json();
+
+    // Shield: Validate and transform
+    const validatedData = AvailableToursResponseSchema.parse(rawData);
+
+    return validatedData.map((tour) => ({
       id: `${tour.tour_type}-${tour.tour_date}`,
       instanceId: tour.tour_instance_id,
       tourType: tour.tour_type,
@@ -58,11 +82,10 @@ export async function getAvailableTours(date, options = {}) {
       duration: tour.duration || "2h",
       imageUrl: tour.image_url || "",
       tourDate: tour.tour_date,
-      // Logic preservation: ensure rich content fields are mapped
       description: tour.description,
       shortDescription: tour.short_description,
-      inclusions: tour.inclusions || [],
-      requirements: tour.requirements || [],
+      inclusions: tour.inclusions,
+      requirements: tour.requirements,
     }));
   } catch (error) {
     if (error.name === "AbortError") return null;
@@ -74,6 +97,20 @@ export async function getAvailableTours(date, options = {}) {
     throw error;
   }
 }
+
+const CreateBookingResponseSchema = z.object({
+  booking: z.object({
+    uuid: z.string(),
+    id: z.number().optional(),
+    guest_email: z.string().optional(),
+    status: z.string().optional(),
+  }),
+  payment_info: z.object({
+    qr_code: z.string(),
+    qr_code_image: z.string(),
+    expires_in: z.number(),
+  }),
+});
 
 export async function createBooking(bookingData, options = {}) {
   const url = `${API_BASE_URL}/bookings`;
@@ -101,11 +138,15 @@ export async function createBooking(bookingData, options = {}) {
       throw new Error(errorData.detail || `Server error: ${response.status}`);
     }
 
-    const result = await response.json();
+    const rawResult = await response.json();
+
+    // Shield: Validate
+    const validatedResult = CreateBookingResponseSchema.parse(rawResult);
+
     return {
       success: true,
-      booking: result.booking,
-      paymentInfo: result.payment_info,
+      booking: validatedResult.booking,
+      paymentInfo: validatedResult.payment_info,
     };
   } catch (error) {
     if (error.name === "AbortError") return null;
