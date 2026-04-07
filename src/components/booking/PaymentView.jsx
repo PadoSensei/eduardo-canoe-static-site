@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../context/LanguageContext";
+import ShieldedButton from "../common/ShieldedButton";
 
 export function PaymentView({
   paymentInfo,
@@ -186,12 +187,12 @@ export function PaymentView({
         </>
       )}
 
-      <button
+      <ShieldedButton
         onClick={onClose}
         className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors"
       >
         {isExpired || isFailed ? t("btnRetry") : t("btnClose")}
-      </button>
+      </ShieldedButton>
     </div>
   );
 }
