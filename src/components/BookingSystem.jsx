@@ -12,7 +12,7 @@ const getStoredSession = () => {
   try {
     const saved = localStorage.getItem("pending_booking");
     return saved ? JSON.parse(saved) : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -40,19 +40,6 @@ function BookingSystem() {
   const [specialNotes, setSpecialNotes] = useState("");
   const [formError, setFormError] = useState(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-
-  const {
-    currentBooking,
-    setCurrentBooking,
-    paymentInfo,
-    setPaymentInfo,
-    isConfirmed,
-    setIsConfirmed,
-    isExpired,
-    isFailed,
-    hasConnectionIssue,
-    clearBooking,
-  } = useBooking(session, selectedDate, setAvailableTours);
 
   // --- 2. LOGIC HELPERS ---
 
@@ -94,6 +81,19 @@ function BookingSystem() {
     [selectedDate]
   );
 
+  const {
+    currentBooking,
+    setCurrentBooking,
+    paymentInfo,
+    setPaymentInfo,
+    isConfirmed,
+    setIsConfirmed,
+    isExpired,
+    isFailed,
+    hasConnectionIssue,
+    clearBooking,
+  } = useBooking(session, selectedDate, setAvailableTours);
+
   // Lifecycle Management
   useEffect(() => {
     isMounted.current = true;
@@ -107,6 +107,20 @@ function BookingSystem() {
     };
   }, [selectedDate, language, loadAvailability]);
 
+  const closeModal = useCallback(async () => {
+    if (clearBooking) clearBooking();
+    setShowBookingModal(false);
+    setSelectedTour(null);
+    setGuestName("");
+    setGuestEmail("");
+    setNumPeople(1);
+    setSpecialNotes("");
+    setAcceptedTerms(false);
+    setFormError(null);
+    Sentry.setUser(null);
+    if (loadAvailability) await loadAvailability();
+  }, [clearBooking, loadAvailability]);
+
   // Modal Escape Key Listener
   useEffect(() => {
     if (!showBookingModal) return;
@@ -115,7 +129,7 @@ function BookingSystem() {
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [showBookingModal]);
+  }, [showBookingModal, closeModal]);
 
   // --- 4. EVENT HANDLERS ---
 
@@ -171,20 +185,6 @@ function BookingSystem() {
     } finally {
       if (isMounted.current) setBookingTourId(null);
     }
-  };
-
-  const closeModal = async () => {
-    clearBooking();
-    setShowBookingModal(false);
-    setSelectedTour(null);
-    setGuestName("");
-    setGuestEmail("");
-    setNumPeople(1);
-    setSpecialNotes("");
-    setAcceptedTerms(false);
-    setFormError(null);
-    Sentry.setUser(null);
-    await loadAvailability();
   };
 
   const openModal = (tour) => {

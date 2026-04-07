@@ -35,7 +35,14 @@ const server = setupServer(
         booked_count: 2,
         capacity: 10,
         status: "available",
-        passengers: [{ name: "John Doe", pax: 2, email: "john@test.com" }],
+        passengers: [
+          {
+            name: "John Doe",
+            pax: 2,
+            email: "john@test.com",
+            uuid: "p-1",
+          },
+        ],
       },
     ])
   )

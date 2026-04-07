@@ -15,10 +15,11 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
     >
       <div className="space-y-1">
         <h4 className="text-lg font-bold leading-tight text-teal-950">
-          {passenger.name}
+          {passenger.name || passenger.guest_name}
         </h4>
         <p className="text-xs text-gray-500">
-          {passenger.pax} Pax • {passenger.email}
+          {passenger.pax || passenger.num_people} Pax •{" "}
+          {passenger.email || passenger.guest_email}
         </p>
 
         {/* Transaction ID Display */}

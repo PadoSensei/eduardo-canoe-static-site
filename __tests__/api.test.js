@@ -138,6 +138,28 @@ describe("API Module", () => {
         message: "Tour is fully booked",
       });
     });
+
+    test("handles total network failure gracefully", async () => {
+      server.use(
+        http.post(`${API_BASE}/bookings`, () => {
+          return HttpResponse.error();
+        })
+      );
+
+      const result = await createBooking({
+        tourId: 1,
+        guestName: "John",
+        guestEmail: "john@test.com",
+        numPeople: 1,
+        totalPrice: 100,
+        acceptedTerms: true,
+      });
+
+      expect(result).toEqual({
+        success: false,
+        message: expect.stringMatching(/Failed to fetch|Network error|fetch/i),
+      });
+    });
   });
 
   describe("getBookingStatus", () => {

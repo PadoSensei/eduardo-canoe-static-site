@@ -29,7 +29,7 @@ describe("Sentry Observability", () => {
         guestEmail: "t@t.com",
         acceptedTerms: true,
       });
-    } catch (e) {
+    } catch {
       // We expect the error to be thrown AND reported
     }
 

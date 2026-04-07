@@ -20,6 +20,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test:debug": "jest --detectOpenHandles --runInBand"
   },
   "devDependencies": {
