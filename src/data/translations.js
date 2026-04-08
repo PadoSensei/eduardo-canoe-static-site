@@ -99,9 +99,17 @@ export const translations = {
       "Cannot book tours for past dates. Please select today or a future date.",
     error_system_overloaded:
       "We're experiencing heavy traffic. Please try again in a moment.",
+    error_contract_violation:
+      "A system update is required to complete this action. Please refresh the page.",
+    booking_session_expired:
+      "Your booking session has expired due to inactivity.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "Booking Reserved!",
+    payment_timeout_title: "Payment Timeout",
+    payment_timeout_detail:
+      "We haven't received confirmation. If you've already paid, please send an email with your receipt.",
+    btn_contact_support: "Contact Support",
     paymentInstruction: "Scan the QR code below to pay via Pix.",
     btnCopy: "Copy Pix Code",
     btnCopied: "Code Copied!",
@@ -248,9 +256,17 @@ export const translations = {
     alertPastDate: "Não é possível reservar passeios para datas passadas.",
     error_system_overloaded:
       "Estamos com alto tráfego. Por favor, tente novamente em alguns instantes.",
+    error_contract_violation:
+      "Atualização necessária. Por favor, recarregue a página.",
+    booking_session_expired:
+      "Sua sessão de reserva expirou por inatividade.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "Reserva Iniciada!",
+    payment_timeout_title: "Tempo de pagamento expirado",
+    payment_timeout_detail:
+      "Não recebemos a confirmação. Se você já pagou, envie um e-mail com o comprovante.",
+    btn_contact_support: "Contactar Suporte",
     paymentInstruction: "Escaneie o QR code abaixo para pagar via Pix.",
     btnCopy: "Copiar Código Pix",
     btnCopied: "Código Copiado!",
@@ -395,9 +411,17 @@ export const translations = {
     alertPastDate: "No se pueden reservar tours para fechas pasadas.",
     error_system_overloaded:
       "Estamos experimentando mucho tráfico. Por favor, inténtelo de nuevo en un momento.",
+    error_contract_violation:
+      "Se requiere una actualización del sistema. Por favor, recarga la página.",
+    booking_session_expired:
+      "Tu sesión de reserva ha expirado por inactividad.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "¡Reserva Iniciada!",
+    payment_timeout_title: "Tiempo de pago agotado",
+    payment_timeout_detail:
+      "No hemos recibido la confirmación. Si ya has pagado, por favor envía un correo con tu comprobante.",
+    btn_contact_support: "Contactar Soporte",
     paymentInstruction: "Escanea el código QR abajo para pagar vía Pix.",
     btnCopy: "Copiar Código Pix",
     btnCopied: "¡Código Copiado!",
@@ -544,9 +568,17 @@ export const translations = {
       "Impossible de réserver pour une date passée. Veuillez choisir aujourd'hui ou une date future.",
     error_system_overloaded:
       "Nous rencontrons un trafic important. Veuillez réessayer dans un instant.",
+    error_contract_violation:
+      "Une mise à jour du système est requise. Veuillez rafraîchir la page.",
+    booking_session_expired:
+      "Votre session de réservation a expiré pour cause d'inactivité.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "Réservation Enregistrée !",
+    payment_timeout_title: "Délai de paiement expiré",
+    payment_timeout_detail:
+      "Nous n'avons pas reçu de confirmation. Si vous avez déjà payé, veuillez envoyer un e-mail avec votre reçu.",
+    btn_contact_support: "Contacter le support",
     paymentInstruction: "Scannez le code QR ci-dessous pour payer via Pix.",
     btnCopy: "Copier le code Pix",
     btnCopied: "Code Copié !",

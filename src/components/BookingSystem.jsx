@@ -1,30 +1,47 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import * as Sentry from "@sentry/react";
+import { toast } from "sonner";
 import { getAvailableTours, createBooking } from "../api";
 import { useLanguage } from "../context/LanguageContext";
+import { BookingSessionSchema } from "../api/schemas";
 import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
 import { useBooking } from "../hooks/useBooking";
 
-const getStoredSession = () => {
+const getStoredSession = (t) => {
   try {
     const saved = localStorage.getItem("pending_booking");
-    return saved ? JSON.parse(saved) : null;
-  } catch {
+    if (!saved) return null;
+
+    const parsed = JSON.parse(saved);
+    const result = BookingSessionSchema.safeParse(parsed);
+
+    if (!result.success) {
+      console.error("Contract violation in localStorage:", result.error);
+      localStorage.removeItem("pending_booking");
+      toast.error(t("error_contract_violation"));
+      return null;
+    }
+
+    return result.data;
+  } catch (err) {
+    localStorage.removeItem("pending_booking");
     return null;
   }
 };
 
 function BookingSystem() {
   const { language, t } = useLanguage();
+  const navigate = useNavigate();
 
   // Ref to track component mount status for async safety
   const isMounted = useRef(true);
 
   // --- 1. STATE INITIALIZATION ---
-  const [session] = useState(() => getStoredSession());
+  const [session] = useState(() => getStoredSession(t));
   const [availableTours, setAvailableTours] = useState([]);
   const [selectedDate, setSelectedDate] = useState(getTodayLocalDate());
   const [isLoading, setIsLoading] = useState(true);
@@ -90,6 +107,8 @@ function BookingSystem() {
     setIsConfirmed,
     isExpired,
     isFailed,
+    isReaped,
+    isTimedOut,
     hasConnectionIssue,
     clearBooking,
   } = useBooking(session, selectedDate, setAvailableTours);
@@ -130,6 +149,15 @@ function BookingSystem() {
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [showBookingModal, closeModal]);
+
+  // Handle Backend Expiry (Reaped)
+  useEffect(() => {
+    if (isReaped) {
+      toast.error(t("booking_session_expired"));
+      closeModal();
+      navigate("/tours");
+    }
+  }, [isReaped, closeModal, navigate, t]);
 
   // --- 4. EVENT HANDLERS ---
 
@@ -354,10 +382,12 @@ function BookingSystem() {
               ) : paymentInfo ? (
                 <PaymentView
                   paymentInfo={paymentInfo}
+                  currentBooking={currentBooking}
                   onClose={closeModal}
                   hasConnectionIssue={hasConnectionIssue}
                   isExpired={isExpired}
                   isFailed={isFailed}
+                  isTimedOut={isTimedOut}
                 />
               ) : selectedTour ? (
                 <BookingForm

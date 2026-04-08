@@ -19,3 +19,15 @@
 - **Description**: Centralize API error handling and implement a toast system for "Systemic" errors.
 - **Status**: ✅ COMPLETED
 - **Owner**: Jules
+
+### [x] Ticket #FE-3: Resilience & Recovery Suite
+
+- **Description**: Hardening the frontend against network drops, refreshes, and contract violations.
+- **Status**: ✅ COMPLETED
+- **Owner**: Jules
+
+### [x] Ticket #FE-4: Expired Booking Cleanup
+
+- **Description**: Synchronizing frontend state with the backend reaper for session expiration.
+- **Status**: ✅ COMPLETED
+- **Owner**: Jules

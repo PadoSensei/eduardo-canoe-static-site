@@ -12,6 +12,17 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
   const [isFailed, setIsFailed] = useState(false);
+  const [isReaped, setIsReaped] = useState(false);
+  const [isTimedOut, setIsTimedOut] = useState(() => {
+    if (initialSession?.currentBooking?.created_at) {
+      const createdAt = new Date(
+        initialSession.currentBooking.created_at
+      ).getTime();
+      const now = new Date().getTime();
+      return now - createdAt > 10 * 60 * 1000;
+    }
+    return false;
+  });
   const [consecutiveErrors, setConsecutiveErrors] = useState(0);
 
   const isMounted = useRef(true);
@@ -24,14 +35,15 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
       paymentInfo &&
       !isConfirmed &&
       !isExpired &&
-      !isFailed
+      !isFailed &&
+      !isTimedOut
     ) {
       localStorage.setItem(
         "pending_booking",
         JSON.stringify({ currentBooking, paymentInfo })
       );
     }
-  }, [currentBooking, paymentInfo, isConfirmed, isExpired, isFailed]);
+  }, [currentBooking, paymentInfo, isConfirmed, isExpired, isFailed, isTimedOut]);
 
   // Polling Lifecycle
   useEffect(() => {
@@ -43,9 +55,24 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
       if (
         !currentBooking?.uuid ||
         controller.signal.aborted ||
-        !isMounted.current
+        !isMounted.current ||
+        isTimedOut ||
+        consecutiveErrors >= 5
       )
         return;
+
+      // Check for 10-minute timeout
+      if (currentBooking.created_at) {
+        const createdAt = new Date(currentBooking.created_at).getTime();
+        const now = new Date().getTime();
+        const tenMinutes = 10 * 60 * 1000;
+
+        if (now - createdAt > tenMinutes) {
+          setIsTimedOut(true);
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          return;
+        }
+      }
 
       try {
         const statusData = await getBookingStatus(currentBooking.uuid, {
@@ -90,8 +117,21 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         // Silent exit for intended cancellations (SIGABRT fix)
         if (err.name === "AbortError") return;
 
+        if (err.message === "BOOKING_EXPIRED") {
+          setIsReaped(true);
+          localStorage.removeItem("pending_booking");
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          return;
+        }
+
         if (isMounted.current) {
-          setConsecutiveErrors((prev) => prev + 1);
+          setConsecutiveErrors((prev) => {
+            const next = prev + 1;
+            if (next >= 5) {
+              if (intervalRef.current) clearInterval(intervalRef.current);
+            }
+            return next;
+          });
         }
       }
     };
@@ -102,7 +142,10 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
       paymentInfo &&
       !isConfirmed &&
       !isExpired &&
-      !isFailed;
+      !isFailed &&
+      !isReaped &&
+      !isTimedOut &&
+      consecutiveErrors < 5;
 
     if (shouldPoll) {
       checkStatus(); // Initial check
@@ -118,12 +161,15 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
       }
       controller.abort(); // Force-close any open network sockets
     };
-    // Dependency Note: We only re-run if the UUID changes or completion states reset
+    // Dependency Note: We re-run if the UUID changes, completion states reset, or timeout/error thresholds are hit
   }, [
     currentBooking?.uuid,
+    currentBooking?.created_at,
     isConfirmed,
     isExpired,
     isFailed,
+    isReaped,
+    isTimedOut,
     selectedDate,
     paymentInfo,
     setAvailableTours,
@@ -137,6 +183,8 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     setIsConfirmed(false);
     setIsExpired(false);
     setIsFailed(false);
+    setIsReaped(false);
+    setIsTimedOut(false);
     setConsecutiveErrors(0);
   }, []);
 
@@ -151,6 +199,10 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     setIsExpired,
     isFailed,
     setIsFailed,
+    isReaped,
+    setIsReaped,
+    isTimedOut,
+    setIsTimedOut,
     consecutiveErrors,
     hasConnectionIssue: consecutiveErrors >= 5,
     clearBooking,
