@@ -19,12 +19,27 @@ export const TourSchema = z.object({
 
 export const AvailableToursResponseSchema = z.array(TourSchema);
 
+export const BookingSessionSchema = z.object({
+  currentBooking: z.object({
+    uuid: z.string(),
+    id: z.number().optional(),
+    created_at: z.string(), // Critical for timeout logic
+    guest_email: z.string().optional(),
+  }),
+  paymentInfo: z.object({
+    qr_code: z.string(),
+    qr_code_image: z.string(),
+    expires_in: z.number(),
+  }),
+});
+
 export const CreateBookingResponseSchema = z.object({
   booking: z.object({
     uuid: z.string(),
     id: z.number().optional(),
     guest_email: z.string().optional(),
     status: z.string().optional(),
+    created_at: z.string().optional(),
   }),
   payment_info: z.object({
     qr_code: z.string(),

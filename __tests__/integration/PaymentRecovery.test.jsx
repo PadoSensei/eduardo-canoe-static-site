@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import BookingSystem from "../../src/components/BookingSystem";
@@ -24,7 +25,11 @@ describe("Booking Recovery Logic", () => {
   test("automatically restores PaymentView if a pending booking exists in localStorage", async () => {
     // 1. Pre-populate localStorage with a mock booking session
     const mockSession = {
-      currentBooking: { id: 123, uuid: "recovered-uuid" },
+      currentBooking: {
+        id: 123,
+        uuid: "recovered-uuid",
+        created_at: new Date().toISOString(),
+      },
       paymentInfo: {
         qr_code: "recovered-pix-key",
         qr_code_image: "img-url",
@@ -36,9 +41,11 @@ describe("Booking Recovery Logic", () => {
 
     // 2. Render the app (Simulating a page refresh)
     render(
-      <LanguageProvider>
-        <BookingSystem />
-      </LanguageProvider>
+      <MemoryRouter>
+        <LanguageProvider>
+          <BookingSystem />
+        </LanguageProvider>
+      </MemoryRouter>
     );
 
     // 3. ASSERT: The UI should skip the tour list and show the Payment screen immediately
