@@ -1,6 +1,6 @@
 // __tests__/BookingSystem.test.jsx
 import React from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
@@ -38,25 +38,30 @@ const server = setupServer(
   http.post(`${API_BASE}/bookings`, () =>
     HttpResponse.json({
       success: true,
-      booking: { uuid: TEST_UUID, id: 1 },
+      booking: {
+        uuid: TEST_UUID,
+        id: 1,
+        created_at: new Date().toISOString()
+      },
       payment_info: {
         qr_code: "pix-key-123",
         qr_code_image: "img",
         expires_in: 900,
       },
     })
+  ),
+  http.get(`${API_BASE}/bookings/status/:uuid`, () =>
+    HttpResponse.json({ status: "pending_payment" })
   )
 );
 
 beforeAll(() => server.listen());
 
 afterEach(() => {
-  // CRITICAL: Restore real timers BEFORE any async cleanup
-  jest.useRealTimers();
   server.resetHandlers();
   localStorage.clear();
-  jest.clearAllTimers();
   jest.clearAllMocks();
+  jest.useRealTimers();
 });
 
 afterAll(() => {
@@ -70,7 +75,6 @@ const renderWithProviders = (ui) =>
     </MemoryRouter>
   );
 
-// Standard translation mock - MUST include all keys your UI uses
 const mockLanguageValue = {
   language: "en",
   setLanguage: jest.fn(),
@@ -91,6 +95,7 @@ const mockLanguageValue = {
       btnConfirm: "Confirm Booking",
       btnCancel: "Cancel",
       paymentTitle: "Booking Reserved!",
+      payment_timeout_title: "Payment Timeout",
       successTitle: "Payment Confirmed!",
       connectionWarning: "Connection slow.",
       alertPastDate: "past dates",
@@ -107,37 +112,40 @@ const mockLanguageValue = {
 describe("BookingSystem Integration & Resilience", () => {
   beforeEach(() => {
     jest.useFakeTimers();
+    jest.setSystemTime(new Date("2026-01-01T12:00:00Z"));
     useLanguage.mockReturnValue(mockLanguageValue);
   });
 
   const reachPaymentStage = async () => {
-    await act(async () => {
-      await jest.advanceTimersByTimeAsync(0);
-    });
+    // Wait for tours load
+    await screen.findByText(/Sunrise Tour/i);
 
-    const bookBtn = await screen.findByRole("button", { name: /Book Now/i });
-    fireEvent.click(bookBtn);
-
-    fireEvent.input(screen.getByLabelText(/Your Name/i), {
-      target: { value: "John Doe" },
-    });
-    fireEvent.input(screen.getByLabelText(/Your Email/i), {
-      target: { value: "john@test.com" },
-    });
-
+    // Open and fill form
+    fireEvent.click(screen.getByRole("button", { name: /Book Now/i }));
+    fireEvent.input(screen.getByLabelText(/Your Name/i), { target: { value: "John Doe" } });
+    fireEvent.input(screen.getByLabelText(/Your Email/i), { target: { value: "john@test.com" } });
     fireEvent.click(screen.getByRole("checkbox"));
+
+    // Submit
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
 
+    // Wait for payment modal.
+    // We stay in fake timers but must advance enough to let all microtasks/promises resolve.
+    // In many cases, findBy* will work if we wrap it in act and use advanceTimersByTime(0).
     await act(async () => {
-      await jest.advanceTimersByTimeAsync(0);
+       jest.advanceTimersByTime(0);
     });
-    expect(await screen.findByText(/Booking Reserved!/i)).toBeInTheDocument();
+
+    // If findByText hangs with fake timers, we use waitFor with custom interval
+    await waitFor(() => {
+      expect(screen.getByText(/Booking Reserved!/i)).toBeInTheDocument();
+    }, { interval: 50 });
   };
 
   test("polls for status and switches to Success View", async () => {
     let callCount = 0;
     server.use(
-      http.get(`${API_BASE}/bookings/status/${TEST_UUID}`, () => {
+      http.get(`${API_BASE}/bookings/status/:uuid`, () => {
         callCount++;
         return HttpResponse.json({
           status: callCount < 2 ? "pending_payment" : "confirmed",
@@ -148,92 +156,78 @@ describe("BookingSystem Integration & Resilience", () => {
     renderWithProviders(<BookingSystem />);
     await reachPaymentStage();
 
+    // Polling 1
     await act(async () => {
-      await jest.advanceTimersByTimeAsync(3000);
+      jest.advanceTimersByTime(3000);
     });
+    // Polling 2
     await act(async () => {
-      await jest.advanceTimersByTimeAsync(3000);
+      jest.advanceTimersByTime(3000);
     });
 
-    expect(await screen.findByText(/Payment Confirmed!/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Payment Confirmed!/i)).toBeInTheDocument();
+    });
   });
 
   test("shows connection warning after 5 failed status checks", async () => {
     server.use(
-      http.get(
-        `${API_BASE}/bookings/status/${TEST_UUID}`,
-        () => new HttpResponse(null, { status: 500 })
+      http.get(`${API_BASE}/bookings/status/:uuid`, () =>
+        HttpResponse.json({ detail: "Server Error" }, { status: 500 })
       )
     );
 
     renderWithProviders(<BookingSystem />);
     await reachPaymentStage();
 
+    // Advance 5 cycles
     for (let i = 0; i < 5; i++) {
       await act(async () => {
-        await jest.advanceTimersByTimeAsync(3000);
+        jest.advanceTimersByTime(3000);
       });
     }
 
-    expect(await screen.findByText(/Connection slow/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Payment Timeout/i)).toBeInTheDocument();
+    });
   });
 
   test("prevents double-booking by disabling button during submission", async () => {
     renderWithProviders(<BookingSystem />);
-    await act(async () => {
-      await jest.advanceTimersByTimeAsync(0);
-    });
+    await screen.findByText(/Sunrise Tour/i);
 
-    fireEvent.click(await screen.findByRole("button", { name: /Book Now/i }));
-    fireEvent.input(screen.getByLabelText(/Your Name/i), {
-      target: { value: "John" },
-    });
-    fireEvent.input(screen.getByLabelText(/Your Email/i), {
-      target: { value: "john@test.com" },
-    });
+    fireEvent.click(screen.getByRole("button", { name: /Book Now/i }));
+    fireEvent.input(screen.getByLabelText(/Your Name/i), { target: { value: "John" } });
+    fireEvent.input(screen.getByLabelText(/Your Email/i), { target: { value: "john@test.com" } });
     fireEvent.click(screen.getByRole("checkbox"));
 
     const confirmBtn = screen.getByRole("button", { name: /Confirm Booking/i });
     fireEvent.click(confirmBtn);
     fireEvent.click(confirmBtn);
 
-    await act(async () => {
-      await jest.advanceTimersByTimeAsync(0);
+    await waitFor(() => {
+      expect(screen.getByText(/Booking Reserved!/i)).toBeInTheDocument();
     });
-    expect(await screen.findByText(/Booking Reserved!/i)).toBeInTheDocument();
   });
 
   test("displays error message when tour fills up during checkout", async () => {
     server.use(
       http.post(`${API_BASE}/bookings`, () =>
-        HttpResponse.json(
-          { detail: "Tour recently filled up." },
-          { status: 400 }
-        )
+        HttpResponse.json({ detail: "Tour recently filled up." }, { status: 400 })
       )
     );
 
     renderWithProviders(<BookingSystem />);
-    await act(async () => {
-      await jest.advanceTimersByTimeAsync(0);
-    });
+    await screen.findByText(/Sunrise Tour/i);
 
-    fireEvent.click(await screen.findByRole("button", { name: /Book Now/i }));
-    fireEvent.input(screen.getByLabelText(/Your Name/i), {
-      target: { value: "John" },
-    });
-    fireEvent.input(screen.getByLabelText(/Your Email/i), {
-      target: { value: "john@test.com" },
-    });
+    fireEvent.click(screen.getByRole("button", { name: /Book Now/i }));
+    fireEvent.input(screen.getByLabelText(/Your Name/i), { target: { value: "John" } });
+    fireEvent.input(screen.getByLabelText(/Your Email/i), { target: { value: "john@test.com" } });
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));
 
-    await act(async () => {
-      await jest.advanceTimersByTimeAsync(0);
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(/Tour recently filled up/i);
     });
-
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      /Tour recently filled up/i
-    );
   });
 });

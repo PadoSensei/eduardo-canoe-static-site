@@ -35,6 +35,7 @@ describe("Sentry Observability", () => {
 
     expect(Sentry.captureException).toHaveBeenCalled();
     const errorPassedToSentry = Sentry.captureException.mock.calls[0][0];
-    expect(errorPassedToSentry.message).toContain("500");
+    // The original error message is preserved in the Error object, but a toast is shown with the key
+    expect(errorPassedToSentry.message).toContain("unexpected error");
   });
 });

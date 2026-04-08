@@ -4,10 +4,12 @@ import ShieldedButton from "../common/ShieldedButton";
 
 export function PaymentView({
   paymentInfo,
+  currentBooking,
   onClose,
   hasConnectionIssue,
   isExpired,
   isFailed,
+  isTimedOut,
 }) {
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
@@ -43,9 +45,43 @@ export function PaymentView({
     }
   };
 
+  const supportLink = `mailto:suporte@pipacanoa.com.br?subject=Suporte%20de%20Pagamento%20-%20Reserva%20%23${currentBooking?.uuid || currentBooking?.id}`;
+
   return (
     <div className="text-center animate-fadeIn">
-      {isFailed ? (
+      {isTimedOut || hasConnectionIssue ? (
+        /* --- STATE: POLLING TIMEOUT --- */
+        <div className="py-4">
+          <div className="mb-4 text-orange-500">
+            <svg
+              className="w-16 h-16 mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h3
+            id="modal-title"
+            className="mb-2 text-2xl font-bold text-gray-800"
+          >
+            {t("payment_timeout_title")}
+          </h3>
+          <p className="mb-8 text-gray-600">{t("payment_timeout_detail")}</p>
+          <a
+            href={supportLink}
+            className="inline-block w-full px-6 py-3 font-bold text-white transition-colors bg-teal-600 rounded-lg shadow-md hover:bg-teal-700"
+          >
+            {t("btn_contact_support")}
+          </a>
+        </div>
+      ) : isFailed ? (
         /* --- STATE: BANK REJECTION --- */
         <div className="py-4">
           <div className="mb-4 text-red-600">

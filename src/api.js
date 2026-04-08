@@ -48,7 +48,17 @@ async function request(endpoint, options = {}) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      const message = errorData.detail || "An unexpected error occurred.";
+      let message = errorData.detail || "An unexpected error occurred.";
+
+      // FE-4: Handle Expired Booking from Backend Reaper
+      if (
+        response.status === 404 ||
+        (response.status === 400 &&
+          message.toLowerCase().includes("expired"))
+      ) {
+        localStorage.removeItem("pending_booking");
+        message = "BOOKING_EXPIRED";
+      }
 
       // FE-2: Error Passthrough logic
       if (response.status === 400 || response.status === 503) {
