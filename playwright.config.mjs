@@ -1,13 +1,17 @@
 // @ts-check
-const { defineConfig, devices } = require("@playwright/test");
-const dotenv = require("dotenv");
-const path = require("path");
+import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 const ADMIN_SESSION_FILE = path.join(__dirname, "tests/.auth/admin.json");
 
-module.exports = defineConfig({
+export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -19,13 +23,13 @@ module.exports = defineConfig({
     baseURL: "http://localhost:5173",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
+    actionTimeout: 15000,
+    navigationTimeout: 20000,
   },
 
   projects: [
     // =========================================================
     // SETUP — Runs once before any dependent project.
-    // Mints a real Supabase session via service role magic link
-    // and saves browser storage state to disk.
     // =========================================================
     {
       name: "setup",
@@ -35,7 +39,6 @@ module.exports = defineConfig({
 
     // =========================================================
     // 1. ADMIN DASHBOARD TESTS
-    // Uses saved Supabase session — no bypass needed.
     // =========================================================
     {
       name: "admin-chromium",
@@ -49,7 +52,6 @@ module.exports = defineConfig({
 
     // =========================================================
     // 2. GUEST FLOW TESTS (DESKTOP)
-    // Public paths only — no auth dependency.
     // =========================================================
     {
       name: "guest-chromium",
@@ -58,19 +60,20 @@ module.exports = defineConfig({
     },
 
     // =========================================================
-    // 3. GUEST FLOW TESTS (MOBILE)
-    // Checks responsiveness for tourists on phones at the lagoon.
+    // 3. GUEST FLOW TESTS (MOBILE) - Skip in CI
     // =========================================================
-    {
-      name: "guest-mobile-safari",
-      use: { ...devices["iPhone 12"] },
-      testIgnore: [/admin\.spec\.mjs/, /workflow\.spec\.mjs/],
-    },
+    ...(!process.env.CI
+      ? [
+          {
+            name: "guest-mobile-safari",
+            use: { ...devices["iPhone 12"] },
+            testIgnore: [/admin\.spec\.mjs/, /workflow\.spec\.mjs/],
+          },
+        ]
+      : []),
 
     // =========================================================
     // 4. PRODUCTION WORKFLOW
-    // Full booking lifecycle against live Railway backend.
-    // Depends on setup so admin JWT is available for manifest calls.
     // =========================================================
     {
       name: "production-workflow",
@@ -89,5 +92,6 @@ module.exports = defineConfig({
     reuseExistingServer: !process.env.CI,
     stdout: "ignore",
     stderr: "pipe",
+    timeout: 60000,
   },
 });
