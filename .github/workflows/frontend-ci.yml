@@ -4,7 +4,6 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
   quality-gate:
@@ -36,6 +35,10 @@ jobs:
 
       - name: Run E2E Smoke Test
         run: npx playwright test --project=guest-chromium --grep @smoke
+        env:
+          VITE_SUPABASE_URL: "https://mock.supabase.co"
+          SUPABASE_SERVICE_ROLE_KEY: "mock-key"
+          E2E_ADMIN_EMAIL: "admin@example.com"
 
       - name: Upload Playwright Report
         if: failure()

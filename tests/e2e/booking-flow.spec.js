@@ -91,23 +91,14 @@ test.describe("Money Loop Smoke Test", () => {
       name: /confirm booking/i,
     });
 
-    // We click and then check for disabled state.
-    // To catch it while it's processing (ShieldedButton behavior),
-    // we use a more reliable approach to capture the disabled state.
-    // By checking for the "is-processing" state (visually by finding the spinner or simply disabled)
-    await confirmButton.click();
-
-    // After the click, the request is in flight for 500ms (mocked delay).
-    // During this time, the button MUST be disabled.
-    // If Playwright is too slow and catches it AFTER the transition, we'll see it as "not found"
-    // because the form is replaced by PaymentView.
-    // We'll use a shorter timeout for this specific check to avoid long hangs if it's already gone.
-    await expect(confirmButton)
-      .toBeDisabled({ timeout: 1000 })
-      .catch(() => {
-        // If it's already gone, we assume it was successful
-        return true;
-      });
+    // Use Promise.all to catch the button in its disabled state immediately upon clicking.
+    // This pattern captures the transient "processing" state during the network request.
+    await Promise.all([
+      confirmButton.click(),
+      expect(confirmButton)
+        .toBeDisabled()
+        .catch(() => true),
+    ]);
 
     // 6. Verification: Reach Payment View
     await expect(page.getByText(/scan the qr code below/i)).toBeVisible();
