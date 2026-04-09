@@ -31,3 +31,9 @@
 - **Description**: Synchronizing frontend state with the backend reaper for session expiration.
 - **Status**: ✅ COMPLETED
 - **Owner**: Jules
+
+### [x] Ticket #FE-E2E-SMOKE: High-Signal "Money Loop" Smoke Test
+
+- **Description**: Implement a deterministic, hermetic E2E smoke test for the core booking flow and integrate it into the CI/CD pipeline.
+- **Status**: ✅ COMPLETED
+- **Owner**: Jules
