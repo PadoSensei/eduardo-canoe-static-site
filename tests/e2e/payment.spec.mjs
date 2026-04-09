@@ -29,11 +29,14 @@ test.describe("Payment Success Flow", () => {
     let pollCount = 0;
     await page.route(`**/api/v1/bookings/status/${mockUuid}`, async (route) => {
       pollCount++;
+
+      const isConfirmed = pollCount >= 2;
       const status = pollCount < 2 ? "pending_payment" : "confirmed";
       await route.fulfill({
         json: {
           status,
           uuid: mockUuid,
+          is_confirmed: isConfirmed,
           tour_id: 1,
           total_price: 100,
           language: "en",
@@ -55,12 +58,13 @@ test.describe("Payment Success Flow", () => {
         currentBooking: {
           uuid: mockUuid,
           id: 123,
-          total_price: 100,
+          created_at: new Date().toISOString(), // Added for Zod
         },
         paymentInfo: {
           qr_code: "mock_pix_code",
           qr_code_image:
             "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+          expires_in: 900, // Added for Zod
         },
       }
     );
