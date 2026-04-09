@@ -63,12 +63,18 @@ test.describe("Money Loop Smoke Test", () => {
 
     // 2. Navigate to Home and start booking
     await page.goto("/");
-    await page.getByRole("link", { name: /book now/i }).first().click();
+    await page
+      .getByRole("link", { name: /book now/i })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/book/);
 
     // 3. Select Tour (it should be loaded via intercepted route)
     await expect(page.getByText("Mock Sunset Tour")).toBeVisible();
-    await page.getByRole("button", { name: /book now/i }).first().click();
+    await page
+      .getByRole("button", { name: /book now/i })
+      .first()
+      .click();
 
     // 4. Fill out the booking form
     await page.getByLabel(/your name/i).fill("John Doe");
@@ -81,13 +87,17 @@ test.describe("Money Loop Smoke Test", () => {
     await page.getByLabel(/i accept the/i).check();
 
     // 5. The "Shielded" Submit
-    const confirmButton = page.getByRole("button", { name: /confirm booking/i });
+    const confirmButton = page.getByRole("button", {
+      name: /confirm booking/i,
+    });
 
     // Use Promise.all to catch the button in its disabled state immediately upon clicking.
     // This pattern captures the transient "processing" state during the network request.
     await Promise.all([
       confirmButton.click(),
-      expect(confirmButton).toBeDisabled().catch(() => true),
+      expect(confirmButton)
+        .toBeDisabled()
+        .catch(() => true),
     ]);
 
     // 6. Verification: Reach Payment View

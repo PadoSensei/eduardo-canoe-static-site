@@ -6,7 +6,10 @@ import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
 import BookingSystem from "../../src/components/BookingSystem";
-import { LanguageProvider, useLanguage } from "../../src/context/LanguageContext";
+import {
+  LanguageProvider,
+  useLanguage,
+} from "../../src/context/LanguageContext";
 import { toast } from "sonner";
 
 const API_BASE = "http://localhost:8000/api/v1";
@@ -84,9 +87,11 @@ const mockLanguageValue = {
       bookingTitle: "Check Tour Availability",
       paymentTitle: "Booking Reserved!",
       payment_timeout_title: "Payment Timeout",
-      error_contract_violation: "A system update is required. Please refresh the page.",
+      error_contract_violation:
+        "A system update is required. Please refresh the page.",
       btn_contact_support: "Contact Support",
-      booking_session_expired: "Your booking session has expired due to inactivity.",
+      booking_session_expired:
+        "Your booking session has expired due to inactivity.",
     })[key] || key,
 };
 
@@ -137,7 +142,9 @@ describe("Resilience & Recovery Integration Tests", () => {
 
   test("test_should_stop_polling_after_10_minutes: stops and shows timeout UI", async () => {
     // Set created_at to 11 minutes ago relative to BASE_TIME
-    const elevenMinutesAgo = new Date(BASE_TIME.getTime() - 11 * 60 * 1000).toISOString();
+    const elevenMinutesAgo = new Date(
+      BASE_TIME.getTime() - 11 * 60 * 1000
+    ).toISOString();
     const pendingBooking = {
       currentBooking: {
         uuid: TEST_UUID,
@@ -160,22 +167,33 @@ describe("Resilience & Recovery Integration Tests", () => {
 
     // Ensure it's a mailto link with correct subject
     const supportBtn = screen.getByRole("link", { name: /Contact Support/i });
-    expect(supportBtn).toHaveAttribute("href", expect.stringContaining("mailto:suporte@pipacanoa.com.br"));
-    expect(supportBtn).toHaveAttribute("href", expect.stringContaining("Suporte%20de%20Pagamento"));
-    expect(supportBtn).toHaveAttribute("href", expect.stringContaining("%23test-uuid-resilience"));
+    expect(supportBtn).toHaveAttribute(
+      "href",
+      expect.stringContaining("mailto:suporte@pipacanoa.com.br")
+    );
+    expect(supportBtn).toHaveAttribute(
+      "href",
+      expect.stringContaining("Suporte%20de%20Pagamento")
+    );
+    expect(supportBtn).toHaveAttribute(
+      "href",
+      expect.stringContaining("%23test-uuid-resilience")
+    );
   });
 
   test("test_should_handle_zod_schema_mismatch: clears bad data and shows toast", async () => {
     const corruptData = {
       currentBooking: { uuid: TEST_UUID }, // Missing created_at
-      paymentInfo: { qr_code: "123", qr_code_image: "img", expires_in: 3600 }
+      paymentInfo: { qr_code: "123", qr_code_image: "img", expires_in: 3600 },
     };
     localStorage.setItem("pending_booking", JSON.stringify(corruptData));
 
     renderWithProviders(<BookingSystem />);
 
     // Should show error toast
-    expect(toast.error).toHaveBeenCalledWith(expect.stringContaining("system update"));
+    expect(toast.error).toHaveBeenCalledWith(
+      expect.stringContaining("system update")
+    );
     // Should have cleared localStorage
     expect(localStorage.getItem("pending_booking")).toBeNull();
     // Should be on tour selection (not payment modal)
@@ -189,16 +207,23 @@ describe("Resilience & Recovery Integration Tests", () => {
         id: 123,
         created_at: BASE_TIME.toISOString(),
       },
-      paymentInfo: { qr_code: "pix-123", qr_code_image: "img", expires_in: 900 },
+      paymentInfo: {
+        qr_code: "pix-123",
+        qr_code_image: "img",
+        expires_in: 900,
+      },
     };
     localStorage.setItem("pending_booking", JSON.stringify(pendingBooking));
 
     server.use(
       http.get(`${API_BASE}/bookings/status/${TEST_UUID}`, () => {
-        return new HttpResponse(JSON.stringify({ detail: "Booking not found" }), {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        });
+        return new HttpResponse(
+          JSON.stringify({ detail: "Booking not found" }),
+          {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
       })
     );
 
@@ -216,12 +241,19 @@ describe("Resilience & Recovery Integration Tests", () => {
     jest.useRealTimers();
 
     // Should have cleared localStorage and closed modal
-    await waitFor(() => {
-      expect(localStorage.getItem("pending_booking")).toBeNull();
-      expect(screen.queryByText(/Booking Reserved!/i)).not.toBeInTheDocument();
-    }, { timeout: 5000 });
+    await waitFor(
+      () => {
+        expect(localStorage.getItem("pending_booking")).toBeNull();
+        expect(
+          screen.queryByText(/Booking Reserved!/i)
+        ).not.toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
 
-    expect(toast.error).toHaveBeenCalledWith(expect.stringContaining("expired"));
+    expect(toast.error).toHaveBeenCalledWith(
+      expect.stringContaining("expired")
+    );
     expect(mockNavigate).toHaveBeenCalledWith("/tours");
   });
 });
