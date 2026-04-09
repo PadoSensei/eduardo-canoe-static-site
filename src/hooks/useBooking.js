@@ -43,7 +43,14 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         JSON.stringify({ currentBooking, paymentInfo })
       );
     }
-  }, [currentBooking, paymentInfo, isConfirmed, isExpired, isFailed, isTimedOut]);
+  }, [
+    currentBooking,
+    paymentInfo,
+    isConfirmed,
+    isExpired,
+    isFailed,
+    isTimedOut,
+  ]);
 
   // Polling Lifecycle
   useEffect(() => {

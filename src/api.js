@@ -16,13 +16,7 @@ const API_BASE_URL = `${DOMAIN}/api/v1`;
  * and global toasts for system failures.
  */
 async function request(endpoint, options = {}) {
-  const {
-    method = "GET",
-    body,
-    includeAuth = false,
-    signal,
-    schema,
-  } = options;
+  const { method = "GET", body, includeAuth = false, signal, schema } = options;
 
   const url = endpoint.startsWith("http")
     ? endpoint
@@ -53,8 +47,7 @@ async function request(endpoint, options = {}) {
       // FE-4: Handle Expired Booking from Backend Reaper
       if (
         response.status === 404 ||
-        (response.status === 400 &&
-          message.toLowerCase().includes("expired"))
+        (response.status === 400 && message.toLowerCase().includes("expired"))
       ) {
         localStorage.removeItem("pending_booking");
         message = "BOOKING_EXPIRED";

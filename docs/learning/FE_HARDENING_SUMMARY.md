@@ -3,6 +3,7 @@
 ## Work Completed
 
 ### Shielded Storefront Implementation
+
 - **FE-1: The Shielded Button**: Created a reusable `ShieldedButton` component that prevents double-submissions.
   - Implemented an internal `isProcessing` state for immediate feedback.
   - Added a 1000ms mandatory cooldown period after any click to prevent rapid-fire submissions, even if the processing completes quickly.

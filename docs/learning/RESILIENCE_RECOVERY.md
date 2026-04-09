@@ -3,6 +3,7 @@
 ## Work Completed
 
 ### Resilience Implementation
+
 - **FE-3: Resilience & Recovery Suite**: Hardened the booking flow against common "Shadow" failures.
   - **State Re-hydration**: Implemented logic in `BookingSystem.jsx` and `useBooking.js` to detect pending bookings in `localStorage` on page refresh. The UI now immediately resumes polling and displays the QR code, ensuring users don't lose their session.
   - **Contract Violation Shield**: Integrated `Zod` validation for `localStorage` data. If the saved session format is invalid (e.g., due to a backend schema change), the frontend now clears the corrupted data and shows a localized "System Update" toast instead of crashing.

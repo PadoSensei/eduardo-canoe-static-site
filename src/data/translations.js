@@ -258,8 +258,7 @@ export const translations = {
       "Estamos com alto tráfego. Por favor, tente novamente em alguns instantes.",
     error_contract_violation:
       "Atualização necessária. Por favor, recarregue a página.",
-    booking_session_expired:
-      "Sua sessão de reserva expirou por inatividade.",
+    booking_session_expired: "Sua sessão de reserva expirou por inatividade.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "Reserva Iniciada!",

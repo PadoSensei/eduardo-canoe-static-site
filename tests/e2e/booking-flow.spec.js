@@ -63,12 +63,18 @@ test.describe("Money Loop Smoke Test", () => {
 
     // 2. Navigate to Home and start booking
     await page.goto("/");
-    await page.getByRole("link", { name: /book now/i }).first().click();
+    await page
+      .getByRole("link", { name: /book now/i })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/book/);
 
     // 3. Select Tour (it should be loaded via intercepted route)
     await expect(page.getByText("Mock Sunset Tour")).toBeVisible();
-    await page.getByRole("button", { name: /book now/i }).first().click();
+    await page
+      .getByRole("button", { name: /book now/i })
+      .first()
+      .click();
 
     // 4. Fill out the booking form
     await page.getByLabel(/your name/i).fill("John Doe");
@@ -81,7 +87,9 @@ test.describe("Money Loop Smoke Test", () => {
     await page.getByLabel(/i accept the/i).check();
 
     // 5. The "Shielded" Submit
-    const confirmButton = page.getByRole("button", { name: /confirm booking/i });
+    const confirmButton = page.getByRole("button", {
+      name: /confirm booking/i,
+    });
 
     // We click and then check for disabled state.
     // To catch it while it's processing (ShieldedButton behavior),
@@ -94,10 +102,12 @@ test.describe("Money Loop Smoke Test", () => {
     // If Playwright is too slow and catches it AFTER the transition, we'll see it as "not found"
     // because the form is replaced by PaymentView.
     // We'll use a shorter timeout for this specific check to avoid long hangs if it's already gone.
-    await expect(confirmButton).toBeDisabled({ timeout: 1000 }).catch(() => {
+    await expect(confirmButton)
+      .toBeDisabled({ timeout: 1000 })
+      .catch(() => {
         // If it's already gone, we assume it was successful
         return true;
-    });
+      });
 
     // 6. Verification: Reach Payment View
     await expect(page.getByText(/scan the qr code below/i)).toBeVisible();
