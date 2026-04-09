@@ -27,7 +27,7 @@ const getStoredSession = (t) => {
     }
 
     return result.data;
-  } catch (err) {
+  } catch {
     localStorage.removeItem("pending_booking");
     return null;
   }
