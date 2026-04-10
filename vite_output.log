@@ -8,3 +8,6 @@
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
+1:07:46 AM [vite] (client) hmr update /src/styles.css
+1:08:15 AM [vite] (client) page reload playwright-report/index.html
+1:08:47 AM [vite] (client) page reload playwright-report/index.html

@@ -12,6 +12,36 @@ setup("authenticate admin", async ({ page }) => {
 
   console.log(`📡 Connecting to Supabase: ${supabaseUrl}`);
 
+  // FE-CI: Skip real auth if we are in CI with a mock URL
+  if (supabaseUrl?.includes("mock.supabase.co") || !supabaseUrl) {
+    console.log("🛠️ Mock Supabase detected. Generating dummy session...");
+    const dummyState = {
+      cookies: [],
+      origins: [
+        {
+          origin: "http://localhost:5173",
+          localStorage: [
+            {
+              name: "sb-mock-auth-token",
+              value: JSON.stringify({
+                access_token: "mock-token",
+                refresh_token: "mock-refresh",
+                token_type: "bearer",
+                expires_at: Math.floor(Date.now() / 1000) + 3600,
+              }),
+            },
+          ],
+        },
+      ],
+    };
+    const fs = await import("fs");
+    const dir = path.dirname(ADMIN_SESSION_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(ADMIN_SESSION_FILE, JSON.stringify(dummyState, null, 2));
+    console.log(`💾 Mock session persisted to: ${ADMIN_SESSION_FILE}`);
+    return;
+  }
+
   // 1. HARDENED CLIENT: Custom fetch with 60s timeout
   // This prevents the UND_ERR_CONNECT_TIMEOUT from killing the script early
   const supabase = createClient(supabaseUrl, serviceRoleKey, {
