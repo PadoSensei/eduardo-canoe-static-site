@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom";
 import Dashboard from "../../src/pages/Dashboard";
 import { LanguageProvider } from "../../src/context/LanguageContext";
@@ -66,11 +66,14 @@ jest.mock("../../src/supabaseClient", () => ({
   },
 }));
 
-const renderDashboard = () =>
+const renderDashboard = (initialEntry = "/admin") =>
   render(
-    <MemoryRouter initialEntries={["/admin"]}>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <LanguageProvider>
-        <Dashboard />
+        <Routes>
+          <Route path="/admin" element={<Dashboard />} />
+          <Route path="/admin/manifest/:date" element={<Dashboard />} />
+        </Routes>
       </LanguageProvider>
     </MemoryRouter>
   );

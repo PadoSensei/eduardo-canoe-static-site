@@ -9,9 +9,11 @@ import {
   TourTemplatesResponseSchema,
   ManifestResponseSchema,
   BookingStatusResponseSchema,
+  ScheduleResponseSchema,
   type CreateBookingResponse,
   type ManifestResponse,
   type BookingStatusResponse,
+  type ScheduleResponse,
 } from "@/api/schemas";
 
 const DOMAIN = import.meta.env.VITE_API_URL || "http://localhost:8000";
@@ -286,12 +288,16 @@ export async function fetchMonthlySchedule(
   year: number,
   month: number,
   options: { signal?: AbortSignal } = {}
-): Promise<unknown> {
+): Promise<ScheduleResponse | null> {
   try {
-    return await request(`/admin/schedule?year=${year}&month=${month}`, {
-      includeAuth: true,
-      signal: options.signal,
-    });
+    return await request<ScheduleResponse>(
+      `/admin/schedule?year=${year}&month=${month}`,
+      {
+        includeAuth: true,
+        signal: options.signal,
+        schema: ScheduleResponseSchema,
+      }
+    );
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") return null;
     throw error;

@@ -64,6 +64,7 @@ const App = () => {
 
             {/* Admin Route */}
             <Route path="/admin" element={<Dashboard />} />
+            <Route path="/admin/manifest/:date" element={<Dashboard />} />
           </Routes>
         </main>
         <Footer />

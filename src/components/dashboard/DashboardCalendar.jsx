@@ -11,6 +11,7 @@ import {
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Loader2, DollarSign } from "lucide-react";
 import { fetchMonthlySchedule } from "../../api";
+import { formatCurrency } from "../../utils/formatters";
 
 const DashboardCalendar = ({ onDateSelect, selectedDate, refreshKey }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -39,7 +40,8 @@ const DashboardCalendar = ({ onDateSelect, selectedDate, refreshKey }) => {
             formattedData[dateKey] = {
               ...dayStats,
               bookings: dayStats.booked_count || 0,
-              price: parseFloat(dayStats.price || 0),
+              price: dayStats.price || 0,
+              revenue: dayStats.revenue || 0,
               percent:
                 dayStats.capacity > 0
                   ? (dayStats.booked_count || 0) / dayStats.capacity
@@ -66,7 +68,7 @@ const DashboardCalendar = ({ onDateSelect, selectedDate, refreshKey }) => {
   const monthlyRevenue = useMemo(() => {
     return Object.values(bookingData).reduce((total, day) => {
       if (day.status?.includes("cancelled")) return total;
-      return total + day.bookings * day.price;
+      return total + (day.revenue || 0);
     }, 0);
   }, [bookingData]);
 
@@ -117,14 +119,9 @@ const DashboardCalendar = ({ onDateSelect, selectedDate, refreshKey }) => {
           <h2 className="text-lg font-bold text-gray-800 md:text-2xl font-lora">
             {format(currentDate, "MMMM yyyy")}
           </h2>
-          <div className="flex items-center gap-1.5 text-teal-600 font-bold text-xs uppercase tracking-wider">
-            <DollarSign size={14} />
-            <span>
-              Revenue: R${" "}
-              {monthlyRevenue.toLocaleString("pt-BR", {
-                minimumFractionDigits: 2,
-              })}
-            </span>
+          <div className="flex items-center gap-1.5 text-emerald-600 font-bold text-sm uppercase tracking-wider">
+            <DollarSign size={16} />
+            <span>Revenue: {formatCurrency(monthlyRevenue)}</span>
           </div>
         </div>
         <div className="flex gap-2">

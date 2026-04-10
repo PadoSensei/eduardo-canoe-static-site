@@ -1,12 +1,14 @@
 // src/pages/Dashboard.jsx - Full File
 import React, { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import DashboardCalendar from "../components/dashboard/DashboardCalendar";
 import DayManifest from "../components/dashboard/DayManifest";
 import { Lock, Mail, Loader2, LogOut } from "lucide-react";
 
 const Dashboard = () => {
+  const { date } = useParams();
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(null);
   const [session, setSession] = useState(null);
   const [email, setEmail] = useState("");
@@ -21,7 +23,8 @@ const Dashboard = () => {
   const location = useLocation();
   const shouldBypass =
     import.meta.env.VITE_SKIP_AUTH === "true" ||
-    new URLSearchParams(location.search).get("bypass") === "true";
+    new URLSearchParams(location.search).get("bypass") === "true" ||
+    window.location.search.includes("bypass=true");
 
   useEffect(() => {
     isMounted.current = true;
@@ -79,6 +82,28 @@ const Dashboard = () => {
     };
   }, [shouldBypass]);
 
+  // Sync selectedDate with URL param
+  useEffect(() => {
+    if (date) {
+      const parsedDate = new Date(date + "T12:00:00");
+      if (!isNaN(parsedDate.getTime())) {
+        setSelectedDate(parsedDate);
+      }
+    } else {
+      setSelectedDate(null);
+    }
+  }, [date]);
+
+  const handleDateSelect = (newDate) => {
+    const search = window.location.search;
+    if (newDate) {
+      const dateString = newDate.toISOString().split("T")[0];
+      navigate(`/admin/manifest/${dateString}${search}`);
+    } else {
+      navigate(`/admin${search}`);
+    }
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!isMounted.current) return;
@@ -103,14 +128,14 @@ const Dashboard = () => {
   const handleLogout = async () => {
     if (shouldBypass) {
       setSession(null);
-      setSelectedDate(null);
+      navigate("/admin");
       return;
     }
 
     await supabase.auth.signOut();
     if (isMounted.current) {
-      setSelectedDate(null);
       setSession(null);
+      navigate("/admin");
     }
   };
 
@@ -193,7 +218,7 @@ const Dashboard = () => {
         <div className="relative flex flex-col items-start gap-6 lg:flex-row">
           <div className="w-full lg:flex-1">
             <DashboardCalendar
-              onDateSelect={setSelectedDate}
+              onDateSelect={handleDateSelect}
               selectedDate={selectedDate}
               refreshKey={refreshKey}
             />
@@ -202,7 +227,7 @@ const Dashboard = () => {
             <div className="fixed inset-0 z-50 lg:static lg:z-auto lg:w-[400px] lg:shrink-0 lg:h-[calc(100vh-100px)] shadow-2xl lg:shadow-none">
               <DayManifest
                 date={selectedDate}
-                onClose={() => setSelectedDate(null)}
+                onClose={() => handleDateSelect(null)}
                 onActionSuccess={triggerRefresh}
               />
             </div>
