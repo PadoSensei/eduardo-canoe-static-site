@@ -2,7 +2,8 @@
 module.exports = {
   presets: [
     ["@babel/preset-env", { targets: { node: "current" } }],
-    ["@babel/preset-react", { runtime: "automatic" }], // Kept your existing config
+    ["@babel/preset-react", { runtime: "automatic" }],
+    "@babel/preset-typescript",
   ],
   plugins: [
     function () {

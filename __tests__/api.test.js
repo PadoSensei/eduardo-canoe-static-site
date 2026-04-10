@@ -1,10 +1,6 @@
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
-import {
-  getAvailableTours,
-  createBooking,
-  getBookingStatus,
-} from "../src/api.js";
+import { getAvailableTours, createBooking, getBookingStatus } from "../src/api";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
@@ -165,18 +161,21 @@ describe("API Module", () => {
   describe("getBookingStatus", () => {
     test("fetches status for given booking UUID", async () => {
       const result = await getBookingStatus("test-uuid-123");
-      expect(result).toEqual({ status: "pending_payment" });
+      expect(result).toEqual({
+        status: "pending_payment",
+        is_confirmed: false,
+      });
     });
 
     test("returns confirmed status", async () => {
       server.use(
         http.get(`${API_BASE}/bookings/status/:uuid`, () =>
-          HttpResponse.json({ status: "confirmed" })
+          HttpResponse.json({ status: "confirmed", is_confirmed: true })
         )
       );
 
       const result = await getBookingStatus("any-uuid");
-      expect(result).toEqual({ status: "confirmed" });
+      expect(result).toEqual({ status: "confirmed", is_confirmed: true });
     });
   });
 });

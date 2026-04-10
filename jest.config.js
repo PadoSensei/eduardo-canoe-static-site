@@ -3,7 +3,10 @@ module.exports = {
   testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
   transform: {
-    "^.+\\.(js|jsx)$": "babel-jest",
+    "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
+  },
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/src/$1",
   },
   // Transform ES modules in these packages
   transformIgnorePatterns: [
@@ -22,8 +25,8 @@ module.exports = {
   ],
   // Only match actual test files
   testMatch: [
-    "**/__tests__/**/*.test.(js|jsx)",
-    "**/__tests__/**/*.spec.(js|jsx)",
+    "**/__tests__/**/*.test.(js|jsx|ts|tsx)",
+    "**/__tests__/**/*.spec.(js|jsx|ts|tsx)",
   ],
   // =============================================================================
   // STABILITY SETTINGS (Prevents SIGABRT crashes)
