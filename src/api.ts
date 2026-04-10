@@ -84,7 +84,8 @@ async function request<T>(
         toast.error(message);
       } else if (response.status >= 500) {
         if (config.isProduction) {
-          const refId = errorData.sentry_id || errorData.transaction_id || "N/A";
+          const refId =
+            errorData.sentry_id || errorData.transaction_id || "N/A";
           // We need to get current language, but src/api.ts is not a hook.
           // For now, let's use the translation key and hope toast or a wrapper handles it.
           // Wait, the memory says: "All system error messages and feedback toasts must be localized using translation keys from src/data/translations.js"
@@ -108,9 +109,14 @@ async function request<T>(
           // error_internal_server_with_id: "Ocorreu um erro interno. Ref: {{id}}. Por favor, contate o suporte."
 
           // I will try to detect the language from localStorage or default to 'pt' as it's a Brazilian company.
-          const lang = localStorage.getItem("language") || "pt";
+          const lang =
+            (localStorage.getItem("language") as keyof typeof translations) ||
+            "pt";
           const t = translations[lang] || translations["en"];
-          const translatedMessage = t.error_internal_server_with_id.replace("{{id}}", refId);
+          const translatedMessage = t.error_internal_server_with_id.replace(
+            "{{id}}",
+            refId
+          );
           toast.error(translatedMessage);
         } else {
           toast.error(message);

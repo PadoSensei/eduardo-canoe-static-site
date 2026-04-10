@@ -134,7 +134,8 @@ export const translations = {
     btnDone: "Done",
     btn_see_meeting_point: "See Meeting Point",
     logistics_view_map: "View on Google Maps",
-    logistics_meeting_instruction: "...See the exact location at the button below:",
+    logistics_meeting_instruction:
+      "...See the exact location at the button below:",
 
     // --- Site Footer & Meta ---
     footerLegal: "Legal",
@@ -295,7 +296,8 @@ export const translations = {
     btnDone: "Concluído",
     btn_see_meeting_point: "Ver Ponto de Encontro",
     logistics_view_map: "Ver no Google Maps",
-    logistics_meeting_instruction: "...Veja a localização exata no botão abaixo:",
+    logistics_meeting_instruction:
+      "...Veja a localização exata no botão abaixo:",
 
     // --- Footer & Meta ---
     footerLegal: "Jurídico",
@@ -455,7 +457,8 @@ export const translations = {
     btnDone: "Listo",
     btn_see_meeting_point: "Ver Punto de Encuentro",
     logistics_view_map: "Ver en Google Maps",
-    logistics_meeting_instruction: "...Vea la ubicación exacta en el botón de abajo:",
+    logistics_meeting_instruction:
+      "...Vea la ubicación exacta en el botón de abajo:",
 
     // --- Footer & Meta ---
     footerLegal: "Aviso Legal",
@@ -617,7 +620,8 @@ export const translations = {
     btnDone: "Terminé",
     btn_see_meeting_point: "Voir le point de rendez-vous",
     logistics_view_map: "Voir sur Google Maps",
-    logistics_meeting_instruction: "...Voir l'emplacement exact sur le bouton ci-dessous :",
+    logistics_meeting_instruction:
+      "...Voir l'emplacement exact sur le bouton ci-dessous :",
 
     // --- Site Footer & Meta ---
     footerLegal: "Mentions Légales",
