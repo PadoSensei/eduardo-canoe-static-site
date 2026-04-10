@@ -111,3 +111,14 @@ export type ManifestTour = z.infer<typeof ManifestTourSchema>;
 
 export const ManifestResponseSchema = z.array(ManifestTourSchema);
 export type ManifestResponse = z.infer<typeof ManifestResponseSchema>;
+
+export const DayStatsSchema = z.object({
+  booked_count: z.number().default(0),
+  capacity: z.number().default(0),
+  price: z.number().default(0),
+  revenue: z.number().default(0),
+  status: z.string().optional(),
+});
+
+export const ScheduleResponseSchema = z.record(DayStatsSchema);
+export type ScheduleResponse = z.infer<typeof ScheduleResponseSchema>;
