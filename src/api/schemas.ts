@@ -20,7 +20,9 @@ export const TourSchema = z.object({
 export type Tour = z.infer<typeof TourSchema>;
 
 export const AvailableToursResponseSchema = z.array(TourSchema);
-export type AvailableToursResponse = z.infer<typeof AvailableToursResponseSchema>;
+export type AvailableToursResponse = z.infer<
+  typeof AvailableToursResponseSchema
+>;
 
 export const BookingSessionSchema = z.object({
   currentBooking: z.object({

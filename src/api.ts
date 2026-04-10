@@ -29,14 +29,19 @@ interface RequestOptions<T> {
  * Centralized request wrapper to handle headers, error reporting,
  * and global toasts for system failures.
  */
-async function request<T>(endpoint: string, options: RequestOptions<T> = {}): Promise<T> {
+async function request<T>(
+  endpoint: string,
+  options: RequestOptions<T> = {}
+): Promise<T> {
   const { method = "GET", body, includeAuth = false, signal, schema } = options;
 
   const url = endpoint.startsWith("http")
     ? endpoint
     : `${API_BASE_URL}${endpoint}`;
 
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   if (includeAuth) {
     const {
       data: { session },
@@ -55,7 +60,9 @@ async function request<T>(endpoint: string, options: RequestOptions<T> = {}): Pr
     });
 
     if (!response.ok) {
-      const errorData = (await response.json().catch(() => ({}))) as { detail?: string };
+      const errorData = (await response.json().catch(() => ({}))) as {
+        detail?: string;
+      };
       let message = errorData.detail || "An unexpected error occurred.";
 
       // FE-4: Handle Expired Booking from Backend Reaper
@@ -96,7 +103,10 @@ async function request<T>(endpoint: string, options: RequestOptions<T> = {}): Pr
   }
 }
 
-const captureApiError = (error: Error, context: { endpoint: string; status: number }) => {
+const captureApiError = (
+  error: Error,
+  context: { endpoint: string; status: number }
+) => {
   if (error.name === "AbortError") return;
 
   try {
@@ -129,7 +139,10 @@ export interface TourUI {
   requirements: string[];
 }
 
-export async function getAvailableTours(date: string, options: { signal?: AbortSignal } = {}): Promise<TourUI[] | null> {
+export async function getAvailableTours(
+  date: string,
+  options: { signal?: AbortSignal } = {}
+): Promise<TourUI[] | null> {
   try {
     const validatedData = await request(`/tours/available?tour_date=${date}`, {
       signal: options.signal,
@@ -177,7 +190,10 @@ export interface CreateBookingResult {
   message?: string;
 }
 
-export async function createBooking(bookingData: BookingData, options: { signal?: AbortSignal } = {}): Promise<CreateBookingResult | null> {
+export async function createBooking(
+  bookingData: BookingData,
+  options: { signal?: AbortSignal } = {}
+): Promise<CreateBookingResult | null> {
   const payload = {
     tour_id: bookingData.tourId,
     guest_name: bookingData.guestName,
@@ -208,12 +224,18 @@ export async function createBooking(bookingData: BookingData, options: { signal?
   }
 }
 
-export async function getBookingStatus(bookingUuid: string, options: { signal?: AbortSignal } = {}): Promise<BookingStatusResponse | null> {
+export async function getBookingStatus(
+  bookingUuid: string,
+  options: { signal?: AbortSignal } = {}
+): Promise<BookingStatusResponse | null> {
   try {
-    return await request<BookingStatusResponse>(`/bookings/status/${bookingUuid}`, {
-      signal: options.signal,
-      schema: BookingStatusResponseSchema,
-    });
+    return await request<BookingStatusResponse>(
+      `/bookings/status/${bookingUuid}`,
+      {
+        signal: options.signal,
+        schema: BookingStatusResponseSchema,
+      }
+    );
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
@@ -233,7 +255,9 @@ export interface TourTemplateUI {
   requirements: string[];
 }
 
-export async function getTourTemplates(options: { signal?: AbortSignal } = {}): Promise<TourTemplateUI[] | null> {
+export async function getTourTemplates(
+  options: { signal?: AbortSignal } = {}
+): Promise<TourTemplateUI[] | null> {
   try {
     const data = await request("/tour-templates/", {
       signal: options.signal,
@@ -258,7 +282,11 @@ export async function getTourTemplates(options: { signal?: AbortSignal } = {}): 
   }
 }
 
-export async function fetchMonthlySchedule(year: number, month: number, options: { signal?: AbortSignal } = {}): Promise<unknown> {
+export async function fetchMonthlySchedule(
+  year: number,
+  month: number,
+  options: { signal?: AbortSignal } = {}
+): Promise<unknown> {
   try {
     return await request(`/admin/schedule?year=${year}&month=${month}`, {
       includeAuth: true,
@@ -270,7 +298,10 @@ export async function fetchMonthlySchedule(year: number, month: number, options:
   }
 }
 
-export async function fetchDayManifest(dateString: string, options: { signal?: AbortSignal } = {}): Promise<ManifestResponse | null> {
+export async function fetchDayManifest(
+  dateString: string,
+  options: { signal?: AbortSignal } = {}
+): Promise<ManifestResponse | null> {
   try {
     return await request<ManifestResponse>(`/admin/manifest/${dateString}`, {
       includeAuth: true,
@@ -283,7 +314,11 @@ export async function fetchDayManifest(dateString: string, options: { signal?: A
   }
 }
 
-export async function patchCheckIn(bookingUuid: string, status: boolean, options: { signal?: AbortSignal } = {}): Promise<unknown> {
+export async function patchCheckIn(
+  bookingUuid: string,
+  status: boolean,
+  options: { signal?: AbortSignal } = {}
+): Promise<unknown> {
   try {
     return await request(`/admin/bookings/${bookingUuid}/check-in`, {
       method: "PATCH",
@@ -297,7 +332,10 @@ export async function patchCheckIn(bookingUuid: string, status: boolean, options
   }
 }
 
-export async function adminCreateBooking(bookingData: unknown, options: { signal?: AbortSignal } = {}): Promise<unknown> {
+export async function adminCreateBooking(
+  bookingData: unknown,
+  options: { signal?: AbortSignal } = {}
+): Promise<unknown> {
   try {
     return await request("/admin/bookings", {
       method: "POST",

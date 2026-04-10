@@ -1,10 +1,6 @@
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
-import {
-  getAvailableTours,
-  createBooking,
-  getBookingStatus,
-} from "../src/api";
+import { getAvailableTours, createBooking, getBookingStatus } from "../src/api";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
