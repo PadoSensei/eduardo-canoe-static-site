@@ -4,8 +4,10 @@
 
 [sentry-vite-plugin] Info: Sending telemetry data on issues and performance to Sentry. To disable telemetry, set `options.telemetry` to `false`.
 
-  VITE v7.2.2  ready in 834 ms
+  VITE v7.2.2  ready in 437 ms
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
-11:23:53 PM [vite] (client) hmr update /src/styles.css
+1:07:46 AM [vite] (client) hmr update /src/styles.css
+1:08:15 AM [vite] (client) page reload playwright-report/index.html
+1:08:47 AM [vite] (client) page reload playwright-report/index.html

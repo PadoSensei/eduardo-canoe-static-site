@@ -68,3 +68,28 @@ export const TourTemplateSchema = z.object({
 });
 
 export const TourTemplatesResponseSchema = z.array(TourTemplateSchema);
+
+export const ManifestPassengerSchema = z.object({
+  uuid: z.string(),
+  name: z.string().optional().nullable(),
+  guest_name: z.string().optional().nullable(),
+  pax_count: z.number().optional(),
+  num_people: z.number().optional(),
+  pax: z.number().optional(),
+  email: z.string().optional().nullable(),
+  guest_email: z.string().optional().nullable(),
+  checked_in: z.boolean().optional().default(false),
+  payment_transaction_id: z.string().optional().nullable(),
+});
+
+export const ManifestTourSchema = z.object({
+  tour_id: z.number().optional(),
+  id: z.number().optional(),
+  display_name: z.string(),
+  status: z.string(),
+  capacity: z.number(),
+  booked_count: z.number(),
+  passengers: z.array(ManifestPassengerSchema).optional().default([]),
+});
+
+export const ManifestResponseSchema = z.array(ManifestTourSchema);
