@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import ShieldedButton from "../common/ShieldedButton";
+import config from "../../core/config";
 
 export function PaymentView({
   paymentInfo,
@@ -45,7 +46,7 @@ export function PaymentView({
     }
   };
 
-  const supportLink = `mailto:suporte@pipacanoa.com.br?subject=Suporte%20de%20Pagamento%20-%20Reserva%20%23${currentBooking?.uuid || currentBooking?.id}`;
+  const supportLink = `mailto:${config.supportEmail}?subject=Suporte%20de%20Pagamento%20-%20Reserva%20%23${currentBooking?.uuid || currentBooking?.id}`;
 
   return (
     <div className="text-center animate-fadeIn">

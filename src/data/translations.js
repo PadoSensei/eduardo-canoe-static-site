@@ -103,6 +103,8 @@ export const translations = {
       "A system update is required to complete this action. Please refresh the page.",
     booking_session_expired:
       "Your booking session has expired due to inactivity.",
+    error_internal_server_with_id:
+      "An internal error occurred. Ref: {{id}}. Please contact support.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "Booking Reserved!",
@@ -130,6 +132,9 @@ export const translations = {
     successMessage:
       "Your adventure is booked. We have sent a confirmation email to",
     btnDone: "Done",
+    btn_see_meeting_point: "See Meeting Point",
+    logistics_view_map: "View on Google Maps",
+    logistics_meeting_instruction: "...See the exact location at the button below:",
 
     // --- Site Footer & Meta ---
     footerLegal: "Legal",
@@ -259,6 +264,8 @@ export const translations = {
     error_contract_violation:
       "Atualização necessária. Por favor, recarregue a página.",
     booking_session_expired: "Sua sessão de reserva expirou por inatividade.",
+    error_internal_server_with_id:
+      "Ocorreu um erro interno. Ref: {{id}}. Por favor, contate o suporte.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "Reserva Iniciada!",
@@ -286,6 +293,9 @@ export const translations = {
     successMessage:
       "Sua aventura está reservada. Enviamos um e-mail de confirmação para",
     btnDone: "Concluído",
+    btn_see_meeting_point: "Ver Ponto de Encontro",
+    logistics_view_map: "Ver no Google Maps",
+    logistics_meeting_instruction: "...Veja a localização exata no botão abaixo:",
 
     // --- Footer & Meta ---
     footerLegal: "Jurídico",
@@ -414,6 +424,8 @@ export const translations = {
       "Se requiere una actualización del sistema. Por favor, recarga la página.",
     booking_session_expired:
       "Tu sesión de reserva ha expirado por inactividad.",
+    error_internal_server_with_id:
+      "Ocurrió un error interno. Ref: {{id}}. Por favor, contacte al soporte.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "¡Reserva Iniciada!",
@@ -441,6 +453,9 @@ export const translations = {
     successMessage:
       "Tu aventura está reservada. Hemos enviado un correo de confirmación a",
     btnDone: "Listo",
+    btn_see_meeting_point: "Ver Punto de Encuentro",
+    logistics_view_map: "Ver en Google Maps",
+    logistics_meeting_instruction: "...Vea la ubicación exacta en el botón de abajo:",
 
     // --- Footer & Meta ---
     footerLegal: "Aviso Legal",
@@ -571,6 +586,8 @@ export const translations = {
       "Une mise à jour du système est requise. Veuillez rafraîchir la page.",
     booking_session_expired:
       "Votre session de réservation a expiré pour cause d'inactivité.",
+    error_internal_server_with_id:
+      "Une erreur interne est survenue. Réf : {{id}}. Veuillez contacter le support.",
 
     // --- Payment View (Pix) ---
     paymentTitle: "Réservation Enregistrée !",
@@ -598,6 +615,9 @@ export const translations = {
     successMessage:
       "Votre aventure est réservée. Nous avons envoyé un email de confirmation à",
     btnDone: "Terminé",
+    btn_see_meeting_point: "Voir le point de rendez-vous",
+    logistics_view_map: "Voir sur Google Maps",
+    logistics_meeting_instruction: "...Voir l'emplacement exact sur le bouton ci-dessous :",
 
     // --- Site Footer & Meta ---
     footerLegal: "Mentions Légales",

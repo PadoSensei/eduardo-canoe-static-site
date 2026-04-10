@@ -2,8 +2,9 @@ import React, { useState, useMemo } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { faqData } from "../data/faqData";
 import { ChevronDown, Search, X } from "lucide-react";
+import LocationLink from "../components/common/LocationLink";
 
-const FAQItem = ({ question, answer, searchTerm }) => {
+const FAQItem = ({ question, answer, searchTerm, showLocationButton }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Simple highlight logic for the search term
@@ -53,9 +54,16 @@ const FAQItem = ({ question, answer, searchTerm }) => {
           isOpen ? "max-h-[500px] opacity-100 pb-6" : "max-h-0 opacity-0"
         }`}
       >
-        <p className="text-base leading-relaxed text-gray-600">
-          {highlightText(answer, searchTerm)}
-        </p>
+        <div className="space-y-4">
+          <p className="text-base leading-relaxed text-gray-600">
+            {highlightText(answer, searchTerm)}
+          </p>
+          {showLocationButton && (
+            <div className="pt-2">
+              <LocationLink />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -165,6 +173,9 @@ const FAQ = () => {
                       question={item.q}
                       answer={item.a}
                       searchTerm={searchTerm}
+                      showLocationButton={
+                        category.id === "logistics" && item.isMeetingPoint
+                      }
                     />
                   ))}
                 </div>

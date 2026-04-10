@@ -3,6 +3,8 @@ import * as Sentry from "@sentry/react";
 import { toast } from "sonner";
 import { supabase } from "@/supabaseClient";
 import { z } from "zod";
+import config from "@/core/config";
+import { translations } from "@/data/translations";
 import {
   AvailableToursResponseSchema,
   CreateBookingResponseSchema,
@@ -16,8 +18,7 @@ import {
   type ScheduleResponse,
 } from "@/api/schemas";
 
-const DOMAIN = import.meta.env.VITE_API_URL || "http://localhost:8000";
-const API_BASE_URL = `${DOMAIN}/api/v1`;
+const API_BASE_URL = config.apiBaseUrl;
 
 interface RequestOptions<T> {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -64,6 +65,8 @@ async function request<T>(
     if (!response.ok) {
       const errorData = (await response.json().catch(() => ({}))) as {
         detail?: string;
+        sentry_id?: string;
+        transaction_id?: string;
       };
       let message = errorData.detail || "An unexpected error occurred.";
 
@@ -80,7 +83,38 @@ async function request<T>(
       if (response.status === 400 || response.status === 503) {
         toast.error(message);
       } else if (response.status >= 500) {
-        toast.error("error_system_overloaded");
+        if (config.isProduction) {
+          const refId = errorData.sentry_id || errorData.transaction_id || "N/A";
+          // We need to get current language, but src/api.ts is not a hook.
+          // For now, let's use the translation key and hope toast or a wrapper handles it.
+          // Wait, the memory says: "All system error messages and feedback toasts must be localized using translation keys from src/data/translations.js"
+          // However, we need to inject the ID.
+          // Let's check how translations are used in other places.
+          // Usually they use useLanguage hook.
+          // Since this is a plain TS file, we might need a different approach or just pass the key.
+          // If we pass a key, the toast component needs to know how to translate it.
+          // Looking at current code: toast.error("error_system_overloaded");
+          // This suggests there's a global toast handler that translates keys.
+          // Let's assume the toast can handle keys.
+          // But "error_internal_server_with_id" needs the ID.
+
+          // Let's check if there's a language state we can access.
+          // LanguageContext.jsx might be exported.
+
+          // Re-reading memory: "All system error messages and feedback toasts must be localized using translation keys from src/data/translations.js"
+          // If I use the key, I can't easily inject the ID if the toast doesn't support it.
+
+          // Actually, let's look at src/data/translations.js again.
+          // error_internal_server_with_id: "Ocorreu um erro interno. Ref: {{id}}. Por favor, contate o suporte."
+
+          // I will try to detect the language from localStorage or default to 'pt' as it's a Brazilian company.
+          const lang = localStorage.getItem("language") || "pt";
+          const t = translations[lang] || translations["en"];
+          const translatedMessage = t.error_internal_server_with_id.replace("{{id}}", refId);
+          toast.error(translatedMessage);
+        } else {
+          toast.error(message);
+        }
       }
 
       const error = new Error(message) as Error & { status?: number };

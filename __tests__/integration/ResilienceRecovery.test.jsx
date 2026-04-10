@@ -169,7 +169,7 @@ describe("Resilience & Recovery Integration Tests", () => {
     const supportBtn = screen.getByRole("link", { name: /Contact Support/i });
     expect(supportBtn).toHaveAttribute(
       "href",
-      expect.stringContaining("mailto:suporte@pipacanoa.com.br")
+      expect.stringContaining("mailto:contato@pipacanoahavaiana.com.br")
     );
     expect(supportBtn).toHaveAttribute(
       "href",

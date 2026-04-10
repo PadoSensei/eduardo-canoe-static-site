@@ -5,6 +5,7 @@ import { supabase } from "../supabaseClient";
 import DashboardCalendar from "../components/dashboard/DashboardCalendar";
 import DayManifest from "../components/dashboard/DayManifest";
 import { Lock, Mail, Loader2, LogOut } from "lucide-react";
+import config from "@/core/config";
 
 const Dashboard = () => {
   const { date } = useParams();
@@ -22,9 +23,10 @@ const Dashboard = () => {
 
   const location = useLocation();
   const shouldBypass =
-    import.meta.env.VITE_SKIP_AUTH === "true" ||
-    new URLSearchParams(location.search).get("bypass") === "true" ||
-    window.location.search.includes("bypass=true");
+    !config.isProduction &&
+    (import.meta.env.VITE_SKIP_AUTH === "true" ||
+      new URLSearchParams(location.search).get("bypass") === "true" ||
+      window.location.search.includes("bypass=true"));
 
   useEffect(() => {
     isMounted.current = true;
@@ -192,7 +194,12 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
+      {!config.isProduction && (
+        <div className="fixed top-2 right-2 z-[60] px-3 py-1 bg-orange-500/80 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg pointer-events-none">
+          LOCAL DEV
+        </div>
+      )}
       <div className="p-2 mx-auto max-w-7xl md:p-6">
         <div
           className={`flex justify-between items-end mb-4 md:mb-6 ${

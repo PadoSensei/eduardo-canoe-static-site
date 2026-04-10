@@ -1,5 +1,6 @@
 import React from "react";
 import { Check } from "lucide-react";
+import { formatCurrency } from "../../../utils/formatters";
 
 /**
  * PassengerRow Component
@@ -39,6 +40,11 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
             {paxCount} Pax
           </span>{" "}
           • {passenger.email || passenger.guest_email}
+          {passenger.total_price && (
+            <span className="ml-2 font-bold text-emerald-600">
+              • {formatCurrency(passenger.total_price)}
+            </span>
+          )}
         </p>
 
         <div className="flex flex-wrap items-center gap-3 mt-2">

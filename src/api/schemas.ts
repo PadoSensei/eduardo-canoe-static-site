@@ -47,6 +47,7 @@ export const CreateBookingResponseSchema = z.object({
     guest_email: z.string().optional(),
     status: z.string().optional(),
     created_at: z.string().optional(),
+    checked_in: z.boolean().default(false),
   }),
   payment_info: z.object({
     qr_code: z.string(),
