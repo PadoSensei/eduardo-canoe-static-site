@@ -1,29 +1,42 @@
-// src/api.js
+// src/api.ts
 import * as Sentry from "@sentry/react";
 import { toast } from "sonner";
-import { supabase } from "./supabaseClient";
+import { supabase } from "@/supabaseClient";
+import { z } from "zod";
 import {
   AvailableToursResponseSchema,
   CreateBookingResponseSchema,
   TourTemplatesResponseSchema,
   ManifestResponseSchema,
-} from "./api/schemas";
+  BookingStatusResponseSchema,
+  type CreateBookingResponse,
+  type ManifestResponse,
+  type BookingStatusResponse,
+} from "@/api/schemas";
 
 const DOMAIN = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const API_BASE_URL = `${DOMAIN}/api/v1`;
+
+interface RequestOptions<T> {
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  body?: unknown;
+  includeAuth?: boolean;
+  signal?: AbortSignal;
+  schema?: z.ZodType<T, z.ZodTypeDef, unknown>;
+}
 
 /**
  * Centralized request wrapper to handle headers, error reporting,
  * and global toasts for system failures.
  */
-async function request(endpoint, options = {}) {
+async function request<T>(endpoint: string, options: RequestOptions<T> = {}): Promise<T> {
   const { method = "GET", body, includeAuth = false, signal, schema } = options;
 
   const url = endpoint.startsWith("http")
     ? endpoint
     : `${API_BASE_URL}${endpoint}`;
 
-  const headers = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (includeAuth) {
     const {
       data: { session },
@@ -42,7 +55,7 @@ async function request(endpoint, options = {}) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorData = (await response.json().catch(() => ({}))) as { detail?: string };
       let message = errorData.detail || "An unexpected error occurred.";
 
       // FE-4: Handle Expired Booking from Backend Reaper
@@ -58,40 +71,33 @@ async function request(endpoint, options = {}) {
       if (response.status === 400 || response.status === 503) {
         toast.error(message);
       } else if (response.status >= 500) {
-        // Localized 500 message will be handled by the caller or a translation hook
-        // but we trigger a generic toast here.
-        // Since we don't have access to useLanguage hook here, we use a key
-        // that the toaster can ideally translate if we were using i18next,
-        // but here we'll just trigger it and let translations happen in components if possible.
-        // Actually, the requirements say "trigger a Toast.error with that message".
-        // For 500: "We're experiencing heavy traffic. Please try again in a moment."
         toast.error("error_system_overloaded");
       }
 
-      const error = new Error(message);
+      const error = new Error(message) as Error & { status?: number };
       error.status = response.status;
       throw error;
     }
 
-    const data = await response.json();
+    const data: unknown = await response.json();
 
     // Shield: Validate if schema is provided
     if (schema) {
       return schema.parse(data);
     }
 
-    return data;
-  } catch (error) {
-    if (error.name === "AbortError") throw error;
+    return data as T;
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === "AbortError") throw error;
 
-    captureApiError(error, { endpoint, status: error.status || 500 });
+    const status = (error as { status?: number }).status || 500;
+    captureApiError(error as Error, { endpoint, status });
     throw error;
   }
 }
 
-const captureApiError = (error, context) => {
+const captureApiError = (error: Error, context: { endpoint: string; status: number }) => {
   if (error.name === "AbortError") return;
-  if (!Sentry.withScope) return;
 
   try {
     Sentry.withScope((scope) => {
@@ -105,7 +111,25 @@ const captureApiError = (error, context) => {
   }
 };
 
-export async function getAvailableTours(date, options = {}) {
+export interface TourUI {
+  id: string;
+  instanceId: number;
+  tourType: string;
+  name: string;
+  price: number;
+  remaining: number;
+  isBookable: boolean;
+  capacity: number;
+  duration: string;
+  imageUrl: string;
+  tourDate: string;
+  description: string | null;
+  shortDescription: string | null;
+  inclusions: string[];
+  requirements: string[];
+}
+
+export async function getAvailableTours(date: string, options: { signal?: AbortSignal } = {}): Promise<TourUI[] | null> {
   try {
     const validatedData = await request(`/tours/available?tour_date=${date}`, {
       signal: options.signal,
@@ -124,18 +148,36 @@ export async function getAvailableTours(date, options = {}) {
       duration: tour.duration || "2h",
       imageUrl: tour.image_url || "",
       tourDate: tour.tour_date,
-      description: tour.description,
-      shortDescription: tour.short_description,
+      description: tour.description || null,
+      shortDescription: tour.short_description || null,
       inclusions: tour.inclusions,
       requirements: tour.requirements,
     }));
   } catch (error) {
-    if (error.name === "AbortError") return null;
+    if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
   }
 }
 
-export async function createBooking(bookingData, options = {}) {
+export interface BookingData {
+  tourId: number;
+  guestName: string;
+  guestEmail: string;
+  numPeople: number;
+  totalPrice: number;
+  specialNotes?: string;
+  acceptedTerms: boolean;
+  language?: string;
+}
+
+export interface CreateBookingResult {
+  success: boolean;
+  booking?: CreateBookingResponse["booking"];
+  paymentInfo?: CreateBookingResponse["payment_info"];
+  message?: string;
+}
+
+export async function createBooking(bookingData: BookingData, options: { signal?: AbortSignal } = {}): Promise<CreateBookingResult | null> {
   const payload = {
     tour_id: bookingData.tourId,
     guest_name: bookingData.guestName,
@@ -161,23 +203,37 @@ export async function createBooking(bookingData, options = {}) {
       paymentInfo: validatedResult.payment_info,
     };
   } catch (error) {
-    if (error.name === "AbortError") return null;
-    return { success: false, message: error.message };
+    if (error instanceof Error && error.name === "AbortError") return null;
+    return { success: false, message: (error as Error).message };
   }
 }
 
-export async function getBookingStatus(bookingUuid, options = {}) {
+export async function getBookingStatus(bookingUuid: string, options: { signal?: AbortSignal } = {}): Promise<BookingStatusResponse | null> {
   try {
-    return await request(`/bookings/status/${bookingUuid}`, {
+    return await request<BookingStatusResponse>(`/bookings/status/${bookingUuid}`, {
       signal: options.signal,
+      schema: BookingStatusResponseSchema,
     });
   } catch (error) {
-    if (error.name === "AbortError") return null;
+    if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
   }
 }
 
-export async function getTourTemplates(options = {}) {
+export interface TourTemplateUI {
+  id: number;
+  tourType: string;
+  name: string;
+  price: number;
+  duration: string | null;
+  imageUrl: string | null;
+  description: string | null;
+  shortDescription: string | null;
+  inclusions: string[];
+  requirements: string[];
+}
+
+export async function getTourTemplates(options: { signal?: AbortSignal } = {}): Promise<TourTemplateUI[] | null> {
   try {
     const data = await request("/tour-templates/", {
       signal: options.signal,
@@ -189,45 +245,45 @@ export async function getTourTemplates(options = {}) {
       tourType: template.name,
       name: template.display_name,
       price: template.price,
-      duration: template.duration,
-      imageUrl: template.image_url,
-      description: template.description,
-      shortDescription: template.short_description,
+      duration: template.duration || null,
+      imageUrl: template.image_url || null,
+      description: template.description || null,
+      shortDescription: template.short_description || null,
       inclusions: template.inclusions || [],
       requirements: template.requirements || [],
     }));
   } catch (error) {
-    if (error.name === "AbortError") return null;
+    if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
   }
 }
 
-export async function fetchMonthlySchedule(year, month, options = {}) {
+export async function fetchMonthlySchedule(year: number, month: number, options: { signal?: AbortSignal } = {}): Promise<unknown> {
   try {
     return await request(`/admin/schedule?year=${year}&month=${month}`, {
       includeAuth: true,
       signal: options.signal,
     });
   } catch (error) {
-    if (error.name === "AbortError") return null;
+    if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
   }
 }
 
-export async function fetchDayManifest(dateString, options = {}) {
+export async function fetchDayManifest(dateString: string, options: { signal?: AbortSignal } = {}): Promise<ManifestResponse | null> {
   try {
-    return await request(`/admin/manifest/${dateString}`, {
+    return await request<ManifestResponse>(`/admin/manifest/${dateString}`, {
       includeAuth: true,
       signal: options.signal,
       schema: ManifestResponseSchema,
     });
   } catch (error) {
-    if (error.name === "AbortError") return null;
+    if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
   }
 }
 
-export async function patchCheckIn(bookingUuid, status, options = {}) {
+export async function patchCheckIn(bookingUuid: string, status: boolean, options: { signal?: AbortSignal } = {}): Promise<unknown> {
   try {
     return await request(`/admin/bookings/${bookingUuid}/check-in`, {
       method: "PATCH",
@@ -236,12 +292,12 @@ export async function patchCheckIn(bookingUuid, status, options = {}) {
       signal: options.signal,
     });
   } catch (error) {
-    if (error.name === "AbortError") return null;
+    if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
   }
 }
 
-export async function adminCreateBooking(bookingData, options = {}) {
+export async function adminCreateBooking(bookingData: unknown, options: { signal?: AbortSignal } = {}): Promise<unknown> {
   try {
     return await request("/admin/bookings", {
       method: "POST",
@@ -250,17 +306,17 @@ export async function adminCreateBooking(bookingData, options = {}) {
       signal: options.signal,
     });
   } catch (error) {
-    if (error.name === "AbortError") return null;
+    if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
   }
 }
 
 export async function cancelTourForWeather(
-  tourId,
-  tourName,
-  tourDate,
-  options = {}
-) {
+  tourId: number,
+  tourName: string,
+  tourDate: string,
+  options: { signal?: AbortSignal } = {}
+): Promise<unknown> {
   try {
     return await request(`/admin/tours/${tourId}/weather-cancel`, {
       method: "POST",
@@ -269,7 +325,7 @@ export async function cancelTourForWeather(
       signal: options.signal,
     });
   } catch (error) {
-    if (error.name === "AbortError") return null;
+    if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
   }
 }
