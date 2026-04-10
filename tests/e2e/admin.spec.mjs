@@ -16,6 +16,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
             capacity: 10,
             status: "available",
             price: 100.0,
+            revenue: 800.0,
           },
         },
       })
@@ -61,7 +62,8 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
 
   test("should display monthly revenue in the header", async ({ page }) => {
     await expect(page.getByText(/Revenue:/i)).toBeVisible();
-    await expect(page.getByText(/R\$ 800/)).toBeVisible();
+    // Matcher for R$ 800,00 with non-breaking space
+    await expect(page.getByText(/R\$.*800,00/)).toBeVisible();
   });
 
   test("should show capacity heatmap detail (X/Y) in calendar cells", async ({
