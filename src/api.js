@@ -6,6 +6,7 @@ import {
   AvailableToursResponseSchema,
   CreateBookingResponseSchema,
   TourTemplatesResponseSchema,
+  ManifestResponseSchema,
 } from "./api/schemas";
 
 const DOMAIN = import.meta.env.VITE_API_URL || "http://localhost:8000";
@@ -216,6 +217,21 @@ export async function fetchMonthlySchedule(year, month, options = {}) {
 export async function fetchDayManifest(dateString, options = {}) {
   try {
     return await request(`/admin/manifest/${dateString}`, {
+      includeAuth: true,
+      signal: options.signal,
+      schema: ManifestResponseSchema,
+    });
+  } catch (error) {
+    if (error.name === "AbortError") return null;
+    throw error;
+  }
+}
+
+export async function patchCheckIn(bookingUuid, status, options = {}) {
+  try {
+    return await request(`/admin/bookings/${bookingUuid}/check-in`, {
+      method: "PATCH",
+      body: { checked_in: status },
       includeAuth: true,
       signal: options.signal,
     });

@@ -1,7 +1,18 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import { format } from "date-fns";
-import { X, ArrowLeft, UserPlus, Loader2 } from "lucide-react";
-import { fetchDayManifest, cancelTourForWeather } from "../../api";
+import { X, ArrowLeft, UserPlus, Loader2, Users } from "lucide-react";
+import { toast } from "sonner";
+import {
+  fetchDayManifest,
+  cancelTourForWeather,
+  patchCheckIn,
+} from "../../api";
 
 // Import sub-components for modular architecture
 import PassengerRow from "./manifest/PassengerRow";
@@ -20,9 +31,54 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
 
   const isMounted = useRef(true);
 
-  const toggleCheckIn = (uuid) => {
-    setCheckedIn((prev) => ({ ...prev, [uuid]: !prev[uuid] }));
+  // Optimistic UI for Check-In
+  const toggleCheckIn = async (uuid) => {
+    const passenger = selectedTour.passengers.find((p) => p.uuid === uuid);
+    if (!passenger) return;
+
+    const newStatus = !checkedIn[uuid];
+    const paxCount =
+      passenger.pax_count ?? (passenger.pax || passenger.num_people || 0);
+
+    // 1. Update UI immediately
+    setCheckedIn((prev) => ({ ...prev, [uuid]: newStatus }));
+
+    // 2. Trigger toast on check-in
+    if (newStatus) {
+      const extraPax = paxCount - 1;
+      const toastMsg =
+        extraPax > 0
+          ? `${passenger.name || passenger.guest_name} + ${extraPax} passengers are on board`
+          : `${passenger.name || passenger.guest_name} is on board`;
+      toast.success(toastMsg, { icon: "🛶" });
+    }
+
+    // 3. Persist to Backend
+    try {
+      await patchCheckIn(uuid, newStatus);
+    } catch (err) {
+      console.error("Failed to update check-in status:", err);
+      toast.error("Failed to update check-in. Please try again.");
+      // Rollback on failure
+      setCheckedIn((prev) => ({ ...prev, [uuid]: !newStatus }));
+    }
   };
+
+  const headcount = useMemo(() => {
+    if (!selectedTour?.passengers) return { boarded: 0, total: 0 };
+
+    return selectedTour.passengers.reduce(
+      (acc, p) => {
+        const count = p.pax_count ?? (p.pax || p.num_people || 0);
+        acc.total += count;
+        if (checkedIn[p.uuid]) {
+          acc.boarded += count;
+        }
+        return acc;
+      },
+      { boarded: 0, total: 0 }
+    );
+  }, [selectedTour, checkedIn]);
 
   const loadManifest = useCallback(
     async (signal) => {
@@ -34,6 +90,15 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
 
         if (isMounted.current && !signal?.aborted) {
           setTours(data || []);
+
+          // Initialize local checkedIn state from backend data
+          const initialCheckedIn = {};
+          data.forEach((tour) => {
+            tour.passengers?.forEach((p) => {
+              if (p.checked_in) initialCheckedIn[p.uuid] = true;
+            });
+          });
+          setCheckedIn(initialCheckedIn);
         }
       } catch (err) {
         if (err.name === "AbortError") return;
@@ -135,7 +200,33 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
   // --- VIEW 2: PASSENGER LIST ---
   if (selectedTour) {
     return (
-      <div className="flex flex-col w-full h-full duration-300 bg-white shadow-2xl animate-in slide-in-from-right">
+      <div className="flex flex-col w-full h-full duration-300 bg-white shadow-2xl animate-in slide-in-from-right relative">
+        {/* Sticky Headcount Bar */}
+        <div className="sticky top-0 z-20 flex items-center justify-between px-6 py-3 bg-emerald-600 text-white shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white/20 rounded-lg">
+              <Users size={20} className="text-emerald-50" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200 leading-none mb-1">
+                Boarding Status
+              </p>
+              <h3 className="text-lg font-black leading-none">
+                {headcount.boarded}{" "}
+                <span className="text-emerald-300">/ {headcount.total}</span>
+              </h3>
+            </div>
+          </div>
+          <div className="flex flex-col items-end">
+            <span className="text-[10px] font-bold uppercase text-emerald-200">
+              Total Boarded
+            </span>
+            <span className="text-xl font-black">
+              {Math.round((headcount.boarded / (headcount.total || 1)) * 100)}%
+            </span>
+          </div>
+        </div>
+
         <div className="flex items-center justify-between p-4 text-white bg-teal-900 shadow-md">
           <div className="flex items-center gap-3">
             <button

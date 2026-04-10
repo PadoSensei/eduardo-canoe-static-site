@@ -34,10 +34,19 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
             passengers: [
               {
                 name: "John Doe",
-                pax: 2,
+                pax_count: 2,
                 email: "john@example.com",
                 uuid: "test-uuid-123",
                 payment_transaction_id: "WVI-TRX-999",
+                checked_in: false,
+              },
+              {
+                name: "Jane Smith",
+                pax_count: 3,
+                email: "jane@example.com",
+                uuid: "test-uuid-456",
+                payment_transaction_id: "WVI-TRX-888",
+                checked_in: true,
               },
             ],
           },
@@ -110,7 +119,16 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
     await expect(page.getByText("WVI-TRX-999")).toBeVisible();
   });
 
-  test("should handle passenger check-in toggle", async ({ page }) => {
+  test("should handle passenger check-in toggle and headcount logic", async ({
+    page,
+  }) => {
+    // Mock the PATCH request
+    let patchCalled = false;
+    await page.route("**/api/v1/admin/bookings/*/check-in", (route) => {
+      patchCalled = true;
+      route.fulfill({ status: 200, json: { message: "Success" } });
+    });
+
     const dayCell = page
       .locator("div.cursor-pointer:not(.text-gray-300)")
       .filter({
@@ -138,15 +156,37 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
       timeout: 10000,
     });
 
-    const row = page
+    // Check initial headcount: Jane (3) is checked in, John (2) is not. Total 5.
+    const headcountBar = page.locator(".sticky.top-0");
+    await expect(headcountBar.getByText("3 / 5")).toBeVisible();
+    await expect(headcountBar.getByText("60%")).toBeVisible();
+
+    const johnRow = page
       .getByTestId("passenger-row")
       .filter({ hasText: "John Doe" });
 
-    const checkInBtn = row.getByRole("button", { name: /Check-in/i });
+    // Verify Short ID is visible
+    await expect(johnRow.getByText("#TEST-UUI")).toBeVisible();
+
+    const checkInBtn = johnRow.getByRole("button", { name: /Check-in/i });
     await expect(checkInBtn).toBeVisible();
     await checkInBtn.click();
 
-    await expect(row).toHaveClass(/opacity-40/);
+    // Verify Optimistic UI: Emerald background and badge
+    await expect(johnRow).toHaveClass(/bg-emerald-50/);
+    await expect(johnRow.getByText("✓ ON BOARD")).toBeVisible();
+
+    // Verify Headcount updated: 3 + 2 = 5 / 5
+    await expect(headcountBar.getByText("5 / 5")).toBeVisible();
+    await expect(headcountBar.getByText("100%")).toBeVisible();
+
+    // Verify toast
+    await expect(
+      page.getByText("John Doe + 1 passengers are on board")
+    ).toBeVisible();
+
+    // Verify API was called
+    expect(patchCalled).toBe(true);
   });
 
   test("should handle weather cancellation flow with alerts", async ({
