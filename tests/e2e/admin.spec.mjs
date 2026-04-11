@@ -62,7 +62,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
 
   test("should display monthly revenue in the header", async ({ page }) => {
     await expect(page.getByText(/Revenue:/i)).toBeVisible();
-    // Matcher for R$ 800,00 with non-breaking space
+    // Matcher for R$ 800,00 with flexible spacing/symbol
     await expect(page.getByText(/R\$.*800,00/)).toBeVisible();
   });
 

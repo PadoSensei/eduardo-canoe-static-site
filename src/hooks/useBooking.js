@@ -24,7 +24,6 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     return false;
   });
   const [consecutiveErrors, setConsecutiveErrors] = useState(0);
-  const consecutiveErrorsRef = useRef(0);
 
   const isMounted = useRef(true);
   const intervalRef = useRef(null);
@@ -92,7 +91,6 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
           return;
 
         setConsecutiveErrors(0);
-        consecutiveErrorsRef.current = 0;
 
         if (statusData.status === "confirmed") {
           setIsConfirmed(true);
@@ -134,14 +132,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         }
 
         if (isMounted.current) {
-          setConsecutiveErrors((prev) => {
-            const next = prev + 1;
-            consecutiveErrorsRef.current = next;
-            if (next >= 5) {
-              if (intervalRef.current) clearInterval(intervalRef.current);
-            }
-            return next;
-          });
+          setConsecutiveErrors((prev) => prev + 1);
         }
       }
     };
@@ -183,6 +174,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     selectedDate,
     paymentInfo,
     setAvailableTours,
+    consecutiveErrors,
   ]);
 
   const clearBooking = useCallback(() => {

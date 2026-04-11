@@ -117,7 +117,7 @@ describe("Multi-Seat Booking Flow", () => {
 
     // Test Calculation (5 * 150)
     fireEvent.change(guestsInput, { target: { value: "5" } });
-    // Matcher for R$ 750,00 with non-breaking space
+    // Matcher for R$ 750,00 with flexible spacing/symbol
     expect(screen.getByText(/R\$.*750,00/)).toBeInTheDocument();
 
     // Test Enforcement (Cap at 5)
