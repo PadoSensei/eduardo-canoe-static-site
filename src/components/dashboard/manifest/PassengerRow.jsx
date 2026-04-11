@@ -7,7 +7,9 @@ import { formatCurrency } from "../../../utils/formatters";
  * Renders a single guest booking with check-in capability.
  */
 const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
-  const shortId = passenger.uuid?.slice(0, 8).toUpperCase();
+  const shortId = (
+    passenger.display_id || passenger.uuid?.slice(0, 8)
+  ).toUpperCase();
   const paxCount =
     passenger.pax_count ?? (passenger.pax || passenger.num_people || 0);
 

@@ -24,12 +24,21 @@ export type AvailableToursResponse = z.infer<
   typeof AvailableToursResponseSchema
 >;
 
+export const BookingSchema = z.object({
+  uuid: z.string(),
+  id: z.number().optional(),
+  display_id: z.string().optional(), // 8-character professional code
+  guest_email: z.string().optional(),
+  status: z.string().optional(),
+  created_at: z.string().optional(),
+  checked_in: z.boolean().default(false),
+});
+
+export type Booking = z.infer<typeof BookingSchema>;
+
 export const BookingSessionSchema = z.object({
-  currentBooking: z.object({
-    uuid: z.string(),
-    id: z.number().optional(),
-    created_at: z.string(),
-    guest_email: z.string().optional(),
+  currentBooking: BookingSchema.extend({
+    created_at: z.string(), // Required for session
   }),
   paymentInfo: z.object({
     qr_code: z.string(),
@@ -41,14 +50,7 @@ export const BookingSessionSchema = z.object({
 export type BookingSession = z.infer<typeof BookingSessionSchema>;
 
 export const CreateBookingResponseSchema = z.object({
-  booking: z.object({
-    uuid: z.string(),
-    id: z.number().optional(),
-    guest_email: z.string().optional(),
-    status: z.string().optional(),
-    created_at: z.string().optional(),
-    checked_in: z.boolean().default(false),
-  }),
+  booking: BookingSchema,
   payment_info: z.object({
     qr_code: z.string(),
     qr_code_image: z.string(),
@@ -85,6 +87,7 @@ export type TourTemplatesResponse = z.infer<typeof TourTemplatesResponseSchema>;
 
 export const ManifestPassengerSchema = z.object({
   uuid: z.string(),
+  display_id: z.string().optional(),
   name: z.string().nullable().optional(),
   guest_name: z.string().nullable().optional(),
   pax_count: z.number().optional(),
