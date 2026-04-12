@@ -89,7 +89,8 @@ export const faqData = {
       items: [
         {
           q: "Where is the meeting point?",
-          a: "All tours depart from Tibau do Sul. The specific meeting point is the Sunset Stairs (Escadaria do Pôr do Sol), located in front of the Lagoa Flat Condominium.",
+          a: "All tours depart from Tibau do Sul. The specific meeting point is the Sunset Stairs (Escadaria do Pôr do Sol), located in front of the Lagoa Flat Condominium. ...See the exact location at the button below:",
+          isMeetingPoint: true,
         },
         {
           q: "Is transportation included?",
@@ -190,7 +191,8 @@ export const faqData = {
       items: [
         {
           q: "Onde é o ponto de encontro?",
-          a: "Todos os passeios partem de Tibau do Sul. O ponto de encontro específico é a Escadaria do Pôr do Sol, localizada em frente ao Condomínio Lagoa Flat.",
+          a: "Todos os passeios partem de Tibau do Sul. O ponto de encontro específico é a Escadaria do Pôr do Sol, localizada em frente ao Condomínio Lagoa Flat. ...Veja a localização exata no botão abaixo:",
+          isMeetingPoint: true,
         },
         {
           q: "O transporte está incluído?",
@@ -291,7 +293,8 @@ export const faqData = {
       items: [
         {
           q: "¿Dónde está el punto de encuentro?",
-          a: "Todos los tours salen de Tibau do Sul. El punto de encuentro específico es la Escalera del Atardecer (Escadaria do Pôr do Sol), ubicada frente al Condominio Lagoa Flat.",
+          a: "Todos los tours salen de Tibau do Sul. El punto de encuentro específico es la Escalera del Atardecer (Escadaria do Pôr do Sol), ubicada frente al Condominio Lagoa Flat. ...Vea la ubicación exacta en el botón de abajo:",
+          isMeetingPoint: true,
         },
         {
           q: "¿El transporte está incluido?",
@@ -392,7 +395,8 @@ export const faqData = {
       items: [
         {
           q: "Où est le point de rendez-vous ?",
-          a: "Toutes les excursions partent de Tibau do Sul. Le point de rendez-vous spécifique est l'Escalier du Coucher de Soleil (Escadaria do Pôr do Sol), situé devant le Condominium Lagoa Flat.",
+          a: "Toutes les excursions partent de Tibau do Sul. Le point de rendez-vous spécifique est l'Escalier du Coucher de Soleil (Escadaria do Pôr do Sol), situé devant le Condominium Lagoa Flat. ...Voir l'emplacement exact sur le bouton ci-dessous :",
+          isMeetingPoint: true,
         },
         {
           q: "Le transport est-il inclus ?",

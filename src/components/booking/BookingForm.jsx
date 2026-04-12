@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { Plus, Minus } from "lucide-react";
 import ShieldedButton from "../common/ShieldedButton";
+import { formatCurrency } from "../../utils/formatters";
 
 export function BookingForm({
   tour,
@@ -93,14 +94,12 @@ export function BookingForm({
         </p>
         <p className="flex justify-between mt-1 text-gray-600">
           <span className="font-semibold">Price per person:</span>
-          <span>
-            {t("pricePrefix")} {tour.price.toFixed(2)}
-          </span>
+          <span>{formatCurrency(tour.price)}</span>
         </p>
         <div className="flex items-center justify-between pt-3 mt-3 text-lg border-t border-gray-200">
           <span className="font-bold text-gray-800">Total:</span>
           <span className="font-bold text-[#FF6B6B]">
-            {t("pricePrefix")} {totalPrice.toFixed(2)}
+            {formatCurrency(totalPrice)}
           </span>
         </div>
       </div>

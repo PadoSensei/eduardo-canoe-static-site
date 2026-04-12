@@ -5,6 +5,9 @@ import globals from "globals";
 
 export default [
   {
+    ignores: ["dist/**"],
+  },
+  {
     files: ["**/*.{js,jsx}"],
     plugins: {
       react: reactPlugin,

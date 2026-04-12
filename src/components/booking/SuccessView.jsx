@@ -1,6 +1,7 @@
 import React from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import BrandLogo from "../BrandLogo";
+import LocationLink from "../common/LocationLink";
 
 export function SuccessView({ guestEmail, onClose }) {
   const { t } = useLanguage();
@@ -41,9 +42,13 @@ export function SuccessView({ guestEmail, onClose }) {
         </strong>
       </p>
 
+      <div className="flex flex-col gap-4 mb-8">
+        <LocationLink className="w-full" />
+      </div>
+
       <button
         onClick={onClose}
-        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all hover:shadow-lg transform hover:-translate-y-0.5"
+        className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-3 px-6 rounded-lg transition-all"
       >
         {t("btnDone")}
       </button>

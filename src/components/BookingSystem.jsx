@@ -9,6 +9,7 @@ import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
+import { formatCurrency } from "../utils/formatters";
 import { useBooking } from "../hooks/useBooking";
 
 const getStoredSession = (t) => {
@@ -296,13 +297,7 @@ function BookingSystem() {
                 Total
               </span>
               <p className="text-3xl font-black text-teal-950">
-                <span className="text-sm font-bold text-teal-600 mr-0.5">
-                  {t("pricePrefix")}
-                </span>
-                {Math.floor(tour.price)}
-                <span className="text-lg font-bold opacity-40">
-                  .{(tour.price % 1).toFixed(2).split(".")[1]}
-                </span>
+                {formatCurrency(tour.price)}
               </p>
             </div>
 

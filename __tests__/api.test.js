@@ -104,7 +104,7 @@ describe("API Module", () => {
 
       expect(result).toEqual({
         success: true,
-        booking: { uuid: "test-uuid", id: 1 },
+        booking: { uuid: "test-uuid", id: 1, checked_in: false },
         paymentInfo: {
           qr_code: "pix-key",
           qr_code_image: "img",

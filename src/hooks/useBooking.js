@@ -24,6 +24,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     return false;
   });
   const [consecutiveErrors, setConsecutiveErrors] = useState(0);
+  const consecutiveErrorsRef = useRef(0);
 
   const isMounted = useRef(true);
   const intervalRef = useRef(null);
@@ -90,6 +91,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         if (!isMounted.current || controller.signal.aborted || !statusData)
           return;
 
+        consecutiveErrorsRef.current = 0;
         setConsecutiveErrors(0);
 
         if (statusData.status === "confirmed") {
@@ -132,13 +134,8 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         }
 
         if (isMounted.current) {
-          setConsecutiveErrors((prev) => {
-            const next = prev + 1;
-            if (next >= 5) {
-              if (intervalRef.current) clearInterval(intervalRef.current);
-            }
-            return next;
-          });
+          consecutiveErrorsRef.current += 1;
+          setConsecutiveErrors(consecutiveErrorsRef.current);
         }
       }
     };
@@ -152,7 +149,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
       !isFailed &&
       !isReaped &&
       !isTimedOut &&
-      consecutiveErrors < 5;
+      consecutiveErrorsRef.current < 5;
 
     if (shouldPoll) {
       checkStatus(); // Initial check
@@ -192,6 +189,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     setIsFailed(false);
     setIsReaped(false);
     setIsTimedOut(false);
+    consecutiveErrorsRef.current = 0;
     setConsecutiveErrors(0);
   }, []);
 

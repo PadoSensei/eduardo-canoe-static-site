@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { X, CheckCircle, Backpack, Clock, Users, MapPin } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import BrandLogo from "./BrandLogo";
+import { formatCurrency } from "../utils/formatters";
 
 const TourModal = ({ tour, onClose }) => {
   const { t } = useLanguage();
@@ -66,7 +67,7 @@ const TourModal = ({ tour, onClose }) => {
                 {t("pricePrefix")}
               </span>
               <span className="block text-2xl font-black text-teal-900">
-                R$ {tour.price}
+                {formatCurrency(tour.price)}
               </span>
             </div>
           </div>
