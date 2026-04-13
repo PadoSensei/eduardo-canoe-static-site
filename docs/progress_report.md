@@ -37,3 +37,9 @@
 - **Description**: Implement a deterministic, hermetic E2E smoke test for the core booking flow and integrate it into the CI/CD pipeline.
 - **Status**: ✅ COMPLETED
 - **Owner**: Jules
+
+### [x] Ticket #FE-E2E-PREFLIGHT: Payment Resilience & Edge-Case Suite
+
+- **Description**: Build and pass a suite of Playwright E2E tests that simulate "Real World" failures and recovery scenarios.
+- **Status**: ✅ COMPLETED
+- **Owner**: Jules
