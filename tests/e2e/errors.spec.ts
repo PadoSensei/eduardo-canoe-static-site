@@ -42,14 +42,17 @@ test.describe("Overbook/API Error Handling Pillar", () => {
           contentType: "application/json",
           body: JSON.stringify({
             detail: "Tour is now full",
-            type: "InventoryError"
+            type: "InventoryError",
           }),
         });
       }
     });
 
     // 1. GIVEN: I start a booking for the tour
-    await page.getByRole("button", { name: /book now/i }).first().click();
+    await page
+      .getByRole("button", { name: /book now/i })
+      .first()
+      .click();
     await page.getByLabel(/your name/i).fill("Error User");
     await page.getByLabel(/your email/i).fill("error@example.com");
     await page.getByLabel(/i accept the/i).check();
@@ -59,7 +62,9 @@ test.describe("Overbook/API Error Handling Pillar", () => {
 
     // 3. THEN: I should remain on the booking form (not redirected to payment)
     await expect(page.getByRole("heading", { name: /Book/i })).toBeVisible();
-    await expect(page.getByText(/Booking Reserved|Reserva Iniciada/i)).not.toBeVisible();
+    await expect(
+      page.getByText(/Booking Reserved|Reserva Iniciada/i)
+    ).not.toBeVisible();
 
     // 4. AND: A Sonner Toast or inline error appears with the specific message
     // Note: The app displays the error message from result.message in the modal.

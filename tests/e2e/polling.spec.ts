@@ -55,42 +55,52 @@ test.describe("Slow Webhook Persistence Pillar", () => {
     });
   });
 
-  test("should transition to success view after slow polling confirmation", async ({ page }) => {
+  test("should transition to success view after slow polling confirmation", async ({
+    page,
+  }) => {
     let pollCount = 0;
 
     // Mock status polling with counter
-    await page.route("**/api/v1/bookings/status/polling-uuid-123", async (route) => {
-      pollCount++;
-      if (pollCount <= 3) {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({
-            status: "pending_payment",
-            is_confirmed: false,
-          }),
-        });
-      } else {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({
-            status: "confirmed",
-            is_confirmed: true,
-          }),
-        });
+    await page.route(
+      "**/api/v1/bookings/status/polling-uuid-123",
+      async (route) => {
+        pollCount++;
+        if (pollCount <= 3) {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              status: "pending_payment",
+              is_confirmed: false,
+            }),
+          });
+        } else {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              status: "confirmed",
+              is_confirmed: true,
+            }),
+          });
+        }
       }
-    });
+    );
 
     // 1. GIVEN: I start a booking
-    await page.getByRole("button", { name: /book now/i }).first().click();
+    await page
+      .getByRole("button", { name: /book now/i })
+      .first()
+      .click();
     await page.getByLabel(/your name/i).fill("Polling User");
     await page.getByLabel(/your email/i).fill("polling@example.com");
     await page.getByLabel(/i accept the/i).check();
     await page.getByRole("button", { name: /confirm booking/i }).click();
 
     // 2. WHEN: I am on the payment screen
-    await expect(page.getByText(/Booking Reserved|Reserva Iniciada/i)).toBeVisible();
+    await expect(
+      page.getByText(/Booking Reserved|Reserva Iniciada/i)
+    ).toBeVisible();
 
     // 3. THEN: The UI should show the waiting state (implied by the payment view being active)
     // We should see the QR code and instruction
@@ -99,7 +109,9 @@ test.describe("Slow Webhook Persistence Pillar", () => {
     // 4. AND: It should eventually transition to Success View
     // Polling happens every 3 seconds. 4th call happens around 9-12 seconds.
     // Increased timeout for this assertion to account for polling intervals
-    await expect(page.getByText(/Payment Confirmed!|Pagamento Confirmado!/i)).toBeVisible({ timeout: 20000 });
+    await expect(
+      page.getByText(/Payment Confirmed!|Pagamento Confirmado!/i)
+    ).toBeVisible({ timeout: 20000 });
 
     // Verify success message contains the email
     await expect(page.getByText("polling@example.com")).toBeVisible();

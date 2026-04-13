@@ -68,7 +68,9 @@ test.describe("Session Recovery Pillar", () => {
     });
   });
 
-  test("should re-hydrate booking state after page reload and persist timeout", async ({ page }) => {
+  test("should re-hydrate booking state after page reload and persist timeout", async ({
+    page,
+  }) => {
     // 1. GIVEN: I start a booking
     await page.goto("/book");
 
@@ -79,7 +81,10 @@ test.describe("Session Recovery Pillar", () => {
     await page.reload();
 
     await expect(page.getByText("Recovery Test Tour")).toBeVisible();
-    await page.getByRole("button", { name: /book now/i }).first().click();
+    await page
+      .getByRole("button", { name: /book now/i })
+      .first()
+      .click();
 
     await page.getByLabel(/your name/i).fill("Recovery User");
     await page.getByLabel(/your email/i).fill("recovery@example.com");
@@ -88,14 +93,18 @@ test.describe("Session Recovery Pillar", () => {
     await page.getByRole("button", { name: /confirm booking/i }).click();
 
     // 2. WHEN: I reach the payment screen
-    await expect(page.getByText(/Booking Reserved|Reserva Iniciada/i)).toBeVisible();
+    await expect(
+      page.getByText(/Booking Reserved|Reserva Iniciada/i)
+    ).toBeVisible();
     await expect(page.getByText("RECOVERY_PIX_CODE")).toBeVisible();
 
     // 3. AND: I reload the page
     await page.reload();
 
     // 4. THEN: The app should re-hydrate and show the payment view immediately
-    await expect(page.getByText(/Booking Reserved|Reserva Iniciada/i)).toBeVisible();
+    await expect(
+      page.getByText(/Booking Reserved|Reserva Iniciada/i)
+    ).toBeVisible();
     await expect(page.getByText("RECOVERY_PIX_CODE")).toBeVisible();
 
     // 5. AND: The timeout calculation should reflect the 2 minutes already passed
@@ -111,7 +120,9 @@ test.describe("Session Recovery Pillar", () => {
     expect(timerText).toMatch(/(11|12|13):\d{2}/);
   });
 
-  test("should re-hydrate booking state after navigating away and back", async ({ page }) => {
+  test("should re-hydrate booking state after navigating away and back", async ({
+    page,
+  }) => {
     // 1. GIVEN: I start a booking and reach payment screen
     await page.goto("/book");
     await page.evaluate(() => {
@@ -119,24 +130,33 @@ test.describe("Session Recovery Pillar", () => {
     });
     await page.reload();
 
-    await page.getByRole("button", { name: /book now/i }).first().click();
+    await page
+      .getByRole("button", { name: /book now/i })
+      .first()
+      .click();
     await page.getByLabel(/your name/i).fill("Recovery User");
     await page.getByLabel(/your email/i).fill("recovery@example.com");
     await page.getByLabel(/i accept the/i).check();
     await page.getByRole("button", { name: /confirm booking/i }).click();
-    await expect(page.getByText(/Booking Reserved|Reserva Iniciada/i)).toBeVisible();
+    await expect(
+      page.getByText(/Booking Reserved|Reserva Iniciada/i)
+    ).toBeVisible();
 
     // 2. WHEN: I navigate to Home
     await page.goto("/");
 
     // 3. THEN: The PaymentView should NOT be visible on Home
-    await expect(page.getByText(/Booking Reserved|Reserva Iniciada/i)).not.toBeVisible();
+    await expect(
+      page.getByText(/Booking Reserved|Reserva Iniciada/i)
+    ).not.toBeVisible();
 
     // 4. WHEN: I navigate back to /book
     await page.goto("/book");
 
     // 5. THEN: The app should re-hydrate and show the payment view
-    await expect(page.getByText(/Booking Reserved|Reserva Iniciada/i)).toBeVisible();
+    await expect(
+      page.getByText(/Booking Reserved|Reserva Iniciada/i)
+    ).toBeVisible();
     await expect(page.getByText("RECOVERY_PIX_CODE")).toBeVisible();
   });
 });
