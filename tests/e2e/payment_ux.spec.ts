@@ -9,21 +9,25 @@ test.describe("Payment UX Interactions", () => {
     await page.goto("/book");
 
     // Inject session into localStorage
-    await page.evaluate((data) => {
-      window.localStorage.setItem("pending_booking", JSON.stringify(data));
-      window.localStorage.setItem("language", "en");
-    }, {
-      currentBooking: {
-        uuid: mockUuid,
-        id: 555,
-        created_at: new Date().toISOString(),
+    await page.evaluate(
+      (data) => {
+        window.localStorage.setItem("pending_booking", JSON.stringify(data));
+        window.localStorage.setItem("language", "en");
       },
-      paymentInfo: {
-        qr_code: mockPixKey,
-        qr_code_image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
-        expires_in: 600, // 10 minutes
-      },
-    });
+      {
+        currentBooking: {
+          uuid: mockUuid,
+          id: 555,
+          created_at: new Date().toISOString(),
+        },
+        paymentInfo: {
+          qr_code: mockPixKey,
+          qr_code_image:
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+          expires_in: 600, // 10 minutes
+        },
+      }
+    );
 
     // Mock initial tours load to keep UI stable
     await page.route("**/api/v1/tours/available**", async (route) => {
@@ -47,7 +51,9 @@ test.describe("Payment UX Interactions", () => {
     await page.reload();
   });
 
-  test("should automatically transition to TimeoutView when timer hits zero", async ({ page }) => {
+  test("should automatically transition to TimeoutView when timer hits zero", async ({
+    page,
+  }) => {
     // 1. GIVEN: I am on the Payment View
     await expect(page.getByText(/Booking Reserved/i)).toBeVisible();
     await expect(page.getByText(mockPixKey)).toBeVisible();
@@ -59,7 +65,9 @@ test.describe("Payment UX Interactions", () => {
 
     // 3. THEN: The PaymentView (QR code) should be replaced by TimeoutView
     // The "Contact Support" button should appear
-    await expect(page.getByRole("link", { name: /Contact Support/i })).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByRole("link", { name: /Contact Support/i })
+    ).toBeVisible({ timeout: 10000 });
 
     // AND: The QR code should no longer be visible
     await expect(page.getByText(mockPixKey)).not.toBeVisible();
@@ -68,7 +76,11 @@ test.describe("Payment UX Interactions", () => {
     await expect(page.getByText(/Payment Timeout/i)).toBeVisible();
   });
 
-  test("should copy Pix key to clipboard and show feedback", async ({ page, context, browserName }) => {
+  test("should copy Pix key to clipboard and show feedback", async ({
+    page,
+    context,
+    browserName,
+  }) => {
     // 1. GIVEN: I grant clipboard permissions (Chromium only support for grantPermissions in Playwright)
     if (browserName === "chromium") {
       await context.grantPermissions(["clipboard-read", "clipboard-write"]);
@@ -86,12 +98,16 @@ test.describe("Payment UX Interactions", () => {
 
     // 5. AND: The clipboard content should match the mock Pix key (Chromium only)
     if (browserName === "chromium") {
-      const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+      const clipboardText = await page.evaluate(() =>
+        navigator.clipboard.readText()
+      );
       expect(clipboardText).toBe(mockPixKey);
     }
   });
 
-  test("should handle 401 Unauthorized polling error gracefully", async ({ page }) => {
+  test("should handle 401 Unauthorized polling error gracefully", async ({
+    page,
+  }) => {
     // 1. GIVEN: The status API returns a 401 Unauthorized
     let callCount = 0;
     await page.route(`**/api/v1/bookings/status/${mockUuid}`, async (route) => {
@@ -110,7 +126,9 @@ test.describe("Payment UX Interactions", () => {
     // or we use it correctly.
     // Actually, useBooking's interval might be affected by page.clock if not handled carefully.
 
-    await expect.poll(() => callCount, { timeout: 20000 }).toBeGreaterThanOrEqual(5);
+    await expect
+      .poll(() => callCount, { timeout: 20000 })
+      .toBeGreaterThanOrEqual(5);
 
     // 3. THEN: The UI should show a connection/system error instead of crashing
     // In useBooking, it catches and increments consecutiveErrors on any error.
@@ -119,8 +137,12 @@ test.describe("Payment UX Interactions", () => {
     // Let's verify it shows the connection warning after 5 failures
     // Note: Due to consecutive errors, useBooking sets isTimedOut=true OR hasConnectionIssue=true.
     // In PaymentView, if isTimedOut OR hasConnectionIssue is true, it shows the Payment Timeout view.
-    await expect(page.getByText(/Payment Timeout/i)).toBeVisible({ timeout: 10000 });
-    await expect(page.getByRole("link", { name: /Contact Support/i })).toBeVisible();
+    await expect(page.getByText(/Payment Timeout/i)).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(
+      page.getByRole("link", { name: /Contact Support/i })
+    ).toBeVisible();
 
     // AND: verify that a toast with the error message appeared (from api.ts update)
     await expect(page.getByText(/Unauthorized/i).first()).toBeVisible();
