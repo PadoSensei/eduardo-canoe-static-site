@@ -32,3 +32,9 @@ jobs:
 
       - name: Run Unit Tests
         run: npm test
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E Tests (Resilience & Recovery)
+        run: npx playwright test tests/e2e/recovery.spec.ts tests/e2e/polling.spec.ts tests/e2e/errors.spec.ts --project=guest-chromium
