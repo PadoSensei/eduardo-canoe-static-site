@@ -15,7 +15,16 @@ export function PaymentView({
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   // Default to 15 mins if metadata is missing
-  const [timeLeft, setTimeLeft] = useState(paymentInfo?.expires_in || 900);
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const baseExpires = paymentInfo?.expires_in || 900;
+    if (currentBooking?.created_at) {
+      const createdAt = new Date(currentBooking.created_at).getTime();
+      const now = new Date().getTime();
+      const elapsed = Math.floor((now - createdAt) / 1000);
+      return Math.max(0, baseExpires - elapsed);
+    }
+    return baseExpires;
+  });
 
   // Countdown timer logic
   useEffect(() => {
