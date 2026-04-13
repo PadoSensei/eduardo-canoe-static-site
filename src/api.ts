@@ -80,7 +80,11 @@ async function request<T>(
       }
 
       // FE-2: Error Passthrough logic
-      if (response.status === 400 || response.status === 503) {
+      if (
+        response.status === 400 ||
+        response.status === 401 ||
+        response.status === 503
+      ) {
         toast.error(message);
       } else if (response.status >= 500) {
         if (config.isProduction) {
