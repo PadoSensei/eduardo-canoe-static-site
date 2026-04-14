@@ -177,6 +177,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     selectedDate,
     paymentInfo,
     setAvailableTours,
+    consecutiveErrors,
   ]);
 
   const clearBooking = useCallback(() => {

@@ -214,21 +214,22 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
       page.getByRole("heading", { name: /Daily Schedule/i })
     ).toBeVisible({ timeout: 10000 });
 
-    // Handle the confirm dialog before clicking the button
-    page.once("dialog", async (dialog) => {
-      expect(dialog.type()).toBe("confirm");
-      await dialog.accept();
-    });
-
     const weatherCancelBtn = page.getByRole("button", {
       name: /Weather Cancel/i,
     });
     await weatherCancelBtn.waitFor({ state: "visible", timeout: 10000 });
     await weatherCancelBtn.click();
 
-    // Handle the success alert
-    const successAlert = await page.waitForEvent("dialog", { timeout: 10000 });
-    expect(successAlert.message()).toContain("Success");
-    await successAlert.accept();
+    // Instead of dialog, we expect the custom modal
+    await expect(page.getByText(/Cancel Tour for Weather\?/i)).toBeVisible();
+
+    // Click confirm in modal
+    const modalConfirmBtn = page
+      .locator("div[role='dialog']")
+      .getByRole("button", { name: /Weather Cancel/i });
+    await modalConfirmBtn.click();
+
+    // Instead of success alert, we expect a toast
+    await expect(page.getByText(/Tour successfully cancelled/i)).toBeVisible();
   });
 });

@@ -28,6 +28,8 @@ const WeatherCancelModal = ({
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all animate-in fade-in duration-200"
       onClick={() => !isSubmitting && onClose()}
+      role="dialog"
+      aria-modal="true"
     >
       <div
         className="bg-white w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200"
