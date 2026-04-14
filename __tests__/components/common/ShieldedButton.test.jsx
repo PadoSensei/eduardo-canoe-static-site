@@ -31,24 +31,26 @@ describe("ShieldedButton", () => {
     expect(handleClick).toHaveBeenCalledTimes(1);
 
     // Rapid-fire second click (100ms later)
-    act(() => {
+    await act(async () => {
       jest.advanceTimersByTime(100);
+      fireEvent.click(button);
     });
-    fireEvent.click(button);
     expect(handleClick).toHaveBeenCalledTimes(1); // Still 1
 
     // Another click (500ms later)
-    act(() => {
+    await act(async () => {
       jest.advanceTimersByTime(500);
+      fireEvent.click(button);
     });
-    fireEvent.click(button);
     expect(handleClick).toHaveBeenCalledTimes(1); // Still 1
 
     // After 1000ms cooldown
-    act(() => {
+    await act(async () => {
       jest.advanceTimersByTime(401); // Total 1001ms
     });
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.click(button);
+    });
     expect(handleClick).toHaveBeenCalledTimes(2); // Now 2
   });
 
@@ -67,19 +69,21 @@ describe("ShieldedButton", () => {
     expect(button).toBeDisabled();
 
     // Advance 500ms, should still be disabled
-    act(() => {
+    await act(async () => {
       jest.advanceTimersByTime(500);
+      fireEvent.click(button);
     });
     expect(button).toBeDisabled();
-    fireEvent.click(button);
     expect(handleClick).toHaveBeenCalledTimes(1);
 
     // Advance to 1001ms, should be enabled
-    act(() => {
+    await act(async () => {
       jest.advanceTimersByTime(501);
     });
     expect(button).not.toBeDisabled();
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.click(button);
+    });
     expect(handleClick).toHaveBeenCalledTimes(2);
   });
 

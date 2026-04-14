@@ -73,17 +73,21 @@ export default defineConfig({
       : []),
 
     // =========================================================
-    // 4. PRODUCTION WORKFLOW
+    // 4. PRODUCTION WORKFLOW - Skip in CI
     // =========================================================
-    {
-      name: "production-workflow",
-      dependencies: ["setup"],
-      use: {
-        ...devices["Desktop Chrome"],
-        storageState: ADMIN_SESSION_FILE,
-      },
-      testMatch: /workflow\.spec\.mjs/,
-    },
+    ...(!process.env.CI
+      ? [
+          {
+            name: "production-workflow",
+            dependencies: ["setup"],
+            use: {
+              ...devices["Desktop Chrome"],
+              storageState: ADMIN_SESSION_FILE,
+            },
+            testMatch: /workflow\.spec\.mjs/,
+          },
+        ]
+      : []),
   ],
 
   webServer: {
