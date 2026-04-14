@@ -1,5 +1,12 @@
 import React from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  act,
+  waitForElementToBeRemoved,
+  waitFor,
+} from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
@@ -39,7 +46,7 @@ test("Weather Cancel button triggers confirmation and API call", async () => {
   render(
     <MemoryRouter>
       <LanguageProvider>
-        <DayManifest date={new Date()} onClose={jest.fn()} />
+        <DayManifest date={new Date("2026-01-19T12:00:00Z")} onClose={jest.fn()} />
       </LanguageProvider>
     </MemoryRouter>
   );
@@ -52,9 +59,22 @@ test("Weather Cancel button triggers confirmation and API call", async () => {
 
   fireEvent.click(cancelBtn);
 
-  expect(window.confirm).toHaveBeenCalled();
+  // Instead of window.confirm, we should see the modal
+  const modalTitle = await screen.findByText(/Cancel Tour for Weather/i, { selector: 'h3' });
+  expect(modalTitle).toBeInTheDocument();
 
-  // Wait for the alert to be called after the async API call finishes
-  await act(async () => {});
-  expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("Success"));
+  // Find and click the confirm button in the modal
+  // There are two "Weather Cancel" buttons now: one in the card and one in the modal
+  const confirmBtns = screen.getAllByRole("button", { name: /Weather Cancel/i });
+  fireEvent.click(confirmBtns[confirmBtns.length - 1]);
+
+  // Wait for the success toast (mocked or just wait for effect)
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 0));
+  });
+
+  // Since we replaced alert with sonner, we check if the modal is gone
+  await waitFor(() => {
+    expect(screen.queryByText(/Are you sure/i)).not.toBeInTheDocument();
+  });
 });

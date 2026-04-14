@@ -175,6 +175,17 @@ export const translations = {
     logistics_meeting: "Meeting Point",
     logistics_duration: "Duration",
     logistics_capacity: "Capacity",
+
+    // --- Admin Dashboard ---
+    admin_cancel_confirm_title: "Cancel Tour for Weather?",
+    admin_cancel_confirm_body:
+      "Are you sure? This will cancel all bookings for this tour and send cancellation emails to all guests immediately. This action cannot be undone.",
+    admin_cancel_success_toast:
+      "Tour successfully cancelled. Guests have been notified.",
+    admin_cancel_error_toast: "Failed to cancel tour: {{error}}",
+    admin_cancel_go_back: "Go Back",
+    admin_cancel_guests_booked: "Guests Booked",
+    admin_cancel_weather_button: "Weather Cancel",
   },
 
   pt: {
@@ -336,6 +347,17 @@ export const translations = {
     logistics_meeting: "Ponto de Encontro",
     logistics_duration: "Duração",
     logistics_capacity: "Capacidade",
+
+    // --- Admin Dashboard ---
+    admin_cancel_confirm_title: "Cancelar Passeio por Clima?",
+    admin_cancel_confirm_body:
+      "Tem certeza? Isso cancelará todas as reservas para este passeio e enviará e-mails de cancelamento a todos os hóspedes imediatamente. Esta ação não pode ser desfeita.",
+    admin_cancel_success_toast:
+      "Passeio cancelado com sucesso. Os hóspedes foram notificados.",
+    admin_cancel_error_toast: "Falha ao cancelar o passeio: {{error}}",
+    admin_cancel_go_back: "Voltar",
+    admin_cancel_guests_booked: "Hóspedes Reservados",
+    admin_cancel_weather_button: "Cancelar Clima",
   },
 
   es: {
@@ -497,6 +519,17 @@ export const translations = {
     logistics_meeting: "Punto de Encuentro",
     logistics_duration: "Duración",
     logistics_capacity: "Capacidad",
+
+    // --- Admin Dashboard ---
+    admin_cancel_confirm_title: "¿Cancelar Tour por Clima?",
+    admin_cancel_confirm_body:
+      "¿Está seguro? Esto cancelará todas las reservas para este tour y enviará correos electrónicos de cancelación a todos los huéspedes de inmediato. Esta acción no se puede deshacer.",
+    admin_cancel_success_toast:
+      "Tour cancelado con éxito. Los huéspedes han sido notificados.",
+    admin_cancel_error_toast: "Error al cancelar el tour: {{error}}",
+    admin_cancel_go_back: "Volver",
+    admin_cancel_guests_booked: "Huéspedes Reservados",
+    admin_cancel_weather_button: "Cancelar Clima",
   },
   fr: {
     // --- Navigation ---
@@ -662,5 +695,16 @@ export const translations = {
     logistics_meeting: "Point de rencontre",
     logistics_duration: "Durée",
     logistics_capacity: "Capacité",
+
+    // --- Admin Dashboard ---
+    admin_cancel_confirm_title: "Annuler le tour pour météo ?",
+    admin_cancel_confirm_body:
+      "Êtes-vous sûr ? Cela annulera toutes les réservations pour ce tour et enverra immédiatement des e-mails d'annulation à tous les clients. Cette action est irréversible.",
+    admin_cancel_success_toast:
+      "Tour annulé avec succès. Les clients ont été informés.",
+    admin_cancel_error_toast: "Échec de l'annulation du tour : {{error}}",
+    admin_cancel_go_back: "Retour",
+    admin_cancel_guests_booked: "Clients réservés",
+    admin_cancel_weather_button: "Annulation météo",
   },
 };

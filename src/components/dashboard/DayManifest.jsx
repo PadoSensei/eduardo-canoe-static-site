@@ -18,13 +18,17 @@ import {
 import PassengerRow from "./manifest/PassengerRow";
 import TourCard from "./manifest/TourCard";
 import ManualBookingForm from "./manifest/ManualBookingForm";
+import WeatherCancelModal from "./WeatherCancelModal";
+import { useLanguage } from "../../context/LanguageContext";
 
 const DayManifest = ({ date, onClose, onActionSuccess }) => {
+  const { t } = useLanguage();
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTour, setSelectedTour] = useState(null);
   const [isAddingGuest, setIsAddingGuest] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tourToCancel, setTourToCancel] = useState(null);
 
   // Local UI state for check-ins (visual only for Eduardo's use at the lagoon)
   const [checkedIn, setCheckedIn] = useState({});
@@ -140,13 +144,6 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
   }, [date, loadManifest]); // Only re-run when the date from the calendar changes
 
   const handleWeatherCancellation = async (tour) => {
-    if (
-      !window.confirm(
-        `Notify all guests of weather cancellation for ${tour.display_name}?`
-      )
-    )
-      return;
-
     const controller = new AbortController();
     try {
       setIsSubmitting(true);
@@ -158,13 +155,14 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
       );
 
       if (isMounted.current) {
-        alert("Success: Tour cancelled and guests notified.");
+        toast.success(t("admin_cancel_success_toast"));
+        setTourToCancel(null);
         if (onActionSuccess) onActionSuccess(); // Refresh the Dashboard Calendar stats
         await loadManifest(controller.signal);
       }
     } catch (err) {
       if (err.name === "AbortError") return;
-      alert("Failed to cancel: " + err.message);
+      toast.error(t("admin_cancel_error_toast").replace("{{error}}", err.message));
     } finally {
       if (isMounted.current) setIsSubmitting(false);
     }
@@ -309,7 +307,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
               key={tour.tour_id || tour.id}
               tour={tour}
               isSubmitting={isSubmitting}
-              onCancel={handleWeatherCancellation}
+              onCancel={() => setTourToCancel(tour)}
               onSelect={setSelectedTour}
             />
           ))
@@ -319,6 +317,14 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
           </p>
         )}
       </div>
+
+      <WeatherCancelModal
+        isOpen={!!tourToCancel}
+        tour={tourToCancel}
+        onClose={() => setTourToCancel(null)}
+        onConfirm={() => handleWeatherCancellation(tourToCancel)}
+        isSubmitting={isSubmitting}
+      />
     </div>
   );
 };
