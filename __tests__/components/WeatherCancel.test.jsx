@@ -46,7 +46,10 @@ test("Weather Cancel button triggers confirmation and API call", async () => {
   render(
     <MemoryRouter>
       <LanguageProvider>
-        <DayManifest date={new Date("2026-01-19T12:00:00Z")} onClose={jest.fn()} />
+        <DayManifest
+          date={new Date("2026-01-19T12:00:00Z")}
+          onClose={jest.fn()}
+        />
       </LanguageProvider>
     </MemoryRouter>
   );
@@ -60,12 +63,16 @@ test("Weather Cancel button triggers confirmation and API call", async () => {
   fireEvent.click(cancelBtn);
 
   // Instead of window.confirm, we should see the modal
-  const modalTitle = await screen.findByText(/Cancel Tour for Weather/i, { selector: 'h3' });
+  const modalTitle = await screen.findByText(/Cancel Tour for Weather/i, {
+    selector: "h3",
+  });
   expect(modalTitle).toBeInTheDocument();
 
   // Find and click the confirm button in the modal
   // There are two "Weather Cancel" buttons now: one in the card and one in the modal
-  const confirmBtns = screen.getAllByRole("button", { name: /Weather Cancel/i });
+  const confirmBtns = screen.getAllByRole("button", {
+    name: /Weather Cancel/i,
+  });
   fireEvent.click(confirmBtns[confirmBtns.length - 1]);
 
   // Wait for the success toast (mocked or just wait for effect)

@@ -162,7 +162,9 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
       }
     } catch (err) {
       if (err.name === "AbortError") return;
-      toast.error(t("admin_cancel_error_toast").replace("{{error}}", err.message));
+      toast.error(
+        t("admin_cancel_error_toast").replace("{{error}}", err.message)
+      );
     } finally {
       if (isMounted.current) setIsSubmitting(false);
     }
