@@ -65,9 +65,14 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         controller.signal.aborted ||
         !isMounted.current ||
         isTimedOut ||
-        consecutiveErrors >= 5
-      )
+        consecutiveErrorsRef.current >= 5
+      ) {
+        if (consecutiveErrorsRef.current >= 5 && intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
         return;
+      }
 
       // Check for 10-minute timeout
       if (currentBooking.created_at) {
@@ -136,6 +141,11 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         if (isMounted.current) {
           consecutiveErrorsRef.current += 1;
           setConsecutiveErrors(consecutiveErrorsRef.current);
+
+          if (consecutiveErrorsRef.current >= 5 && intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
         }
       }
     };

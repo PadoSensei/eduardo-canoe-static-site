@@ -10,6 +10,7 @@ import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import "@testing-library/jest-dom";
 import DayManifest from "../../src/components/dashboard/DayManifest";
+import { LanguageProvider } from "../../src/context/LanguageContext";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
@@ -61,10 +62,12 @@ afterAll(() => server.close());
 describe("DayManifest Component", () => {
   test("renders tours and handles selection", async () => {
     render(
-      <DayManifest
-        date={new Date("2026-02-12T12:00:00Z")}
-        onClose={jest.fn()}
-      />
+      <LanguageProvider>
+        <DayManifest
+          date={new Date("2026-02-12T12:00:00Z")}
+          onClose={jest.fn()}
+        />
+      </LanguageProvider>
     );
 
     await waitForElementToBeRemoved(() =>

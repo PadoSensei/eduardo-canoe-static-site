@@ -1,7 +1,10 @@
 import React from "react";
 import { CloudRain } from "lucide-react";
+import ShieldedButton from "../../common/ShieldedButton";
+import { useLanguage } from "../../../context/LanguageContext";
 
 const TourCard = ({ tour, isSubmitting, onCancel, onSelect }) => {
+  const { t } = useLanguage();
   const isCancelled = tour.status?.includes("cancelled");
 
   return (
@@ -38,16 +41,16 @@ const TourCard = ({ tour, isSubmitting, onCancel, onSelect }) => {
       </div>
 
       {!isCancelled && (
-        <button
-          disabled={isSubmitting}
+        <ShieldedButton
+          isLoading={isSubmitting}
           onClick={(e) => {
             e.stopPropagation();
             onCancel(tour);
           }}
           className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg text-[10px] font-black uppercase hover:bg-red-500 hover:text-white transition-all"
         >
-          <CloudRain size={14} /> Weather Cancel
-        </button>
+          <CloudRain size={14} /> {t("admin_cancel_weather_button")}
+        </ShieldedButton>
       )}
     </div>
   );
