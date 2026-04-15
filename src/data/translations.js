@@ -186,6 +186,9 @@ export const translations = {
     admin_cancel_go_back: "Go Back",
     admin_cancel_guests_booked: "Guests Booked",
     admin_cancel_weather_button: "Weather Cancel",
+    Notifications: "Notifications",
+    Settings: "Settings",
+    SaveChanges: "Save Changes",
   },
 
   pt: {

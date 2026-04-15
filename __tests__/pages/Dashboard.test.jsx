@@ -5,6 +5,7 @@ import { http, HttpResponse } from "msw";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import "@testing-library/jest-dom";
 import Dashboard from "../../src/pages/Dashboard";
+import AdminLayout from "../../src/components/admin/AdminLayout";
 import { LanguageProvider } from "../../src/context/LanguageContext";
 
 const API_BASE = "http://localhost:8000/api/v1";
@@ -70,10 +71,12 @@ const renderDashboard = (initialEntry = "/admin") =>
   render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <LanguageProvider>
-        <Routes>
-          <Route path="/admin" element={<Dashboard />} />
-          <Route path="/admin/manifest/:date" element={<Dashboard />} />
-        </Routes>
+        <AdminLayout>
+          <Routes>
+            <Route path="/admin" element={<Dashboard />} />
+            <Route path="/admin/manifest/:date" element={<Dashboard />} />
+          </Routes>
+        </AdminLayout>
       </LanguageProvider>
     </MemoryRouter>
   );
@@ -81,13 +84,13 @@ const renderDashboard = (initialEntry = "/admin") =>
 describe("Dashboard Page Integration", () => {
   test("initially shows calendar when logged in", async () => {
     renderDashboard();
-    expect(await screen.findByText(/Operations/i)).toBeInTheDocument();
+    expect((await screen.findAllByText(/Operations/i)).length).toBeGreaterThan(0);
     expect(await screen.findByText(/eduardo@example.com/i)).toBeInTheDocument();
   });
 
   test("clicking an active date opens the manifest and shows tours", async () => {
     renderDashboard();
-    await screen.findByText(/Operations/i);
+    await screen.findAllByText(/Operations/i);
 
     const days = await screen.findAllByText("15");
     const activeDay = days.find((d) => !d.className.includes("text-gray-300"));
