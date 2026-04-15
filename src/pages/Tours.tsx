@@ -2,14 +2,18 @@ import React, { useState, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { getTourTemplates } from "../api";
 import TourModal from "../components/TourModal";
-import { Loader2, Search } from "lucide-react"; // Added for professional spinner
+import { Loader2, CalendarOff } from "lucide-react";
 import EmptyState from "../components/common/EmptyState";
 
-const Tours = () => {
+import { TourTemplateUI } from "../api";
+
+type TourTemplate = TourTemplateUI;
+
+const Tours: React.FC = () => {
   const { t } = useLanguage();
-  const [tours, setTours] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedTour, setSelectedTour] = useState(null);
+  const [tours, setTours] = useState<TourTemplate[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedTour, setSelectedTour] = useState<TourTemplate | null>(null);
 
   useEffect(() => {
     const loadMenu = async () => {
@@ -28,7 +32,6 @@ const Tours = () => {
   return (
     <div className="min-h-screen pt-24 pb-12 bg-gray-50">
       <div className="container px-6 mx-auto">
-        {/* Header Section remains visible to maintain layout */}
         <h1 className="mb-4 text-4xl font-bold text-center text-gray-900 md:text-5xl font-lora">
           {t("navTours")}
         </h1>
@@ -37,7 +40,6 @@ const Tours = () => {
         </p>
 
         {loading ? (
-          /* 1. Refactored Loading State: Centered Spinner with reserved space */
           <div className="flex flex-col items-center justify-center min-h-[400px]">
             <Loader2 className="w-12 h-12 text-[#FF6B6B] animate-spin mb-4" />
             <p className="text-xs font-medium tracking-widest text-gray-400 uppercase animate-pulse">
@@ -47,10 +49,9 @@ const Tours = () => {
         ) : tours.length === 0 ? (
           <EmptyState
             message={t("tours_none_available_general")}
-            icon={<Search className="w-12 h-12" strokeWidth={1.5} />}
+            icon={<CalendarOff className="w-12 h-12" strokeWidth={1.5} />}
           />
         ) : (
-          /* 2. Refactored Grid: justify-center ensures cards stay in the middle if < 3 */
           <div className="grid justify-center gap-8 md:grid-cols-2 lg:grid-cols-3">
             {tours.map((tour) => (
               <div

@@ -15,4 +15,11 @@ const config: Config = {
   supportEmail: "contato@pipacanoahavaiana.com.br",
 };
 
+if (!import.meta.env.PROD) {
+  console.log(
+    `%c ⚡ EduCanoe API: ${config.apiBaseUrl} `,
+    "background: #10b981; color: #fff; font-weight: bold; border-radius: 4px;"
+  );
+}
+
 export default config;
