@@ -95,7 +95,8 @@ function BookingSystem() {
         if (err.name === "AbortError") return;
         if (isMounted.current) setError("LOAD_ERROR");
       } finally {
-        if (isMounted.current && (!signal || !signal.aborted)) setIsLoading(false);
+        if (isMounted.current && (!signal || !signal.aborted))
+          setIsLoading(false);
       }
     },
     [selectedDate]
