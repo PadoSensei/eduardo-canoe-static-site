@@ -126,3 +126,16 @@ export const DayStatsSchema = z.object({
 
 export const ScheduleResponseSchema = z.record(DayStatsSchema);
 export type ScheduleResponse = z.infer<typeof ScheduleResponseSchema>;
+
+export const EmailSettingSchema = z.object({
+  slug: z.string(),
+  display_name: z.string(),
+  description: z.string(),
+  is_enabled: z.boolean(),
+  scheduled_time: z.string().nullable(), // HH:mm:ss or null
+});
+
+export type EmailSetting = z.infer<typeof EmailSettingSchema>;
+
+export const EmailSettingsResponseSchema = z.array(EmailSettingSchema);
+export type EmailSettingsResponse = z.infer<typeof EmailSettingsResponseSchema>;

@@ -16,6 +16,8 @@ import About from "./pages/About";
 
 // Components
 import BookingSystem from "./components/BookingSystem";
+import AdminLayout from "./components/admin/AdminLayout";
+import NotificationSettings from "./components/admin/NotificationSettings";
 
 const App = () => {
   return (
@@ -62,9 +64,19 @@ const App = () => {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/about" element={<About />} />
 
-            {/* Admin Route */}
-            <Route path="/admin" element={<Dashboard />} />
-            <Route path="/admin/manifest/:date" element={<Dashboard />} />
+            {/* Admin Routes */}
+            <Route
+              path="/admin/*"
+              element={
+                <AdminLayout>
+                  <Routes>
+                    <Route index element={<Dashboard />} />
+                    <Route path="manifest/:date" element={<Dashboard />} />
+                    <Route path="settings" element={<NotificationSettings />} />
+                  </Routes>
+                </AdminLayout>
+              }
+            />
           </Routes>
         </main>
         <Footer />

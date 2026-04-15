@@ -358,6 +358,9 @@ export const translations = {
     admin_cancel_go_back: "Voltar",
     admin_cancel_guests_booked: "Hóspedes Reservados",
     admin_cancel_weather_button: "Cancelar Clima",
+    Notifications: "Notificações",
+    Settings: "Configurações",
+    SaveChanges: "Salvar Alterações",
   },
 
   es: {
@@ -530,6 +533,9 @@ export const translations = {
     admin_cancel_go_back: "Volver",
     admin_cancel_guests_booked: "Huéspedes Reservados",
     admin_cancel_weather_button: "Cancelar Clima",
+    Notifications: "Notificaciones",
+    Settings: "Configuración",
+    SaveChanges: "Guardar Cambios",
   },
   fr: {
     // --- Navigation ---
@@ -706,5 +712,8 @@ export const translations = {
     admin_cancel_go_back: "Retour",
     admin_cancel_guests_booked: "Clients réservés",
     admin_cancel_weather_button: "Annulation météo",
+    Notifications: "Notifications",
+    Settings: "Paramètres",
+    SaveChanges: "Enregistrer les modifications",
   },
 };

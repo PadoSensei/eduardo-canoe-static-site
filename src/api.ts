@@ -12,6 +12,9 @@ import {
   ManifestResponseSchema,
   BookingStatusResponseSchema,
   ScheduleResponseSchema,
+  EmailSettingsResponseSchema,
+  EmailSettingSchema,
+  type EmailSetting,
   type CreateBookingResponse,
   type ManifestResponse,
   type BookingStatusResponse,
@@ -145,6 +148,40 @@ async function request<T>(
 
     const status = (error as { status?: number }).status || 500;
     captureApiError(error as Error, { endpoint, status });
+    throw error;
+  }
+}
+
+export async function getEmailSettings(
+  options: { signal?: AbortSignal } = {}
+): Promise<EmailSetting[] | null> {
+  try {
+    return await request<EmailSetting[]>("/admin/settings/emails", {
+      includeAuth: true,
+      signal: options.signal,
+      schema: EmailSettingsResponseSchema,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return null;
+    throw error;
+  }
+}
+
+export async function updateEmailSetting(
+  slug: string,
+  data: Partial<Pick<EmailSetting, "is_enabled" | "scheduled_time">>,
+  options: { signal?: AbortSignal } = {}
+): Promise<EmailSetting | null> {
+  try {
+    return await request<EmailSetting>(`/admin/settings/emails/${slug}`, {
+      method: "PATCH",
+      body: data,
+      includeAuth: true,
+      signal: options.signal,
+      schema: EmailSettingSchema,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
   }
 }
