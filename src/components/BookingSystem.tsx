@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { toast } from "sonner";
-import { getAvailableTours, createBooking } from "../api";
+import { getAvailableTours, createBooking, TourUI } from "../api";
 import { useLanguage } from "../context/LanguageContext";
 import { BookingSessionSchema } from "../api/schemas";
 import { PaymentView } from "./booking/PaymentView";
@@ -14,7 +14,7 @@ import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
 import { formatCurrency } from "../utils/formatters";
 import { useBooking } from "../hooks/useBooking";
 
-const getStoredSession = (t) => {
+const getStoredSession = (t: (key: string) => string) => {
   try {
     const saved = localStorage.getItem("pending_booking");
     if (!saved) return null;
@@ -45,27 +45,27 @@ function BookingSystem() {
 
   // --- 1. STATE INITIALIZATION ---
   const [session] = useState(() => getStoredSession(t));
-  const [availableTours, setAvailableTours] = useState([]);
+  const [availableTours, setAvailableTours] = useState<TourUI[]>([]);
   const [selectedDate, setSelectedDate] = useState(getTodayLocalDate());
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const [showBookingModal, setShowBookingModal] = useState(!!session);
-  const [selectedTour, setSelectedTour] = useState(null);
-  const [bookingTourId, setBookingTourId] = useState(null);
+  const [selectedTour, setSelectedTour] = useState<TourUI | null>(null);
+  const [bookingTourId, setBookingTourId] = useState<number | null>(null);
 
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [numPeople, setNumPeople] = useState(1);
   const [specialNotes, setSpecialNotes] = useState("");
-  const [formError, setFormError] = useState(null);
+  const [formError, setFormError] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // --- 2. LOGIC HELPERS ---
 
   const getTourName = useCallback(
-    (tourType) => {
-      const mapping = {
+    (tourType: string) => {
+      const mapping: Record<string, string> = {
         sunrise: "card1Title",
         morning: "card1Title",
         full_day: "card2Title",
@@ -82,20 +82,21 @@ function BookingSystem() {
   // --- 3. ASYNC DATA LOADING ---
 
   const loadAvailability = useCallback(
-    async (signal) => {
+    async (signal?: AbortSignal) => {
       if (!isMounted.current) return;
       setIsLoading(true);
       setError(null);
       try {
         const data = await getAvailableTours(selectedDate, { signal });
-        if (isMounted.current && !signal?.aborted) {
+        if (isMounted.current && (!signal || !signal.aborted)) {
           setAvailableTours(data || []);
         }
-      } catch (err) {
+      } catch (err: any) {
         if (err.name === "AbortError") return;
         if (isMounted.current) setError("LOAD_ERROR");
       } finally {
-        if (isMounted.current && !signal?.aborted) setIsLoading(false);
+        if (isMounted.current && (!signal || !signal.aborted))
+          setIsLoading(false);
       }
     },
     [selectedDate]
@@ -140,13 +141,13 @@ function BookingSystem() {
     setAcceptedTerms(false);
     setFormError(null);
     Sentry.setUser(null);
-    if (loadAvailability) await loadAvailability();
+    await loadAvailability();
   }, [clearBooking, loadAvailability]);
 
   // Modal Escape Key Listener
   useEffect(() => {
     if (!showBookingModal) return;
-    const handleEsc = (e) => {
+    const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeModal();
     };
     window.addEventListener("keydown", handleEsc);
@@ -199,15 +200,15 @@ function BookingSystem() {
       );
 
       if (isMounted.current && !controller.signal.aborted) {
-        if (result.success) {
+        if (result && result.success) {
           setPaymentInfo(result.paymentInfo);
           setCurrentBooking(result.booking);
           setIsConfirmed(false);
         } else {
-          setFormError(`${t("alertFailed")}: ${result.message}`);
+          setFormError(`${t("alertFailed")}: ${result?.message}`);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       if (error.name === "AbortError") return;
       if (isMounted.current) {
         setFormError(t("alertError"));
@@ -218,7 +219,7 @@ function BookingSystem() {
     }
   };
 
-  const openModal = (tour) => {
+  const openModal = (tour: TourUI) => {
     if (isPastDate(selectedDate)) {
       setFormError(t("alertPastDate"));
       return;
