@@ -8,6 +8,8 @@ import { BookingSessionSchema } from "../api/schemas";
 import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
+import EmptyState from "./common/EmptyState";
+import { CalendarOff } from "lucide-react";
 import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
 import { formatCurrency } from "../utils/formatters";
 import { useBooking } from "../hooks/useBooking";
@@ -252,7 +254,10 @@ function BookingSystem() {
 
     if (availableTours.length === 0)
       return (
-        <p className="py-16 italic text-center text-gray-500">{t("noTours")}</p>
+        <EmptyState
+          message={t("tours_none_available_date")}
+          icon={<CalendarOff className="w-12 h-12" strokeWidth={1.5} />}
+        />
       );
 
     return availableTours
