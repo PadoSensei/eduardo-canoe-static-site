@@ -1,6 +1,6 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import * as Sentry from "@sentry/react"; // 1. Import Sentry
+import { Routes, Route, Navigate } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 import { Toaster } from "sonner";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -14,12 +14,15 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import About from "./pages/About";
 
+// Admin
+import AdminLayout from "./components/admin/AdminLayout";
+import NotificationSettings from "./components/admin/NotificationSettings";
+
 // Components
 import BookingSystem from "./components/BookingSystem";
 
 const App = () => {
   return (
-    // 2. Wrap the entire UI in an ErrorBoundary
     <Sentry.ErrorBoundary
       fallback={
         <div className="flex items-center justify-center min-h-screen px-6 text-center bg-gray-50">
@@ -43,31 +46,52 @@ const App = () => {
     >
       <div className="flex flex-col min-h-screen">
         <Toaster position="top-right" richColors closeButton />
-        <Header />
-        <main className="flex-grow">
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/tours" element={<Tours />} />
-            <Route
-              path="/book"
-              element={
-                <div className="pt-24">
-                  <BookingSystem />
-                </div>
-              }
-            />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/about" element={<About />} />
 
-            {/* Admin Route */}
-            <Route path="/admin" element={<Dashboard />} />
-            <Route path="/admin/manifest/:date" element={<Dashboard />} />
-          </Routes>
-        </main>
-        <Footer />
+        <Routes>
+          {/* Public Routes with Header/Footer */}
+          <Route
+            path="/*"
+            element={
+              <>
+                <Header />
+                <main className="flex-grow">
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/tours" element={<Tours />} />
+                    <Route
+                      path="/book"
+                      element={
+                        <div className="pt-24">
+                          <BookingSystem />
+                        </div>
+                      }
+                    />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </main>
+                <Footer />
+              </>
+            }
+          />
+
+          {/* Admin Routes with Sidebar Layout */}
+          <Route
+            path="/admin/*"
+            element={
+              <AdminLayout>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/manifest/:date" element={<Dashboard />} />
+                  <Route path="/settings" element={<NotificationSettings />} />
+                </Routes>
+              </AdminLayout>
+            }
+          />
+        </Routes>
       </div>
     </Sentry.ErrorBoundary>
   );
