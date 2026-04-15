@@ -12,6 +12,9 @@ import {
   ManifestResponseSchema,
   BookingStatusResponseSchema,
   ScheduleResponseSchema,
+  EmailSettingsResponseSchema,
+  EmailSettingSchema,
+  type EmailSetting,
   type CreateBookingResponse,
   type ManifestResponse,
   type BookingStatusResponse,
@@ -90,29 +93,6 @@ async function request<T>(
         if (config.isProduction) {
           const refId =
             errorData.sentry_id || errorData.transaction_id || "N/A";
-          // We need to get current language, but src/api.ts is not a hook.
-          // For now, let's use the translation key and hope toast or a wrapper handles it.
-          // Wait, the memory says: "All system error messages and feedback toasts must be localized using translation keys from src/data/translations.js"
-          // However, we need to inject the ID.
-          // Let's check how translations are used in other places.
-          // Usually they use useLanguage hook.
-          // Since this is a plain TS file, we might need a different approach or just pass the key.
-          // If we pass a key, the toast component needs to know how to translate it.
-          // Looking at current code: toast.error("error_system_overloaded");
-          // This suggests there's a global toast handler that translates keys.
-          // Let's assume the toast can handle keys.
-          // But "error_internal_server_with_id" needs the ID.
-
-          // Let's check if there's a language state we can access.
-          // LanguageContext.jsx might be exported.
-
-          // Re-reading memory: "All system error messages and feedback toasts must be localized using translation keys from src/data/translations.js"
-          // If I use the key, I can't easily inject the ID if the toast doesn't support it.
-
-          // Actually, let's look at src/data/translations.js again.
-          // error_internal_server_with_id: "Ocorreu um erro interno. Ref: {{id}}. Por favor, contate o suporte."
-
-          // I will try to detect the language from localStorage or default to 'pt' as it's a Brazilian company.
           const lang =
             (localStorage.getItem("language") as keyof typeof translations) ||
             "pt";
@@ -145,6 +125,42 @@ async function request<T>(
 
     const status = (error as { status?: number }).status || 500;
     captureApiError(error as Error, { endpoint, status });
+    throw error;
+  }
+}
+
+export async function getEmailSettings(
+  options: { signal?: AbortSignal } = {}
+): Promise<EmailSetting[] | null> {
+  try {
+    return await request<EmailSetting[]>("/admin/settings/emails", {
+      includeAuth: true,
+      signal: options.signal,
+      schema: EmailSettingsResponseSchema,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return null;
+    throw error;
+  }
+}
+
+export async function updateEmailSetting(
+  slug: string,
+  data: Partial<
+    Pick<EmailSetting, "is_enabled" | "scheduled_time" | "scheduled_time">
+  >,
+  options: { signal?: AbortSignal } = {}
+): Promise<EmailSetting | null> {
+  try {
+    return await request<EmailSetting>(`/admin/settings/emails/${slug}`, {
+      method: "PATCH",
+      body: data,
+      includeAuth: true,
+      signal: options.signal,
+      schema: EmailSettingSchema,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
   }
 }
