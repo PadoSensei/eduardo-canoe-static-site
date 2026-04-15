@@ -70,7 +70,10 @@ export const translations = {
     selectDateLabel: "Select Date",
     loading: "Loading available adventures...",
     errorGeneric: "Sorry, we couldn't load tour availability.",
-    noTours: "No tours available for this date. Please try another day!",
+    tours_none_available_date:
+      "No tours available for this date. Please select another day.",
+    tours_none_available_general:
+      "No tours currently available. Please check back soon!",
 
     // --- Booking Form ---
     bookTitle: "Book",
@@ -245,7 +248,10 @@ export const translations = {
     selectDateLabel: "Selecione a Data",
     loading: "Carregando aventuras disponíveis...",
     errorGeneric: "Desculpe, não conseguimos carregar a disponibilidade.",
-    noTours: "Nenhum passeio disponível nesta data. Tente outro dia!",
+    tours_none_available_date:
+      "Não há passeios disponíveis para esta data. Por favor, selecione outro dia.",
+    tours_none_available_general:
+      "Não há passeios disponíveis no momento. Por favor, volte em breve!",
 
     // --- Booking Form ---
     bookTitle: "Reservar",
@@ -416,7 +422,10 @@ export const translations = {
     selectDateLabel: "Selecciona Fecha",
     loading: "Cargando aventuras disponibles...",
     errorGeneric: "Lo siento, no pudimos cargar la disponibilidad.",
-    noTours: "No hay tours disponibles para esta fecha.",
+    tours_none_available_date:
+      "No hay tours disponibles para esta fecha. Por favor, seleccione otro día.",
+    tours_none_available_general:
+      "No hay tours disponibles en este momento. ¡Por favor, vuelva pronto!",
 
     // --- Booking Form ---
     bookTitle: "Reservar",
@@ -589,7 +598,10 @@ export const translations = {
     selectDateLabel: "Choisir une date",
     loading: "Chargement des aventures...",
     errorGeneric: "Désolé, nous n'avons pas pu charger les disponibilités.",
-    noTours: "Aucun tour disponible pour cette date. Essayez un autre jour !",
+    tours_none_available_date:
+      "Aucun tour disponible pour cette date. Veuillez sélectionner un autre jour.",
+    tours_none_available_general:
+      "Aucun tour disponible pour le moment. Veuillez revenir bientôt !",
 
     // --- Booking Form ---
     bookTitle: "Réserver",

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { getTourTemplates } from "../api";
 import TourModal from "../components/TourModal";
-import { Loader2 } from "lucide-react"; // Added for professional spinner
+import { Loader2, Search } from "lucide-react"; // Added for professional spinner
+import EmptyState from "../components/common/EmptyState";
 
 const Tours = () => {
   const { t } = useLanguage();
@@ -43,6 +44,11 @@ const Tours = () => {
               {t("loading")}
             </p>
           </div>
+        ) : tours.length === 0 ? (
+          <EmptyState
+            message={t("tours_none_available_general")}
+            icon={<Search className="w-12 h-12" strokeWidth={1.5} />}
+          />
         ) : (
           /* 2. Refactored Grid: justify-center ensures cards stay in the middle if < 3 */
           <div className="grid justify-center gap-8 md:grid-cols-2 lg:grid-cols-3">
