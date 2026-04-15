@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
-import { LayoutDashboard, Mail, LogOut, Lock, Loader2, Menu, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  Mail,
+  LogOut,
+  Lock,
+  Loader2,
+  Menu,
+  X,
+} from "lucide-react";
 import config from "@/core/config";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -16,7 +24,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [session, setSession] = useState<any>(null);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [authMessage, setAuthMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [authMessage, setAuthMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMounted = useRef(true);
 
@@ -58,7 +69,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, currentSession) => {
       if (isMounted.current) setSession(currentSession);
     });
 
@@ -110,7 +123,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <Lock size={32} />
             </div>
           </div>
-          <h1 className="mb-2 text-2xl font-bold text-center text-teal-900">Admin Access</h1>
+          <h1 className="mb-2 text-2xl font-bold text-center text-teal-900">
+            Admin Access
+          </h1>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="relative">
               <Mail className="absolute text-gray-400 left-3 top-3" size={20} />
@@ -128,11 +143,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               disabled={loading}
               className="w-full py-3 font-bold text-white bg-teal-600 rounded-xl disabled:bg-gray-300"
             >
-              {loading ? <Loader2 className="mx-auto animate-spin" /> : "Send Magic Link"}
+              {loading ? (
+                <Loader2 className="mx-auto animate-spin" />
+              ) : (
+                "Send Magic Link"
+              )}
             </button>
           </form>
           {authMessage && (
-            <div className={`mt-6 p-4 rounded-lg text-sm text-center ${authMessage.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"}`}>
+            <div
+              className={`mt-6 p-4 rounded-lg text-sm text-center ${authMessage.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"}`}
+            >
               {authMessage.text}
             </div>
           )}
@@ -143,7 +164,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const menuItems = [
     { label: "Operations", path: "/admin", icon: LayoutDashboard },
-    { label: t("Notifications") || "Notifications", path: "/admin/settings", icon: Mail },
+    {
+      label: t("Notifications") || "Notifications",
+      path: "/admin/settings",
+      icon: Mail,
+    },
   ];
 
   return (
@@ -156,30 +181,41 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
       {/* Mobile Header */}
       <div className="md:hidden bg-white border-b border-gray-200 p-4 flex justify-between items-center z-50">
-        <h1 className="text-xl font-bold text-teal-900 font-lora">Admin Suite</h1>
+        <h1 className="text-xl font-bold text-teal-900 font-lora">
+          Admin Suite
+        </h1>
         <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
           {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
       {/* Sidebar */}
-      <aside className={`
+      <aside
+        className={`
         fixed inset-0 z-40 bg-teal-900 text-white w-64 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-      `}>
+      `}
+      >
         <div className="p-6">
-          <h1 className="text-2xl font-bold font-lora mb-8 hidden md:block">Admin Suite</h1>
+          <h1 className="text-2xl font-bold font-lora mb-8 hidden md:block">
+            Admin Suite
+          </h1>
           <nav className="space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.path || (item.path === "/admin" && location.pathname.startsWith("/admin/manifest"));
+              const isActive =
+                location.pathname === item.path ||
+                (item.path === "/admin" &&
+                  location.pathname.startsWith("/admin/manifest"));
               return (
                 <Link
                   key={item.path}
                   to={item.path + (shouldBypass ? "?bypass=true" : "")}
                   onClick={() => setIsSidebarOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                    isActive ? "bg-teal-800 text-white" : "text-teal-100 hover:bg-teal-800/50"
+                    isActive
+                      ? "bg-teal-800 text-white"
+                      : "text-teal-100 hover:bg-teal-800/50"
                   }`}
                 >
                   <Icon size={20} />
@@ -190,7 +226,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </nav>
         </div>
         <div className="absolute bottom-0 w-full p-6 border-t border-teal-800">
-          <p className="text-xs text-teal-300 mb-4 truncate">{session.user.email}</p>
+          <p className="text-xs text-teal-300 mb-4 truncate">
+            {session.user.email}
+          </p>
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 text-xs font-bold tracking-widest text-teal-400 uppercase hover:text-red-400 transition-colors w-full"
@@ -201,9 +239,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto p-4 md:p-8">
-        {children}
-      </main>
+      <main className="flex-1 overflow-auto p-4 md:p-8">{children}</main>
     </div>
   );
 };

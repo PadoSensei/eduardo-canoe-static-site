@@ -1,6 +1,13 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
-import { Mail, Clock, ShieldCheck, ShieldAlert, Loader2, Info } from "lucide-react";
+import {
+  Mail,
+  Clock,
+  ShieldCheck,
+  ShieldAlert,
+  Loader2,
+  Info,
+} from "lucide-react";
 import { getEmailSettings, updateEmailSetting } from "@/api";
 import type { EmailSetting } from "@/api/schemas";
 import { useLanguage } from "@/context/LanguageContext";
@@ -29,7 +36,10 @@ const NotificationSettings: React.FC = () => {
     return {
       guest: settings.filter((s: EmailSetting) => s.slug.startsWith("guest_")),
       admin: settings.filter((s: EmailSetting) => s.slug.startsWith("admin_")),
-      other: settings.filter((s: EmailSetting) => !s.slug.startsWith("guest_") && !s.slug.startsWith("admin_")),
+      other: settings.filter(
+        (s: EmailSetting) =>
+          !s.slug.startsWith("guest_") && !s.slug.startsWith("admin_")
+      ),
     };
   }, [settings]);
 
@@ -38,11 +48,15 @@ const NotificationSettings: React.FC = () => {
 
     // Optimistic UI
     setSettings((prev: EmailSetting[]) =>
-      prev.map((s: EmailSetting) => (s.slug === slug ? { ...s, is_enabled: !currentState } : s))
+      prev.map((s: EmailSetting) =>
+        s.slug === slug ? { ...s, is_enabled: !currentState } : s
+      )
     );
 
     const newStatusLabel = !currentState ? "ativado" : "desativado";
-    const settingName = settings.find((s: EmailSetting) => s.slug === slug)?.display_name || "Configuração";
+    const settingName =
+      settings.find((s: EmailSetting) => s.slug === slug)?.display_name ||
+      "Configuração";
     toast.success(`${settingName} ${newStatusLabel}`);
 
     try {
@@ -62,7 +76,9 @@ const NotificationSettings: React.FC = () => {
 
     // Optimistic UI
     setSettings((prev: EmailSetting[]) =>
-      prev.map((s: EmailSetting) => (s.slug === slug ? { ...s, scheduled_time: formattedTime } : s))
+      prev.map((s: EmailSetting) =>
+        s.slug === slug ? { ...s, scheduled_time: formattedTime } : s
+      )
     );
 
     setUpdatingSlugs((prev: Set<string>) => new Set(prev).add(slug));
@@ -102,7 +118,9 @@ const NotificationSettings: React.FC = () => {
               </div>
             </div>
           </div>
-          <p className="text-sm text-slate-500 line-clamp-2">{setting.description}</p>
+          <p className="text-sm text-slate-500 line-clamp-2">
+            {setting.description}
+          </p>
         </div>
 
         <button
@@ -120,7 +138,9 @@ const NotificationSettings: React.FC = () => {
       </div>
 
       {setting.scheduled_time !== null && (
-        <div className={`mt-4 pt-4 border-t border-gray-50 flex items-center justify-between ${!setting.is_enabled ? "opacity-40 pointer-events-none" : ""}`}>
+        <div
+          className={`mt-4 pt-4 border-t border-gray-50 flex items-center justify-between ${!setting.is_enabled ? "opacity-40 pointer-events-none" : ""}`}
+        >
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <Clock size={16} />
             <span>Horário de Entrega</span>
@@ -129,7 +149,9 @@ const NotificationSettings: React.FC = () => {
             <input
               type="time"
               defaultValue={setting.scheduled_time.substring(0, 5)}
-              onBlur={(e: React.FocusEvent<HTMLInputElement>) => handleTimeChange(setting.slug, e.target.value)}
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
+                handleTimeChange(setting.slug, e.target.value)
+              }
               className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none"
             />
             {updatingSlugs.has(setting.slug) && (
@@ -143,7 +165,15 @@ const NotificationSettings: React.FC = () => {
     </div>
   );
 
-  const Section = ({ title, items, icon: Icon }: { title: string; items: EmailSetting[]; icon: any }) => {
+  const Section = ({
+    title,
+    items,
+    icon: Icon,
+  }: {
+    title: string;
+    items: EmailSetting[];
+    icon: any;
+  }) => {
     if (items.length === 0) return null;
     return (
       <section className="mb-12">
@@ -193,7 +223,8 @@ const NotificationSettings: React.FC = () => {
 
       <div className="mt-12 p-4 bg-gray-100 rounded-xl text-center">
         <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">
-          Todos os horários estão configurados no fuso horário local de Pipa (GMT-3).
+          Todos os horários estão configurados no fuso horário local de Pipa
+          (GMT-3).
         </p>
       </div>
     </div>

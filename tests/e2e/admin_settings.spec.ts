@@ -59,8 +59,12 @@ test.describe("Admin Notification Settings", () => {
     await expect(page.getByText("Monthly Summary")).toBeVisible();
   });
 
-  test("should toggle a setting and show optimistic feedback", async ({ page }) => {
-    const monthlySummaryCard = page.locator("div.bg-white").filter({ hasText: "Monthly Summary" });
+  test("should toggle a setting and show optimistic feedback", async ({
+    page,
+  }) => {
+    const monthlySummaryCard = page
+      .locator("div.bg-white")
+      .filter({ hasText: "Monthly Summary" });
     const toggle = monthlySummaryCard.locator("button");
 
     // Initial state: Enabled (emerald background)
@@ -75,7 +79,9 @@ test.describe("Admin Notification Settings", () => {
   });
 
   test("should update scheduled time", async ({ page }) => {
-    const dailyManifestCard = page.locator("div.bg-white").filter({ hasText: "Daily Manifest" });
+    const dailyManifestCard = page
+      .locator("div.bg-white")
+      .filter({ hasText: "Daily Manifest" });
     const timeInput = dailyManifestCard.locator("input[type='time']");
 
     await expect(timeInput).toHaveValue("08:00");
@@ -88,11 +94,18 @@ test.describe("Admin Notification Settings", () => {
 
   test("should rollback UI on failure", async ({ page }) => {
     // Override update mock to fail
-    await page.route("**/api/v1/admin/settings/emails/guest_confirmation", (route) =>
-      route.fulfill({ status: 500, json: { detail: "Internal Server Error" } })
+    await page.route(
+      "**/api/v1/admin/settings/emails/guest_confirmation",
+      (route) =>
+        route.fulfill({
+          status: 500,
+          json: { detail: "Internal Server Error" },
+        })
     );
 
-    const guestConfCard = page.locator("div.bg-white").filter({ hasText: "Guest Confirmation" });
+    const guestConfCard = page
+      .locator("div.bg-white")
+      .filter({ hasText: "Guest Confirmation" });
     const toggle = guestConfCard.locator("button");
 
     await expect(toggle).toHaveClass(/bg-emerald-500/);
@@ -103,6 +116,8 @@ test.describe("Admin Notification Settings", () => {
 
     // Wait for rollback
     await expect(toggle).toHaveClass(/bg-emerald-500/, { timeout: 5000 });
-    await expect(page.getByText(/Erro crítico: Falha ao salvar alteração/i)).toBeVisible();
+    await expect(
+      page.getByText(/Erro crítico: Falha ao salvar alteração/i)
+    ).toBeVisible();
   });
 });
