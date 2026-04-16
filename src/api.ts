@@ -92,7 +92,7 @@ async function request<T>(
 
       // FE-4: Handle Expired Booking from Backend Reaper
       const isBookingEndpoint =
-        endpoint.includes("/bookings/") && !endpoint.includes("/admin/");
+        endpoint.includes("/bookings") && !endpoint.includes("/admin");
 
       if (
         isBookingEndpoint &&
@@ -346,7 +346,7 @@ export async function getTourTemplates(
   options: { signal?: AbortSignal } = {}
 ): Promise<TourTemplateUI[] | null> {
   try {
-    const data = await request("/tour-templates/", {
+    const data = await request("/tour-templates", {
       signal: options.signal,
       schema: TourTemplatesResponseSchema,
     });
