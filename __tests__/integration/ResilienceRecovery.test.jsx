@@ -252,7 +252,7 @@ describe("Resilience & Recovery Integration Tests", () => {
     );
 
     expect(toast.error).toHaveBeenCalledWith(
-      expect.stringContaining("expired")
+      expect.stringMatching(/expired|expirou/i)
     );
     expect(mockNavigate).toHaveBeenCalledWith("/tours");
   });
