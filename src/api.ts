@@ -51,9 +51,10 @@ async function request<T>(
 
   console.log(
     `%c 🛰️ API Call: ${url} | Origin: ${window.location.origin}`,
-    "color: #3b82f6; font-weight: bold;"
+    "color: #94a3b8; font-size: 10px;"
   );
 
+  const startTime = performance.now();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
@@ -74,6 +75,15 @@ async function request<T>(
       signal,
       credentials: "omit",
     });
+
+    const endTime = performance.now();
+    const duration = Math.round(endTime - startTime);
+    const statusText = `[${response.status} ${response.statusText || (response.status === 200 ? "OK" : "")}]`;
+
+    console.log(
+      `%c ${statusText.trim()} 🛰️ API Call: ${url} (${duration}ms) | Origin: ${window.location.origin}`,
+      "color: #3b82f6; font-weight: bold;"
+    );
 
     if (!response.ok) {
       const rawResponseBody = await response.text().catch(() => "N/A");

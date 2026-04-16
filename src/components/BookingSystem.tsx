@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { getAvailableTours, createBooking, TourUI } from "../api";
 import { useLanguage } from "../context/LanguageContext";
 import { BookingSessionSchema } from "../api/schemas";
+import { handleSessionExpired } from "../utils/sessionUtils";
 import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
@@ -93,7 +94,13 @@ function BookingSystem() {
         }
       } catch (err: any) {
         if (err.name === "AbortError") return;
-        if (isMounted.current) setError("LOAD_ERROR");
+        if (isMounted.current) {
+          if (err.message === "NetworkError") {
+            setAvailableTours([]);
+          } else {
+            setError("LOAD_ERROR");
+          }
+        }
       } finally {
         if (isMounted.current && (!signal || !signal.aborted))
           setIsLoading(false);
@@ -157,11 +164,10 @@ function BookingSystem() {
   // Handle Backend Expiry (Reaped)
   useEffect(() => {
     if (isReaped) {
-      toast.error(t("booking_session_expired"));
+      handleSessionExpired(navigate);
       closeModal();
-      navigate("/tours");
     }
-  }, [isReaped, closeModal, navigate, t]);
+  }, [isReaped, closeModal, navigate]);
 
   // --- 4. EVENT HANDLERS ---
 
@@ -205,14 +211,24 @@ function BookingSystem() {
           setCurrentBooking(result.booking);
           setIsConfirmed(false);
         } else {
-          setFormError(`${t("alertFailed")}: ${result?.message}`);
+          if (result?.message === "BOOKING_EXPIRED") {
+            handleSessionExpired(navigate);
+            closeModal();
+          } else {
+            setFormError(`${t("alertFailed")}: ${result?.message}`);
+          }
         }
       }
     } catch (error: any) {
       if (error.name === "AbortError") return;
       if (isMounted.current) {
-        setFormError(t("alertError"));
-        Sentry.captureException(error);
+        if (error.message === "BOOKING_EXPIRED") {
+          handleSessionExpired(navigate);
+          closeModal();
+        } else {
+          setFormError(t("alertError"));
+          Sentry.captureException(error);
+        }
       }
     } finally {
       if (isMounted.current) setBookingTourId(null);

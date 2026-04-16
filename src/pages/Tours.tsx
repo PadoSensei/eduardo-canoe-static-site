@@ -13,15 +13,23 @@ const Tours: React.FC = () => {
   const { t } = useLanguage();
   const [tours, setTours] = useState<TourTemplate[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<boolean>(false);
   const [selectedTour, setSelectedTour] = useState<TourTemplate | null>(null);
 
   useEffect(() => {
     const loadMenu = async () => {
       try {
+        setError(false);
         const data = await getTourTemplates();
         setTours(data || []);
-      } catch (err) {
-        console.error("Failed to load tour menu:", err);
+      } catch (err: any) {
+        if (err.message === "NetworkError") {
+          // 404 is a valid business state (Empty)
+          setTours([]);
+        } else {
+          setError(true);
+          console.error("Failed to load tour menu:", err);
+        }
       } finally {
         setLoading(false);
       }
@@ -45,6 +53,10 @@ const Tours: React.FC = () => {
             <p className="text-xs font-medium tracking-widest text-gray-400 uppercase animate-pulse">
               {t("loading")}
             </p>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center min-h-[400px]">
+            <p className="font-medium text-red-500">{t("errorGeneric")}</p>
           </div>
         ) : tours.length === 0 ? (
           <EmptyState
