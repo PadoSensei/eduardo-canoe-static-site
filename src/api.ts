@@ -45,8 +45,9 @@ async function request<T>(
     ? endpoint
     : `${API_BASE_URL}${endpoint}`;
 
-  // URL Validation: Add a small check to ensure the url doesn't have double-slashes (except protocol)
+  // URL Validation: Remove double-slashes and trailing slashes (including before query params)
   url = url.replace(/([^:])\/\/+/g, "$1/");
+  url = url.replace(/\/(\?|$)/, "$1");
 
   console.log(
     `%c 🛰️ API Call: ${url} | Origin: ${window.location.origin}`,
@@ -75,20 +76,34 @@ async function request<T>(
     });
 
     if (!response.ok) {
-      const errorData = (await response.json().catch(() => ({}))) as {
-        detail?: string;
-        sentry_id?: string;
-        transaction_id?: string;
-      };
+      const rawResponseBody = await response.text().catch(() => "N/A");
+      if (!config.isProduction) {
+        console.error(`[API Error] ${url}:`, rawResponseBody);
+      }
+
+      const errorData = (() => {
+        try {
+          return JSON.parse(rawResponseBody);
+        } catch {
+          return {};
+        }
+      })();
       let message = errorData.detail || "An unexpected error occurred.";
 
       // FE-4: Handle Expired Booking from Backend Reaper
+      const isBookingEndpoint =
+        endpoint.includes("/bookings/") && !endpoint.includes("/admin/");
+
       if (
-        response.status === 404 ||
-        (response.status === 400 && message.toLowerCase().includes("expired"))
+        isBookingEndpoint &&
+        (response.status === 404 ||
+          (response.status === 400 && message.toLowerCase().includes("expired")))
       ) {
         localStorage.removeItem("pending_booking");
         message = "BOOKING_EXPIRED";
+      } else if (response.status === 404) {
+        // Standardize catalog/other 404s as NetworkError for UI resilience
+        message = "NetworkError";
       }
 
       // FE-2: Error Passthrough logic
