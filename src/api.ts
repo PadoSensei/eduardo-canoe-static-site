@@ -41,9 +41,17 @@ async function request<T>(
 ): Promise<T> {
   const { method = "GET", body, includeAuth = false, signal, schema } = options;
 
-  const url = endpoint.startsWith("http")
+  let url = endpoint.startsWith("http")
     ? endpoint
     : `${API_BASE_URL}${endpoint}`;
+
+  // URL Validation: Add a small check to ensure the url doesn't have double-slashes (except protocol)
+  url = url.replace(/([^:])\/\/+/g, "$1/");
+
+  console.log(
+    `%c 🛰️ API Call: ${url} | Origin: ${window.location.origin}`,
+    "color: #3b82f6; font-weight: bold;"
+  );
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -63,6 +71,7 @@ async function request<T>(
       headers,
       body: body ? JSON.stringify(body) : undefined,
       signal,
+      credentials: "omit",
     });
 
     if (!response.ok) {
