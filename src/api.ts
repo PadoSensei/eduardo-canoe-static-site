@@ -97,7 +97,8 @@ async function request<T>(
       if (
         isBookingEndpoint &&
         (response.status === 404 ||
-          (response.status === 400 && message.toLowerCase().includes("expired")))
+          (response.status === 400 &&
+            message.toLowerCase().includes("expired")))
       ) {
         localStorage.removeItem("pending_booking");
         message = "BOOKING_EXPIRED";

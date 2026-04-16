@@ -1,6 +1,10 @@
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
-import { getAvailableTours, getBookingStatus, getTourTemplates } from "../src/api";
+import {
+  getAvailableTours,
+  getBookingStatus,
+  getTourTemplates,
+} from "../src/api";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
@@ -54,7 +58,9 @@ describe("API Hardening (URL Cleaning & Smart Errors)", () => {
         )
       );
 
-      await expect(getBookingStatus("some-uuid")).rejects.toThrow("BOOKING_EXPIRED");
+      await expect(getBookingStatus("some-uuid")).rejects.toThrow(
+        "BOOKING_EXPIRED"
+      );
     });
 
     test("returns NetworkError for catalog 404s", async () => {
@@ -64,7 +70,9 @@ describe("API Hardening (URL Cleaning & Smart Errors)", () => {
         )
       );
 
-      await expect(getAvailableTours("2026-04-16")).rejects.toThrow("NetworkError");
+      await expect(getAvailableTours("2026-04-16")).rejects.toThrow(
+        "NetworkError"
+      );
     });
 
     test("returns NetworkError for template 404s", async () => {
@@ -84,7 +92,9 @@ describe("API Hardening (URL Cleaning & Smart Errors)", () => {
         )
       );
 
-      await expect(getBookingStatus("some-uuid")).rejects.toThrow("BOOKING_EXPIRED");
+      await expect(getBookingStatus("some-uuid")).rejects.toThrow(
+        "BOOKING_EXPIRED"
+      );
     });
   });
 });
