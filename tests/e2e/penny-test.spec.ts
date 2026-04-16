@@ -10,7 +10,9 @@ test.describe("Penny Test Readiness - Empty State & Log Simulation", () => {
     await page.reload();
   });
 
-  test("Tours Page should show EmptyState on 404 (NetworkError)", async ({ page }) => {
+  test("Tours Page should show EmptyState on 404 (NetworkError)", async ({
+    page,
+  }) => {
     // Mock 404 for tour-templates
     await page.route("**/api/v1/tour-templates", async (route) => {
       await route.fulfill({
@@ -25,10 +27,14 @@ test.describe("Penny Test Readiness - Empty State & Log Simulation", () => {
     // Should show EmptyState message
     await expect(page.getByText(/No tours currently available/i)).toBeVisible();
     // Should NOT show generic error
-    await expect(page.getByText(/Sorry, we couldn't load tour availability/i)).not.toBeVisible();
+    await expect(
+      page.getByText(/Sorry, we couldn't load tour availability/i)
+    ).not.toBeVisible();
   });
 
-  test("Booking Page should show EmptyState on 404 (NetworkError)", async ({ page }) => {
+  test("Booking Page should show EmptyState on 404 (NetworkError)", async ({
+    page,
+  }) => {
     // Mock 404 for available tours
     await page.route("**/api/v1/tours/available**", async (route) => {
       await route.fulfill({
@@ -41,9 +47,13 @@ test.describe("Penny Test Readiness - Empty State & Log Simulation", () => {
     await page.goto("/book");
 
     // Should show EmptyState message for specific date
-    await expect(page.getByText(/No tours available for this date/i)).toBeVisible();
+    await expect(
+      page.getByText(/No tours available for this date/i)
+    ).toBeVisible();
     // Should NOT show generic error
-    await expect(page.getByText(/Sorry, we couldn't load tour availability/i)).not.toBeVisible();
+    await expect(
+      page.getByText(/Sorry, we couldn't load tour availability/i)
+    ).not.toBeVisible();
   });
 
   test("Should handle 500 error with Red Error Alert", async ({ page }) => {
@@ -59,9 +69,13 @@ test.describe("Penny Test Readiness - Empty State & Log Simulation", () => {
     await page.goto("/book");
 
     // Should show generic error alert (red text)
-    await expect(page.getByText(/Sorry, we couldn't load tour availability/i)).toBeVisible();
+    await expect(
+      page.getByText(/Sorry, we couldn't load tour availability/i)
+    ).toBeVisible();
     // Should NOT show EmptyState message
-    await expect(page.getByText(/No tours available for this date/i)).not.toBeVisible();
+    await expect(
+      page.getByText(/No tours available for this date/i)
+    ).not.toBeVisible();
   });
 
   test("Should verify logs include status and duration", async ({ page }) => {
@@ -86,7 +100,7 @@ test.describe("Penny Test Readiness - Empty State & Log Simulation", () => {
     await expect.poll(() => logs.length).toBeGreaterThanOrEqual(2);
 
     // The second log should be the one with the status and duration
-    const logWithStatus = logs.find(l => l.includes("[200 OK]"));
+    const logWithStatus = logs.find((l) => l.includes("[200 OK]"));
     expect(logWithStatus).toBeDefined();
     expect(logWithStatus).toMatch(/\[200 OK\]/);
     expect(logWithStatus).toMatch(/\(\d+ms\)/);
