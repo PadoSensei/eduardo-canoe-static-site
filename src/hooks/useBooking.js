@@ -13,21 +13,72 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
   const [isExpired, setIsExpired] = useState(false);
   const [isFailed, setIsFailed] = useState(false);
   const [isReaped, setIsReaped] = useState(false);
-  const [isTimedOut, setIsTimedOut] = useState(() => {
-    if (initialSession?.currentBooking?.created_at) {
-      const createdAt = new Date(
-        initialSession.currentBooking.created_at
-      ).getTime();
-      const now = new Date().getTime();
-      return now - createdAt > 10 * 60 * 1000;
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const baseExpires =
+      paymentInfo?.expires_in || initialSession?.paymentInfo?.expires_in || 900;
+    const createdAtStr =
+      currentBooking?.created_at || initialSession?.currentBooking?.created_at;
+
+    if (createdAtStr) {
+      const createdAt = new Date(createdAtStr).getTime();
+      const now = Date.now();
+      const elapsed = Math.floor((now - createdAt) / 1000);
+      return Math.max(0, baseExpires - elapsed);
     }
-    return false;
+    return baseExpires;
   });
+
+  const [isTimedOut, setIsTimedOut] = useState(() => timeLeft <= 0);
   const [consecutiveErrors, setConsecutiveErrors] = useState(0);
   const consecutiveErrorsRef = useRef(0);
 
   const isMounted = useRef(true);
   const intervalRef = useRef(null);
+  const countdownRef = useRef(null);
+
+  // Countdown Timer logic: Drift-safe calculation relative to server timestamp
+  useEffect(() => {
+    const shouldRunTimer =
+      paymentInfo &&
+      !isConfirmed &&
+      !isExpired &&
+      !isFailed &&
+      !isReaped &&
+      !isTimedOut &&
+      currentBooking?.created_at;
+
+    if (shouldRunTimer) {
+      const baseExpires = paymentInfo.expires_in || 900;
+      const createdAt = new Date(currentBooking.created_at).getTime();
+
+      countdownRef.current = setInterval(() => {
+        const now = Date.now();
+        const elapsed = Math.floor((now - createdAt) / 1000);
+        const next = Math.max(0, baseExpires - elapsed);
+
+        setTimeLeft(next);
+
+        if (next <= 0) {
+          setIsTimedOut(true);
+          if (countdownRef.current) clearInterval(countdownRef.current);
+        }
+      }, 1000);
+    } else {
+      if (countdownRef.current) clearInterval(countdownRef.current);
+    }
+
+    return () => {
+      if (countdownRef.current) clearInterval(countdownRef.current);
+    };
+  }, [
+    paymentInfo,
+    currentBooking?.created_at,
+    isConfirmed,
+    isExpired,
+    isFailed,
+    isReaped,
+    isTimedOut,
+  ]);
 
   // Persistence: Save pending bookings to localStorage
   useEffect(() => {
@@ -68,23 +119,18 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         consecutiveErrorsRef.current >= 5
       ) {
         if (consecutiveErrorsRef.current >= 5 && intervalRef.current) {
-          clearInterval(intervalRef.current);
+          clearTimeout(intervalRef.current);
           intervalRef.current = null;
         }
         return;
       }
 
-      // Check for 10-minute timeout
-      if (currentBooking.created_at) {
-        const createdAt = new Date(currentBooking.created_at).getTime();
-        const now = new Date().getTime();
-        const tenMinutes = 10 * 60 * 1000;
-
-        if (now - createdAt > tenMinutes) {
-          setIsTimedOut(true);
-          if (intervalRef.current) clearInterval(intervalRef.current);
-          return;
-        }
+      // Guard 2: Final timeout check before API call
+      if (timeLeft <= 0) {
+        setIsTimedOut(true);
+        if (intervalRef.current) clearTimeout(intervalRef.current);
+        intervalRef.current = null;
+        return;
       }
 
       try {
@@ -105,7 +151,8 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
           localStorage.removeItem("pending_booking");
 
           // Stop polling immediately upon confirmation
-          if (intervalRef.current) clearInterval(intervalRef.current);
+          if (intervalRef.current) clearTimeout(intervalRef.current);
+          intervalRef.current = null;
 
           // Refresh the parent's tour list so seats update immediately
           if (setAvailableTours) {
@@ -125,7 +172,13 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
             ? setIsExpired(true)
             : setIsFailed(true);
           localStorage.removeItem("pending_booking");
-          if (intervalRef.current) clearInterval(intervalRef.current);
+          if (intervalRef.current) clearTimeout(intervalRef.current);
+          intervalRef.current = null;
+        } else {
+          // Schedule next check if still pending and not timed out
+          if (isMounted.current && !controller.signal.aborted && !isTimedOut) {
+            intervalRef.current = setTimeout(checkStatus, 3000);
+          }
         }
       } catch (err) {
         // Silent exit for intended cancellations (SIGABRT fix)
@@ -134,7 +187,8 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         if (err.message === "BOOKING_EXPIRED") {
           setIsReaped(true);
           localStorage.removeItem("pending_booking");
-          if (intervalRef.current) clearInterval(intervalRef.current);
+          if (intervalRef.current) clearTimeout(intervalRef.current);
+          intervalRef.current = null;
           return;
         }
 
@@ -142,9 +196,12 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
           consecutiveErrorsRef.current += 1;
           setConsecutiveErrors(consecutiveErrorsRef.current);
 
-          if (consecutiveErrorsRef.current >= 5 && intervalRef.current) {
-            clearInterval(intervalRef.current);
+          if (consecutiveErrorsRef.current >= 5) {
+            if (intervalRef.current) clearTimeout(intervalRef.current);
             intervalRef.current = null;
+          } else {
+            // Retry after delay on failure
+            intervalRef.current = setTimeout(checkStatus, 3000);
           }
         }
       }
@@ -162,15 +219,14 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
       consecutiveErrorsRef.current < 5;
 
     if (shouldPoll) {
-      checkStatus(); // Initial check
-      intervalRef.current = setInterval(checkStatus, 3000);
+      checkStatus(); // Initial check kicks off the recursive chain
     }
 
     // Cleanup: This is the most critical block for passing tests
     return () => {
       isMounted.current = false;
       if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+        clearTimeout(intervalRef.current);
         intervalRef.current = null;
       }
       controller.abort(); // Force-close any open network sockets
@@ -191,7 +247,8 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
 
   const clearBooking = useCallback(() => {
     localStorage.removeItem("pending_booking");
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (intervalRef.current) clearTimeout(intervalRef.current);
+    intervalRef.current = null;
     setPaymentInfo(null);
     setCurrentBooking(null);
     setIsConfirmed(false);
@@ -199,6 +256,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     setIsFailed(false);
     setIsReaped(false);
     setIsTimedOut(false);
+    setTimeLeft(900);
     consecutiveErrorsRef.current = 0;
     setConsecutiveErrors(0);
   }, []);
@@ -216,6 +274,8 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     setIsFailed,
     isReaped,
     setIsReaped,
+    timeLeft,
+    setTimeLeft,
     isTimedOut,
     setIsTimedOut,
     consecutiveErrors,
