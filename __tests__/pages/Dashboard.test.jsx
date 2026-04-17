@@ -52,11 +52,17 @@ afterEach(async () => {
 
 afterAll(() => server.close());
 
-jest.mock("../../src/supabaseClient", () => ({
+jest.mock("@/supabaseClient", () => ({
   supabase: {
     auth: {
       getSession: jest.fn().mockResolvedValue({
-        data: { session: { user: { email: "eduardo@example.com" } } },
+        data: {
+          session: {
+            access_token: "fake-admin-token",
+            user: { email: "eduardo@example.com" },
+          },
+        },
+        error: null,
       }),
       onAuthStateChange: jest.fn(() => ({
         data: { subscription: { unsubscribe: jest.fn() } },
@@ -131,7 +137,7 @@ describe("Dashboard Page Integration", () => {
       fireEvent.click(logoutBtn);
     });
 
-    const { supabase } = require("../../src/supabaseClient");
+    const { supabase } = require("@/supabaseClient");
     expect(supabase.auth.signOut).toHaveBeenCalled();
     expect(await screen.findByText(/Admin Access/i)).toBeInTheDocument();
   });

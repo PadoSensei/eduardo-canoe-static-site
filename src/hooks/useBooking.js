@@ -243,6 +243,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     selectedDate,
     paymentInfo,
     setAvailableTours,
+    timeLeft,
   ]);
 
   const clearBooking = useCallback(() => {

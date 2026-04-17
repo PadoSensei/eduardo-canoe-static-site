@@ -62,8 +62,27 @@ async function request<T>(
     const {
       data: { session },
     } = await supabase.auth.getSession();
+
+    if (!config.isProduction) {
+      console.log(
+        `🔐 Auth Status for ${endpoint}: ${
+          session ? "TOKEN_ATTACHED" : "NO_SESSION_FOUND"
+        }`
+      );
+    }
+
     if (session?.access_token) {
       headers["Authorization"] = `Bearer ${session.access_token}`;
+    } else {
+      // FE-CI: Allow bypass for E2E and Local Dev
+      const isBypassActive =
+        !config.isProduction &&
+        (import.meta.env.VITE_SKIP_AUTH === "true" ||
+          window.location.search.includes("bypass=true"));
+
+      if (!isBypassActive) {
+        throw new Error("MISSING_AUTH_SESSION");
+      }
     }
   }
 
