@@ -25,14 +25,14 @@ describe("Admin Auth Hardening", () => {
     jest.clearAllMocks();
   });
 
-  it("should throw MISSING_AUTH_SESSION if includeAuth is true but no session exists", async () => {
+  it("should throw NOT_AUTHENTICATED if includeAuth is true but no session exists", async () => {
     (supabase.auth.getSession as jest.Mock).mockResolvedValue({
       data: { session: null },
       error: null,
     });
 
     await expect(fetchDayManifest("2024-05-20")).rejects.toThrow(
-      "MISSING_AUTH_SESSION"
+      "NOT_AUTHENTICATED"
     );
   });
 
@@ -63,7 +63,12 @@ describe("Admin Auth Hardening", () => {
   it("should log auth status in dev mode", async () => {
     const consoleSpy = jest.spyOn(console, "log").mockImplementation();
     (supabase.auth.getSession as jest.Mock).mockResolvedValue({
-      data: { session: { access_token: "fake-token" } },
+      data: {
+        session: {
+          access_token: "fake-token",
+          user: { email: "test@example.com" },
+        },
+      },
       error: null,
     });
 
@@ -76,9 +81,7 @@ describe("Admin Auth Hardening", () => {
     await fetchDayManifest("2024-05-20");
 
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining(
-        "🔐 Auth Status for /admin/manifest/2024-05-20: TOKEN_ATTACHED"
-      )
+      expect.stringContaining("🔑 Sending Request as: test@example.com")
     );
 
     consoleSpy.mockRestore();

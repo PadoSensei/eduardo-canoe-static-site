@@ -41,16 +41,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   useEffect(() => {
     isMounted.current = true;
 
-    if (shouldBypass) {
+    const setBypassSession = () => {
       setSession({
-        user: { email: "dev-tester@ai-solutions.irish" },
-        access_token: "bypass-token",
-        refresh_token: "bypass-refresh",
-        expires_in: 3600,
+        user: { email: "Bypass Mode", id: "bypass" },
+        access_token: null,
+        refresh_token: null,
+        expires_in: 0,
         token_type: "bearer",
-      } as Session);
-      return;
-    }
+      } as unknown as Session);
+    };
 
     const recoverSession = () => {
       try {
@@ -68,18 +67,41 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     };
 
     const localSession = recoverSession();
-    if (localSession) setSession(localSession);
+
+    if (localSession) {
+      setSession(localSession);
+    } else if (shouldBypass) {
+      setBypassSession();
+    }
 
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      if (isMounted.current && currentSession) {
-        setSession(currentSession);
+      if (isMounted.current) {
+        if (currentSession) {
+          setSession(currentSession);
+        } else if (shouldBypass && !localSession) {
+          setBypassSession();
+        }
       }
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, currentSession) => {
-      if (isMounted.current) setSession(currentSession);
+      if (isMounted.current) {
+        if (currentSession) {
+          setSession(currentSession);
+        } else if (shouldBypass) {
+          // Double check if we can recover from storage before falling back to bypass mode
+          const recovered = recoverSession();
+          if (recovered) {
+            setSession(recovered);
+          } else {
+            setBypassSession();
+          }
+        } else {
+          setSession(null);
+        }
+      }
     });
 
     return () => {

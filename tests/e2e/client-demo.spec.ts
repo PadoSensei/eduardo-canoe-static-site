@@ -17,9 +17,19 @@ test.describe("EduCanoe Guided Tour", () => {
 
   // Setup mocks to ensure the demo is deterministic and "Emerald" quality
   test.beforeEach(async ({ page }) => {
-    // Force English language
+    // Force English language and mock auth
     await page.addInitScript(() => {
       window.localStorage.setItem("language", "en");
+      window.localStorage.setItem(
+        "sb-mock-auth-token",
+        JSON.stringify({
+          access_token: "mock-token",
+          refresh_token: "mock-refresh",
+          token_type: "bearer",
+          expires_at: Math.floor(Date.now() / 1000) + 3600,
+          user: { id: "mock-id", email: "admin@example.com" },
+        })
+      );
     });
 
     // Mock Available Tours
