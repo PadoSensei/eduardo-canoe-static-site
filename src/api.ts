@@ -427,12 +427,12 @@ export async function fetchDayManifest(
 }
 
 export async function patchCheckIn(
-  bookingUuid: string,
+  bookingId: number,
   status: boolean,
   options: { signal?: AbortSignal } = {}
 ): Promise<unknown> {
   try {
-    return await request(`/admin/bookings/${bookingUuid}/check-in`, {
+    return await request(`/admin/bookings/${bookingId}/check-in`, {
       method: "PATCH",
       body: { checked_in: status },
       includeAuth: true,

@@ -41,6 +41,7 @@ const server = setupServer(
         status: "available",
         passengers: [
           {
+            id: 101,
             name: "John Doe",
             pax: 2,
             email: "john@test.com",

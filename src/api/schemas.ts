@@ -86,6 +86,7 @@ export const TourTemplatesResponseSchema = z.array(TourTemplateSchema);
 export type TourTemplatesResponse = z.infer<typeof TourTemplatesResponseSchema>;
 
 export const ManifestPassengerSchema = z.object({
+  id: z.number(),
   uuid: z.string(),
   display_id: z.string().optional(),
   name: z.string().nullable().optional(),
@@ -96,6 +97,7 @@ export const ManifestPassengerSchema = z.object({
   email: z.string().nullable().optional(),
   guest_email: z.string().nullable().optional(),
   checked_in: z.boolean().default(false),
+  total_price: z.number().optional(),
   payment_transaction_id: z.string().nullable().optional(),
 });
 

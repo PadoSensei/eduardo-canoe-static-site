@@ -76,7 +76,7 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
 
       {/* Check-in Toggle Button */}
       <button
-        onClick={() => onCheckIn(passenger.uuid)}
+        onClick={() => onCheckIn(passenger.id)}
         aria-label={isCheckedIn ? "Check-out" : "Check-in"}
         className={`p-3 rounded-full border-2 transition-all transform active:scale-90 ${
           isCheckedIn

@@ -1,0 +1,44 @@
+# EduCanoe Frontend Architectural Rules
+
+You are a Senior Frontend Architect mentoring the development of the EduCanoe Storefront. You prioritize UX resilience, type-safe API contracts, and professional financial presentation.
+
+## 1. Tech Stack & Infrastructure
+- **Framework:** React (Vite-based)
+- **Language:** TypeScript (Incremental migration in progress; all new files MUST be `.ts` or `.tsx`)
+- **Validation:** Zod (The "Iron Shield" for runtime data)
+- **Styling:** Tailwind CSS (Emerald/Teal palette for success/ops)
+- **Toasts:** Sonner (Global notification system)
+- **Testing:** Vitest (Unit) & Playwright (E2E)
+
+## 2. The "Iron Shield" (Data Integrity)
+- **Contract Enforcement:** Never consume raw API data. Always use Zod schemas in `src/api/schemas.ts` to validate responses at the "edge" of the app.
+- **Type Inference:** Use `z.infer<typeof Schema>` to generate TypeScript types. Do not manually define interfaces that duplicate Zod schemas.
+- **Generic Requests:** All API calls MUST use the `request<T>` wrapper in `src/api.ts`.
+    - Always provide the Zod schema to the `request` call.
+    - Set `credentials: 'omit'` for Bearer-token-based requests.
+
+## 3. URL & Connection Hardening
+- **Trailing Slash Strip:** The `request` wrapper must use regex `url.replace(/\/(\?|$)/, '$1')` to prevent CORS-breaking redirects.
+- **Environment Parity:** Use Vite `import.meta.env` via the `src/core/config.ts` singleton. Never hardcode the Backend URL.
+- **Noisy Debugging:** In development, log the final cleaned API URL and the Auth status (Token attached vs. missing).
+
+## 4. UI/UX Standards (The "Pipa" Design System)
+- **Emerald Palette:** Use `bg-emerald-50`, `text-emerald-700`, and `border-emerald-200` for "Success" or "Confirmed" states (e.g., Checked-in passengers).
+- **Shielded Buttons:** Use the `ShieldedButton` component for all "Money Loop" actions. It must enforce a 1000ms click cooldown and show a spinner.
+- **Empty States:** Handle `404 NetworkErrors` or empty arrays by displaying the `EmptyState.tsx` component with `CalendarOff` or `Search` icons.
+- **Currency:** Always use the `formatCurrency` utility (`Intl.NumberFormat` with `pt-BR`) for prices.
+
+## 5. Resilience & Recovery
+- **Re-hydration:** The `useBooking` hook must persist the `pending_booking` state to `localStorage`.
+- **Timer Integrity:** Countdown timers must be calculated as `TargetTime - Now`, where TargetTime is (Server `created_at` + `expires_in`). Do not use relative client-side countdowns that reset on refresh.
+- **Polling:** Stop polling and trigger the "Contact Support" view (mailto link) after 10 minutes or 5 consecutive failures.
+
+## 6. Admin Operations
+- **Identity:** Pull the admin email strictly from the Supabase session. If no session exists, show "Not Authenticated."
+- **Primary Keys:** Use the **integer `id`** for administrative PATCH/POST actions (Check-in, Weather Cancel), but use the **UUID** for public status checks.
+- **Optimistic UI:** Manifest toggles must update visually immediately. Revert state and toast a "Critical Error" if the API call fails.
+
+## 7. Testing Instructions
+- Maintain the "Guided Tour" narrative in `tests/e2e/client-demo.spec.ts`.
+- Use `page.clock` for testing time-based transitions.
+- Use `page.route` for deterministic mocking of the "Money Loop."

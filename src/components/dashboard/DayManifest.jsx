@@ -36,16 +36,16 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
   const isMounted = useRef(true);
 
   // Optimistic UI for Check-In
-  const toggleCheckIn = async (uuid) => {
-    const passenger = selectedTour.passengers.find((p) => p.uuid === uuid);
+  const toggleCheckIn = async (bookingId) => {
+    const passenger = selectedTour.passengers.find((p) => p.id === bookingId);
     if (!passenger) return;
 
-    const newStatus = !checkedIn[uuid];
+    const newStatus = !checkedIn[bookingId];
     const paxCount =
       passenger.pax_count ?? (passenger.pax || passenger.num_people || 0);
 
     // 1. Update UI immediately
-    setCheckedIn((prev) => ({ ...prev, [uuid]: newStatus }));
+    setCheckedIn((prev) => ({ ...prev, [bookingId]: newStatus }));
 
     // 2. Trigger toast on check-in
     if (newStatus) {
@@ -59,12 +59,12 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
 
     // 3. Persist to Backend
     try {
-      await patchCheckIn(uuid, newStatus);
+      await patchCheckIn(bookingId, newStatus);
     } catch (err) {
       console.error("Failed to update check-in status:", err);
       toast.error("Failed to update check-in. Please try again.");
       // Rollback on failure
-      setCheckedIn((prev) => ({ ...prev, [uuid]: !newStatus }));
+      setCheckedIn((prev) => ({ ...prev, [bookingId]: !newStatus }));
     }
   };
 
@@ -75,7 +75,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
       (acc, p) => {
         const count = p.pax_count ?? (p.pax || p.num_people || 0);
         acc.total += count;
-        if (checkedIn[p.uuid]) {
+        if (checkedIn[p.id]) {
           acc.boarded += count;
         }
         return acc;
@@ -99,7 +99,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
           const initialCheckedIn = {};
           data.forEach((tour) => {
             tour.passengers?.forEach((p) => {
-              if (p.checked_in) initialCheckedIn[p.uuid] = true;
+              if (p.checked_in) initialCheckedIn[p.id] = true;
             });
           });
           setCheckedIn(initialCheckedIn);
@@ -261,9 +261,9 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
           {selectedTour.passengers?.length > 0 ? (
             selectedTour.passengers.map((p) => (
               <PassengerRow
-                key={p.uuid}
+                key={p.id}
                 passenger={p}
-                isCheckedIn={!!checkedIn[p.uuid]}
+                isCheckedIn={!!checkedIn[p.id]}
                 onCheckIn={toggleCheckIn}
               />
             ))
