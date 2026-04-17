@@ -13,6 +13,16 @@ import { getEmailSettings, updateEmailSetting } from "@/api";
 import type { EmailSetting } from "@/api/schemas";
 import { useLanguage } from "@/context/LanguageContext";
 
+interface SettingCardProps {
+  setting: EmailSetting;
+}
+
+interface SectionProps {
+  title: string;
+  items: EmailSetting[];
+  icon: LucideIcon;
+}
+
 const NotificationSettings: React.FC = () => {
   const { t } = useLanguage();
   const [settings, setSettings] = useState<EmailSetting[]>([]);
@@ -35,11 +45,10 @@ const NotificationSettings: React.FC = () => {
 
   const groupedSettings = useMemo(() => {
     return {
-      guest: settings.filter((s: EmailSetting) => s.slug.startsWith("guest_")),
-      admin: settings.filter((s: EmailSetting) => s.slug.startsWith("admin_")),
+      guest: settings.filter((s) => s.slug.startsWith("guest_")),
+      admin: settings.filter((s) => s.slug.startsWith("admin_")),
       other: settings.filter(
-        (s: EmailSetting) =>
-          !s.slug.startsWith("guest_") && !s.slug.startsWith("admin_")
+        (s) => !s.slug.startsWith("guest_") && !s.slug.startsWith("admin_")
       ),
     };
   }, [settings]);
@@ -48,21 +57,21 @@ const NotificationSettings: React.FC = () => {
     const originalSettings = [...settings];
 
     // Optimistic UI
-    setSettings((prev: EmailSetting[]) =>
-      prev.map((s: EmailSetting) =>
+    setSettings((prev) =>
+      prev.map((s) =>
         s.slug === slug ? { ...s, is_enabled: !currentState } : s
       )
     );
 
     const newStatusLabel = !currentState ? "ativado" : "desativado";
     const settingName =
-      settings.find((s: EmailSetting) => s.slug === slug)?.display_name ||
+      settings.find((s) => s.slug === slug)?.display_name ||
       "Configuração";
     toast.success(`${settingName} ${newStatusLabel}`);
 
     try {
       await updateEmailSetting(slug, { is_enabled: !currentState });
-    } catch (err) {
+    } catch (_err: unknown) {
       // Rollback on failure
       setSettings(originalSettings);
       toast.error("Erro crítico: Falha ao salvar alteração. Revertendo...");
@@ -76,8 +85,8 @@ const NotificationSettings: React.FC = () => {
     const originalSettings = [...settings];
 
     // Optimistic UI
-    setSettings((prev: EmailSetting[]) =>
-      prev.map((s: EmailSetting) =>
+    setSettings((prev) =>
+      prev.map((s) =>
         s.slug === slug ? { ...s, scheduled_time: formattedTime } : s
       )
     );
@@ -91,7 +100,7 @@ const NotificationSettings: React.FC = () => {
     try {
       await updateEmailSetting(slug, { scheduled_time: formattedTime });
       toast.success("Horário de entrega atualizado");
-    } catch (err) {
+    } catch (_err: unknown) {
       setSettings(originalSettings);
       toast.error("Erro ao atualizar horário");
     } finally {
@@ -111,7 +120,8 @@ const NotificationSettings: React.FC = () => {
     );
   }
 
-  const SettingCard = ({ setting }: { setting: EmailSetting }) => (
+  function SettingCard({ setting }: SettingCardProps) {
+    return (
     <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
@@ -169,17 +179,10 @@ const NotificationSettings: React.FC = () => {
         </div>
       )}
     </div>
-  );
+    );
+  }
 
-  const Section = ({
-    title,
-    items,
-    icon: Icon,
-  }: {
-    title: string;
-    items: EmailSetting[];
-    icon: LucideIcon;
-  }) => {
+  function Section({ title, items, icon: Icon }: SectionProps) {
     if (items.length === 0) return null;
     return (
       <section className="mb-12">
@@ -194,7 +197,7 @@ const NotificationSettings: React.FC = () => {
         </div>
       </section>
     );
-  };
+  }
 
   return (
     <div className="max-w-6xl">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
-import { Session } from "@supabase/supabase-js";
+import type { Session } from "@supabase/supabase-js";
 import {
   LayoutDashboard,
   Mail,
@@ -15,8 +15,37 @@ import {
 import config from "@/core/config";
 import { useLanguage } from "@/context/LanguageContext";
 
-interface AdminLayoutProps {
+export interface AdminLayoutProps {
   children: React.ReactNode;
+}
+
+interface NavItem {
+  label: string;
+  path: string;
+  icon: LucideIcon;
+}
+
+/** Minimal dev session when `VITE_SKIP_AUTH` / `?bypass=true` is used (not a full Supabase JWT). */
+function createDevBypassSession(): Session {
+  const expiresAt = Math.floor(Date.now() / 1000) + 3600;
+  return {
+    access_token: "",
+    refresh_token: "",
+    expires_in: 3600,
+    expires_at: expiresAt,
+    token_type: "bearer",
+    user: {
+      id: "bypass",
+      aud: "authenticated",
+      role: "authenticated",
+      email: "Bypass Mode",
+      app_metadata: {},
+      user_metadata: {},
+      identities: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  } as Session;
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
@@ -42,13 +71,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     isMounted.current = true;
 
     const setBypassSession = () => {
-      setSession({
-        user: { email: "Bypass Mode", id: "bypass" },
-        access_token: null,
-        refresh_token: null,
-        expires_in: 0,
-        token_type: "bearer",
-      } as unknown as Session);
+      setSession(createDevBypassSession());
     };
 
     const recoverSession = () => {
@@ -191,7 +214,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     );
   }
 
-  const menuItems: { label: string; path: string; icon: LucideIcon }[] = [
+  const menuItems: NavItem[] = [
     { label: "Operations", path: "/admin", icon: LayoutDashboard },
     {
       label: t("navNotifications") || "Notifications",

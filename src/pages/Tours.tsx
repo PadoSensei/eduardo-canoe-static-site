@@ -4,17 +4,19 @@ import { getTourTemplates } from "../api";
 import TourModal from "../components/TourModal";
 import { Loader2, CalendarOff } from "lucide-react";
 import EmptyState from "../components/common/EmptyState";
+import type { TourTemplateUI } from "@/api/schemas";
 
-import { TourTemplateUI } from "../api";
-
-type TourTemplate = TourTemplateUI;
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  return "Unknown error";
+}
 
 const Tours: React.FC = () => {
   const { t } = useLanguage();
-  const [tours, setTours] = useState<TourTemplate[]>([]);
+  const [tours, setTours] = useState<TourTemplateUI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
-  const [selectedTour, setSelectedTour] = useState<TourTemplate | null>(null);
+  const [selectedTour, setSelectedTour] = useState<TourTemplateUI | null>(null);
 
   useEffect(() => {
     const loadMenu = async () => {
@@ -22,8 +24,8 @@ const Tours: React.FC = () => {
         setError(false);
         const data = await getTourTemplates();
         setTours(data || []);
-      } catch (err: any) {
-        if (err.message === "NetworkError") {
+      } catch (err: unknown) {
+        if (getErrorMessage(err) === "NetworkError") {
           // 404 is a valid business state (Empty)
           setTours([]);
         } else {
@@ -61,7 +63,7 @@ const Tours: React.FC = () => {
         ) : tours.length === 0 ? (
           <EmptyState
             message={t("tours_none_available_general")}
-            icon={<CalendarOff className="w-12 h-12" strokeWidth={1.5} />}
+            icon={CalendarOff}
           />
         ) : (
           <div className="grid justify-center gap-8 md:grid-cols-2 lg:grid-cols-3">

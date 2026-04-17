@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { toast } from "sonner";
-import { getAvailableTours, createBooking, TourUI } from "../api";
+import { getAvailableTours, createBooking } from "../api";
 import { useLanguage } from "../context/LanguageContext";
 import { BookingSessionSchema } from "../api/schemas";
 import { handleSessionExpired } from "../utils/sessionUtils";
@@ -14,6 +14,16 @@ import { CalendarOff } from "lucide-react";
 import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
 import { formatCurrency } from "../utils/formatters";
 import { useBooking } from "../hooks/useBooking";
+import type { TourUI } from "@/api/schemas";
+
+function isAbortError(err: unknown): boolean {
+  return err instanceof Error && err.name === "AbortError";
+}
+
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  return "Unknown error";
+}
 
 const getStoredSession = (t: (key: string) => string) => {
   try {
@@ -92,10 +102,10 @@ function BookingSystem() {
         if (isMounted.current && (!signal || !signal.aborted)) {
           setAvailableTours(data || []);
         }
-      } catch (err: any) {
-        if (err.name === "AbortError") return;
+      } catch (err: unknown) {
+        if (isAbortError(err)) return;
         if (isMounted.current) {
-          if (err.message === "NetworkError") {
+          if (getErrorMessage(err) === "NetworkError") {
             setAvailableTours([]);
           } else {
             setError("LOAD_ERROR");
@@ -220,15 +230,17 @@ function BookingSystem() {
           }
         }
       }
-    } catch (error: any) {
-      if (error.name === "AbortError") return;
+    } catch (error: unknown) {
+      if (isAbortError(error)) return;
       if (isMounted.current) {
-        if (error.message === "BOOKING_EXPIRED") {
+        if (getErrorMessage(error) === "BOOKING_EXPIRED") {
           handleSessionExpired(navigate);
           closeModal();
         } else {
           setFormError(t("alertError"));
-          Sentry.captureException(error);
+          Sentry.captureException(
+            error instanceof Error ? error : new Error(String(error))
+          );
         }
       }
     } finally {
@@ -274,12 +286,12 @@ function BookingSystem() {
       return (
         <EmptyState
           message={t("tours_none_available_date")}
-          icon={<CalendarOff className="w-12 h-12" strokeWidth={1.5} />}
+          icon={CalendarOff}
         />
       );
 
     return availableTours
-      .filter((t) => t.isBookable)
+      .filter((tourItem) => tourItem.isBookable)
       .map((tour) => (
         <div
           key={tour.id}
@@ -368,7 +380,9 @@ function BookingSystem() {
               id="tour-date-input"
               type="date"
               value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setSelectedDate(e.target.value)
+              }
               min={getTodayLocalDate()}
               className="p-3 bg-white px-6 rounded-xl border border-gray-200 shadow-sm focus:ring-4 focus:ring-[#FF6B6B]/20 focus:border-[#FF6B6B] transition-all outline-none font-bold text-gray-700"
             />

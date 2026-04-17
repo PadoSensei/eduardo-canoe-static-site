@@ -9,6 +9,8 @@ import {
   AvailableToursResponseSchema,
   CreateBookingResponseSchema,
   TourTemplatesResponseSchema,
+  TourUISchema,
+  TourTemplateUISchema,
   ManifestResponseSchema,
   AdminBookingCheckInResponseSchema,
   BookingStatusResponseSchema,
@@ -21,7 +23,11 @@ import {
   type AdminBookingCheckInResponse,
   type BookingStatusResponse,
   type ScheduleResponse,
+  type TourUI,
+  type TourTemplateUI,
 } from "@/api/schemas";
+
+export type { TourUI, TourTemplateUI } from "@/api/schemas";
 
 const API_BASE_URL = config.apiBaseUrl;
 
@@ -231,24 +237,6 @@ const captureApiError = (
   }
 };
 
-export interface TourUI {
-  id: string;
-  instanceId: number;
-  tourType: string;
-  name: string;
-  price: number;
-  remaining: number;
-  isBookable: boolean;
-  capacity: number;
-  duration: string;
-  imageUrl: string;
-  tourDate: string;
-  description: string | null;
-  shortDescription: string | null;
-  inclusions: string[];
-  requirements: string[];
-}
-
 export async function getAvailableTours(
   date: string,
   options: { signal?: AbortSignal } = {}
@@ -259,7 +247,7 @@ export async function getAvailableTours(
       schema: AvailableToursResponseSchema,
     });
 
-    return validatedData.map((tour) => ({
+    const mapped = validatedData.map((tour) => ({
       id: `${tour.tour_type}-${tour.tour_date}`,
       instanceId: tour.tour_instance_id,
       tourType: tour.tour_type,
@@ -271,11 +259,12 @@ export async function getAvailableTours(
       duration: tour.duration || "2h",
       imageUrl: tour.image_url || "",
       tourDate: tour.tour_date,
-      description: tour.description || null,
-      shortDescription: tour.short_description || null,
+      description: tour.description ?? null,
+      shortDescription: tour.short_description ?? null,
       inclusions: tour.inclusions,
       requirements: tour.requirements,
     }));
+    return z.array(TourUISchema).parse(mapped);
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
@@ -352,19 +341,6 @@ export async function getBookingStatus(
   }
 }
 
-export interface TourTemplateUI {
-  id: number;
-  tourType: string;
-  name: string;
-  price: number;
-  duration: string | null;
-  imageUrl: string | null;
-  description: string | null;
-  shortDescription: string | null;
-  inclusions: string[];
-  requirements: string[];
-}
-
 export async function getTourTemplates(
   options: { signal?: AbortSignal } = {}
 ): Promise<TourTemplateUI[] | null> {
@@ -374,18 +350,19 @@ export async function getTourTemplates(
       schema: TourTemplatesResponseSchema,
     });
 
-    return data.map((template) => ({
+    const mapped = data.map((template) => ({
       id: template.id,
       tourType: template.name,
       name: template.display_name,
       price: template.price,
-      duration: template.duration || null,
-      imageUrl: template.image_url || null,
-      description: template.description || null,
-      shortDescription: template.short_description || null,
+      duration: template.duration ?? null,
+      imageUrl: template.image_url ?? null,
+      description: template.description ?? null,
+      shortDescription: template.short_description ?? null,
       inclusions: template.inclusions || [],
       requirements: template.requirements || [],
     }));
+    return z.array(TourTemplateUISchema).parse(mapped);
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") return null;
     throw error;

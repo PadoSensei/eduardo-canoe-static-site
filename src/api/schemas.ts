@@ -24,6 +24,27 @@ export type AvailableToursResponse = z.infer<
   typeof AvailableToursResponseSchema
 >;
 
+/** Client-side shape after mapping `Tour` from GET /tours/available (camelCase + composite id). */
+export const TourUISchema = z.object({
+  id: z.string(),
+  instanceId: z.number(),
+  tourType: z.string(),
+  name: z.string(),
+  price: z.number(),
+  remaining: z.number(),
+  isBookable: z.boolean(),
+  capacity: z.number(),
+  duration: z.string(),
+  imageUrl: z.string(),
+  tourDate: z.string(),
+  description: z.string().nullable(),
+  shortDescription: z.string().nullable(),
+  inclusions: z.array(z.string()),
+  requirements: z.array(z.string()),
+});
+
+export type TourUI = z.infer<typeof TourUISchema>;
+
 export const BookingSchema = z.object({
   uuid: z.string(),
   id: z.number().optional(),
@@ -84,6 +105,22 @@ export type TourTemplate = z.infer<typeof TourTemplateSchema>;
 
 export const TourTemplatesResponseSchema = z.array(TourTemplateSchema);
 export type TourTemplatesResponse = z.infer<typeof TourTemplatesResponseSchema>;
+
+/** Client-side shape after mapping `TourTemplate` from GET /tour-templates. */
+export const TourTemplateUISchema = z.object({
+  id: z.number(),
+  tourType: z.string(),
+  name: z.string(),
+  price: z.number(),
+  duration: z.string().nullable(),
+  imageUrl: z.string().nullable(),
+  description: z.string().nullable(),
+  shortDescription: z.string().nullable(),
+  inclusions: z.array(z.string()),
+  requirements: z.array(z.string()),
+});
+
+export type TourTemplateUI = z.infer<typeof TourTemplateUISchema>;
 
 export const ManifestPassengerSchema = z.object({
   id: z.number(),
