@@ -31,7 +31,9 @@ describe("Admin Auth Hardening", () => {
       error: null,
     });
 
-    await expect(fetchDayManifest("2024-05-20")).rejects.toThrow("MISSING_AUTH_SESSION");
+    await expect(fetchDayManifest("2024-05-20")).rejects.toThrow(
+      "MISSING_AUTH_SESSION"
+    );
   });
 
   it("should attach Authorization header if session exists", async () => {
@@ -43,7 +45,7 @@ describe("Admin Auth Hardening", () => {
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ([]), // ManifestResponseSchema expects an array
+      json: async () => [], // ManifestResponseSchema expects an array
     });
 
     await fetchDayManifest("2024-05-20");
@@ -68,13 +70,15 @@ describe("Admin Auth Hardening", () => {
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ([]),
+      json: async () => [],
     });
 
     await fetchDayManifest("2024-05-20");
 
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("🔐 Auth Status for /admin/manifest/2024-05-20: TOKEN_ATTACHED")
+      expect.stringContaining(
+        "🔐 Auth Status for /admin/manifest/2024-05-20: TOKEN_ATTACHED"
+      )
     );
 
     consoleSpy.mockRestore();
