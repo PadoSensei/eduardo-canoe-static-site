@@ -79,7 +79,7 @@ test.describe("Resilience & Error Handling", () => {
       });
     });
 
-    await page.goto("/book", { waitUntil: "networkidle" });
+    await page.goto("/book", { waitUntil: "load" });
 
     // 3. ASSERT: The "Booking Reserved" text is visible while the network is slow
     await expect(page.getByText(/Booking Reserved/i)).toBeVisible();

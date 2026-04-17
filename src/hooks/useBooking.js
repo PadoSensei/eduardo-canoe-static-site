@@ -119,16 +119,17 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         consecutiveErrorsRef.current >= 5
       ) {
         if (consecutiveErrorsRef.current >= 5 && intervalRef.current) {
-          clearInterval(intervalRef.current);
+          clearTimeout(intervalRef.current);
           intervalRef.current = null;
         }
         return;
       }
 
-      // Check for timeout based on dynamic timeLeft
+      // Guard 2: Final timeout check before API call
       if (timeLeft <= 0) {
         setIsTimedOut(true);
-        if (intervalRef.current) clearInterval(intervalRef.current);
+        if (intervalRef.current) clearTimeout(intervalRef.current);
+        intervalRef.current = null;
         return;
       }
 
@@ -150,7 +151,8 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
           localStorage.removeItem("pending_booking");
 
           // Stop polling immediately upon confirmation
-          if (intervalRef.current) clearInterval(intervalRef.current);
+          if (intervalRef.current) clearTimeout(intervalRef.current);
+          intervalRef.current = null;
 
           // Refresh the parent's tour list so seats update immediately
           if (setAvailableTours) {
@@ -170,7 +172,13 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
             ? setIsExpired(true)
             : setIsFailed(true);
           localStorage.removeItem("pending_booking");
-          if (intervalRef.current) clearInterval(intervalRef.current);
+          if (intervalRef.current) clearTimeout(intervalRef.current);
+          intervalRef.current = null;
+        } else {
+          // Schedule next check if still pending and not timed out
+          if (isMounted.current && !controller.signal.aborted && !isTimedOut) {
+            intervalRef.current = setTimeout(checkStatus, 3000);
+          }
         }
       } catch (err) {
         // Silent exit for intended cancellations (SIGABRT fix)
@@ -179,7 +187,8 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         if (err.message === "BOOKING_EXPIRED") {
           setIsReaped(true);
           localStorage.removeItem("pending_booking");
-          if (intervalRef.current) clearInterval(intervalRef.current);
+          if (intervalRef.current) clearTimeout(intervalRef.current);
+          intervalRef.current = null;
           return;
         }
 
@@ -187,9 +196,12 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
           consecutiveErrorsRef.current += 1;
           setConsecutiveErrors(consecutiveErrorsRef.current);
 
-          if (consecutiveErrorsRef.current >= 5 && intervalRef.current) {
-            clearInterval(intervalRef.current);
+          if (consecutiveErrorsRef.current >= 5) {
+            if (intervalRef.current) clearTimeout(intervalRef.current);
             intervalRef.current = null;
+          } else {
+            // Retry after delay on failure
+            intervalRef.current = setTimeout(checkStatus, 3000);
           }
         }
       }
@@ -207,15 +219,14 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
       consecutiveErrorsRef.current < 5;
 
     if (shouldPoll) {
-      checkStatus(); // Initial check
-      intervalRef.current = setInterval(checkStatus, 3000);
+      checkStatus(); // Initial check kicks off the recursive chain
     }
 
     // Cleanup: This is the most critical block for passing tests
     return () => {
       isMounted.current = false;
       if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+        clearTimeout(intervalRef.current);
         intervalRef.current = null;
       }
       controller.abort(); // Force-close any open network sockets
@@ -229,7 +240,6 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     isFailed,
     isReaped,
     isTimedOut,
-    timeLeft,
     selectedDate,
     paymentInfo,
     setAvailableTours,
@@ -237,7 +247,8 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
 
   const clearBooking = useCallback(() => {
     localStorage.removeItem("pending_booking");
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (intervalRef.current) clearTimeout(intervalRef.current);
+    intervalRef.current = null;
     setPaymentInfo(null);
     setCurrentBooking(null);
     setIsConfirmed(false);
