@@ -119,6 +119,7 @@ function BookingSystem() {
     isExpired,
     isFailed,
     isReaped,
+    timeLeft,
     isTimedOut,
     hasConnectionIssue,
     clearBooking,
@@ -405,6 +406,7 @@ function BookingSystem() {
                   isExpired={isExpired}
                   isFailed={isFailed}
                   isTimedOut={isTimedOut}
+                  timeLeft={timeLeft}
                 />
               ) : selectedTour ? (
                 <BookingForm
