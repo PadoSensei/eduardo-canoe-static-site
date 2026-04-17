@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { Toaster } from "sonner";
@@ -20,8 +20,26 @@ import NotificationSettings from "./components/admin/NotificationSettings";
 
 // Components
 import BookingSystem from "./components/BookingSystem";
+import { supabase } from "./supabaseClient";
+import config from "./core/config";
 
 const App = () => {
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!config.isProduction) {
+        console.log(
+          `🔐 AUTH_EVENT: ${event} | User: ${session?.user?.email || "NONE"}`
+        );
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
+
   return (
     <Sentry.ErrorBoundary
       fallback={
