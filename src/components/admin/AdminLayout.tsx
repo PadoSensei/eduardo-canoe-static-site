@@ -43,13 +43,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
     if (shouldBypass) {
       setSession({
-        user: { email: "dev-tester@ai-solutions.irish" },
-        access_token: "bypass-token",
-        refresh_token: "bypass-refresh",
-        expires_in: 3600,
+        user: { email: "Bypass Mode", id: "bypass" },
+        access_token: null,
+        refresh_token: null,
+        expires_in: 0,
         token_type: "bearer",
-      } as Session);
-      return;
+      } as unknown as Session);
     }
 
     const recoverSession = () => {

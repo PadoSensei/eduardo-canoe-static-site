@@ -33,14 +33,13 @@ const Dashboard = () => {
 
     // --- HYBRID AUTH STRATEGY (PRODUCTION READY) ---
 
-    // 1. Manual Bypass (Priority for E2E and Dev)
+    // 1. Manual Bypass (UI only if no real session)
     if (shouldBypass) {
       setSession((prev) =>
-        prev?.user?.email === "dev-tester@ai-solutions.irish"
+        prev?.user?.email === "Bypass Mode"
           ? prev
-          : { user: { email: "dev-tester@ai-solutions.irish" } }
+          : { user: { email: "Bypass Mode", id: "bypass" } }
       );
-      return;
     }
 
     // 2. Manual Storage Recovery (Critical for Auth Setup stability)
