@@ -21,6 +21,7 @@ describe("API Schemas - Dashboard Revenue", () => {
         capacity: 0,
         price: 0,
         revenue: 0,
+        status: "available",
       });
     });
   });
@@ -42,7 +43,22 @@ describe("API Schemas - Dashboard Revenue", () => {
         },
       };
       const result = ScheduleResponseSchema.parse(data);
-      expect(result).toEqual(data);
+      expect(result).toEqual({
+        "2024-05-01": {
+          booked_count: 2,
+          capacity: 10,
+          price: 100,
+          revenue: 200,
+          status: "available",
+        },
+        "2024-05-02": {
+          booked_count: 8,
+          capacity: 10,
+          price: 100,
+          revenue: 800,
+          status: "available",
+        },
+      });
     });
   });
 });

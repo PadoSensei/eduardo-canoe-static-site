@@ -5,16 +5,16 @@ import { useLanguage } from "../../../context/LanguageContext";
 
 const TourCard = ({ tour, isSubmitting, onCancel, onSelect }) => {
   const { t } = useLanguage();
-  const isCancelled = tour.status?.includes("cancelled");
+  const isCancelled = tour.status === "cancelled";
 
   return (
     <div
       className={`p-5 bg-white border rounded-xl shadow-sm transition-all ${
         isCancelled
-          ? "opacity-60 grayscale cursor-not-allowed"
+          ? "cursor-pointer border-red-200 bg-red-50/40 hover:border-red-300"
           : "hover:shadow-md cursor-pointer hover:border-teal-100"
       }`}
-      onClick={() => !isCancelled && onSelect(tour)}
+      onClick={() => onSelect(tour)}
     >
       <div className="flex items-center justify-between">
         <div>
@@ -40,7 +40,11 @@ const TourCard = ({ tour, isSubmitting, onCancel, onSelect }) => {
         </div>
       </div>
 
-      {!isCancelled && (
+      {isCancelled ? (
+        <span className="mt-4 inline-flex w-full items-center justify-center bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold">
+          TOUR CANCELLED
+        </span>
+      ) : (
         <ShieldedButton
           isLoading={isSubmitting}
           onClick={(e) => {

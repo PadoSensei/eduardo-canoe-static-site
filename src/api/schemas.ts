@@ -15,6 +15,8 @@ export const TourSchema = z.object({
   short_description: z.string().nullable().optional(),
   inclusions: z.array(z.string()).default([]),
   requirements: z.array(z.string()).default([]),
+  /** Tour instance lifecycle (e.g. available, cancelled). */
+  status: z.string().default("available"),
 });
 
 export type Tour = z.infer<typeof TourSchema>;
@@ -189,7 +191,8 @@ export const DayStatsSchema = z.object({
   capacity: z.number().default(0),
   price: z.number().default(0),
   revenue: z.number().default(0),
-  status: z.string().optional(),
+  /** Aggregated day status from admin schedule (e.g. available, cancelled). */
+  status: z.string().default("available"),
 });
 
 export const ScheduleResponseSchema = z.record(DayStatsSchema);

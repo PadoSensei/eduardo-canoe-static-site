@@ -99,3 +99,40 @@ test("Weather Cancel button triggers confirmation and API call", async () => {
     expect(screen.queryByText(/Are you sure/i)).not.toBeInTheDocument();
   });
 });
+
+test("Cancelled tour shows badge and no Weather Cancel button", async () => {
+  server.use(
+    http.get(`${API_BASE}/admin/manifest/*`, () =>
+      HttpResponse.json([
+        {
+          tour_id: 102,
+          display_name: "Sunset Tour",
+          booked_count: 4,
+          capacity: 8,
+          status: "cancelled",
+          passengers: [],
+        },
+      ])
+    )
+  );
+
+  render(
+    <MemoryRouter>
+      <LanguageProvider>
+        <DayManifest
+          date={new Date("2026-01-19T12:00:00Z")}
+          onClose={jest.fn()}
+        />
+      </LanguageProvider>
+    </MemoryRouter>
+  );
+
+  expect(await screen.findByText("TOUR CANCELLED")).toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: /Weather Cancel/i })
+  ).not.toBeInTheDocument();
+
+  fireEvent.click(screen.getByText("Sunset Tour"));
+  const alert = await screen.findByRole("alert");
+  expect(alert).toHaveTextContent(/This tour has been cancelled/i);
+});

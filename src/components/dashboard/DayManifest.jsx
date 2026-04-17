@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import { format } from "date-fns";
-import { X, ArrowLeft, UserPlus, Loader2, Users } from "lucide-react";
+import { X, ArrowLeft, UserPlus, Loader2, Users, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import {
   fetchDayManifest,
@@ -254,6 +254,26 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
         </div>
 
         <div className="flex-1 p-4 pb-24 overflow-y-auto bg-gray-50/50">
+          {selectedTour.status === "cancelled" && (
+            <div
+              className="mb-4 flex gap-3 rounded-xl border-2 border-red-300 bg-red-50 p-4 text-red-900 shadow-sm"
+              role="alert"
+            >
+              <AlertTriangle
+                className="h-8 w-8 shrink-0 text-red-600"
+                aria-hidden
+              />
+              <div>
+                <p className="text-sm font-black uppercase tracking-wide text-red-800">
+                  This tour has been cancelled
+                </p>
+                <p className="mt-1 text-sm font-medium leading-snug text-red-900/90">
+                  Passengers below may still need outreach or refunds. Do not
+                  board guests for this departure.
+                </p>
+              </div>
+            </div>
+          )}
           <h3 className="mb-4 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase">
             Confirmed Bookings
           </h3>
