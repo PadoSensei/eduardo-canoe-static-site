@@ -9,29 +9,52 @@ import { LanguageProvider } from "../../src/context/LanguageContext";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
+/** Matches `DayStatsSchema` / admin schedule aggregation (revenue + TourStatus-style strings). */
+function buildSchedulePayload(request) {
+  const url = new URL(request.url);
+  const year = Number(url.searchParams.get("year"));
+  const month = Number(url.searchParams.get("month"));
+  const mm = String(month).padStart(2, "0");
+  const dayKey = `${year}-${mm}-15`;
+  return {
+    [dayKey]: {
+      booked_count: 5,
+      capacity: 10,
+      price: 100,
+      revenue: 500,
+      status: "available",
+    },
+  };
+}
+
+/** Matches `ManifestResponseSchema` / `ManifestPassengerSchema` (numeric booking id + checked_in). */
+const MOCK_MANIFEST = [
+  {
+    tour_id: 101,
+    display_name: "Test Morning Tour",
+    booked_count: 5,
+    capacity: 10,
+    status: "available",
+    passengers: [
+      {
+        id: 9001,
+        uuid: "passenger-uuid-1",
+        name: "Jane Doe",
+        pax: 1,
+        email: "jane@example.com",
+        checked_in: false,
+      },
+    ],
+  },
+];
+
 const server = setupServer(
   http.options(`${API_BASE}/*`, () => new HttpResponse(null, { status: 204 })),
-  http.get(`${API_BASE}/admin/schedule*`, () => HttpResponse.json({})),
+  http.get(`${API_BASE}/admin/schedule*`, ({ request }) =>
+    HttpResponse.json(buildSchedulePayload(request))
+  ),
   http.get(`${API_BASE}/admin/manifest/*`, () =>
-    HttpResponse.json([
-      {
-        tour_id: 101,
-        display_name: "Test Morning Tour",
-        time: "09:00",
-        booked_count: 5,
-        capacity: 10,
-        status: "available",
-        passengers: [
-          {
-            name: "Jane Doe",
-            pax: 1,
-            email: "jane@example.com",
-            uuid: "passenger-uuid-1",
-            status: "confirmed",
-          },
-        ],
-      },
-    ])
+    HttpResponse.json(MOCK_MANIFEST)
   ),
   http.get(`${API_BASE}/tours/available*`, () => HttpResponse.json([]))
 );
@@ -72,6 +95,8 @@ jest.mock("@/supabaseClient", () => ({
   },
 }));
 
+// AdminLayout only wraps chrome (nav); Dashboard does not consume layout context, so
+// MemoryRouter + the same route paths as production are sufficient for these tests.
 const renderDashboard = (initialEntry = "/admin") =>
   render(
     <MemoryRouter initialEntries={[initialEntry]}>
