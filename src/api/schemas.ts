@@ -118,6 +118,35 @@ export type ManifestTour = z.infer<typeof ManifestTourSchema>;
 export const ManifestResponseSchema = z.array(ManifestTourSchema);
 export type ManifestResponse = z.infer<typeof ManifestResponseSchema>;
 
+/** JSON from PATCH /admin/bookings/{id}/check-in (backend `Booking` model). */
+export const AdminBookingCheckInResponseSchema = z.object({
+  id: z.number(),
+  tour_id: z.number(),
+  guest_name: z.string(),
+  guest_email: z.string(),
+  num_people: z.number(),
+  total_price: z.number(),
+  special_notes: z.string().nullable(),
+  accepted_terms: z.boolean(),
+  language: z.string(),
+  uuid: z.string(),
+  status: z.string(),
+  booking_date: z.string(),
+  confirmation_sent: z.boolean(),
+  checked_in: z.boolean(),
+  terms_accepted_at: z.string().nullable(),
+  privacy_policy_version: z.string().nullable(),
+  payment_transaction_id: z.string().nullable(),
+  paid_at: z.string().nullable(),
+  cancelled_at: z.string().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
+export type AdminBookingCheckInResponse = z.infer<
+  typeof AdminBookingCheckInResponseSchema
+>;
+
 export const DayStatsSchema = z.object({
   booked_count: z.number().default(0),
   capacity: z.number().default(0),

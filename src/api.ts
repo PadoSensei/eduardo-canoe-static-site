@@ -10,6 +10,7 @@ import {
   CreateBookingResponseSchema,
   TourTemplatesResponseSchema,
   ManifestResponseSchema,
+  AdminBookingCheckInResponseSchema,
   BookingStatusResponseSchema,
   ScheduleResponseSchema,
   EmailSettingsResponseSchema,
@@ -17,6 +18,7 @@ import {
   type EmailSetting,
   type CreateBookingResponse,
   type ManifestResponse,
+  type AdminBookingCheckInResponse,
   type BookingStatusResponse,
   type ScheduleResponse,
 } from "@/api/schemas";
@@ -430,14 +432,18 @@ export async function patchCheckIn(
   bookingId: number,
   status: boolean,
   options: { signal?: AbortSignal } = {}
-): Promise<unknown> {
+): Promise<AdminBookingCheckInResponse | null> {
   try {
-    return await request(`/admin/bookings/${bookingId}/check-in`, {
-      method: "PATCH",
-      body: { checked_in: status },
-      includeAuth: true,
-      signal: options.signal,
-    });
+    return await request<AdminBookingCheckInResponse>(
+      `/admin/bookings/${bookingId}/check-in`,
+      {
+        method: "PATCH",
+        body: { checked_in: status },
+        includeAuth: true,
+        signal: options.signal,
+        schema: AdminBookingCheckInResponseSchema,
+      }
+    );
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
