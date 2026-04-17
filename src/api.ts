@@ -62,8 +62,19 @@ async function request<T>(
     const {
       data: { session },
     } = await supabase.auth.getSession();
+
+    if (!config.isProduction) {
+      console.log(
+        `🔐 Auth Status for ${endpoint}: ${
+          session ? "TOKEN_ATTACHED" : "NO_SESSION_FOUND"
+        }`
+      );
+    }
+
     if (session?.access_token) {
       headers["Authorization"] = `Bearer ${session.access_token}`;
+    } else {
+      throw new Error("MISSING_AUTH_SESSION");
     }
   }
 
