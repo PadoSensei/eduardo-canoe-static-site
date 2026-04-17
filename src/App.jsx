@@ -29,6 +29,7 @@ const App = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (!config.isProduction) {
+        // eslint-disable-next-line no-console
         console.log(
           `🔐 AUTH_EVENT: ${event} | User: ${session?.user?.email || "NONE"}`
         );
