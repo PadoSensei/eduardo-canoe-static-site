@@ -140,16 +140,16 @@ describe("Resilience & Recovery Integration Tests", () => {
     expect(pollCount).toBeGreaterThan(0);
   });
 
-  test("test_should_stop_polling_after_10_minutes: stops and shows timeout UI", async () => {
-    // Set created_at to 11 minutes ago relative to BASE_TIME
-    const elevenMinutesAgo = new Date(
-      BASE_TIME.getTime() - 11 * 60 * 1000
+  test("test_should_stop_polling_after_expiry: stops and shows timeout UI", async () => {
+    // Set created_at to 16 minutes ago relative to BASE_TIME (expires_in is 15m)
+    const sixteenMinutesAgo = new Date(
+      BASE_TIME.getTime() - 16 * 60 * 1000
     ).toISOString();
     const pendingBooking = {
       currentBooking: {
         uuid: TEST_UUID,
         id: 123,
-        created_at: elevenMinutesAgo,
+        created_at: sixteenMinutesAgo,
       },
       paymentInfo: {
         qr_code: "pix-123",
