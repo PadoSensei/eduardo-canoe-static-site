@@ -74,7 +74,15 @@ async function request<T>(
     if (session?.access_token) {
       headers["Authorization"] = `Bearer ${session.access_token}`;
     } else {
-      throw new Error("MISSING_AUTH_SESSION");
+      // FE-CI: Allow bypass for E2E and Local Dev
+      const isBypassActive =
+        !config.isProduction &&
+        (import.meta.env.VITE_SKIP_AUTH === "true" ||
+          window.location.search.includes("bypass=true"));
+
+      if (!isBypassActive) {
+        throw new Error("MISSING_AUTH_SESSION");
+      }
     }
   }
 

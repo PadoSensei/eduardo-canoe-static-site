@@ -20,7 +20,7 @@ jest.mock("@sentry/react", () => ({
 }));
 
 // Mock Supabase
-jest.mock("../src/supabaseClient", () => ({
+jest.mock("@/supabaseClient", () => ({
   supabase: {
     auth: {
       getSession: jest.fn().mockResolvedValue({

@@ -1,7 +1,7 @@
 import { fetchDayManifest } from "../src/api";
-import { supabase } from "../src/supabaseClient";
+import { supabase } from "@/supabaseClient";
 
-jest.mock("../src/supabaseClient", () => ({
+jest.mock("@/supabaseClient", () => ({
   supabase: {
     auth: {
       getSession: jest.fn(),
