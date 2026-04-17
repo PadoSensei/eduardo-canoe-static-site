@@ -33,16 +33,15 @@ const Dashboard = () => {
 
     // --- HYBRID AUTH STRATEGY (PRODUCTION READY) ---
 
-    // 1. Manual Bypass (UI only if no real session)
-    if (shouldBypass) {
+    const setBypassSession = () => {
       setSession((prev) =>
         prev?.user?.email === "Bypass Mode"
           ? prev
           : { user: { email: "Bypass Mode", id: "bypass" } }
       );
-    }
+    };
 
-    // 2. Manual Storage Recovery (Critical for Auth Setup stability)
+    // 1. Manual Storage Recovery (Critical for Auth Setup stability)
     // We look for any auth token in storage to set state immediately
     const recoverSession = () => {
       try {
@@ -62,19 +61,39 @@ const Dashboard = () => {
     const localSession = recoverSession();
     if (localSession) {
       setSession(localSession);
+    } else if (shouldBypass) {
+      setBypassSession();
     }
 
-    // 3. Supabase SDK Handlers
+    // 2. Supabase SDK Handlers
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      if (isMounted.current && currentSession) {
-        setSession(currentSession);
+      if (isMounted.current) {
+        if (currentSession) {
+          setSession(currentSession);
+        } else if (shouldBypass && !localSession) {
+          setBypassSession();
+        }
       }
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, currentSession) => {
-      if (isMounted.current) setSession(currentSession);
+      if (isMounted.current) {
+        if (currentSession) {
+          setSession(currentSession);
+        } else if (shouldBypass) {
+          // Double check if we can recover from storage before falling back to bypass mode
+          const recovered = recoverSession();
+          if (recovered) {
+            setSession(recovered);
+          } else {
+            setBypassSession();
+          }
+        } else {
+          setSession(null);
+        }
+      }
     });
 
     return () => {

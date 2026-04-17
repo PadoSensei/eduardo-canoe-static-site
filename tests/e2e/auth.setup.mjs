@@ -15,6 +15,17 @@ setup("authenticate admin", async ({ page }) => {
   // FE-CI: Skip real auth if we are in CI with a mock URL
   if (supabaseUrl?.includes("mock.supabase.co") || !supabaseUrl) {
     console.log("🛠️ Mock Supabase detected. Generating dummy session...");
+    const mockToken = {
+      access_token: "mock-token",
+      refresh_token: "mock-refresh",
+      token_type: "bearer",
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
+      user: {
+        id: "mock-user-id",
+        email: "admin@example.com",
+      },
+    };
+
     const dummyState = {
       cookies: [],
       origins: [
@@ -23,12 +34,16 @@ setup("authenticate admin", async ({ page }) => {
           localStorage: [
             {
               name: "sb-mock-auth-token",
-              value: JSON.stringify({
-                access_token: "mock-token",
-                refresh_token: "mock-refresh",
-                token_type: "bearer",
-                expires_at: Math.floor(Date.now() / 1000) + 3600,
-              }),
+              value: JSON.stringify(mockToken),
+            },
+          ],
+        },
+        {
+          origin: "http://127.0.0.1:5173",
+          localStorage: [
+            {
+              name: "sb-mock-auth-token",
+              value: JSON.stringify(mockToken),
             },
           ],
         },
