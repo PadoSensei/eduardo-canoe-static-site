@@ -10,7 +10,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     // Disable persistence and auto-refresh in tests to prevent process leaks
     persistSession:
       typeof window !== "undefined" && import.meta.env.MODE !== "test",
-    detectSessionInUrl: false,
+    detectSessionInUrl: true,
     autoRefreshToken: import.meta.env.MODE !== "test",
   },
 });

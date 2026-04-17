@@ -255,8 +255,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </nav>
         </div>
         <div className="absolute bottom-0 w-full p-6 border-t border-teal-800">
-          <p className="text-xs text-teal-300 mb-4 truncate">
-            {session.user?.email}
+          <p
+            className={`text-xs mb-4 truncate ${!session?.user?.email ? "text-red-400 font-bold" : "text-teal-300"}`}
+          >
+            {session?.user?.email || "⚠️ No Active Session"}
           </p>
           <button
             onClick={handleLogout}
