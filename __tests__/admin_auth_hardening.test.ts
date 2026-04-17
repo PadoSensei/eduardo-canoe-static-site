@@ -45,7 +45,7 @@ describe("Admin Auth Hardening", () => {
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => [], // ManifestResponseSchema expects an array
+      json: async () => [],
     });
 
     await fetchDayManifest("2024-05-20");

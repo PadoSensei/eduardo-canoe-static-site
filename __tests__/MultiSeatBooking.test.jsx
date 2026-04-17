@@ -13,7 +13,10 @@ const API_BASE = "http://localhost:8000/api/v1";
 jest.mock("../src/supabaseClient", () => ({
   supabase: {
     auth: {
-      getSession: jest.fn().mockResolvedValue({ data: { session: null } }),
+      getSession: jest.fn().mockResolvedValue({
+        data: { session: { access_token: "fake-token" } },
+        error: null,
+      }),
       onAuthStateChange: jest.fn(() => ({
         data: { subscription: { unsubscribe: jest.fn() } },
       })),

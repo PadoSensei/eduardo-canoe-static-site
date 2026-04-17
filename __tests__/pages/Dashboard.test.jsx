@@ -56,7 +56,13 @@ jest.mock("../../src/supabaseClient", () => ({
   supabase: {
     auth: {
       getSession: jest.fn().mockResolvedValue({
-        data: { session: { user: { email: "eduardo@example.com" } } },
+        data: {
+          session: {
+            access_token: "fake-admin-token",
+            user: { email: "eduardo@example.com" },
+          },
+        },
+        error: null,
       }),
       onAuthStateChange: jest.fn(() => ({
         data: { subscription: { unsubscribe: jest.fn() } },

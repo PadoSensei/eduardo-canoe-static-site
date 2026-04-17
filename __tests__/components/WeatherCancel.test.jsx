@@ -15,6 +15,21 @@ import { LanguageProvider } from "../../src/context/LanguageContext";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
+// Mock Supabase to provide a session for the hardened request wrapper
+jest.mock("../../src/supabaseClient", () => ({
+  supabase: {
+    auth: {
+      getSession: jest.fn().mockResolvedValue({
+        data: { session: { access_token: "fake-token" } },
+        error: null,
+      }),
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
+    },
+  },
+}));
+
 const server = setupServer(
   http.get(`${API_BASE}/admin/manifest/*`, () =>
     HttpResponse.json([

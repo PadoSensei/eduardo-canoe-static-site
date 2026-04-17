@@ -23,7 +23,10 @@ jest.mock("@sentry/react", () => ({
 jest.mock("../src/supabaseClient", () => ({
   supabase: {
     auth: {
-      getSession: jest.fn().mockResolvedValue({ data: { session: null } }),
+      getSession: jest.fn().mockResolvedValue({
+        data: { session: { access_token: "fake-token" } },
+        error: null,
+      }),
       onAuthStateChange: jest.fn(() => ({
         data: { subscription: { unsubscribe: jest.fn() } },
       })),
