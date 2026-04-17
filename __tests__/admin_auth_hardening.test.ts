@@ -63,7 +63,12 @@ describe("Admin Auth Hardening", () => {
   it("should log auth status in dev mode", async () => {
     const consoleSpy = jest.spyOn(console, "log").mockImplementation();
     (supabase.auth.getSession as jest.Mock).mockResolvedValue({
-      data: { session: { access_token: "fake-token", user: { email: "test@example.com" } } },
+      data: {
+        session: {
+          access_token: "fake-token",
+          user: { email: "test@example.com" },
+        },
+      },
       error: null,
     });
 
