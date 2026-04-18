@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { CheckCircle, X, Mail, Users, Calendar, Hash } from "lucide-react";
+import { CheckCircle, X, Mail, Users } from "lucide-react";
 import { useLanguage } from "../../../context/LanguageContext";
 import { formatCurrency } from "../../../utils/formatters";
 

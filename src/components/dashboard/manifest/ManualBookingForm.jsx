@@ -36,7 +36,7 @@ const ManualBookingForm = ({
         accepted_terms: true, // Admin override
       };
 
-      const result = await adminCreateBooking(payload, {
+      await adminCreateBooking(payload, {
         signal: controller.signal,
       });
 
