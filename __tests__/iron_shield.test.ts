@@ -15,8 +15,8 @@ describe("API - Iron Shield Resilience (April 18th Case)", () => {
     jest.clearAllMocks();
     global.fetch = jest.fn();
     // Silence console logs/errors during tests
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, "log").mockImplementation(() => {});
+    jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   it("should calculate remaining seats from seats_booked when seats_available is missing", async () => {

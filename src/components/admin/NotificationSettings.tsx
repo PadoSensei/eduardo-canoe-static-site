@@ -65,8 +65,7 @@ const NotificationSettings: React.FC = () => {
 
     const newStatusLabel = !currentState ? "ativado" : "desativado";
     const settingName =
-      settings.find((s) => s.slug === slug)?.display_name ||
-      "Configuração";
+      settings.find((s) => s.slug === slug)?.display_name || "Configuração";
     toast.success(`${settingName} ${newStatusLabel}`);
 
     try {
@@ -122,63 +121,65 @@ const NotificationSettings: React.FC = () => {
 
   function SettingCard({ setting }: SettingCardProps) {
     return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-bold text-gray-900">{setting.display_name}</h3>
-            <div className="group relative">
-              <Info size={14} className="text-gray-400 cursor-help" />
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                {setting.description}
+      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="font-bold text-gray-900">
+                {setting.display_name}
+              </h3>
+              <div className="group relative">
+                <Info size={14} className="text-gray-400 cursor-help" />
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  {setting.description}
+                </div>
               </div>
             </div>
+            <p className="text-sm text-slate-500 line-clamp-2">
+              {setting.description}
+            </p>
           </div>
-          <p className="text-sm text-slate-500 line-clamp-2">
-            {setting.description}
-          </p>
-        </div>
 
-        <button
-          onClick={() => handleToggle(setting.slug, setting.is_enabled)}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-            setting.is_enabled ? "bg-emerald-500" : "bg-gray-200"
-          }`}
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-              setting.is_enabled ? "translate-x-6" : "translate-x-1"
+          <button
+            onClick={() => handleToggle(setting.slug, setting.is_enabled)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+              setting.is_enabled ? "bg-emerald-500" : "bg-gray-200"
             }`}
-          />
-        </button>
-      </div>
-
-      {setting.scheduled_time !== null && (
-        <div
-          className={`mt-4 pt-4 border-t border-gray-50 flex items-center justify-between ${!setting.is_enabled ? "opacity-40 pointer-events-none" : ""}`}
-        >
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Clock size={16} />
-            <span>Horário de Entrega</span>
-          </div>
-          <div className="relative">
-            <input
-              type="time"
-              defaultValue={setting.scheduled_time.substring(0, 5)}
-              onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
-                handleTimeChange(setting.slug, e.target.value)
-              }
-              className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none"
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                setting.is_enabled ? "translate-x-6" : "translate-x-1"
+              }`}
             />
-            {updatingSlugs.has(setting.slug) && (
-              <div className="absolute -right-6 top-1/2 -translate-y-1/2">
-                <Loader2 size={12} className="animate-spin text-teal-600" />
-              </div>
-            )}
-          </div>
+          </button>
         </div>
-      )}
-    </div>
+
+        {setting.scheduled_time !== null && (
+          <div
+            className={`mt-4 pt-4 border-t border-gray-50 flex items-center justify-between ${!setting.is_enabled ? "opacity-40 pointer-events-none" : ""}`}
+          >
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Clock size={16} />
+              <span>Horário de Entrega</span>
+            </div>
+            <div className="relative">
+              <input
+                type="time"
+                defaultValue={setting.scheduled_time.substring(0, 5)}
+                onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
+                  handleTimeChange(setting.slug, e.target.value)
+                }
+                className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none"
+              />
+              {updatingSlugs.has(setting.slug) && (
+                <div className="absolute -right-6 top-1/2 -translate-y-1/2">
+                  <Loader2 size={12} className="animate-spin text-teal-600" />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     );
   }
 
