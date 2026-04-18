@@ -125,7 +125,7 @@ export const TourTemplateUISchema = z.object({
 export type TourTemplateUI = z.infer<typeof TourTemplateUISchema>;
 
 export const ManifestPassengerSchema = z.object({
-  id: z.number(),
+  id: z.number().optional(),
   uuid: z.string(),
   display_id: z.string().optional(),
   name: z.string().nullable().optional(),

@@ -92,7 +92,8 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
           if (!isCheckedIn && "vibrate" in navigator) {
             navigator.vibrate(50);
           }
-          onCheckIn(passenger.id);
+          // Use ID if available, otherwise UUID (safe for mocks)
+          onCheckIn(passenger.id || passenger.uuid);
         }}
         aria-label={t("aria_manifest_checkin_toggle")}
         className={`p-3 min-w-[44px] min-h-[44px] rounded-full border-2 transition-all transform active:scale-95 ${

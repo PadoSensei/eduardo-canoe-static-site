@@ -38,7 +38,9 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
 
   // Optimistic UI for Check-In
   const toggleCheckIn = async (bookingId) => {
-    const passenger = selectedTour.passengers.find((p) => p.id === bookingId);
+    const passenger = selectedTour.passengers.find(
+      (p) => (p.id || p.uuid) === bookingId
+    );
     if (!passenger) return;
 
     const newStatus = !checkedIn[bookingId];
@@ -76,7 +78,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
       (acc, p) => {
         const count = p.pax_count ?? (p.pax || p.num_people || 0);
         acc.total += count;
-        if (checkedIn[p.id]) {
+        if (checkedIn[p.id || p.uuid]) {
           acc.boarded += count;
         }
         return acc;
@@ -100,7 +102,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
           const initialCheckedIn = {};
           data.forEach((tour) => {
             tour.passengers?.forEach((p) => {
-              if (p.checked_in) initialCheckedIn[p.id] = true;
+              if (p.checked_in) initialCheckedIn[p.id || p.uuid] = true;
             });
           });
           setCheckedIn(initialCheckedIn);
