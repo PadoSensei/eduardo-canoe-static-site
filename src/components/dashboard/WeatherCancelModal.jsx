@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { AlertTriangle, CloudRain, X } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
 import ShieldedButton from "../common/ShieldedButton";
@@ -11,15 +11,53 @@ const WeatherCancelModal = ({
   isSubmitting,
 }) => {
   const { t } = useLanguage();
+  const modalRef = useRef(null);
+  const previousFocus = useRef(null);
 
   useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape" && !isSubmitting) onClose();
-    };
     if (isOpen) {
+      previousFocus.current = document.activeElement;
+
+      const handleTab = (e) => {
+        if (e.key !== "Tab") return;
+        const focusableElements = modalRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+          }
+        }
+      };
+
+      const handleEsc = (e) => {
+        if (e.key === "Escape" && !isSubmitting) onClose();
+      };
+
       window.addEventListener("keydown", handleEsc);
+      window.addEventListener("keydown", handleTab);
+
+      // Autofocus first element
+      setTimeout(() => {
+        const first = modalRef.current?.querySelectorAll('button, [href], input, select, textarea')[0];
+        first?.focus();
+      }, 50);
+
+      return () => {
+        window.removeEventListener("keydown", handleEsc);
+        window.removeEventListener("keydown", handleTab);
+        previousFocus.current?.focus();
+      };
     }
-    return () => window.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose, isSubmitting]);
 
   if (!isOpen || !tour) return null;
@@ -32,6 +70,7 @@ const WeatherCancelModal = ({
       aria-modal="true"
     >
       <div
+        ref={modalRef}
         className="bg-white w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
@@ -61,9 +100,14 @@ const WeatherCancelModal = ({
 
           <div className="flex flex-col gap-3">
             <ShieldedButton
-              onClick={onConfirm}
+              onClick={() => {
+                if ("vibrate" in navigator) {
+                  navigator.vibrate([75, 50, 75]);
+                }
+                onConfirm();
+              }}
               isLoading={isSubmitting}
-              className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg shadow-red-200 transition-all active:scale-95 flex gap-2"
+              className="w-full py-4 min-h-[44px] bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg shadow-red-200 transition-all active:scale-95 flex gap-2"
             >
               <CloudRain size={18} /> {t("admin_cancel_weather_button")}
             </ShieldedButton>
@@ -81,6 +125,7 @@ const WeatherCancelModal = ({
         <button
           onClick={onClose}
           disabled={isSubmitting}
+          aria-label={t("aria_modal_close")}
           className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
         >
           <X size={20} />

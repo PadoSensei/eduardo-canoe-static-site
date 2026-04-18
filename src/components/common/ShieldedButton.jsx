@@ -56,7 +56,7 @@ const ShieldedButton = ({
       {...props}
       onClick={handleClick}
       disabled={isButtonDisabled}
-      className={`relative flex items-center justify-center transition-all ${className} ${
+      className={`relative flex items-center justify-center transition-all active:scale-95 ${className} ${
         isButtonDisabled ? "opacity-70 cursor-not-allowed" : ""
       }`}
     >

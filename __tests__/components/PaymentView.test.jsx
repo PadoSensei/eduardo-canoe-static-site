@@ -47,7 +47,7 @@ describe("PaymentView Component", () => {
     );
 
     // 4. Assert: UI changes to "Copied" state
-    expect(screen.getByText(/copied/i)).toBeInTheDocument();
+    expect(screen.getByText(/Code Copied!/i)).toBeInTheDocument();
 
     // 5. Fast-forward 2 seconds
     act(() => {
@@ -56,7 +56,7 @@ describe("PaymentView Component", () => {
 
     // 6. Assert: UI reverts back to "Copy" state on the button
     expect(screen.getByRole("button", { name: /copy/i })).toBeInTheDocument();
-    expect(screen.queryByText(/copied/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Code Copied!/i)).not.toBeInTheDocument();
   });
 
   test("renders the timeout screen when hasConnectionIssue is true", () => {

@@ -1,12 +1,14 @@
 import React from "react";
 import { Check } from "lucide-react";
 import { formatCurrency } from "../../../utils/formatters";
+import { useLanguage } from "../../../context/LanguageContext";
 
 /**
  * PassengerRow Component
  * Renders a single guest booking with check-in capability.
  */
 const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
+  const { t } = useLanguage();
   const shortId = (
     passenger.display_id || passenger.uuid?.slice(0, 8)
   ).toUpperCase();
@@ -32,18 +34,22 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
             {passenger.name || passenger.guest_name}
           </h4>
           {isCheckedIn && (
-            <span className="px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-black rounded-full animate-in zoom-in-50 duration-300">
+            <span
+              role="status"
+              aria-label={t("aria_status_onboard")}
+              className="px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-black rounded-full animate-in zoom-in-50 duration-300"
+            >
               ✓ ON BOARD
             </span>
           )}
         </div>
         <p className="text-xs font-medium text-gray-500">
-          <span className={isCheckedIn ? "text-emerald-700" : "text-teal-600"}>
+          <span className={isCheckedIn ? "text-emerald-900 font-bold" : "text-teal-600"}>
             {paxCount} Pax
           </span>{" "}
           • {passenger.email || passenger.guest_email}
           {passenger.total_price && (
-            <span className="ml-2 font-bold text-emerald-600">
+            <span className={`ml-2 font-bold ${isCheckedIn ? "text-emerald-900" : "text-emerald-600"}`}>
               • {formatCurrency(passenger.total_price)}
             </span>
           )}
@@ -76,9 +82,14 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
 
       {/* Check-in Toggle Button */}
       <button
-        onClick={() => onCheckIn(passenger.id)}
-        aria-label={isCheckedIn ? "Check-out" : "Check-in"}
-        className={`p-3 rounded-full border-2 transition-all transform active:scale-90 ${
+        onClick={() => {
+          if (!isCheckedIn && "vibrate" in navigator) {
+            navigator.vibrate(50);
+          }
+          onCheckIn(passenger.id);
+        }}
+        aria-label={t("aria_manifest_checkin_toggle")}
+        className={`p-3 min-w-[44px] min-h-[44px] rounded-full border-2 transition-all transform active:scale-95 ${
           isCheckedIn
             ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200"
             : "bg-white border-gray-200 text-gray-300 hover:border-teal-400 hover:text-teal-500"

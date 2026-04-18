@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { Plus, Minus } from "lucide-react";
@@ -24,6 +24,27 @@ export function BookingForm({
   error,
 }) {
   const { t } = useLanguage();
+  const [emailError, setEmailError] = useState(false);
+
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const handleEmailBlur = () => {
+    if (guestEmail && !validateEmail(guestEmail)) {
+      setEmailError(true);
+    } else {
+      setEmailError(false);
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    const val = e.target.value;
+    setGuestEmail(val);
+    if (emailError && validateEmail(val)) {
+      setEmailError(false);
+    }
+  };
 
   // Calculation uses a fallback to 0 if the input is temporarily empty
   const currentNum = parseInt(numPeople, 10) || 0;
@@ -176,11 +197,21 @@ export function BookingForm({
           type="email"
           id="guest-email"
           value={guestEmail}
-          onChange={(e) => setGuestEmail(e.target.value)}
-          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
+          onChange={handleEmailChange}
+          onBlur={handleEmailBlur}
+          className={`w-full p-3 rounded-lg border transition-all focus:outline-none focus:ring-2 ${
+            emailError
+              ? "border-red-500 ring-2 ring-red-200"
+              : "border-gray-300 focus:ring-[#FF6B6B]"
+          }`}
           placeholder={t("placeholderEmail")}
           required
         />
+        {emailError && (
+          <p className="mt-1 text-xs font-bold text-red-500">
+            {t("alertEmail")}
+          </p>
+        )}
       </div>
 
       {/* Notes Input */}

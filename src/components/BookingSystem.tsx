@@ -10,6 +10,7 @@ import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 import EmptyState from "./common/EmptyState";
+import { TourCardSkeleton } from "./common/Skeletons";
 import { CalendarOff } from "lucide-react";
 import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
 import { formatCurrency } from "../utils/formatters";
@@ -264,14 +265,10 @@ function BookingSystem() {
   const renderTourList = () => {
     if (isLoading)
       return (
-        <div
-          className="flex flex-col items-center gap-4 py-16"
-          data-testid="loading-state"
-        >
-          <div className="w-10 h-10 border-4 border-[#FF6B6B] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">
-            {t("loading")}
-          </p>
+        <div data-testid="loading-state">
+          <TourCardSkeleton />
+          <TourCardSkeleton />
+          <TourCardSkeleton />
         </div>
       );
 
@@ -341,7 +338,7 @@ function BookingSystem() {
                 e.stopPropagation(); // Prevent double trigger since card is clickable
                 openModal(tour);
               }}
-              className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-black py-3 px-10 rounded-2xl shadow-lg shadow-orange-200 transition-all active:scale-95 group-hover:shadow-orange-300"
+              className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-black py-3 px-10 rounded-2xl shadow-lg shadow-orange-200 transition-all active:scale-95 group-hover:shadow-orange-300 focus-visible:ring-4 focus-visible:ring-teal-500 outline-none"
             >
               {t("ctaButton")}
             </button>
@@ -384,7 +381,7 @@ function BookingSystem() {
                 setSelectedDate(e.target.value)
               }
               min={getTodayLocalDate()}
-              className="p-3 bg-white px-6 rounded-xl border border-gray-200 shadow-sm focus:ring-4 focus:ring-[#FF6B6B]/20 focus:border-[#FF6B6B] transition-all outline-none font-bold text-gray-700"
+              className="p-3 bg-white px-6 rounded-xl border border-gray-200 shadow-sm focus-visible:ring-4 focus-visible:ring-teal-500 focus:border-teal-500 transition-all outline-none font-bold text-gray-700"
             />
           </div>
         </div>

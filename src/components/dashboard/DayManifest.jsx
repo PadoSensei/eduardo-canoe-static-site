@@ -19,6 +19,7 @@ import PassengerRow from "./manifest/PassengerRow";
 import TourCard from "./manifest/TourCard";
 import ManualBookingForm from "./manifest/ManualBookingForm";
 import WeatherCancelModal from "./WeatherCancelModal";
+import { PassengerRowSkeleton, DayManifestTourCardSkeleton } from "../common/Skeletons";
 import { useLanguage } from "../../context/LanguageContext";
 
 const DayManifest = ({ date, onClose, onActionSuccess }) => {
@@ -172,11 +173,15 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center w-full h-full bg-white shadow-2xl">
-        <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
-        <p className="mt-2 text-sm font-medium text-gray-500">
-          Loading Manifest...
-        </p>
+      <div className="flex flex-col w-full h-full bg-white shadow-2xl">
+        <div className="p-4 border-b">
+          <div className="h-8 bg-gray-100 rounded w-1/3 animate-pulse" />
+        </div>
+        <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-gray-50/30">
+          <DayManifestTourCardSkeleton />
+          <DayManifestTourCardSkeleton />
+          <DayManifestTourCardSkeleton />
+        </div>
       </div>
     );
   }
@@ -231,7 +236,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSelectedTour(null)}
-              className="p-2 transition-colors rounded-full hover:bg-teal-800"
+              className="p-2 min-w-[44px] min-h-[44px] transition-colors rounded-full hover:bg-teal-800 active:scale-95"
             >
               <ArrowLeft size={24} />
             </button>
@@ -246,8 +251,8 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
           </div>
           <button
             onClick={() => setIsAddingGuest(true)}
-            className="p-2 transition-all rounded-lg bg-white/10 hover:bg-white/20 active:scale-95"
-            aria-label="Add passenger manually"
+            className="p-2 min-w-[44px] min-h-[44px] transition-all rounded-lg bg-white/10 hover:bg-white/20 active:scale-95"
+            aria-label={t("aria_add_guest")}
           >
             <UserPlus size={20} />
           </button>

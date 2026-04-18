@@ -74,8 +74,9 @@ describe("DayManifest Component", () => {
       </LanguageProvider>
     );
 
+    // Wait for skeletons to be removed
     await waitForElementToBeRemoved(() =>
-      screen.queryByText(/Loading Manifest/i)
+      screen.queryAllByTestId("skeleton-manifest-tour-card")
     );
 
     const tourCard = await screen.findByText("Morning Tour");

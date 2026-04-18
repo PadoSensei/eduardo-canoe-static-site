@@ -191,10 +191,10 @@ export function PaymentView({
 
           <button
             onClick={handleCopyPix}
-            className={`w-full mb-6 font-bold py-3 px-6 rounded-lg shadow-sm border transition-all duration-200 flex items-center justify-center gap-2
+            className={`w-full mb-6 font-bold py-3 px-6 rounded-lg shadow-sm border transition-all duration-200 flex items-center justify-center gap-2 active:scale-95
               ${
                 copied
-                  ? "bg-green-100 text-green-700 border-green-200"
+                  ? "bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-100"
                   : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
               }`}
           >

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ArrowLeft, Plus, Minus, Loader2 } from "lucide-react";
 import { adminCreateBooking } from "../../../api";
+import ManualBookingSummary from "./ManualBookingSummary";
 
 const ManualBookingForm = ({
   selectedTour,
@@ -13,6 +14,7 @@ const ManualBookingForm = ({
   const [numPeople, setNumPeople] = useState(1);
   const [specialNotes, setSpecialNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successBooking, setSuccessBooking] = useState(null);
 
   // Calculate available spots for the stepper limit
   const availableSpots = selectedTour.capacity - selectedTour.booked_count;
@@ -34,9 +36,9 @@ const ManualBookingForm = ({
         accepted_terms: true, // Admin override
       };
 
-      await adminCreateBooking(payload, { signal: controller.signal });
+      const result = await adminCreateBooking(payload, { signal: controller.signal });
 
-      alert("Booking added successfully!");
+      setSuccessBooking(payload);
 
       // Trigger the refresh in the parent (Manifest) and grandparent (Calendar)
       if (onSuccess) onSuccess();
@@ -50,6 +52,12 @@ const ManualBookingForm = ({
 
   return (
     <div className="flex flex-col w-full h-full duration-300 bg-white shadow-2xl animate-in slide-in-from-bottom">
+      {successBooking && (
+        <ManualBookingSummary
+          booking={successBooking}
+          onClose={onCancel}
+        />
+      )}
       {/* Form Header */}
       <div className="flex items-center gap-3 p-4 text-white bg-teal-800 shadow-md shrink-0">
         <button

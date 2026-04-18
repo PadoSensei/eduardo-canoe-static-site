@@ -22,6 +22,8 @@ const TourCard = ({ tour, isSubmitting, onCancel, onSelect }) => {
             {tour.display_name}
           </h4>
           <span
+            role="status"
+            aria-label={`Status: ${tour.status}`}
             className={`text-[10px] uppercase font-black tracking-widest ${
               isCancelled ? "text-red-500" : "text-gray-400"
             }`}
