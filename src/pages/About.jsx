@@ -136,7 +136,7 @@ const About = () => {
             {/* Pull Quote */}
             <blockquote className="relative p-8 border-l-4 border-emerald-500 bg-emerald-50/50 rounded-r-2xl">
               <p className="text-2xl font-lora italic text-emerald-900 leading-relaxed">
-                "{pullQuoteText}"
+                &ldquo;{pullQuoteText}&rdquo;
               </p>
               <footer className="mt-4 text-emerald-700 font-medium">
                 — Edu, Lead Instructor
