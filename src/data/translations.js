@@ -170,8 +170,8 @@ export const translations = {
       "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
     logoAlt: "Pipa Canoa Havaiana Logo",
 
-    tour_full_moon_short:
-      "A mystical 4-hour journey with live Forró music and a bonfire on the dunes.",
+    tour_full_moon_party_short:
+      "A mystical journey under the moonlight, celebrating nature and connection with the sea.",
     tour_full_moon_detail:
       "Experience the most magical tour we offer – a journey that begins with the sunset and continues into the enchanted evening to witness the full moon rising over the Atlantic. \n\nMeeting at 2:40 PM at the Sunset Stairs (Escadaria do Pôr do Sol). Includes a live Forró band, fresh tropical fruits, and a bonfire experience on the Malombar dunes. A celebration of nature's celestial dance.",
 
@@ -345,8 +345,8 @@ export const translations = {
       "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
     logoAlt: "Pipa Canoa Havaiana Logo",
 
-    tour_full_moon_short:
-      "Uma jornada mística de 4 horas com forró ao vivo e fogueira nas dunas.",
+    tour_full_moon_party_short:
+      "Uma jornada mística sob a luz do luar, celebrando a natureza e a conexão com o mar.",
     tour_full_moon_detail:
       "Viva o passeio mais mágico que oferecemos – uma jornada que começa com o pôr do sol e continua pela noite encantada para testemunhar a lua cheia nascendo sobre o Oceano Atlântico. \n\nEncontro às 14:40 na Escadaria do Pôr do Sol. Inclui banda de Forró ao vivo, frutas tropicais frescas e fogueira nas dunas da Malembar. Uma celebração da dança celestial da natureza.",
 
@@ -521,8 +521,8 @@ export const translations = {
       "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
     logoAlt: "Pipa Canoa Havaiana Logo",
 
-    tour_full_moon_short:
-      "Un viaje místico de 4 horas con forró en vivo y fogata en las dunas.",
+    tour_full_moon_party_short:
+      "Una jornada mística bajo la luna llena, celebrando la naturaleza y la conexión con el mar.",
     tour_full_moon_detail:
       "Vive el tour más mágico que ofrecemos – un viaje que comienza con el atardecer y continúa en la noche encantada para presenciar la luna llena elevándose sobre el Océano Atlántico. \n\nEncuentro a las 14:40 en la Escalera del Atardecer. Incluye banda de Forró en vivo, frutas tropicales frescas y fogata en las dunas de Malembar. Una celebración de la danza celestial de la naturaleza.",
     logistics_meeting: "Punto de Encuentro",
@@ -699,8 +699,8 @@ export const translations = {
     logoAlt: "Logo Pipa Canoa Havaiana",
 
     // --- Special Tours ---
-    tour_full_moon_short:
-      "Un voyage mystique de 4 heures avec de la musique Forró en direct et un feu de camp sur les dunes.",
+    tour_full_moon_party_short:
+      "Un voyage mystique sous la pleine lune, célébrant la nature et la connexion avec la mer.",
     tour_full_moon_detail:
       "Découvrez le tour le plus magique que nous proposons – un voyage qui commence par le coucher du soleil et se poursuit dans la soirée enchantée pour observer la pleine lune se lever sur l'Atlantique. \n\nRDV à 14h40 à l'Escalier du Coucher de Soleil (Escadaria do Pôr do Sol). Inclut un groupe de Forró en direct, des fruits tropicaux frais et un feu de camp sur les dunes de Malombar. Une célébration de la danse céleste de la nature.",
 

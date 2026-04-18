@@ -253,7 +253,9 @@ export async function getAvailableTours(
       tourType: tour.tour_type,
       name: tour.display_name,
       price: tour.price,
-      remaining: tour.seats_available,
+      remaining:
+        tour.seats_available ??
+        Math.max(0, (tour.capacity || 10) - (tour.seats_booked || 0)),
       isBookable: tour.is_bookable,
       capacity: tour.capacity,
       duration: tour.duration || "2h",
