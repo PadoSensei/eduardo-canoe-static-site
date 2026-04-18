@@ -36,7 +36,9 @@ const ManualBookingForm = ({
         accepted_terms: true, // Admin override
       };
 
-      const result = await adminCreateBooking(payload, { signal: controller.signal });
+      const result = await adminCreateBooking(payload, {
+        signal: controller.signal,
+      });
 
       setSuccessBooking(payload);
 
@@ -53,10 +55,7 @@ const ManualBookingForm = ({
   return (
     <div className="flex flex-col w-full h-full duration-300 bg-white shadow-2xl animate-in slide-in-from-bottom">
       {successBooking && (
-        <ManualBookingSummary
-          booking={successBooking}
-          onClose={onCancel}
-        />
+        <ManualBookingSummary booking={successBooking} onClose={onCancel} />
       )}
       {/* Form Header */}
       <div className="flex items-center gap-3 p-4 text-white bg-teal-800 shadow-md shrink-0">

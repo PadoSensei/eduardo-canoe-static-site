@@ -48,7 +48,9 @@ const WeatherCancelModal = ({
 
       // Autofocus first element
       setTimeout(() => {
-        const first = modalRef.current?.querySelectorAll('button, [href], input, select, textarea')[0];
+        const first = modalRef.current?.querySelectorAll(
+          "button, [href], input, select, textarea"
+        )[0];
         first?.focus();
       }, 50);
 

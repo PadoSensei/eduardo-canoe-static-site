@@ -6,7 +6,14 @@ import React, {
   useMemo,
 } from "react";
 import { format } from "date-fns";
-import { X, ArrowLeft, UserPlus, Loader2, Users, AlertTriangle } from "lucide-react";
+import {
+  X,
+  ArrowLeft,
+  UserPlus,
+  Loader2,
+  Users,
+  AlertTriangle,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   fetchDayManifest,
@@ -19,7 +26,10 @@ import PassengerRow from "./manifest/PassengerRow";
 import TourCard from "./manifest/TourCard";
 import ManualBookingForm from "./manifest/ManualBookingForm";
 import WeatherCancelModal from "./WeatherCancelModal";
-import { PassengerRowSkeleton, DayManifestTourCardSkeleton } from "../common/Skeletons";
+import {
+  PassengerRowSkeleton,
+  DayManifestTourCardSkeleton,
+} from "../common/Skeletons";
 import { useLanguage } from "../../context/LanguageContext";
 
 const DayManifest = ({ date, onClose, onActionSuccess }) => {

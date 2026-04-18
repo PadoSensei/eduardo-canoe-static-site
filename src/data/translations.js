@@ -190,7 +190,8 @@ export const translations = {
     admin_cancel_guests_booked: "Guests Booked",
     admin_cancel_weather_button: "Weather Cancel",
     admin_manual_booking_success_title: "Booking Confirmed!",
-    admin_manual_booking_success_subtitle: "Manual entry successfully processed.",
+    admin_manual_booking_success_subtitle:
+      "Manual entry successfully processed.",
     admin_manual_booking_guest: "Guest",
     admin_manual_booking_total: "Total Paid",
     admin_manual_booking_pax: "Pax",
@@ -376,7 +377,8 @@ export const translations = {
     admin_cancel_guests_booked: "Hóspedes Reservados",
     admin_cancel_weather_button: "Cancelar Clima",
     admin_manual_booking_success_title: "Reserva Confirmada!",
-    admin_manual_booking_success_subtitle: "Entrada manual processada com sucesso.",
+    admin_manual_booking_success_subtitle:
+      "Entrada manual processada com sucesso.",
     admin_manual_booking_guest: "Hóspede",
     admin_manual_booking_total: "Total Pago",
     admin_manual_booking_pax: "Pax",
@@ -562,7 +564,8 @@ export const translations = {
     admin_cancel_guests_booked: "Huéspedes Reservados",
     admin_cancel_weather_button: "Cancelar Clima",
     admin_manual_booking_success_title: "¡Reserva Confirmada!",
-    admin_manual_booking_success_subtitle: "Entrada manual processada con éxito.",
+    admin_manual_booking_success_subtitle:
+      "Entrada manual processada con éxito.",
     admin_manual_booking_guest: "Huésped",
     admin_manual_booking_total: "Total Pagado",
     admin_manual_booking_pax: "Pax",
@@ -752,7 +755,8 @@ export const translations = {
     admin_cancel_guests_booked: "Clients réservés",
     admin_cancel_weather_button: "Annulation météo",
     admin_manual_booking_success_title: "Réservation Confirmée !",
-    admin_manual_booking_success_subtitle: "Entrée manuelle traitée avec succès.",
+    admin_manual_booking_success_subtitle:
+      "Entrée manuelle traitée avec succès.",
     admin_manual_booking_guest: "Client",
     admin_manual_booking_total: "Total Payé",
     admin_manual_booking_pax: "Pax",

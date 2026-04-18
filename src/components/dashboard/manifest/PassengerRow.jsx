@@ -44,12 +44,18 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
           )}
         </div>
         <p className="text-xs font-medium text-gray-500">
-          <span className={isCheckedIn ? "text-emerald-900 font-bold" : "text-teal-600"}>
+          <span
+            className={
+              isCheckedIn ? "text-emerald-900 font-bold" : "text-teal-600"
+            }
+          >
             {paxCount} Pax
           </span>{" "}
           • {passenger.email || passenger.guest_email}
           {passenger.total_price && (
-            <span className={`ml-2 font-bold ${isCheckedIn ? "text-emerald-900" : "text-emerald-600"}`}>
+            <span
+              className={`ml-2 font-bold ${isCheckedIn ? "text-emerald-900" : "text-emerald-600"}`}
+            >
               • {formatCurrency(passenger.total_price)}
             </span>
           )}
