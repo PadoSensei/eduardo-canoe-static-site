@@ -34,6 +34,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
             booked_count: 8,
             passengers: [
               {
+                id: 1,
                 name: "John Doe",
                 pax_count: 2,
                 email: "john@example.com",
@@ -42,6 +43,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
                 checked_in: false,
               },
               {
+                id: 2,
                 name: "Jane Smith",
                 pax_count: 3,
                 email: "jane@example.com",
