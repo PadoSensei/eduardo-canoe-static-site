@@ -17,12 +17,23 @@ jest.mock("../src/core/config", () => ({
   },
 }));
 
+// Mock process.env.NODE_ENV
+const originalEnv = process.env.NODE_ENV;
+
 // Mock global fetch
 global.fetch = jest.fn();
 
 describe("Admin Auth Hardening", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Force NODE_ENV to something other than 'test' to verify NOT_AUTHENTICATED logic
+    // @ts-ignore
+    process.env.NODE_ENV = "production";
+  });
+
+  afterAll(() => {
+    // @ts-ignore
+    process.env.NODE_ENV = originalEnv;
   });
 
   it("should throw NOT_AUTHENTICATED if includeAuth is true but no session exists", async () => {

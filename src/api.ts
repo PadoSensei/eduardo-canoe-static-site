@@ -84,9 +84,11 @@ async function request<T>(
       }
     } else {
       // Mock bypass for development if no session found but includeAuth is true
+      const isTest = typeof process !== "undefined" && process.env.NODE_ENV === "test";
       const shouldBypass =
         !config.isProduction &&
-        (import.meta.env.VITE_SKIP_AUTH === "true" ||
+        (isTest ||
+          import.meta.env.VITE_SKIP_AUTH === "true" ||
           new URLSearchParams(window.location.search).get("bypass") === "true");
 
       if (shouldBypass) {

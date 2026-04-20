@@ -11,6 +11,12 @@ const API_BASE = "http://localhost:8000/api/v1";
 const server = setupServer(
   http.get(`${API_BASE}/tours/available`, () => {
     return HttpResponse.json([]); // List doesn't matter for this test
+  }),
+  http.get(`${API_BASE}/bookings/status/:uuid`, () => {
+    return HttpResponse.json({
+      status: "pending_payment",
+      is_confirmed: false,
+    });
   })
 );
 
@@ -38,6 +44,7 @@ describe("Booking Recovery Logic", () => {
     };
 
     localStorage.setItem("pending_booking", JSON.stringify(mockSession));
+    localStorage.setItem("language", "en");
 
     // 2. Render the app (Simulating a page refresh)
     render(
