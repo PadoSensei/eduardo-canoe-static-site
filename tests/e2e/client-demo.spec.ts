@@ -126,6 +126,7 @@ test.describe("EduCanoe Guided Tour", () => {
             booked_count: 3,
             passengers: [
               {
+                id: 1,
                 uuid: "demo-uuid-123",
                 display_id: "SUN-123",
                 guest_name: "Ana Silva",
@@ -292,7 +293,9 @@ test.describe("EduCanoe Guided Tour", () => {
 
     // 4. Update a Notification delivery time
     await page.goto("/admin/settings?bypass=true");
-    await expect(page.getByText(/Notifications/i).first()).toBeVisible({
+    await expect(
+      page.getByText(/(Notifications|Notificações|Central de Comando)/i).first()
+    ).toBeVisible({
       timeout: 15000,
     });
 

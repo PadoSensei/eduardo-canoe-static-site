@@ -4,7 +4,10 @@ import { translations } from "../data/translations.js";
 const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState("en");
+  const [language, setLanguage] = useState(() => {
+    const saved = localStorage.getItem("language");
+    return saved && translations[saved] ? saved : "pt";
+  });
 
   // The function to get translation
   const t = (key) => {

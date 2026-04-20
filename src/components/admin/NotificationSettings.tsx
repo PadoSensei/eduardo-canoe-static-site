@@ -50,6 +50,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
   onTimeChange,
   updatingSlugs,
 }) => {
+  const { t } = useLanguage();
   return (
     <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start gap-4">
@@ -86,7 +87,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
         >
           <div className="flex items-center gap-1.5 text-[10px] text-slate-400 uppercase font-bold tracking-wider">
             <Clock size={12} />
-            <span>Horário</span>
+            <span>{t("admin_cc_time_label")}</span>
           </div>
           <div className="relative">
             <input
@@ -130,10 +131,16 @@ const NotificationSettings: React.FC = () => {
         getActivityLog(),
       ]);
 
-      if (settingsData.status === "fulfilled" && settingsData.value) {
+      if (
+        settingsData.status === "fulfilled" &&
+        Array.isArray(settingsData.value)
+      ) {
         setSettings(settingsData.value);
       }
-      if (activitiesData.status === "fulfilled" && activitiesData.value) {
+      if (
+        activitiesData.status === "fulfilled" &&
+        Array.isArray(activitiesData.value)
+      ) {
         setActivities(activitiesData.value);
       }
     } catch (err) {
@@ -158,7 +165,9 @@ const NotificationSettings: React.FC = () => {
         s.slug === slug ? { ...s, is_enabled: !currentState } : s
       )
     );
-    const newStatusLabel = !currentState ? "ativado" : "desativado";
+    const newStatusLabel = !currentState
+      ? t("admin_cc_toast_activated")
+      : t("admin_cc_toast_disabled");
     const settingName =
       settings.find((s) => s.slug === slug)?.display_name || "Configuração";
     toast.success(`${settingName} ${newStatusLabel}`);
@@ -166,7 +175,7 @@ const NotificationSettings: React.FC = () => {
       await updateEmailSetting(slug, { is_enabled: !currentState });
     } catch (_err: unknown) {
       setSettings(originalSettings);
-      toast.error("Erro ao salvar alteração.");
+      toast.error(t("admin_cc_toast_error"));
     }
   };
 
@@ -182,10 +191,10 @@ const NotificationSettings: React.FC = () => {
     setUpdatingSlugs((prev) => new Set(prev).add(slug));
     try {
       await updateEmailSetting(slug, { scheduled_time: formattedTime });
-      toast.success("Horário atualizado");
+      toast.success(t("admin_cc_toast_time_success"));
     } catch (_err: unknown) {
       setSettings(originalSettings);
-      toast.error("Erro ao atualizar horário");
+      toast.error(t("admin_cc_toast_time_error"));
     } finally {
       setUpdatingSlugs((prev) => {
         const next = new Set(prev);
@@ -229,11 +238,9 @@ const NotificationSettings: React.FC = () => {
     <div className="max-w-7xl mx-auto">
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-teal-900 font-lora mb-2">
-          {t("navNotifications") || "Command Center"}
+          {t("admin_cc_title")}
         </h1>
-        <p className="text-slate-500">
-          Monitoramento em tempo real e gestão de comunicações do sistema.
-        </p>
+        <p className="text-slate-500">{t("admin_cc_subtitle")}</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -244,7 +251,7 @@ const NotificationSettings: React.FC = () => {
               <div className="flex items-center gap-2">
                 <History className="text-teal-600" size={20} />
                 <h2 className="text-lg font-bold text-teal-900">
-                  Live Activity Feed
+                  {t("admin_cc_activity_feed")}
                 </h2>
               </div>
               <div className="flex items-center gap-2">
@@ -261,14 +268,17 @@ const NotificationSettings: React.FC = () => {
               {activities.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2 py-12">
                   <History size={48} className="opacity-20" />
-                  <p>Nenhuma atividade recente encontrada.</p>
+                  <p>{t("admin_cc_activity_empty")}</p>
                 </div>
               ) : (
                 <div className="relative">
                   <div className="absolute left-4 top-0 bottom-0 w-px bg-slate-100" />
                   <div className="space-y-8 relative">
-                    {activities.map((activity) => (
-                      <div key={activity.id} className="flex gap-4 relative">
+                    {activities.map((activity, idx) => (
+                      <div
+                        key={activity.id || `act-${idx}`}
+                        className="flex gap-4 relative"
+                      >
                         <div className="relative z-10 w-8 h-8 shrink-0 rounded-full bg-white border border-slate-100 flex items-center justify-center shadow-sm">
                           <ActivityIcon type={activity.event_type} />
                         </div>
@@ -308,13 +318,15 @@ const NotificationSettings: React.FC = () => {
           <section className="bg-slate-50 border border-slate-100 rounded-3xl p-6">
             <div className="flex items-center gap-2 mb-6">
               <ShieldCheck className="text-teal-600" size={18} />
-              <h2 className="font-bold text-teal-900">Email Controls</h2>
+              <h2 className="font-bold text-teal-900">
+                {t("admin_cc_email_controls")}
+              </h2>
             </div>
 
             <div className="space-y-4">
               <div className="mb-4">
                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
-                  Customer
+                  {t("admin_cc_customer")}
                 </h3>
                 <div className="space-y-3">
                   {groupedSettings.guest.map((s) => (
@@ -331,7 +343,7 @@ const NotificationSettings: React.FC = () => {
 
               <div>
                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
-                  Internal
+                  {t("admin_cc_internal")}
                 </h3>
                 <div className="space-y-3">
                   {groupedSettings.admin.map((s) => (
@@ -352,14 +364,25 @@ const NotificationSettings: React.FC = () => {
           <section className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
               <LayoutDashboard className="text-teal-600" size={18} />
-              <h2 className="font-bold text-teal-900">Template Gallery</h2>
+              <h2 className="font-bold text-teal-900">
+                {t("admin_cc_template_gallery")}
+              </h2>
             </div>
 
             <div className="space-y-3">
               {[
-                { slug: "guest_confirmation", name: "Guest Ticket" },
-                { slug: "admin_notification", name: "New Booking Alert" },
-                { slug: "admin_refund_list", name: "Daily Refund List" },
+                {
+                  slug: "guest_confirmation",
+                  name: t("admin_cc_tpl_guest_ticket"),
+                },
+                {
+                  slug: "admin_notification",
+                  name: t("admin_cc_tpl_new_booking"),
+                },
+                {
+                  slug: "admin_refund_list",
+                  name: t("admin_cc_tpl_refund_list"),
+                },
               ].map((item) => (
                 <button
                   key={item.slug}
@@ -378,7 +401,7 @@ const NotificationSettings: React.FC = () => {
                     </span>
                   </div>
                   <span className="text-[10px] font-black text-slate-300 uppercase group-hover:text-teal-400">
-                    Preview
+                    {t("admin_cc_preview")}
                   </span>
                 </button>
               ))}
@@ -387,9 +410,7 @@ const NotificationSettings: React.FC = () => {
 
           <div className="p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
             <p className="text-[10px] text-slate-400 font-medium text-center leading-relaxed">
-              TIMEZONE: PIPA/BR (GMT-3)
-              <br />
-              All automated events are triggered based on local operations time.
+              {t("admin_cc_timezone_warning")}
             </p>
           </div>
         </div>

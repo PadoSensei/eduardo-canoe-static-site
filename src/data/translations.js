@@ -190,6 +190,35 @@ export const translations = {
     admin_cancel_go_back: "Go Back",
     admin_cancel_guests_booked: "Guests Booked",
     admin_cancel_weather_button: "Weather Cancel",
+
+    // --- Command Center ---
+    admin_cc_title: "Command Center",
+    admin_cc_subtitle:
+      "Real-time monitoring and system communications management.",
+    admin_cc_activity_feed: "Live Activity Feed",
+    admin_cc_activity_empty: "No recent activity found.",
+    admin_cc_email_controls: "Email Controls",
+    admin_cc_customer: "Customer",
+    admin_cc_internal: "Internal",
+    admin_cc_time_label: "Time",
+    admin_cc_template_gallery: "Template Gallery",
+    admin_cc_preview: "Preview",
+    admin_cc_preview_title: "Preview: {{name}}",
+    admin_cc_preview_subtitle:
+      "Exact visualization of how the customer will receive this email.",
+    admin_cc_loading: "Loading template...",
+    admin_cc_preview_error: "Error loading email template.",
+    admin_cc_close: "Close",
+    admin_cc_toast_activated: "activated",
+    admin_cc_toast_disabled: "disabled",
+    admin_cc_toast_error: "Error saving change.",
+    admin_cc_toast_time_success: "Time updated",
+    admin_cc_toast_time_error: "Error updating time",
+    admin_cc_timezone_warning:
+      "TIMEZONE: PIPA/BR (GMT-3). All automated events are triggered based on local operations time.",
+    admin_cc_tpl_guest_ticket: "Guest Ticket",
+    admin_cc_tpl_new_booking: "New Booking Alert",
+    admin_cc_tpl_refund_list: "Daily Refund List",
   },
 
   pt: {
@@ -366,6 +395,35 @@ export const translations = {
     admin_cancel_go_back: "Voltar",
     admin_cancel_guests_booked: "Hóspedes Reservados",
     admin_cancel_weather_button: "Cancelar Clima",
+
+    // --- Command Center ---
+    admin_cc_title: "Central de Comando",
+    admin_cc_subtitle:
+      "Monitoramento em tempo real e gestão de comunicações do sistema.",
+    admin_cc_activity_feed: "Feed de Atividade ao Vivo",
+    admin_cc_activity_empty: "Nenhuma atividade recente encontrada.",
+    admin_cc_email_controls: "Controles de E-mail",
+    admin_cc_customer: "Cliente",
+    admin_cc_internal: "Interno",
+    admin_cc_time_label: "Horário",
+    admin_cc_template_gallery: "Galeria de Templates",
+    admin_cc_preview: "Visualizar",
+    admin_cc_preview_title: "Visualização: {{name}}",
+    admin_cc_preview_subtitle:
+      "Visualização exata de como o cliente receberá este e-mail.",
+    admin_cc_loading: "Carregando template...",
+    admin_cc_preview_error: "Erro ao carregar o template do e-mail.",
+    admin_cc_close: "Fechar",
+    admin_cc_toast_activated: "ativado",
+    admin_cc_toast_disabled: "desativado",
+    admin_cc_toast_error: "Erro ao salvar alteração.",
+    admin_cc_toast_time_success: "Horário atualizado",
+    admin_cc_toast_time_error: "Erro ao atualizar horário",
+    admin_cc_timezone_warning:
+      "FUSO HORÁRIO: PIPA/BR (GMT-3). Todos os eventos automáticos são disparados com base no horário local da operação.",
+    admin_cc_tpl_guest_ticket: "Ticket do Hóspede",
+    admin_cc_tpl_new_booking: "Alerta de Nova Reserva",
+    admin_cc_tpl_refund_list: "Lista Diária de Reembolsos",
   },
 
   es: {
@@ -542,6 +600,35 @@ export const translations = {
     admin_cancel_go_back: "Volver",
     admin_cancel_guests_booked: "Huéspedes Reservados",
     admin_cancel_weather_button: "Cancelar Clima",
+
+    // --- Command Center ---
+    admin_cc_title: "Centro de Comando",
+    admin_cc_subtitle:
+      "Monitoreo en tiempo real y gestión de comunicaciones del sistema.",
+    admin_cc_activity_feed: "Feed de Actividad en Vivo",
+    admin_cc_activity_empty: "No se encontró actividad reciente.",
+    admin_cc_email_controls: "Controles de Correo",
+    admin_cc_customer: "Cliente",
+    admin_cc_internal: "Interno",
+    admin_cc_time_label: "Horario",
+    admin_cc_template_gallery: "Galería de Plantillas",
+    admin_cc_preview: "Vista Previa",
+    admin_cc_preview_title: "Vista Previa: {{name}}",
+    admin_cc_preview_subtitle:
+      "Visualización exacta de cómo el cliente recibirá este correo.",
+    admin_cc_loading: "Cargando plantilla...",
+    admin_cc_preview_error: "Error al cargar la plantilla de correo.",
+    admin_cc_close: "Cerrar",
+    admin_cc_toast_activated: "activado",
+    admin_cc_toast_disabled: "desactivado",
+    admin_cc_toast_error: "Error al guardar el cambio.",
+    admin_cc_toast_time_success: "Horario actualizado",
+    admin_cc_toast_time_error: "Error al actualizar el horario",
+    admin_cc_timezone_warning:
+      "ZONA HORARIA: PIPA/BR (GMT-3). Todos los eventos automáticos se activan según la hora local de operación.",
+    admin_cc_tpl_guest_ticket: "Ticket de Huésped",
+    admin_cc_tpl_new_booking: "Alerta de Nueva Reserva",
+    admin_cc_tpl_refund_list: "Lista Diaria de Reembolsos",
   },
   fr: {
     // --- Navigation ---
@@ -722,5 +809,34 @@ export const translations = {
     admin_cancel_go_back: "Retour",
     admin_cancel_guests_booked: "Clients réservés",
     admin_cancel_weather_button: "Annulation météo",
+
+    // --- Command Center ---
+    admin_cc_title: "Centre de Commande",
+    admin_cc_subtitle:
+      "Surveillance en temps réel et gestion des communications système.",
+    admin_cc_activity_feed: "Flux d'Activité en Direct",
+    admin_cc_activity_empty: "Aucune activité récente trouvée.",
+    admin_cc_email_controls: "Contrôles d'Email",
+    admin_cc_customer: "Client",
+    admin_cc_internal: "Interne",
+    admin_cc_time_label: "Horaire",
+    admin_cc_template_gallery: "Galerie de Modèles",
+    admin_cc_preview: "Aperçu",
+    admin_cc_preview_title: "Aperçu : {{name}}",
+    admin_cc_preview_subtitle:
+      "Visualisation exacte de la manière dont le client recevra cet email.",
+    admin_cc_loading: "Chargement du modèle...",
+    admin_cc_preview_error: "Erreur lors du chargement du modèle d'email.",
+    admin_cc_close: "Fermer",
+    admin_cc_toast_activated: "activé",
+    admin_cc_toast_disabled: "désactivé",
+    admin_cc_toast_error: "Erreur lors de l'enregistrement de la modification.",
+    admin_cc_toast_time_success: "Horaire mis à jour",
+    admin_cc_toast_time_error: "Erreur lors de la mise à jour de l'horaire",
+    admin_cc_timezone_warning:
+      "FUSEAU HORAIRE : PIPA/BR (GMT-3). Tous les événements automatisés sont déclenchés en fonction de l'heure locale des opérations.",
+    admin_cc_tpl_guest_ticket: "Ticket Client",
+    admin_cc_tpl_new_booking: "Alerte Nouvelle Réservation",
+    admin_cc_tpl_refund_list: "Liste Quotidienne des Remboursements",
   },
 };

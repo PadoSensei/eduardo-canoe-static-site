@@ -1,5 +1,6 @@
 import React from "react";
 import { X, Loader2 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface EmailPreviewModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
   templateName,
   loading,
 }) => {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   return (
@@ -25,10 +27,10 @@ const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
         <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
           <div>
             <h2 className="text-xl font-bold text-teal-900 font-lora">
-              Preview: {templateName}
+              {t("admin_cc_preview_title").replace("{{name}}", templateName)}
             </h2>
             <p className="text-sm text-slate-500">
-              Visualização exata de como o cliente receberá este e-mail.
+              {t("admin_cc_preview_subtitle")}
             </p>
           </div>
           <button
@@ -45,7 +47,7 @@ const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
             <div className="flex-1 flex flex-col items-center justify-center gap-3">
               <Loader2 className="w-10 h-10 animate-spin text-teal-600" />
               <p className="text-slate-500 font-medium">
-                Carregando template...
+                {t("admin_cc_loading")}
               </p>
             </div>
           ) : htmlContent ? (
@@ -59,7 +61,7 @@ const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center text-red-500">
-              Erro ao carregar o template do e-mail.
+              {t("admin_cc_preview_error")}
             </div>
           )}
         </div>
@@ -70,7 +72,7 @@ const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
             onClick={onClose}
             className="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl transition-all active:scale-95"
           >
-            Fechar
+            {t("admin_cc_close")}
           </button>
         </div>
       </div>
