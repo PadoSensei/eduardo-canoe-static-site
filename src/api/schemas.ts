@@ -210,3 +210,23 @@ export type EmailSetting = z.infer<typeof EmailSettingSchema>;
 
 export const EmailSettingsResponseSchema = z.array(EmailSettingSchema);
 export type EmailSettingsResponse = z.infer<typeof EmailSettingsResponseSchema>;
+
+export const ActivityLogSchema = z.object({
+  id: z.number(),
+  timestamp: z.string(), // ISO string
+  event_type: z.string(), // slug
+  display_id: z.string(), // 8-char string
+  guest_name: z.string(),
+  description: z.string(),
+});
+
+export type ActivityLog = z.infer<typeof ActivityLogSchema>;
+
+export const ActivityLogResponseSchema = z.array(ActivityLogSchema);
+export type ActivityLogResponse = z.infer<typeof ActivityLogResponseSchema>;
+
+export const EmailPreviewResponseSchema = z.object({
+  html: z.string(),
+});
+
+export type EmailPreviewResponse = z.infer<typeof EmailPreviewResponseSchema>;

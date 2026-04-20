@@ -217,7 +217,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const menuItems: NavItem[] = [
     { label: "Operations", path: "/admin", icon: LayoutDashboard },
     {
-      label: t("navNotifications") || "Notifications",
+      label: t("navNotifications") || "Notificações",
       path: "/admin/settings",
       icon: Mail,
     },

@@ -17,7 +17,11 @@ import {
   ScheduleResponseSchema,
   EmailSettingsResponseSchema,
   EmailSettingSchema,
+  ActivityLogResponseSchema,
+  EmailPreviewResponseSchema,
   type EmailSetting,
+  type ActivityLog,
+  type EmailPreviewResponse,
   type CreateBookingResponse,
   type ManifestResponse,
   type AdminBookingCheckInResponse,
@@ -79,10 +83,23 @@ async function request<T>(
         console.log(`🔑 Sending Request as: ${session.user?.email}`);
       }
     } else {
-      if (isDev) {
-        console.log("🔑 API Request: [Unauthenticated]");
+      // Mock bypass for development if no session found but includeAuth is true
+      const shouldBypass =
+        !config.isProduction &&
+        (import.meta.env.VITE_SKIP_AUTH === "true" ||
+          new URLSearchParams(window.location.search).get("bypass") === "true");
+
+      if (shouldBypass) {
+        headers["Authorization"] = "Bearer bypass-token";
+        if (isDev) {
+          console.log("🔑 API Request: [Bypass Mode]");
+        }
+      } else {
+        if (isDev) {
+          console.log("🔑 API Request: [Unauthenticated]");
+        }
+        throw new Error("NOT_AUTHENTICATED");
       }
-      throw new Error("NOT_AUTHENTICATED");
     }
   }
 
@@ -179,6 +196,40 @@ async function request<T>(
 
     const status = (error as { status?: number }).status || 500;
     captureApiError(error as Error, { endpoint, status });
+    throw error;
+  }
+}
+
+export async function getActivityLog(
+  options: { signal?: AbortSignal } = {}
+): Promise<ActivityLog[] | null> {
+  try {
+    return await request<ActivityLog[]>("/admin/activity-log", {
+      includeAuth: true,
+      signal: options.signal,
+      schema: ActivityLogResponseSchema,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return null;
+    throw error;
+  }
+}
+
+export async function getEmailPreview(
+  slug: string,
+  options: { signal?: AbortSignal } = {}
+): Promise<EmailPreviewResponse | null> {
+  try {
+    return await request<EmailPreviewResponse>(
+      `/admin/emails/preview/${slug}`,
+      {
+        includeAuth: true,
+        signal: options.signal,
+        schema: EmailPreviewResponseSchema,
+      }
+    );
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return null;
     throw error;
   }
 }
