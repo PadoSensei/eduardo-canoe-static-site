@@ -125,7 +125,7 @@ export const TourTemplateUISchema = z.object({
 export type TourTemplateUI = z.infer<typeof TourTemplateUISchema>;
 
 export const ManifestPassengerSchema = z.object({
-  id: z.number(),
+  id: z.number().optional(),
   uuid: z.string(),
   display_id: z.string().optional(),
   name: z.string().nullable().optional(),
@@ -212,7 +212,7 @@ export const EmailSettingsResponseSchema = z.array(EmailSettingSchema);
 export type EmailSettingsResponse = z.infer<typeof EmailSettingsResponseSchema>;
 
 export const ActivityLogSchema = z.object({
-  id: z.number(),
+  id: z.number().optional(),
   timestamp: z.string(), // ISO string
   event_type: z.string(), // slug
   display_id: z.string(), // 8-char string

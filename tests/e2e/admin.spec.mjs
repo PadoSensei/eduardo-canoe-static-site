@@ -55,6 +55,15 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
       })
     );
 
+    // Mock Activity Log
+    await page.route("**/api/v1/admin/activity-log*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([]),
+      });
+    });
+
     // Navigate after mocks are in place
     await page.goto("/admin?bypass=true");
     await page.waitForLoadState("networkidle");

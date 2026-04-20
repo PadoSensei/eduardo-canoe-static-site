@@ -125,12 +125,17 @@ const NotificationSettings: React.FC = () => {
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
-      const [settingsData, activitiesData] = await Promise.all([
+      const [settingsData, activitiesData] = await Promise.allSettled([
         getEmailSettings(),
         getActivityLog(),
       ]);
-      if (settingsData) setSettings(settingsData);
-      if (activitiesData) setActivities(activitiesData);
+
+      if (settingsData.status === "fulfilled" && settingsData.value) {
+        setSettings(settingsData.value);
+      }
+      if (activitiesData.status === "fulfilled" && activitiesData.value) {
+        setActivities(activitiesData.value);
+      }
     } catch (err) {
       // Errors are handled by request wrapper
     } finally {
