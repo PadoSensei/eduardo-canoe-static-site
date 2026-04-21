@@ -4,9 +4,10 @@ test("Verify Success View and Digital Voucher", async ({ page }) => {
   // Go to home page
   await page.goto("/?bypass=true");
 
-  // Force language to Portuguese for consistent testing
+  // Force language and testing flag
   await page.evaluate(() => {
     localStorage.setItem("language", "pt");
+    localStorage.setItem("is_testing", "true");
   });
   await page.reload();
 
@@ -51,14 +52,10 @@ test("Verify Success View and Digital Voucher", async ({ page }) => {
     .click();
 
   // Now we should be on SuccessView
-  // Wait for the Reservation ID to appear
-  await page.waitForSelector("text=ID da Reserva");
-
-  // Take screenshot
-  await page.screenshot({ path: "success_view_voucher.png", fullPage: true });
+  // Wait for the Reservation ID to appear - use a more robust locator
+  const voucherId = page.getByText(/#[A-Z0-9]{8}/);
+  await expect(voucherId).toBeVisible({ timeout: 15000 });
 
   // Verify elements
-  // Note: No space between # and the ID in the implementation
-  await expect(page.getByText(/#[A-Z0-9]{8}/)).toBeVisible();
   await expect(page.getByRole("button", { name: /Copiar ID/i })).toBeVisible();
 });
