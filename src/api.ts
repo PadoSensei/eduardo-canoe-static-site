@@ -407,18 +407,17 @@ export async function getBookingStatus(
 ): Promise<BookingStatusResponse | null> {
   try {
     // FE-AUTO: Automatically confirm payment in non-production bypass/test environments
+    // We avoid config.isTest here to let Jest tests use MSW mocks instead of this bypass
     const shouldAutoConfirm =
       (!config.isProduction &&
-        (config.isTest ||
-          import.meta.env.VITE_SKIP_AUTH === "true" ||
-          new URLSearchParams(window.location.search).get("bypass") ===
-            "true")) ||
-      localStorage.getItem("is_testing") === "true";
+        (import.meta.env.VITE_SKIP_AUTH === "true" ||
+          (typeof window !== "undefined" &&
+            new URLSearchParams(window.location.search).get("bypass") ===
+              "true"))) ||
+      (typeof localStorage !== "undefined" &&
+        localStorage.getItem("is_testing") === "true");
 
     if (shouldAutoConfirm) {
-      console.log(
-        "⚡ [API Bypass] Auto-confirming booking status for UI testing."
-      );
       return {
         uuid: bookingUuid,
         status: "confirmed",
