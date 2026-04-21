@@ -2,12 +2,19 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { ChevronRight } from "lucide-react";
+import SEO from "../components/common/SEO";
 
 const Home = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <div className="flex flex-col bg-gray-900">
+      <SEO
+        title={t("seo_home_title")}
+        description={t("seo_home_description")}
+        path="/"
+        lang={language}
+      />
       {/* --- HERO SECTION --- */}
       <section className="relative flex items-center justify-center w-full h-screen overflow-hidden text-center">
         {/* Video Background Layer */}

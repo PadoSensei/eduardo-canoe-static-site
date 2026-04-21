@@ -8,6 +8,7 @@ import {
   matchRoutes,
 } from "react-router-dom";
 import * as Sentry from "@sentry/react";
+import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "./context/LanguageContext";
 import App from "./App";
 import "../src/styles.css";
@@ -47,10 +48,12 @@ const rootElement = document.getElementById("root");
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <LanguageProvider>
-        <App />
-      </LanguageProvider>
-    </BrowserRouter>
+    <HelmetProvider>
+      <BrowserRouter>
+        <LanguageProvider>
+          <App />
+        </LanguageProvider>
+      </BrowserRouter>
+    </HelmetProvider>
   </React.StrictMode>
 );

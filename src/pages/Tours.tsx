@@ -4,6 +4,7 @@ import { getTourTemplates } from "../api";
 import TourModal from "../components/TourModal";
 import { Loader2, CalendarOff } from "lucide-react";
 import EmptyState from "../components/common/EmptyState";
+import SEO from "../components/common/SEO";
 import type { TourTemplateUI } from "@/api/schemas";
 
 function getErrorMessage(err: unknown): string {
@@ -12,7 +13,7 @@ function getErrorMessage(err: unknown): string {
 }
 
 const Tours: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [tours, setTours] = useState<TourTemplateUI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
@@ -41,6 +42,22 @@ const Tours: React.FC = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-12 bg-gray-50">
+      <SEO
+        title={t("seo_tours_title")}
+        description={t("seo_tours_description")}
+        path="/tours"
+        lang={language}
+        services={tours.map((tour) => ({
+          "@type": "Service",
+          name: tour.name,
+          description: t(`tour_${tour.tourType}_short`) || tour.shortDescription,
+          offers: {
+            "@type": "Offer",
+            price: tour.price,
+            priceCurrency: "BRL",
+          },
+        }))}
+      />
       <div className="container px-6 mx-auto">
         <h1 className="mb-4 text-4xl font-bold text-center text-gray-900 md:text-5xl font-lora">
           {t("navTours")}

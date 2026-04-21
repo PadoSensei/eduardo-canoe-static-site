@@ -16,6 +16,17 @@
 
 export const translations = {
   en: {
+    // --- SEO ---
+    seo_home_title: "Pipa Canoa Havaiana | Sunset & Full Moon Tours",
+    seo_home_description:
+      "Experience the magic of Pipa from the water. Authentic Hawaiian Canoe tours, sunset adventures, and full moon celebrations.",
+    seo_about_title: "Meet Edu | Your Captain in Pipa",
+    seo_about_description:
+      "Learn about Eduardo's journey from Hawaii to Pipa and his passion for the ocean.",
+    seo_tours_title: "Canoe Tours in Pipa | Sunrise & Sunset",
+    seo_tours_description:
+      "Explore our selection of Hawaiian Canoe adventures in Tibau do Sul. Sunrise, Sunset and Full Moon tours available.",
+
     // --- Navigation ---
     navHome: "Home",
     navTours: "Tours",
@@ -222,6 +233,17 @@ export const translations = {
   },
 
   pt: {
+    // --- SEO ---
+    seo_home_title: "Pipa Canoa Havaiana | Passeios ao Pôr do Sol e Lua Cheia",
+    seo_home_description:
+      "Experimente a magia de Pipa a partir da água. Passeios autênticos de Canoa Havaiana, aventuras ao pôr do sol e celebrações de lua cheia.",
+    seo_about_title: "Conheça o Edu | Seu Capitão em Pipa",
+    seo_about_description:
+      "Saiba mais sobre a jornada de Eduardo do Havaí até Pipa e sua paixão pelo oceano.",
+    seo_tours_title: "Passeios de Canoa em Pipa | Nascer e Pôr do Sol",
+    seo_tours_description:
+      "Explore nossa seleção de aventuras de Canoa Havaiana em Tibau do Sul. Passeios ao Nascer do Sol, Pôr do Sol e Lua Cheia disponíveis.",
+
     // --- Navegação ---
     navHome: "Início",
     navTours: "Passeios",
@@ -427,6 +449,17 @@ export const translations = {
   },
 
   es: {
+    // --- SEO ---
+    seo_home_title: "Pipa Canoa Havaiana | Tours de Atardecer y Luna Llena",
+    seo_home_description:
+      "Vive la magia de Pipa desde el agua. Tours auténticos en Canoa Hawaiana, aventuras al atardecer y celebraciones de luna llena.",
+    seo_about_title: "Conoce a Edu | Tu Capitán en Pipa",
+    seo_about_description:
+      "Conoce el viaje de Eduardo desde Hawái hasta Pipa y su pasión por el océano.",
+    seo_tours_title: "Tours en Canoa en Pipa | Amanecer y Atardecer",
+    seo_tours_description:
+      "Explora nuestra selección de aventuras en Canoa Hawaiana en Tibau do Sul. Tours al Amanecer, Atardecer y Luna Llena disponibles.",
+
     // --- Navegación ---
     navHome: "Inicio",
     navTours: "Tours",
@@ -631,6 +664,17 @@ export const translations = {
     admin_cc_tpl_refund_list: "Lista Diaria de Reembolsos",
   },
   fr: {
+    // --- SEO ---
+    seo_home_title: "Pipa Canoa Havaiana | Tours au Coucher du Soleil et Pleine Lune",
+    seo_home_description:
+      "Vivez la magie de Pipa depuis l'eau. Tours authentiques en pirogue hawaïenne, aventures au coucher du soleil et célébrations de la pleine lune.",
+    seo_about_title: "Rencontrez Edu | Votre Capitaine à Pipa",
+    seo_about_description:
+      "Découvrez le parcours d'Eduardo d'Hawaï à Pipa et sa passion pour l'océan.",
+    seo_tours_title: "Tours en Pirogue à Pipa | Lever et Coucher du Soleil",
+    seo_tours_description:
+      "Explorez notre sélection d'aventures en pirogue hawaïenne à Tibau do Sul. Tours au lever du soleil, coucher du soleil et pleine lune disponibles.",
+
     // --- Navigation ---
     navHome: "Accueil",
     navTours: "Tours",

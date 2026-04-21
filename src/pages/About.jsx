@@ -1,8 +1,9 @@
 import React from "react";
 import { useLanguage } from "../context/LanguageContext";
+import SEO from "../components/common/SEO";
 
 const About = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // Call the function to get the bio array
   const bioData = t("about_bio");
@@ -13,6 +14,13 @@ const About = () => {
 
   return (
     <div className="max-w-3xl px-6 pt-32 pb-20 mx-auto leading-relaxed text-gray-800">
+      <SEO
+        title={t("seo_about_title")}
+        description={t("seo_about_description")}
+        path="/about"
+        lang={language}
+        image="/img/Edu_Cover.jpeg"
+      />
       {/* Function calls: t("key") */}
       <h1 className="mb-8 text-4xl font-bold font-lora text-slate-900">
         {t("about_title")}
