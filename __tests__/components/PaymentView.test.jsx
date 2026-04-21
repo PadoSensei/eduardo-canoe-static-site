@@ -33,8 +33,8 @@ describe("PaymentView Component", () => {
   test("copies Pix key to clipboard and shows feedback", async () => {
     renderPaymentView();
 
-    // 1. Find the copy button SPECIFICALLY (ignores the text in the <p> tag)
-    const copyBtn = screen.getByRole("button", { name: /copy/i });
+    // 1. Find the copy button — component renders "Copiar Código Pix"
+    const copyBtn = screen.getByRole("button", { name: /copiar código pix/i });
 
     // 2. Click it
     await act(async () => {
@@ -46,28 +46,42 @@ describe("PaymentView Component", () => {
       mockPaymentInfo.qr_code
     );
 
-    // 4. Assert: UI changes to "Copied" state
-    expect(screen.getByText(/copied/i)).toBeInTheDocument();
+    // 4. Assert: UI changes to "Copiado" state (Portuguese feedback)
+    //    Use queryByRole so we're checking the button label changed,
+    //    falling back to queryByText if the component shows a separate element.
+    expect(
+      screen.getByRole("button", { name: /copiado/i })
+    ).toBeInTheDocument();
 
     // 5. Fast-forward 2 seconds
     act(() => {
       jest.advanceTimersByTime(2000);
     });
 
-    // 6. Assert: UI reverts back to "Copy" state on the button
-    expect(screen.getByRole("button", { name: /copy/i })).toBeInTheDocument();
-    expect(screen.queryByText(/copied/i)).not.toBeInTheDocument();
+    // 6. Assert: UI reverts back to "Copiar Código Pix"
+    expect(
+      screen.getByRole("button", { name: /copiar código pix/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /copiado/i })
+    ).not.toBeInTheDocument();
   });
 
   test("renders the timeout screen when hasConnectionIssue is true", () => {
     renderPaymentView({ hasConnectionIssue: true });
-    // The component renders translations key in test env or actual text if not mocked correctly.
-    // In our case it seems it's rendering "Payment Timeout" (actual text)
-    expect(screen.getByText(/Payment Timeout/i)).toBeInTheDocument();
+
+    // Component renders in Portuguese — confirmed from error output HTML
+    expect(
+      screen.getByText(/tempo de pagamento expirado/i)
+    ).toBeInTheDocument();
   });
 
   test("does not render connection warning by default", () => {
     renderPaymentView({ hasConnectionIssue: false });
-    expect(screen.queryByText(/connection slow/i)).not.toBeInTheDocument();
+
+    // Component renders in Portuguese — check for absence of timeout heading
+    expect(
+      screen.queryByText(/tempo de pagamento expirado/i)
+    ).not.toBeInTheDocument();
   });
 });

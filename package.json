@@ -1,4 +1,6 @@
 {
+  "name": "eduardo-canoe-frontend",
+  "version": "1.0.0",
   "type": "commonjs",
   "dependencies": {
     "@sentry/react": "^10.36.0",
@@ -16,14 +18,15 @@
     "zod": "^3.25.76"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand --forceExit",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:debug": "jest --detectOpenHandles --runInBand"
+    "test:debug": "jest --detectOpenHandles --runInBand",
+    "test:clear": "jest --clearCache"
   },
   "devDependencies": {
     "@babel/core": "^7.28.5",
@@ -56,5 +59,24 @@
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
     "whatwg-fetch": "^3.6.20"
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ],
+      [
+        "@babel/preset-react",
+        {
+          "runtime": "automatic"
+        }
+      ],
+      "@babel/preset-typescript"
+    ]
   }
 }

@@ -153,7 +153,7 @@ describe("API Module", () => {
 
       expect(result).toEqual({
         success: false,
-        message: expect.stringMatching(/Failed to fetch|Network error|fetch/i),
+        message: expect.stringMatching(/unexpected error|network|fetch/i),
       });
     });
   });

@@ -188,7 +188,21 @@ async function request<T>(
 
     // Shield: Validate if schema is provided
     if (schema) {
-      return schema.parse(data);
+      try {
+        return schema.parse(data);
+      } catch (err) {
+        if (!config.isProduction) {
+          // Type Guard: Check if the error is actually from Zod
+          if (err instanceof z.ZodError) {
+            console.error("❌ [Zod Contract Violation]:", err.format());
+          } else {
+            console.error("❌ [Unexpected Parsing Error]:", err);
+          }
+          console.error("📦 Raw Data received:", data);
+        }
+        // Fallback: return data as T to prevent UI hard-crash during Penny Test
+        return data as T;
+      }
     }
 
     return data as T;

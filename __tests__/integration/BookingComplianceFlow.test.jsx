@@ -12,7 +12,6 @@ describe("Full Booking Compliance Flow", () => {
   let capturedPayload;
 
   const server = setupServer(
-    // FIX: Use function call syntax, not template literals
     http.get(`${API_BASE}/tours/available`, () =>
       HttpResponse.json([
         {
@@ -37,14 +36,11 @@ describe("Full Booking Compliance Flow", () => {
   );
 
   beforeAll(() => server.listen());
-
   afterEach(async () => {
     server.resetHandlers();
     localStorage.clear();
-    // Flush promises to help with cleanup
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
-
   afterAll(() => server.close());
 
   test("User can only complete booking after checking the LGPD box", async () => {
@@ -56,19 +52,23 @@ describe("Full Booking Compliance Flow", () => {
       </BrowserRouter>
     );
 
-    // 1. Open Modal
-    fireEvent.click(await screen.findByRole("button", { name: /Book Now/i }));
+    // 1. Open Modal — PT default is "Reservar Agora"
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Reservar Agora|Book Now/i })
+    );
 
     // 2. Fill inputs
-    fireEvent.input(screen.getByLabelText(/Name/i), {
+    fireEvent.input(screen.getByLabelText(/Seu Nome|Your Name/i), {
       target: { value: "LGPD Tester" },
     });
-    fireEvent.input(screen.getByLabelText(/Email/i), {
+    fireEvent.input(screen.getByLabelText(/Seu E-mail|Your Email/i), {
       target: { value: "test@lgpd.com" },
     });
 
-    // 3. Verify Button is locked
-    const confirmBtn = screen.getByRole("button", { name: /Confirm/i });
+    // 3. Verify Button is locked — PT default is "Confirmar Reserva"
+    const confirmBtn = screen.getByRole("button", {
+      name: /Confirmar Reserva|Confirm Booking/i,
+    });
     expect(confirmBtn).toBeDisabled();
 
     // 4. Accept terms
