@@ -20,10 +20,12 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
       currentBooking?.created_at || initialSession?.currentBooking?.created_at;
 
     if (createdAtStr) {
+      // Ensure we parse as UTC to avoid local timezone drift
       const createdAt = new Date(createdAtStr).getTime();
       const now = Date.now();
       const elapsed = Math.floor((now - createdAt) / 1000);
-      return Math.max(0, baseExpires - elapsed);
+      const remaining = baseExpires - elapsed;
+      return Math.max(0, remaining);
     }
     return baseExpires;
   });
@@ -145,7 +147,9 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         consecutiveErrorsRef.current = 0;
         setConsecutiveErrors(0);
 
-        if (statusData.status === "confirmed") {
+        if (statusData.is_confirmed || statusData.status === "confirmed") {
+          // eslint-disable-next-line no-console
+          console.info("✅ Payment Verified! Switching to Success View...");
           setIsConfirmed(true);
           setPaymentInfo(null);
           localStorage.removeItem("pending_booking");

@@ -34,6 +34,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
             booked_count: 8,
             passengers: [
               {
+                id: 1,
                 name: "John Doe",
                 pax_count: 2,
                 email: "john@example.com",
@@ -42,6 +43,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
                 checked_in: false,
               },
               {
+                id: 2,
                 name: "Jane Smith",
                 pax_count: 3,
                 email: "jane@example.com",
@@ -54,6 +56,15 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
         ],
       })
     );
+
+    // Mock Activity Log
+    await page.route("**/api/v1/admin/activity-log*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([]),
+      });
+    });
 
     // Navigate after mocks are in place
     await page.goto("/admin?bypass=true");
@@ -128,7 +139,10 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
     let patchCalled = false;
     await page.route("**/api/v1/admin/bookings/*/check-in", (route) => {
       patchCalled = true;
-      route.fulfill({ status: 200, json: { message: "Success" } });
+      route.fulfill({
+        status: 200,
+        json: { uuid: "test-uuid-123", checked_in: true },
+      });
     });
 
     const dayCell = page
@@ -180,7 +194,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
 
     // Verify Headcount updated: 3 + 2 = 5 / 5
     await expect(headcountBar.getByText("5 / 5")).toBeVisible();
-    await expect(headcountBar.getByText("100%")).toBeVisible();
+    await expect(headcountBar.getByText(/100%/)).toBeVisible();
 
     // Verify toast
     await expect(
@@ -215,21 +229,29 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
     ).toBeVisible({ timeout: 10000 });
 
     const weatherCancelBtn = page.getByRole("button", {
-      name: /Weather Cancel/i,
+      name: /(Weather Cancel|Cancelar Clima)/i,
     });
     await weatherCancelBtn.waitFor({ state: "visible", timeout: 10000 });
     await weatherCancelBtn.click();
 
     // Instead of dialog, we expect the custom modal
-    await expect(page.getByText(/Cancel Tour for Weather\?/i)).toBeVisible();
+    await expect(
+      page.getByText(
+        /(Cancel Tour for Weather\?|Cancelar Passeio por Clima\?)/i
+      )
+    ).toBeVisible();
 
     // Click confirm in modal
     const modalConfirmBtn = page
       .locator("div[role='dialog']")
-      .getByRole("button", { name: /Weather Cancel/i });
+      .getByRole("button", { name: /(Weather Cancel|Cancelar Clima)/i });
     await modalConfirmBtn.click();
 
     // Instead of success alert, we expect a toast
-    await expect(page.getByText(/Tour successfully cancelled/i)).toBeVisible();
+    await expect(
+      page.getByText(
+        /(Tour successfully cancelled|Passeio cancelado com sucesso)/i
+      )
+    ).toBeVisible();
   });
 });

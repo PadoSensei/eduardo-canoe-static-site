@@ -7,102 +7,194 @@ import {
   ShieldAlert,
   Loader2,
   Info,
+  CheckCircle2,
+  CloudRain,
+  PlusCircle,
+  Eye,
+  History,
+  LayoutDashboard,
   LucideIcon,
 } from "lucide-react";
-import { getEmailSettings, updateEmailSetting } from "@/api";
-import type { EmailSetting } from "@/api/schemas";
+import {
+  getEmailSettings,
+  updateEmailSetting,
+  getActivityLog,
+  getEmailPreview,
+} from "@/api";
+import type { EmailSetting, ActivityLog } from "@/api/schemas";
 import { useLanguage } from "@/context/LanguageContext";
+import EmailPreviewModal from "./EmailPreviewModal";
 
 interface SettingCardProps {
   setting: EmailSetting;
+  onToggle: (slug: string, currentState: boolean) => void;
+  onTimeChange: (slug: string, newTime: string) => void;
+  updatingSlugs: Set<string>;
 }
 
-interface SectionProps {
-  title: string;
-  items: EmailSetting[];
-  icon: LucideIcon;
-}
+const ActivityIcon = ({ type }: { type: string }) => {
+  const t = type.toUpperCase();
+  if (t === "PAYMENT_CONFIRMED" || t === "SUCCESS")
+    return <CheckCircle2 className="text-emerald-500" size={18} />;
+  if (t === "EMAILS_SENT") return <Mail className="text-blue-500" size={18} />;
+  if (t === "WEATHER_CANCEL" || t === "ERROR")
+    return <CloudRain className="text-red-500" size={18} />;
+  if (t === "BOOKING_CREATED")
+    return <PlusCircle className="text-teal-500" size={18} />;
+  return <Info className="text-slate-400" size={18} />;
+};
+
+const SettingCard: React.FC<SettingCardProps> = ({
+  setting,
+  onToggle,
+  onTimeChange,
+  updatingSlugs,
+}) => {
+  const { t } = useLanguage();
+  return (
+    <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex justify-between items-start gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-bold text-slate-900 text-sm">
+              {setting.display_name}
+            </h3>
+          </div>
+          <p className="text-xs text-slate-500 line-clamp-1">
+            {setting.description}
+          </p>
+        </div>
+
+        <button
+          onClick={() => onToggle(setting.slug, setting.is_enabled)}
+          className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none ${
+            setting.is_enabled ? "bg-emerald-500" : "bg-slate-200"
+          }`}
+        >
+          <span
+            className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+              setting.is_enabled ? "translate-x-5" : "translate-x-1"
+            }`}
+          />
+        </button>
+      </div>
+
+      {setting.scheduled_time !== null && (
+        <div
+          className={`mt-3 pt-3 border-t border-slate-50 flex items-center justify-between ${
+            !setting.is_enabled ? "opacity-40 pointer-events-none" : ""
+          }`}
+        >
+          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+            <Clock size={12} />
+            <span>{t("admin_cc_time_label")}</span>
+          </div>
+          <div className="relative">
+            <input
+              type="time"
+              defaultValue={setting.scheduled_time.substring(0, 5)}
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
+                onTimeChange(setting.slug, e.target.value)
+              }
+              className="bg-slate-50 border border-slate-100 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none"
+            />
+            {updatingSlugs.has(setting.slug) && (
+              <div className="absolute -right-5 top-1/2 -translate-y-1/2">
+                <Loader2 size={10} className="animate-spin text-teal-600" />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const NotificationSettings: React.FC = () => {
   const { t } = useLanguage();
   const [settings, setSettings] = useState<EmailSetting[]>([]);
+  const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingSlugs, setUpdatingSlugs] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const data = await getEmailSettings();
-        if (data) setSettings(data);
-      } catch (err) {
-        // Error is handled by request wrapper
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSettings();
-  }, []);
+  // Email Preview State
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+  const [previewTemplateName, setPreviewTemplateName] = useState("");
+  const [previewLoading, setPreviewLoading] = useState(false);
 
-  const groupedSettings = useMemo(() => {
-    return {
-      guest: settings.filter((s) => s.slug.startsWith("guest_")),
-      admin: settings.filter((s) => s.slug.startsWith("admin_")),
-      other: settings.filter(
-        (s) => !s.slug.startsWith("guest_") && !s.slug.startsWith("admin_")
-      ),
-    };
-  }, [settings]);
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    try {
+      const [settingsData, activitiesData] = await Promise.allSettled([
+        getEmailSettings(),
+        getActivityLog(),
+      ]);
+
+      if (
+        settingsData.status === "fulfilled" &&
+        Array.isArray(settingsData.value)
+      ) {
+        setSettings(settingsData.value);
+      }
+      if (
+        activitiesData.status === "fulfilled" &&
+        Array.isArray(activitiesData.value)
+      ) {
+        setActivities(activitiesData.value);
+      }
+    } catch (err) {
+      // Errors are handled by request wrapper
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(() => {
+      fetchData(false);
+    }, 30000); // 30s polling
+    return () => clearInterval(interval);
+  }, []);
 
   const handleToggle = async (slug: string, currentState: boolean) => {
     const originalSettings = [...settings];
-
-    // Optimistic UI
     setSettings((prev) =>
       prev.map((s) =>
         s.slug === slug ? { ...s, is_enabled: !currentState } : s
       )
     );
-
-    const newStatusLabel = !currentState ? "ativado" : "desativado";
+    const newStatusLabel = !currentState
+      ? t("admin_cc_toast_activated")
+      : t("admin_cc_toast_disabled");
     const settingName =
-      settings.find((s) => s.slug === slug)?.display_name ||
-      "Configuração";
+      settings.find((s) => s.slug === slug)?.display_name || "Configuração";
     toast.success(`${settingName} ${newStatusLabel}`);
-
     try {
       await updateEmailSetting(slug, { is_enabled: !currentState });
     } catch (_err: unknown) {
-      // Rollback on failure
       setSettings(originalSettings);
-      toast.error("Erro crítico: Falha ao salvar alteração. Revertendo...");
+      toast.error(t("admin_cc_toast_error"));
     }
   };
 
   const handleTimeChange = async (slug: string, newTime: string) => {
     if (!newTime) return;
-
     const formattedTime = `${newTime}:00`;
     const originalSettings = [...settings];
-
-    // Optimistic UI
     setSettings((prev) =>
       prev.map((s) =>
         s.slug === slug ? { ...s, scheduled_time: formattedTime } : s
       )
     );
-
-    setUpdatingSlugs((prev: Set<string>) => {
-      const next = new Set(prev);
-      next.add(slug);
-      return next;
-    });
-
+    setUpdatingSlugs((prev) => new Set(prev).add(slug));
     try {
       await updateEmailSetting(slug, { scheduled_time: formattedTime });
-      toast.success("Horário de entrega atualizado");
+      toast.success(t("admin_cc_toast_time_success"));
     } catch (_err: unknown) {
       setSettings(originalSettings);
-      toast.error("Erro ao atualizar horário");
+      toast.error(t("admin_cc_toast_time_error"));
     } finally {
       setUpdatingSlugs((prev) => {
         const next = new Set(prev);
@@ -112,6 +204,28 @@ const NotificationSettings: React.FC = () => {
     }
   };
 
+  const handlePreview = async (slug: string, name: string) => {
+    setPreviewTemplateName(name);
+    setPreviewLoading(true);
+    setIsPreviewOpen(true);
+    try {
+      const data = await getEmailPreview(slug);
+      setPreviewHtml(data?.html || null);
+    } catch (err) {
+      setPreviewHtml(null);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const groupedSettings = useMemo(
+    () => ({
+      guest: settings.filter((s) => s.slug.startsWith("guest_")),
+      admin: settings.filter((s) => s.slug.startsWith("admin_")),
+    }),
+    [settings]
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -120,122 +234,195 @@ const NotificationSettings: React.FC = () => {
     );
   }
 
-  function SettingCard({ setting }: SettingCardProps) {
-    return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-bold text-gray-900">{setting.display_name}</h3>
-            <div className="group relative">
-              <Info size={14} className="text-gray-400 cursor-help" />
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                {setting.description}
+  return (
+    <div className="max-w-7xl mx-auto">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold text-teal-900 font-lora mb-2">
+          {t("admin_cc_title")}
+        </h1>
+        <p className="text-slate-500">{t("admin_cc_subtitle")}</p>
+      </header>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Column: Activity Feed */}
+        <div className="lg:col-span-2 space-y-6">
+          <section className="bg-white border border-slate-100 rounded-3xl shadow-sm overflow-hidden flex flex-col h-full min-h-[600px]">
+            <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+              <div className="flex items-center gap-2">
+                <History className="text-teal-600" size={20} />
+                <h2 className="text-lg font-bold text-teal-900">
+                  {t("admin_cc_activity_feed")}
+                </h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-100 rounded-full">
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                  <span className="text-[10px] font-black text-emerald-700 uppercase tracking-tighter">
+                    Live
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-          <p className="text-sm text-slate-500 line-clamp-2">
-            {setting.description}
-          </p>
+
+            <div className="flex-1 overflow-auto p-6">
+              {activities.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2 py-12">
+                  <History size={48} className="opacity-20" />
+                  <p>{t("admin_cc_activity_empty")}</p>
+                </div>
+              ) : (
+                <div className="relative">
+                  <div className="absolute left-4 top-0 bottom-0 w-px bg-slate-100" />
+                  <div className="space-y-8 relative">
+                    {activities.map((activity, idx) => (
+                      <div
+                        key={activity.id || `act-${idx}`}
+                        className="flex gap-4 relative"
+                      >
+                        <div className="relative z-10 w-8 h-8 shrink-0 rounded-full bg-white border border-slate-100 flex items-center justify-center shadow-sm">
+                          <ActivityIcon type={activity.event_type} />
+                        </div>
+                        <div className="flex-1 pt-1">
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="font-bold text-slate-900 text-sm">
+                              {activity.description}
+                            </span>
+                            <time className="text-[10px] font-medium text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">
+                              {new Date(activity.timestamp).toLocaleTimeString(
+                                [],
+                                { hour: "2-digit", minute: "2-digit" }
+                              )}
+                            </time>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs">
+                            <span className="text-slate-500 font-medium">
+                              {activity.guest_name}
+                            </span>
+                            <span className="text-slate-300 font-mono">
+                              #{activity.display_id}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
         </div>
 
-        <button
-          onClick={() => handleToggle(setting.slug, setting.is_enabled)}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-            setting.is_enabled ? "bg-emerald-500" : "bg-gray-200"
-          }`}
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-              setting.is_enabled ? "translate-x-6" : "translate-x-1"
-            }`}
-          />
-        </button>
-      </div>
+        {/* Side Column: Settings & Gallery */}
+        <div className="space-y-8">
+          {/* Email Settings Panel */}
+          <section className="bg-slate-50 border border-slate-100 rounded-3xl p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <ShieldCheck className="text-teal-600" size={18} />
+              <h2 className="font-bold text-teal-900">
+                {t("admin_cc_email_controls")}
+              </h2>
+            </div>
 
-      {setting.scheduled_time !== null && (
-        <div
-          className={`mt-4 pt-4 border-t border-gray-50 flex items-center justify-between ${!setting.is_enabled ? "opacity-40 pointer-events-none" : ""}`}
-        >
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Clock size={16} />
-            <span>Horário de Entrega</span>
-          </div>
-          <div className="relative">
-            <input
-              type="time"
-              defaultValue={setting.scheduled_time.substring(0, 5)}
-              onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
-                handleTimeChange(setting.slug, e.target.value)
-              }
-              className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none"
-            />
-            {updatingSlugs.has(setting.slug) && (
-              <div className="absolute -right-6 top-1/2 -translate-y-1/2">
-                <Loader2 size={12} className="animate-spin text-teal-600" />
+            <div className="space-y-4">
+              <div className="mb-4">
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
+                  {t("admin_cc_customer")}
+                </h3>
+                <div className="space-y-3">
+                  {groupedSettings.guest.map((s) => (
+                    <SettingCard
+                      key={s.slug}
+                      setting={s}
+                      onToggle={handleToggle}
+                      onTimeChange={handleTimeChange}
+                      updatingSlugs={updatingSlugs}
+                    />
+                  ))}
+                </div>
               </div>
-            )}
+
+              <div>
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
+                  {t("admin_cc_internal")}
+                </h3>
+                <div className="space-y-3">
+                  {groupedSettings.admin.map((s) => (
+                    <SettingCard
+                      key={s.slug}
+                      setting={s}
+                      onToggle={handleToggle}
+                      onTimeChange={handleTimeChange}
+                      updatingSlugs={updatingSlugs}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Template Gallery Panel */}
+          <section className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-6">
+              <LayoutDashboard className="text-teal-600" size={18} />
+              <h2 className="font-bold text-teal-900">
+                {t("admin_cc_template_gallery")}
+              </h2>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                {
+                  slug: "guest_confirmation",
+                  name: t("admin_cc_tpl_guest_ticket"),
+                },
+                {
+                  slug: "admin_notification",
+                  name: t("admin_cc_tpl_new_booking"),
+                },
+                {
+                  slug: "admin_refund_list",
+                  name: t("admin_cc_tpl_refund_list"),
+                },
+              ].map((item) => (
+                <button
+                  key={item.slug}
+                  onClick={() => handlePreview(item.slug, item.name)}
+                  className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-50 hover:border-teal-200 hover:bg-teal-50/50 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-slate-50 rounded-lg group-hover:bg-white transition-colors">
+                      <Eye
+                        size={16}
+                        className="text-slate-400 group-hover:text-teal-600"
+                      />
+                    </div>
+                    <span className="text-sm font-bold text-slate-700">
+                      {item.name}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-black text-slate-300 uppercase group-hover:text-teal-400">
+                    {t("admin_cc_preview")}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <div className="p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+            <p className="text-[10px] text-slate-400 font-medium text-center leading-relaxed">
+              {t("admin_cc_timezone_warning")}
+            </p>
           </div>
         </div>
-      )}
-    </div>
-    );
-  }
-
-  function Section({ title, items, icon: Icon }: SectionProps) {
-    if (items.length === 0) return null;
-    return (
-      <section className="mb-12">
-        <div className="flex items-center gap-2 mb-6">
-          <Icon className="text-teal-600" size={20} />
-          <h2 className="text-xl font-bold text-teal-900">{title}</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {items.map((setting) => (
-            <SettingCard key={setting.slug} setting={setting} />
-          ))}
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <div className="max-w-6xl">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-teal-900 font-lora mb-2">
-          {t("navNotifications") || "Notifications"}
-        </h1>
-        <p className="text-gray-500">
-          Gerencie como e quando o sistema envia comunicações automáticas.
-        </p>
       </div>
 
-      <Section
-        title="Customer Notifications"
-        items={groupedSettings.guest}
-        icon={ShieldCheck}
+      <EmailPreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        htmlContent={previewHtml}
+        templateName={previewTemplateName}
+        loading={previewLoading}
       />
-
-      <Section
-        title="Internal Operations"
-        items={groupedSettings.admin}
-        icon={ShieldAlert}
-      />
-
-      {groupedSettings.other.length > 0 && (
-        <Section
-          title="Other Settings"
-          items={groupedSettings.other}
-          icon={Mail}
-        />
-      )}
-
-      <div className="mt-12 p-4 bg-gray-100 rounded-xl text-center">
-        <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">
-          Todos os horários estão configurados no fuso horário local de Pipa
-          (GMT-3).
-        </p>
-      </div>
     </div>
   );
 };

@@ -125,7 +125,7 @@ export const TourTemplateUISchema = z.object({
 export type TourTemplateUI = z.infer<typeof TourTemplateUISchema>;
 
 export const ManifestPassengerSchema = z.object({
-  id: z.number(),
+  id: z.number().optional(),
   uuid: z.string(),
   display_id: z.string().optional(),
   name: z.string().nullable().optional(),
@@ -158,29 +158,12 @@ export const ManifestResponseSchema = z.array(ManifestTourSchema);
 export type ManifestResponse = z.infer<typeof ManifestResponseSchema>;
 
 /** JSON from PATCH /admin/bookings/{id}/check-in (backend `Booking` model). */
-export const AdminBookingCheckInResponseSchema = z.object({
-  id: z.number(),
-  tour_id: z.number(),
-  guest_name: z.string(),
-  guest_email: z.string(),
-  num_people: z.number(),
-  total_price: z.number(),
-  special_notes: z.string().nullable(),
-  accepted_terms: z.boolean(),
-  language: z.string(),
-  uuid: z.string(),
-  status: z.string(),
-  booking_date: z.string(),
-  confirmation_sent: z.boolean(),
-  checked_in: z.boolean(),
-  terms_accepted_at: z.string().nullable(),
-  privacy_policy_version: z.string().nullable(),
-  payment_transaction_id: z.string().nullable(),
-  paid_at: z.string().nullable(),
-  cancelled_at: z.string().nullable(),
-  created_at: z.string(),
-  updated_at: z.string(),
-});
+export const AdminBookingCheckInResponseSchema = BookingSchema.partial().extend(
+  {
+    uuid: z.string(),
+    checked_in: z.boolean(),
+  }
+);
 
 export type AdminBookingCheckInResponse = z.infer<
   typeof AdminBookingCheckInResponseSchema
@@ -210,3 +193,23 @@ export type EmailSetting = z.infer<typeof EmailSettingSchema>;
 
 export const EmailSettingsResponseSchema = z.array(EmailSettingSchema);
 export type EmailSettingsResponse = z.infer<typeof EmailSettingsResponseSchema>;
+
+export const ActivityLogSchema = z.object({
+  id: z.number().optional(),
+  timestamp: z.string(), // ISO string
+  event_type: z.string(), // slug
+  display_id: z.string(), // 8-char string
+  guest_name: z.string(),
+  description: z.string(),
+});
+
+export type ActivityLog = z.infer<typeof ActivityLogSchema>;
+
+export const ActivityLogResponseSchema = z.array(ActivityLogSchema);
+export type ActivityLogResponse = z.infer<typeof ActivityLogResponseSchema>;
+
+export const EmailPreviewResponseSchema = z.object({
+  html: z.string(),
+});
+
+export type EmailPreviewResponse = z.infer<typeof EmailPreviewResponseSchema>;

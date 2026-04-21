@@ -15,7 +15,6 @@ import { LanguageProvider } from "../../src/context/LanguageContext";
 
 const API_BASE = "http://localhost:8000/api/v1";
 
-// Mock Supabase to provide a session for the hardened request wrapper
 jest.mock("@/supabaseClient", () => ({
   supabase: {
     auth: {
@@ -68,35 +67,35 @@ test("Weather Cancel button triggers confirmation and API call", async () => {
     </MemoryRouter>
   );
 
-  // Wait for the async tour card to appear
+  // PT default is "Cancelar Clima"
   const cancelBtn = await screen.findByRole("button", {
-    name: /Weather Cancel/i,
+    name: /Cancelar Clima|Weather Cancel/i,
   });
   expect(cancelBtn).toBeInTheDocument();
-
   fireEvent.click(cancelBtn);
 
-  // Instead of window.confirm, we should see the modal
-  const modalTitle = await screen.findByText(/Cancel Tour for Weather/i, {
-    selector: "h3",
-  });
+  // Modal title — PT is "Cancelar Passeio por Clima?"
+  const modalTitle = await screen.findByText(
+    /Cancelar Passeio por Clima|Cancel Tour for Weather/i,
+    { selector: "h3" }
+  );
   expect(modalTitle).toBeInTheDocument();
 
-  // Find and click the confirm button in the modal
-  // There are two "Weather Cancel" buttons now: one in the card and one in the modal
+  // Click confirm button in the modal (last one if multiple)
   const confirmBtns = screen.getAllByRole("button", {
-    name: /Weather Cancel/i,
+    name: /Cancelar Clima|Weather Cancel/i,
   });
   fireEvent.click(confirmBtns[confirmBtns.length - 1]);
 
-  // Wait for the success toast (mocked or just wait for effect)
   await act(async () => {
     await new Promise((r) => setTimeout(r, 0));
   });
 
-  // Since we replaced alert with sonner, we check if the modal is gone
+  // Modal should be gone after confirmation
   await waitFor(() => {
-    expect(screen.queryByText(/Are you sure/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Cancelar Passeio por Clima|Cancel Tour for Weather/i)
+    ).not.toBeInTheDocument();
   });
 });
 
@@ -127,12 +126,13 @@ test("Cancelled tour shows badge and no Weather Cancel button", async () => {
     </MemoryRouter>
   );
 
-  expect(await screen.findByText("TOUR CANCELLED")).toBeInTheDocument();
-  expect(
-    screen.queryByRole("button", { name: /Weather Cancel/i })
-  ).not.toBeInTheDocument();
+  // Select the cancelled tour first — alert only renders after selection
+  fireEvent.click(await screen.findByText("Sunset Tour"));
 
-  fireEvent.click(screen.getByText("Sunset Tour"));
   const alert = await screen.findByRole("alert");
   expect(alert).toHaveTextContent(/This tour has been cancelled/i);
+
+  expect(
+    screen.queryByRole("button", { name: /Cancelar Clima|Weather Cancel/i })
+  ).not.toBeInTheDocument();
 });

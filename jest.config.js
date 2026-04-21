@@ -3,14 +3,14 @@ module.exports = {
   testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
   transform: {
-    "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
+    "^.+\\.(js|jsx|ts|tsx|mjs)$": "babel-jest",
   },
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
   // Transform ES modules in these packages
   transformIgnorePatterns: [
-    "node_modules/(?!(msw|@mswjs|until-async|parse5|entities|whatwg-url|tr46|webidl-conversions)/)",
+    "node_modules/(?!(msw|@mswjs|@open-draft|rettime|until-async|parse5|entities|whatwg-url|tr46|webidl-conversions)/)",
   ],
   // Required for MSW v2 to work correctly with JSDOM
   testEnvironmentOptions: {

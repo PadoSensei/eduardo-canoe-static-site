@@ -82,7 +82,9 @@ test.describe("Resilience & Error Handling", () => {
     await page.goto("/book", { waitUntil: "load" });
 
     // 3. ASSERT: The "Booking Reserved" text is visible while the network is slow
-    await expect(page.getByText(/Booking Reserved/i)).toBeVisible();
+    await expect(
+      page.getByText(/Booking Reserved|Reserva Iniciada/i)
+    ).toBeVisible();
   });
 
   // --- SUITE 2: HARD ERROR HANDLING ---
@@ -103,7 +105,7 @@ test.describe("Resilience & Error Handling", () => {
 
     // 2. ASSERT: User sees the 'errorGeneric' text
     await expect(
-      page.getByText(/Sorry, we couldn't load tour availability/i)
+      page.getByText(/Sorry|Desculpe|não foi possível/i)
     ).toBeVisible();
   });
 
@@ -140,25 +142,31 @@ test.describe("Resilience & Error Handling", () => {
     await page.goto("/book", { waitUntil: "networkidle" });
 
     // Click "Book Now" in the tour list
-    const bookNowButton = page.getByRole("button", { name: /Book Now/i });
+    const bookNowButton = page.getByRole("button", {
+      name: /Book Now|Reservar Agora/i,
+    });
     await expect(bookNowButton).toBeVisible();
     await bookNowButton.click();
 
     // 3. Fill the form
-    await page.getByLabel(/Your Name/i).fill("Failure Tester");
-    await page.getByLabel(/Your Email/i).fill("fail@test.com");
-    await page.getByLabel(/I accept the/i).check();
+    await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Failure Tester");
+    await page
+      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
+      .fill("fail@test.com");
+    await page.getByLabel(/I accept the|Eu aceito|Aceito os/i).check();
 
     // 4. ACT: Submit
     const confirmButton = page.getByRole("button", {
-      name: /Confirm Booking/i,
+      name: /Confirm Booking|Confirmar Reserva/i,
     });
     await expect(confirmButton).toBeVisible();
     await confirmButton.click();
 
     // 5. ASSERT: The modal should display the specific error from the backend
     await expect(page.getByRole("alert")).toBeVisible();
-    await expect(page.getByText(/Booking failed/i)).toBeVisible();
+    await expect(
+      page.getByText(/Booking failed|Falha na reserva/i)
+    ).toBeVisible();
   });
 
   test("should trigger the Global Sentry Error Boundary on total crash", async ({
