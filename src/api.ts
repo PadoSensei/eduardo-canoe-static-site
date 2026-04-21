@@ -406,6 +406,25 @@ export async function getBookingStatus(
   options: { signal?: AbortSignal } = {}
 ): Promise<BookingStatusResponse | null> {
   try {
+    // FE-AUTO: Automatically confirm payment in non-production bypass/test environments
+    const shouldAutoConfirm =
+      !config.isProduction &&
+      (config.isTest ||
+        import.meta.env.VITE_SKIP_AUTH === "true" ||
+        new URLSearchParams(window.location.search).get("bypass") === "true");
+
+    if (shouldAutoConfirm) {
+      console.log(
+        "⚡ [API Bypass] Auto-confirming booking status for UI testing."
+      );
+      return {
+        uuid: bookingUuid,
+        status: "confirmed",
+        is_confirmed: true,
+        guest_email: "test@example.com",
+      } as BookingStatusResponse;
+    }
+
     return await request<BookingStatusResponse>(
       `/bookings/status/${bookingUuid}`,
       {

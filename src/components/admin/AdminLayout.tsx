@@ -10,7 +10,7 @@ import {
   Loader2,
   Menu,
   X,
-  History,
+  Bell,
   LucideIcon,
 } from "lucide-react";
 import config from "@/core/config";
@@ -222,9 +222,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       icon: LayoutDashboard,
     },
     {
-      label: t("nav_activity") || "Atividade",
+      label: t("nav_notifications") || "Notificações",
       path: "/admin/activity",
-      icon: History,
+      icon: Bell,
     },
     {
       label: t("nav_emails") || "E-mails",
