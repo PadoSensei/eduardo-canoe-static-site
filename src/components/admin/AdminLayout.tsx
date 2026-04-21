@@ -10,6 +10,7 @@ import {
   Loader2,
   Menu,
   X,
+  History,
   LucideIcon,
 } from "lucide-react";
 import config from "@/core/config";
@@ -215,10 +216,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   }
 
   const menuItems: NavItem[] = [
-    { label: "Operations", path: "/admin", icon: LayoutDashboard },
     {
-      label: t("nav_notifications") || "Notificações",
-      path: "/admin/settings",
+      label: t("nav_operations") || "Operações",
+      path: "/admin/operations",
+      icon: LayoutDashboard,
+    },
+    {
+      label: t("nav_activity") || "Atividade",
+      path: "/admin/activity",
+      icon: History,
+    },
+    {
+      label: t("nav_emails") || "E-mails",
+      path: "/admin/emails",
       icon: Mail,
     },
   ];
@@ -257,8 +267,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               const Icon = item.icon;
               const isActive =
                 location.pathname === item.path ||
-                (item.path === "/admin" &&
-                  location.pathname.startsWith("/admin/manifest"));
+                (item.path === "/admin/operations" &&
+                  (location.pathname === "/admin" ||
+                    location.pathname.startsWith("/admin/manifest")));
               return (
                 <Link
                   key={item.path}

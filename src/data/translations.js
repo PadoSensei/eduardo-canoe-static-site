@@ -34,6 +34,9 @@ export const translations = {
     navFaq: "FAQ",
     navAbout: "About Us",
     nav_notifications: "Notifications",
+    nav_operations: "Operations",
+    nav_activity: "Activity",
+    nav_emails: "E-mails",
 
     // --- Hero Section ---
     heroTitle: "Feel the Ocean's Heartbeat",
@@ -230,6 +233,13 @@ export const translations = {
     admin_cc_tpl_guest_ticket: "Guest Ticket",
     admin_cc_tpl_new_booking: "New Booking Alert",
     admin_cc_tpl_refund_list: "Daily Refund List",
+    admin_cc_badge_scheduled: "Scheduled",
+    admin_cc_badge_instant: "Instant",
+    admin_cc_tpl_guest_reminder: "24h Reminder",
+    admin_cc_tpl_guest_cancel: "Weather Cancel",
+    admin_cc_tpl_guest_review: "Review Request",
+    admin_cc_tpl_admin_manifest: "Daily Manifest",
+    admin_cc_tpl_admin_summary: "Monthly Summary",
   },
 
   pt: {
@@ -251,6 +261,9 @@ export const translations = {
     navFaq: "FAQ",
     navAbout: "Sobre Nós",
     nav_notifications: "Notificações",
+    nav_operations: "Operações",
+    nav_activity: "Atividade",
+    nav_emails: "E-mails",
 
     // --- Hero Section ---
     heroTitle: "Sinta a Pulsação do Oceano",
@@ -446,6 +459,13 @@ export const translations = {
     admin_cc_tpl_guest_ticket: "Ticket do Hóspede",
     admin_cc_tpl_new_booking: "Alerta de Nova Reserva",
     admin_cc_tpl_refund_list: "Lista Diária de Reembolsos",
+    admin_cc_badge_scheduled: "Agendado",
+    admin_cc_badge_instant: "Instantâneo",
+    admin_cc_tpl_guest_reminder: "Lembrete 24h",
+    admin_cc_tpl_guest_cancel: "Cancelamento por Clima",
+    admin_cc_tpl_guest_review: "Pedido de Avaliação",
+    admin_cc_tpl_admin_manifest: "Manifesto Diário",
+    admin_cc_tpl_admin_summary: "Resumo Mensal",
   },
 
   es: {
@@ -467,6 +487,9 @@ export const translations = {
     navFaq: "FAQ",
     navAbout: "Sobre Nosotros",
     nav_notifications: "Notificaciones",
+    nav_operations: "Operaciones",
+    nav_activity: "Actividad",
+    nav_emails: "E-mails",
 
     // --- Hero Section ---
     heroTitle: "Siente el Latido del Océano",
@@ -662,6 +685,13 @@ export const translations = {
     admin_cc_tpl_guest_ticket: "Ticket de Huésped",
     admin_cc_tpl_new_booking: "Alerta de Nueva Reserva",
     admin_cc_tpl_refund_list: "Lista Diaria de Reembolsos",
+    admin_cc_badge_scheduled: "Programado",
+    admin_cc_badge_instant: "Instantáneo",
+    admin_cc_tpl_guest_reminder: "Recordatorio 24h",
+    admin_cc_tpl_guest_cancel: "Cancelación por Clima",
+    admin_cc_tpl_guest_review: "Solicitud de Reseña",
+    admin_cc_tpl_admin_manifest: "Manifiesto Diario",
+    admin_cc_tpl_admin_summary: "Resumen Mensual",
   },
   fr: {
     // --- SEO ---
@@ -683,6 +713,9 @@ export const translations = {
     navFaq: "FAQ",
     navAbout: "À Propos",
     nav_notifications: "Notifications",
+    nav_operations: "Opérations",
+    nav_activity: "Activité",
+    nav_emails: "E-mails",
 
     // --- Hero Section ---
     heroTitle: "Ressentez le Pouls de l'Océan",
@@ -883,5 +916,12 @@ export const translations = {
     admin_cc_tpl_guest_ticket: "Ticket Client",
     admin_cc_tpl_new_booking: "Alerte Nouvelle Réservation",
     admin_cc_tpl_refund_list: "Liste Quotidienne des Remboursements",
+    admin_cc_badge_scheduled: "Programmé",
+    admin_cc_badge_instant: "Instantané",
+    admin_cc_tpl_guest_reminder: "Rappel 24h",
+    admin_cc_tpl_guest_cancel: "Annulation Météo",
+    admin_cc_tpl_guest_review: "Demande d'Avis",
+    admin_cc_tpl_admin_manifest: "Manifeste Quotidien",
+    admin_cc_tpl_admin_summary: "Résumé Mensuel",
   },
 };
