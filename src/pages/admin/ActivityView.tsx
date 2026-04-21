@@ -257,11 +257,13 @@ const ActivityView: React.FC = () => {
           ) : activities.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-96 text-slate-400 gap-4">
               <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center">
-                <History size={40} className="opacity-20" />
+                <Search size={40} className="opacity-20" />
               </div>
               <div className="text-center">
                 <p className="font-bold text-slate-600">
-                  {t("admin_cc_activity_empty")}
+                  {debouncedSearch
+                    ? t("admin_cc_search_empty")
+                    : t("admin_cc_activity_empty")}
                 </p>
                 <p className="text-sm opacity-60">
                   {t("admin_cc_activity_hint")}

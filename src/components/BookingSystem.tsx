@@ -409,6 +409,7 @@ function BookingSystem() {
               {isConfirmed ? (
                 <SuccessView
                   guestEmail={guestEmail || currentBooking?.guest_email}
+                  booking={currentBooking}
                   onClose={closeModal}
                 />
               ) : paymentInfo ? (
