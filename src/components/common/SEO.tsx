@@ -42,7 +42,7 @@ const SEO: React.FC<SEOProps> = ({
         : siteName;
   const metaDescription =
     description ||
-    "Experience the magic of Pipa from the water. Authentic Hawaiian Canoe tours, sunset adventures, and full moon celebrations.";
+    "Pipa Canoa Havaiana - Experiência autêntica de Canoa Havaiana em Pipa, RN.";
   const canonicalUrl = `${config.siteUrl}${path}`;
   const absoluteImageUrl = new URL(
     image || config.defaultOgImage,
@@ -54,27 +54,27 @@ const SEO: React.FC<SEOProps> = ({
     "@graph": [
       {
         "@type": "LocalBusiness",
-        "name": siteName,
-        "image": absoluteImageUrl,
+        name: siteName,
+        image: absoluteImageUrl,
         "@id": config.siteUrl,
-        "url": config.siteUrl,
-        "telephone": "",
-        "address": {
+        url: config.siteUrl,
+        telephone: "",
+        address: {
           "@type": "PostalAddress",
-          "streetAddress": "Escadaria do Pôr do Sol",
-          "addressLocality": "Tibau do Sul",
-          "addressRegion": "RN",
-          "postalCode": "59178-000",
-          "addressCountry": "BR",
+          streetAddress: "Escadaria do Pôr do Sol",
+          addressLocality: "Tibau do Sul",
+          addressRegion: "RN",
+          postalCode: "59178-000",
+          addressCountry: "BR",
         },
-        "geo": {
+        geo: {
           "@type": "GeoCoordinates",
-          "latitude": -6.1868,
-          "longitude": -35.0886,
+          latitude: -6.1868,
+          longitude: -35.0886,
         },
-        "openingHoursSpecification": {
+        openingHoursSpecification: {
           "@type": "OpeningHoursSpecification",
-          "dayOfWeek": [
+          dayOfWeek: [
             "Monday",
             "Tuesday",
             "Wednesday",
@@ -83,8 +83,8 @@ const SEO: React.FC<SEOProps> = ({
             "Saturday",
             "Sunday",
           ],
-          "opens": "05:00",
-          "closes": "20:00",
+          opens: "05:00",
+          closes: "20:00",
         },
       },
       ...(services || []),

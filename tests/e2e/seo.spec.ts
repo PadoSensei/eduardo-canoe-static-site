@@ -41,7 +41,9 @@ test.describe("SEO and Metadata", () => {
     expect(data["@graph"][0]["geo"]["latitude"]).toBe(-6.1868);
   });
 
-  test("should update SEO tags when navigating to About page", async ({ page }) => {
+  test("should update SEO tags when navigating to About page", async ({
+    page,
+  }) => {
     await page.goto("/about");
 
     await expect(page).toHaveTitle(/Conheça o Edu | Seu Capitão em Pipa/i);

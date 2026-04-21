@@ -50,7 +50,8 @@ const Tours: React.FC = () => {
         services={tours.map((tour) => ({
           "@type": "Service",
           name: tour.name,
-          description: t(`tour_${tour.tourType}_short`) || tour.shortDescription,
+          description:
+            t(`tour_${tour.tourType}_short`) || tour.shortDescription,
           offers: {
             "@type": "Offer",
             price: tour.price,

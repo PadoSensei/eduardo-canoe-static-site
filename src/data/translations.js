@@ -665,7 +665,8 @@ export const translations = {
   },
   fr: {
     // --- SEO ---
-    seo_home_title: "Pipa Canoa Havaiana | Tours au Coucher du Soleil et Pleine Lune",
+    seo_home_title:
+      "Pipa Canoa Havaiana | Tours au Coucher du Soleil et Pleine Lune",
     seo_home_description:
       "Vivez la magie de Pipa depuis l'eau. Tours authentiques en pirogue hawaïenne, aventures au coucher du soleil et célébrations de la pleine lune.",
     seo_about_title: "Rencontrez Edu | Votre Capitaine à Pipa",
