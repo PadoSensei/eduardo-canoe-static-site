@@ -148,7 +148,8 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         setConsecutiveErrors(0);
 
         if (statusData.is_confirmed || statusData.status === "confirmed") {
-          console.log("✅ Payment Verified! Switching to Success View...");
+          // eslint-disable-next-line no-console
+          console.info("✅ Payment Verified! Switching to Success View...");
           setIsConfirmed(true);
           setPaymentInfo(null);
           localStorage.removeItem("pending_booking");
