@@ -217,10 +217,21 @@ async function request<T>(
 }
 
 export async function getActivityLog(
-  options: { signal?: AbortSignal } = {}
+  options: { category?: string; search?: string; signal?: AbortSignal } = {}
 ): Promise<ActivityLog[] | null> {
   try {
-    return await request<ActivityLog[]>("/admin/activity-log", {
+    const params = new URLSearchParams();
+    if (options.category && options.category !== "all") {
+      params.append("category", options.category);
+    }
+    if (options.search) {
+      params.append("search", options.search);
+    }
+
+    const queryString = params.toString();
+    const endpoint = `/admin/activity-log${queryString ? `?${queryString}` : ""}`;
+
+    return await request<ActivityLog[]>(endpoint, {
       includeAuth: true,
       signal: options.signal,
       schema: ActivityLogResponseSchema,

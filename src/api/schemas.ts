@@ -198,9 +198,11 @@ export const ActivityLogSchema = z.object({
   id: z.number().optional(),
   timestamp: z.string(), // ISO string
   event_type: z.string(), // slug
+  category: z.string().default("system"), // payments, communications, bookings, system
   display_id: z.string(), // 8-char string
   guest_name: z.string(),
   description: z.string(),
+  tour_details: z.string().nullable().optional(),
 });
 
 export type ActivityLog = z.infer<typeof ActivityLogSchema>;
