@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ArrowLeft, Plus, Minus, Loader2 } from "lucide-react";
 import { adminCreateBooking } from "../../../api";
+import ManualBookingSummary from "./ManualBookingSummary";
 
 const ManualBookingForm = ({
   selectedTour,
@@ -13,6 +14,8 @@ const ManualBookingForm = ({
   const [numPeople, setNumPeople] = useState(1);
   const [specialNotes, setSpecialNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [createdBooking, setCreatedBooking] = useState(null);
 
   // Calculate available spots for the stepper limit
   const availableSpots = selectedTour.capacity - selectedTour.booked_count;
@@ -34,12 +37,17 @@ const ManualBookingForm = ({
         accepted_terms: true, // Admin override
       };
 
-      await adminCreateBooking(payload, { signal: controller.signal });
+      const result = await adminCreateBooking(payload, {
+        signal: controller.signal,
+      });
 
-      alert("Booking added successfully!");
-
-      // Trigger the refresh in the parent (Manifest) and grandparent (Calendar)
-      if (onSuccess) onSuccess();
+      if (result && result.booking) {
+        setCreatedBooking(result.booking);
+        setShowSummary(true);
+      } else {
+        // Fallback if backend doesn't return booking object but 200 OK
+        if (onSuccess) onSuccess();
+      }
     } catch (err) {
       if (err.name === "AbortError") return;
       alert("Error: " + err.message);
@@ -47,6 +55,20 @@ const ManualBookingForm = ({
       setIsSubmitting(false);
     }
   };
+
+  if (showSummary && createdBooking) {
+    return (
+      <ManualBookingSummary
+        displayId={
+          createdBooking.display_id || createdBooking.uuid.substring(0, 8)
+        }
+        guestName={createdBooking.guest_name || guestName}
+        onFinish={() => {
+          if (onSuccess) onSuccess();
+        }}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col w-full h-full duration-300 bg-white shadow-2xl animate-in slide-in-from-bottom">

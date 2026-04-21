@@ -33,7 +33,7 @@ export const translations = {
     navBook: "Book",
     navFaq: "FAQ",
     navAbout: "About Us",
-    navNotifications: "Notifications",
+    nav_notifications: "Notifications",
 
     // --- Hero Section ---
     heroTitle: "Feel the Ocean's Heartbeat",
@@ -250,7 +250,7 @@ export const translations = {
     navBook: "Reservar",
     navFaq: "FAQ",
     navAbout: "Sobre Nós",
-    navNotifications: "Notificações",
+    nav_notifications: "Notificações",
 
     // --- Hero Section ---
     heroTitle: "Sinta a Pulsação do Oceano",
@@ -466,7 +466,7 @@ export const translations = {
     navBook: "Reservar",
     navFaq: "FAQ",
     navAbout: "Sobre Nosotros",
-    navNotifications: "Notificaciones",
+    nav_notifications: "Notificaciones",
 
     // --- Hero Section ---
     heroTitle: "Siente el Latido del Océano",
@@ -682,7 +682,7 @@ export const translations = {
     navBook: "Réserver",
     navFaq: "FAQ",
     navAbout: "À Propos",
-    navNotifications: "Notifications",
+    nav_notifications: "Notifications",
 
     // --- Hero Section ---
     heroTitle: "Ressentez le Pouls de l'Océan",

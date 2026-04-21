@@ -195,6 +195,7 @@ async function request<T>(
           // Type Guard: Check if the error is actually from Zod
           if (err instanceof z.ZodError) {
             console.error("❌ [Zod Contract Violation]:", err.format());
+            console.error("FEED_SCHEMA_MISMATCH:", err.errors);
           } else {
             console.error("❌ [Unexpected Parsing Error]:", err);
           }
