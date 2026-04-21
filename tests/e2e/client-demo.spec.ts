@@ -292,9 +292,9 @@ test.describe("EduCanoe Guided Tour", () => {
     });
 
     // 4. Update a Notification delivery time
-    await page.goto("/admin/settings?bypass=true");
+    await page.goto("/admin/emails?bypass=true");
     await expect(
-      page.getByText(/(Notifications|Notificações|Central de Comando)/i).first()
+      page.getByText(/(E-mails|E-mail Controls|Controles de E-mail)/i).first()
     ).toBeVisible({
       timeout: 15000,
     });

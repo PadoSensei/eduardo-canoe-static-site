@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { History, CheckCircle2, Mail, CloudRain, PlusCircle, Info, Loader2 } from "lucide-react";
+import {
+  History,
+  CheckCircle2,
+  Mail,
+  CloudRain,
+  PlusCircle,
+  Info,
+  Loader2,
+} from "lucide-react";
 import { getActivityLog } from "@/api";
 import type { ActivityLog } from "@/api/schemas";
 import { useLanguage } from "@/context/LanguageContext";
@@ -102,10 +110,10 @@ const ActivityView: React.FC = () => {
                           {activity.description}
                         </span>
                         <time className="text-[10px] font-medium text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">
-                          {new Date(activity.timestamp).toLocaleTimeString(
-                            [],
-                            { hour: "2-digit", minute: "2-digit" }
-                          )}
+                          {new Date(activity.timestamp).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </time>
                       </div>
                       <div className="flex items-center gap-3 text-xs">

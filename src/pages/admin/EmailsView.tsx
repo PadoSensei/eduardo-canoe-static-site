@@ -8,11 +8,7 @@ import {
   Eye,
   LayoutDashboard,
 } from "lucide-react";
-import {
-  getEmailSettings,
-  updateEmailSetting,
-  getEmailPreview,
-} from "@/api";
+import { getEmailSettings, updateEmailSetting, getEmailPreview } from "@/api";
 import type { EmailSetting } from "@/api/schemas";
 import { useLanguage } from "@/context/LanguageContext";
 import EmailPreviewModal from "@/components/admin/EmailPreviewModal";
@@ -189,14 +185,46 @@ const EmailsView: React.FC = () => {
   );
 
   const galleryTemplates = [
-    { slug: "guest_confirmation", name: t("admin_cc_tpl_guest_ticket"), isScheduled: false },
-    { slug: "guest_reminder_24h", name: t("admin_cc_tpl_guest_reminder"), isScheduled: true },
-    { slug: "guest_weather_cancel", name: t("admin_cc_tpl_guest_cancel"), isScheduled: false },
-    { slug: "guest_review_request", name: t("admin_cc_tpl_guest_review"), isScheduled: true },
-    { slug: "admin_notification", name: t("admin_cc_tpl_new_booking"), isScheduled: false },
-    { slug: "admin_daily_manifest", name: t("admin_cc_tpl_admin_manifest"), isScheduled: true },
-    { slug: "admin_refund_list", name: t("admin_cc_tpl_refund_list"), isScheduled: false },
-    { slug: "admin_monthly_summary", name: t("admin_cc_tpl_admin_summary"), isScheduled: true },
+    {
+      slug: "guest_confirmation",
+      name: t("admin_cc_tpl_guest_ticket"),
+      isScheduled: false,
+    },
+    {
+      slug: "guest_reminder_24h",
+      name: t("admin_cc_tpl_guest_reminder"),
+      isScheduled: true,
+    },
+    {
+      slug: "guest_weather_cancel",
+      name: t("admin_cc_tpl_guest_cancel"),
+      isScheduled: false,
+    },
+    {
+      slug: "guest_review_request",
+      name: t("admin_cc_tpl_guest_review"),
+      isScheduled: true,
+    },
+    {
+      slug: "admin_notification",
+      name: t("admin_cc_tpl_new_booking"),
+      isScheduled: false,
+    },
+    {
+      slug: "admin_daily_manifest",
+      name: t("admin_cc_tpl_admin_manifest"),
+      isScheduled: true,
+    },
+    {
+      slug: "admin_refund_list",
+      name: t("admin_cc_tpl_refund_list"),
+      isScheduled: false,
+    },
+    {
+      slug: "admin_monthly_summary",
+      name: t("admin_cc_tpl_admin_summary"),
+      isScheduled: true,
+    },
   ];
 
   if (loading) {
@@ -280,19 +308,25 @@ const EmailsView: React.FC = () => {
               >
                 <div>
                   <div className="flex justify-between items-start mb-2">
-                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
-                      item.isScheduled
-                        ? "bg-purple-100 text-purple-700"
-                        : "bg-amber-100 text-amber-700"
-                    }`}>
-                      {item.isScheduled ? t("admin_cc_badge_scheduled") : t("admin_cc_badge_instant")}
+                    <span
+                      className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                        item.isScheduled
+                          ? "bg-purple-100 text-purple-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
+                      {item.isScheduled
+                        ? t("admin_cc_badge_scheduled")
+                        : t("admin_cc_badge_instant")}
                     </span>
                   </div>
                   <h3 className="text-sm font-bold text-slate-700 mb-1">
                     {item.name}
                   </h3>
                   <p className="text-[10px] text-slate-400 line-clamp-2 mb-4">
-                    {item.slug.includes('guest') ? t("admin_cc_customer") : t("admin_cc_internal")}
+                    {item.slug.includes("guest")
+                      ? t("admin_cc_customer")
+                      : t("admin_cc_internal")}
                   </p>
                 </div>
                 <button
