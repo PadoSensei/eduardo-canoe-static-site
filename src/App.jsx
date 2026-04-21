@@ -16,7 +16,8 @@ import About from "./pages/About";
 
 // Admin
 import AdminLayout from "./components/admin/AdminLayout";
-import NotificationSettings from "./components/admin/NotificationSettings";
+import ActivityView from "./pages/admin/ActivityView";
+import EmailsView from "./pages/admin/EmailsView";
 
 // Components
 import BookingSystem from "./components/BookingSystem";
@@ -103,9 +104,18 @@ const App = () => {
             element={
               <AdminLayout>
                 <Routes>
-                  <Route path="/" element={<Dashboard />} />
+                  <Route
+                    path="/"
+                    element={<Navigate to="/admin/operations" replace />}
+                  />
+                  <Route path="/operations" element={<Dashboard />} />
                   <Route path="/manifest/:date" element={<Dashboard />} />
-                  <Route path="/settings" element={<NotificationSettings />} />
+                  <Route path="/activity" element={<ActivityView />} />
+                  <Route path="/emails" element={<EmailsView />} />
+                  <Route
+                    path="/settings"
+                    element={<Navigate to="/admin/emails" replace />}
+                  />
                 </Routes>
               </AdminLayout>
             }
