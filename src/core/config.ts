@@ -6,6 +6,8 @@ interface Config {
   isTest: boolean;
   googleMapsUrl: string;
   supportEmail: string;
+  siteUrl: string;
+  defaultOgImage: string;
 }
 
 const config: Config = {
@@ -15,6 +17,8 @@ const config: Config = {
   isTest: import.meta.env.MODE === "test",
   googleMapsUrl: "https://maps.app.goo.gl/wqfu2W6PN9LdgXSR9",
   supportEmail: "contato@pipacanoahavaiana.com.br",
+  siteUrl: import.meta.env.VITE_SITE_URL || "https://pipacanoahavaiana.com.br",
+  defaultOgImage: "/img/sunset_pic.jpeg",
 };
 
 if (!import.meta.env.PROD) {
