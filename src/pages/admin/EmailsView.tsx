@@ -12,6 +12,7 @@ import { getEmailSettings, updateEmailSetting, getEmailPreview } from "@/api";
 import type { EmailSetting } from "@/api/schemas";
 import { useLanguage } from "@/context/LanguageContext";
 import EmailPreviewModal from "@/components/admin/EmailPreviewModal";
+import ConfirmationModal from "@/components/common/ConfirmationModal";
 
 interface SettingCardProps {
   setting: EmailSetting;
@@ -43,15 +44,23 @@ const SettingCard: React.FC<SettingCardProps> = ({
 
         <button
           onClick={() => onToggle(setting.slug, setting.is_enabled)}
-          className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none ${
+          disabled={updatingSlugs.has(setting.slug)}
+          className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
             setting.is_enabled ? "bg-emerald-500" : "bg-slate-200"
           }`}
         >
-          <span
-            className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-              setting.is_enabled ? "translate-x-5" : "translate-x-1"
-            }`}
-          />
+          {updatingSlugs.has(setting.slug) ? (
+            <Loader2
+              size={10}
+              className="animate-spin text-teal-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            />
+          ) : (
+            <span
+              className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                setting.is_enabled ? "translate-x-5" : "translate-x-1"
+              }`}
+            />
+          )}
         </button>
       </div>
 
@@ -92,6 +101,19 @@ const EmailsView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [updatingSlugs, setUpdatingSlugs] = useState<Set<string>>(new Set());
 
+  // Confirmation Modal State
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    slug: string;
+    currentState: boolean;
+    name: string;
+  }>({
+    isOpen: false,
+    slug: "",
+    currentState: false,
+    name: "",
+  });
+
   // Email Preview State
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
@@ -116,24 +138,40 @@ const EmailsView: React.FC = () => {
     fetchData();
   }, []);
 
-  const handleToggle = async (slug: string, currentState: boolean) => {
-    const originalSettings = [...settings];
-    setSettings((prev) =>
-      prev.map((s) =>
-        s.slug === slug ? { ...s, is_enabled: !currentState } : s
-      )
-    );
-    const newStatusLabel = !currentState
-      ? t("admin_cc_toast_activated")
-      : t("admin_cc_toast_disabled");
+  const handleToggle = (slug: string, currentState: boolean) => {
     const settingName =
       settings.find((s) => s.slug === slug)?.display_name || "Configuração";
-    toast.success(`${settingName} ${newStatusLabel}`);
+    setConfirmModal({
+      isOpen: true,
+      slug,
+      currentState,
+      name: settingName,
+    });
+  };
+
+  const executeToggle = async () => {
+    const { slug, currentState } = confirmModal;
+    setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+    setUpdatingSlugs((prev) => new Set(prev).add(slug));
+
     try {
-      await updateEmailSetting(slug, { is_enabled: !currentState });
+      const updated = await updateEmailSetting(slug, {
+        is_enabled: !currentState,
+      });
+      if (updated) {
+        setSettings((prev) =>
+          prev.map((s) => (s.slug === slug ? { ...s, ...updated } : s))
+        );
+        toast.success(t("admin_cc_toast_settings_updated"));
+      }
     } catch (_err: unknown) {
-      setSettings(originalSettings);
       toast.error(t("admin_cc_toast_error"));
+    } finally {
+      setUpdatingSlugs((prev) => {
+        const next = new Set(prev);
+        next.delete(slug);
+        return next;
+      });
     }
   };
 
@@ -354,6 +392,24 @@ const EmailsView: React.FC = () => {
         htmlContent={previewHtml}
         templateName={previewTemplateName}
         loading={previewLoading}
+      />
+
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        title={t("admin_cc_confirm_toggle_title")}
+        description={t("admin_cc_confirm_toggle_description")
+          .replace(
+            "{{action}}",
+            confirmModal.currentState
+              ? t("admin_cc_toast_disabled")
+              : t("admin_cc_toast_activated")
+          )
+          .replace("{{name}}", confirmModal.name)}
+        confirmLabel={t("admin_cc_confirm_toggle_confirm")}
+        cancelLabel={t("admin_cc_confirm_toggle_cancel")}
+        onConfirm={executeToggle}
+        onCancel={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        variant={confirmModal.currentState ? "danger" : "info"}
       />
     </div>
   );

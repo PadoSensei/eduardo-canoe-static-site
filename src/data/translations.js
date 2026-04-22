@@ -235,7 +235,7 @@ export const translations = {
     admin_cc_loading: "Loading template...",
     admin_cc_preview_error: "Error loading email template.",
     admin_cc_close: "Close",
-    admin_cc_toast_activated: "activated",
+    admin_cc_toast_activated: "enabled",
     admin_cc_toast_disabled: "disabled",
     admin_cc_toast_error: "Error saving change.",
     admin_cc_toast_time_success: "Time updated",
@@ -252,6 +252,13 @@ export const translations = {
     admin_cc_tpl_guest_review: "Review Request",
     admin_cc_tpl_admin_manifest: "Daily Manifest",
     admin_cc_tpl_admin_summary: "Monthly Summary",
+    admin_cc_confirm_toggle_title: "Are you sure?",
+    admin_cc_confirm_toggle_description:
+      "You are about to {{action}} the '{{name}}' setting. This will affect all future automated communications.",
+    admin_cc_confirm_toggle_confirm: "Yes, Change It",
+    admin_cc_confirm_toggle_cancel: "No, Keep It",
+    admin_cc_toast_settings_updated:
+      "Settings updated. Event logged in Activity Feed.",
   },
 
   pt: {
@@ -490,6 +497,13 @@ export const translations = {
     admin_cc_tpl_guest_review: "Pedido de Avaliação",
     admin_cc_tpl_admin_manifest: "Manifesto Diário",
     admin_cc_tpl_admin_summary: "Resumo Mensal",
+    admin_cc_confirm_toggle_title: "Tem certeza?",
+    admin_cc_confirm_toggle_description:
+      "Você está prestes a {{action}} a configuração '{{name}}'. Isso afetará todas as futuras comunicações automatizadas.",
+    admin_cc_confirm_toggle_confirm: "Sim, Alterar",
+    admin_cc_confirm_toggle_cancel: "Não, Manter",
+    admin_cc_toast_settings_updated:
+      "Configurações atualizadas. Evento registrado no Feed de Atividade.",
   },
 
   es: {
@@ -729,6 +743,13 @@ export const translations = {
     admin_cc_tpl_guest_review: "Solicitud de Reseña",
     admin_cc_tpl_admin_manifest: "Manifiesto Diario",
     admin_cc_tpl_admin_summary: "Resumen Mensual",
+    admin_cc_confirm_toggle_title: "¿Está seguro?",
+    admin_cc_confirm_toggle_description:
+      "Está a punto de {{action}} la configuración '{{name}}'. Esto afectará a todas las comunicaciones automatizadas futuras.",
+    admin_cc_confirm_toggle_confirm: "Sí, Cambiar",
+    admin_cc_confirm_toggle_cancel: "No, Mantener",
+    admin_cc_toast_settings_updated:
+      "Configuraciones actualizadas. Evento registrado en el Feed de Atividad.",
   },
   fr: {
     // --- SEO ---
@@ -973,5 +994,12 @@ export const translations = {
     admin_cc_tpl_guest_review: "Demande d'Avis",
     admin_cc_tpl_admin_manifest: "Manifeste Quotidien",
     admin_cc_tpl_admin_summary: "Résumé Mensuel",
+    admin_cc_confirm_toggle_title: "Êtes-vous sûr ?",
+    admin_cc_confirm_toggle_description:
+      "Vous êtes sur le point de {{action}} le paramètre '{{name}}'. Cela affectera toutes les communications automatisées futures.",
+    admin_cc_confirm_toggle_confirm: "Oui, Modifier",
+    admin_cc_confirm_toggle_cancel: "Non, Garder",
+    admin_cc_toast_settings_updated:
+      "Paramètres mis à jour. Événement enregistré dans le flux d'activité.",
   },
 };
