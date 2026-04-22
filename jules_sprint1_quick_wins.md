@@ -1,6 +1,9 @@
 # Jules Task — Sprint 1: Quick Wins
+
 ## Project: Pipa Canoe Adventures — Frontend
+
 ## Prerequisite: None. All tasks are self-contained with no architectural decisions.
+
 ## Source: Jules audit findings — 5 task candidates + 2 LOW findings
 
 Run all 7 tasks in sequence. Commit after each one passes verification.
@@ -9,19 +12,21 @@ Do not batch commits.
 ---
 
 ## Task 1 — Add global unhandledrejection handler
+
 **Finding**: `src/index.jsx:18` — Sentry is initialised but async promise
 rejections in PIX polling can slip through without capture.
 
 **Change**:
+
 - Open `src/index.jsx`
 - Locate `Sentry.init({...})` — confirm it appears before `ReactDOM.createRoot`
 - Immediately after `Sentry.init(...)`, add:
 
 ```javascript
-window.addEventListener('unhandledrejection', (event) => {
+window.addEventListener("unhandledrejection", (event) => {
   Sentry.captureException(event.reason, {
     extra: {
-      context: 'unhandled_promise_rejection',
+      context: "unhandled_promise_rejection",
       type: event.type,
     },
   });
@@ -38,10 +43,12 @@ after `Sentry.init` and before `createRoot`. Run `npx jest` — all tests pass.
 ---
 
 ## Task 2 — Delete orphaned root artefacts
+
 **Finding**: `./testHelper.js` and `./success_view_voucher.png` sit at repo root,
 are not referenced by any source or test file.
 
 **Change**:
+
 - Run: `grep -r "testHelper" src/ __tests__/` — if any result appears, stop
   and report the import path instead of deleting.
 - If no results: `rm testHelper.js`
@@ -66,10 +73,12 @@ are not referenced by any source or test file.
 ---
 
 ## Task 3 — Move mockData out of production source tree
+
 **Finding**: `src/utils/mockData.js` is in the production source tree.
 Audit confirmed it is imported by `DashboardCalender.test.jsx`.
 
 **Change**:
+
 1. Create directory `__tests__/mocks/` if it does not exist
 2. Move `src/utils/mockData.js` → `__tests__/mocks/mockData.js`
 3. Find all files importing it:
@@ -94,11 +103,13 @@ Audit confirmed it is imported by `DashboardCalender.test.jsx`.
 ---
 
 ## Task 4 — Add Sentry capture to clipboard failure in PaymentView
+
 **Finding**: `src/components/booking/PaymentView.jsx:31-34` — clipboard copy
 failure is caught but only calls `console.error` and a generic alert.
 No telemetry on how often mobile users fail to copy the PIX key.
 
 **Change**:
+
 - Open `src/components/booking/PaymentView.jsx`
 - Find `handleCopyPix` (or equivalent clipboard handler around line 31)
 - The current catch looks approximately like:
@@ -132,11 +143,13 @@ No telemetry on how often mobile users fail to copy the PIX key.
 ---
 
 ## Task 5 — Fix BookingStatusResponseSchema to match bypass implementation
+
 **Finding**: `src/api/schemas.ts:86-89` — the schema only defines `status`
 and `is_confirmed`, but the bypass mode in `getBookingStatus` returns an
 object that also includes `uuid` and `guest_email`, causing a type mismatch.
 
 **Change**:
+
 - Open `src/api/schemas.ts`
 - Find `BookingStatusResponseSchema` (around line 86)
 - Current definition approximately:
@@ -166,10 +179,12 @@ passes.
 ---
 
 ## Task 6 — Standardise E2E spec extensions to .ts
+
 **Finding**: `tests/e2e/` — mix of `.js`, `.mjs`, `.ts` written by different
 authors at different times.
 
 **Change**:
+
 1. Open `playwright.config.mjs` — check the `testMatch` or `testDir` glob pattern.
    Record which extensions it currently picks up.
 2. Rename all `.js` and `.mjs` spec files to `.ts`:
@@ -191,14 +206,17 @@ with no missing files. Do not run the full suite — listing is sufficient.
 
 ---
 
-## Task 7 — Harden _redirects against sensitive file exposure
+## Task 7 — Harden \_redirects against sensitive file exposure
+
 **Finding**: `public/_redirects:1` — the SPA catch-all `/* /index.html 200`
 is correct but has no explicit block rules above it. If a `.env` file
 were accidentally added to `public/`, it would be served.
 
 **Change**:
+
 - Open `public/_redirects`
 - Add explicit block rules BEFORE the existing catch-all:
+
   ```
   # Block sensitive file patterns
   /.env*          /index.html  404
@@ -209,6 +227,7 @@ were accidentally added to `public/`, it would be served.
   # SPA catch-all (must remain last)
   /*              /index.html  200
   ```
+
 - Do not remove or modify the existing catch-all — only prepend the block rules.
 
 **Verification**: File saved. Confirm the catch-all is still the last line.
@@ -218,6 +237,7 @@ were accidentally added to `public/`, it would be served.
 ---
 
 ## Sprint 1 completion checklist
+
 Jules confirms all of the following before closing:
 
 - [ ] `npx jest` exits 0 — no failures, no skipped tests

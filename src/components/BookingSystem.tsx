@@ -290,52 +290,62 @@ function BookingSystem() {
         />
       );
 
-    return availableTours
-      .filter((tourItem) => tourItem.isBookable)
-      .map((tour) => (
-        <div
-          key={tour.id}
-          onClick={() => openModal(tour)}
-          className="flex flex-col items-center gap-6 p-5 transition-all border-b cursor-pointer group last:border-b-0 hover:bg-gray-50/80 sm:flex-row"
-        >
-          {/* 1. IMAGE THUMBNAIL - Fixed Aspect Ratio */}
-          <div className="w-full h-40 overflow-hidden border border-gray-100 shadow-sm sm:w-48 sm:h-32 shrink-0 rounded-2xl">
-            <img
-              src={tour.imageUrl || "/img/sunset_pic.jpeg"}
-              alt={tour.name}
-              className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
-            />
-          </div>
+    return availableTours.map((tour) => (
+      <div
+        key={tour.id}
+        onClick={() => tour.isBookable && openModal(tour)}
+        className={`flex flex-col items-center gap-6 p-5 transition-all border-b group last:border-b-0 sm:flex-row ${
+          tour.isBookable
+            ? "cursor-pointer hover:bg-gray-50/80"
+            : "cursor-not-allowed opacity-75 grayscale-[0.5] pointer-events-none select-none"
+        }`}
+      >
+        {/* 1. IMAGE THUMBNAIL - Fixed Aspect Ratio */}
+        <div className="w-full h-40 overflow-hidden border border-gray-100 shadow-sm sm:w-48 sm:h-32 shrink-0 rounded-2xl">
+          <img
+            src={tour.imageUrl || "/img/sunset_pic.jpeg"}
+            alt={tour.name}
+            className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+          />
+        </div>
 
-          {/* 2. TOUR INFO - Better Typography */}
-          <div className="flex-grow space-y-2 text-center sm:text-left">
+        {/* 2. TOUR INFO - Better Typography */}
+        <div className="flex-grow space-y-2 text-center sm:text-left">
+          <div className="flex flex-col gap-2 mb-1 sm:flex-row sm:items-center">
             <h4 className="text-2xl font-bold text-teal-950 font-lora">
               {tour.name || getTourName(tour.tourType)}
             </h4>
-
-            <div className="flex flex-wrap items-center justify-center gap-3 font-medium text-gray-500 sm:justify-start">
-              <span className="flex items-center gap-1.5 text-sm bg-gray-100 px-3 py-1 rounded-full text-gray-600">
-                <span className="text-orange-500">⏳</span>{" "}
-                {tour.duration || "2h"}
+            {!tour.isBookable && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-tight">
+                {t("tour_closed_badge")}
               </span>
-
-              <span className="text-[10px] bg-teal-50 text-teal-700 px-2.5 py-1 rounded-md font-black uppercase tracking-widest border border-teal-100">
-                {t("navTours")}
-              </span>
-            </div>
+            )}
           </div>
 
-          {/* 3. PRICE & CTA - Clear Visual Hierarchy */}
-          <div className="flex flex-row items-center justify-between w-full gap-6 sm:flex-col sm:w-auto sm:items-end sm:justify-center">
-            <div className="text-left sm:text-right">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter block mb-[-4px]">
-                Total
-              </span>
-              <p className="text-3xl font-black text-teal-950">
-                {formatCurrency(tour.price)}
-              </p>
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 font-medium text-gray-500 sm:justify-start">
+            <span className="flex items-center gap-1.5 text-sm bg-gray-100 px-3 py-1 rounded-full text-gray-600">
+              <span className="text-orange-500">⏳</span>{" "}
+              {tour.duration || "2h"}
+            </span>
 
+            <span className="text-[10px] bg-teal-50 text-teal-700 px-2.5 py-1 rounded-md font-black uppercase tracking-widest border border-teal-100">
+              {t("navTours")}
+            </span>
+          </div>
+        </div>
+
+        {/* 3. PRICE & CTA - Clear Visual Hierarchy */}
+        <div className="flex flex-row items-center justify-between w-full gap-6 sm:flex-col sm:w-auto sm:items-end sm:justify-center">
+          <div className="text-left sm:text-right">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter block mb-[-4px]">
+              Total
+            </span>
+            <p className="text-3xl font-black text-teal-950">
+              {formatCurrency(tour.price)}
+            </p>
+          </div>
+
+          {tour.isBookable ? (
             <button
               onClick={(e) => {
                 e.stopPropagation(); // Prevent double trigger since card is clickable
@@ -345,9 +355,22 @@ function BookingSystem() {
             >
               {t("ctaButton")}
             </button>
-          </div>
+          ) : (
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
+                {t("tour_manifest_finalized")}
+              </span>
+              <button
+                disabled
+                className="bg-slate-200 text-slate-400 font-black py-3 px-10 rounded-2xl cursor-not-allowed whitespace-nowrap"
+              >
+                {t("tour_closed_badge")}
+              </button>
+            </div>
+          )}
         </div>
-      ));
+      </div>
+    ));
   };
 
   return (
