@@ -78,7 +78,10 @@ const About = () => {
               {t("about_section_story")}
             </p>
             {bioParagraphs.slice(0, 3).map((paragraph, index) => (
-              <p key={index} className="text-lg leading-loose text-slate-700 mb-6">
+              <p
+                key={index}
+                className="text-lg leading-loose text-slate-700 mb-6"
+              >
                 {paragraph}
               </p>
             ))}
@@ -144,8 +147,12 @@ const About = () => {
             <ShieldCheck className="text-white w-7 h-7" />
           </div>
           <div className="flex flex-col gap-1 w-full">
-            <p className="text-white font-bold text-lg">{t("about_iko_status")}</p>
-            <p className="text-slate-400 text-sm italic">{t("about_projects")}</p>
+            <p className="text-white font-bold text-lg">
+              {t("about_iko_status")}
+            </p>
+            <p className="text-slate-400 text-sm italic">
+              {t("about_projects")}
+            </p>
             <hr className="border-slate-700 my-3 w-full" />
             <p className="text-slate-500 text-xs uppercase tracking-widest">
               {t("about_credential_label")}

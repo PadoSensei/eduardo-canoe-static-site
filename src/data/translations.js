@@ -808,7 +808,8 @@ export const translations = {
     about_iko_status: "Instructor Certificado IKO",
     about_projects:
       "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
-    about_credential_label: "Certificado · Activo desde 2011 · Tibau do Sul, RN",
+    about_credential_label:
+      "Certificado · Activo desde 2011 · Tibau do Sul, RN",
     about_cta_label: "¿Listo para la Experiencia?",
     about_cta_heading: "Reserva Tu Tour con Edu",
     about_cta_button: "Reservar Ahora",
