@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import About from "../../src/pages/About";
 import { LanguageProvider } from "../../src/context/LanguageContext";
 
@@ -25,11 +26,11 @@ describe("About Page component", () => {
         /instrutor certificado pela IKO|certified instructor with IKO/i
       )
     ).toBeInTheDocument();
-  }); // ← this was missing, causing the parse failure
+  });
 
   it("gracefully hides the image if it fails to load", () => {
     renderWithProvider(<About />);
-    const img = screen.getByAltText(/Instructor/i);
+    const img = screen.getAllByAltText(/Edu/i)[0];
     img.dispatchEvent(new Event("error"));
     expect(img.style.display).toBe("none");
   });
