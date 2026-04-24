@@ -389,7 +389,8 @@ export const translations = {
     paymentInstruction: "Escaneie o QR code abaixo para pagar via Pix.",
     btnCopy: "Copiar Código Pix",
     btnCopied: "Código Copiado!",
-    alertCopyFail: "Falha ao copiar. Por favor, tente selecionar o texto manualmente.",
+    alertCopyFail:
+      "Falha ao copiar. Por favor, tente selecionar o texto manualmente.",
     altQrCode: "QR Code Pix para pagamento",
     labelPixString: "Pix Copia e Cola",
     btnClose: "Fechar",
@@ -641,7 +642,8 @@ export const translations = {
     paymentInstruction: "Escanea el código QR abajo para pagar vía Pix.",
     btnCopy: "Copiar Código Pix",
     btnCopied: "¡Código Copiado!",
-    alertCopyFail: "Error al copiar. Por favor, intente seleccionar el texto manualmente.",
+    alertCopyFail:
+      "Error al copiar. Por favor, intente seleccionar el texto manualmente.",
     altQrCode: "Código QR Pix para el pago",
     labelPixString: "Código Pix Copia y Pega",
     btnClose: "Cerrar",
@@ -897,7 +899,8 @@ export const translations = {
     paymentInstruction: "Scannez le code QR ci-dessous pour payer via Pix.",
     btnCopy: "Copier le code Pix",
     btnCopied: "Code Copié !",
-    alertCopyFail: "Échec de la copie. Veuillez essayer de sélectionner le texte manuellement.",
+    alertCopyFail:
+      "Échec de la copie. Veuillez essayer de sélectionner le texte manuellement.",
     altQrCode: "Code QR Pix pour le paiement",
     labelPixString: "Code Pix Copier-Coller",
     btnClose: "Fermer",
