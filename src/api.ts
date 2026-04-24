@@ -339,6 +339,7 @@ export async function getAvailableTours(
       tourDate: tour.tour_date,
       description: tour.description ?? null,
       shortDescription: tour.short_description ?? null,
+      descriptionKey: tour.description_key ?? null,
       inclusions: tour.inclusions,
       requirements: tour.requirements,
     }));
@@ -457,6 +458,7 @@ export async function getTourTemplates(
       imageUrl: template.image_url ?? null,
       description: template.description ?? null,
       shortDescription: template.short_description ?? null,
+      descriptionKey: template.description_key ?? null,
       inclusions: template.inclusions || [],
       requirements: template.requirements || [],
     }));

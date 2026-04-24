@@ -64,6 +64,8 @@ export const translations = {
     duration: "Duration",
     spotsLeft: "spots left",
     pricePrefix: "R$",
+    tour_closed_badge: "Closed",
+    tour_manifest_finalized: "Manifest Finalized",
 
     // --- Tour Detail Modal ---
     tourSunriseDetail:
@@ -134,8 +136,11 @@ export const translations = {
     paymentInstruction: "Scan the QR code below to pay via Pix.",
     btnCopy: "Copy Pix Code",
     btnCopied: "Code Copied!",
+    alertCopyFail: "Failed to copy. Please try selecting the text manually.",
+    altQrCode: "Pix QR Code for payment",
     labelPixString: "Pix Copy & Paste Code",
     btnClose: "Close",
+    btnRetry: "Try Again",
     expiresIn: "QR Code expires in",
     connectionWarning:
       "Connection slow. We are still waiting for your payment confirmation...",
@@ -190,6 +195,8 @@ export const translations = {
 
     tour_full_moon_short:
       "A mystical 4-hour journey with live Forró music and a bonfire on the dunes.",
+    tour_full_moon_party_short:
+      "A magical experience under the full moon, paddling through the calm waters of Pipa.",
     tour_full_moon_detail:
       "Experience the most magical tour we offer – a journey that begins with the sunset and continues into the enchanted evening to witness the full moon rising over the Atlantic. \n\nMeeting at 2:40 PM at the Sunset Stairs (Escadaria do Pôr do Sol). Includes a live Forró band, fresh tropical fruits, and a bonfire experience on the Malombar dunes. A celebration of nature's celestial dance.",
 
@@ -310,6 +317,8 @@ export const translations = {
     duration: "Duração",
     spotsLeft: "vagas restantes",
     pricePrefix: "R$",
+    tour_closed_badge: "Encerrado",
+    tour_manifest_finalized: "Manifesto Finalizado",
 
     // --- Tour Detail Modal ---
     tourSunriseDetail:
@@ -380,8 +389,12 @@ export const translations = {
     paymentInstruction: "Escaneie o QR code abaixo para pagar via Pix.",
     btnCopy: "Copiar Código Pix",
     btnCopied: "Código Copiado!",
+    alertCopyFail:
+      "Falha ao copiar. Por favor, tente selecionar o texto manualmente.",
+    altQrCode: "QR Code Pix para pagamento",
     labelPixString: "Pix Copia e Cola",
     btnClose: "Fechar",
+    btnRetry: "Tentar Novamente",
     expiresIn: "O código expira em",
     connectionWarning:
       "Conexão lenta. Ainda estamos aguardando a confirmação do seu pagamento...",
@@ -435,6 +448,8 @@ export const translations = {
 
     tour_full_moon_short:
       "Uma jornada mística de 4 horas com forró ao vivo e fogueira nas dunas.",
+    tour_full_moon_party_short:
+      "Uma experiência mágica sob a lua cheia, navegando pelas águas calmas da Pipa.",
     tour_full_moon_detail:
       "Viva o passeio mais mágico que oferecemos – uma jornada que começa com o pôr do sol e continua pela noite encantada para testemunhar a lua cheia nascendo sobre o Oceano Atlântico. \n\nEncontro às 14:40 na Escadaria do Pôr do Sol. Inclui banda de Forró ao vivo, frutas tropicais frescas e fogueira nas dunas da Malembar. Uma celebração da dança celestial da natureza.",
 
@@ -555,6 +570,8 @@ export const translations = {
     duration: "Duración",
     spotsLeft: "lugares disponibles",
     pricePrefix: "R$",
+    tour_closed_badge: "Cerrado",
+    tour_manifest_finalized: "Manifiesto Finalizado",
 
     // --- Tour Detail Modal ---
     tourSunriseDetail:
@@ -625,8 +642,12 @@ export const translations = {
     paymentInstruction: "Escanea el código QR abajo para pagar vía Pix.",
     btnCopy: "Copiar Código Pix",
     btnCopied: "¡Código Copiado!",
+    alertCopyFail:
+      "Error al copiar. Por favor, intente seleccionar el texto manualmente.",
+    altQrCode: "Código QR Pix para el pago",
     labelPixString: "Código Pix Copia y Pega",
     btnClose: "Cerrar",
+    btnRetry: "Reintentar",
     expiresIn: "El código expira en",
     connectionWarning:
       "Conexión lenta. Todavía estamos esperando la confirmación de su pago...",
@@ -681,6 +702,8 @@ export const translations = {
 
     tour_full_moon_short:
       "Un viaje místico de 4 horas con forró en vivo y fogata en las dunas.",
+    tour_full_moon_party_short:
+      "Una experiencia mágica bajo la luna llena, navegando por las tranquilas aguas de Pipa.",
     tour_full_moon_detail:
       "Vive el tour más mágico que ofrecemos – un viaje que comienza con el atardecer y continúa en la noche encantada para presenciar la luna llena elevándose sobre el Océano Atlántico. \n\nEncuentro a las 14:40 en la Escalera del Atardecer. Incluye banda de Forró en vivo, frutas tropicales frescas y fogata en las dunas de Malembar. Una celebración de la danza celestial de la naturaleza.",
     logistics_meeting: "Punto de Encuentro",
@@ -801,6 +824,8 @@ export const translations = {
     duration: "Durée",
     spotsLeft: "places restantes",
     pricePrefix: "R$",
+    tour_closed_badge: "Fermé",
+    tour_manifest_finalized: "Manifeste Finalisé",
 
     // --- Tour Detail Modal ---
     tourSunriseDetail:
@@ -874,8 +899,12 @@ export const translations = {
     paymentInstruction: "Scannez le code QR ci-dessous pour payer via Pix.",
     btnCopy: "Copier le code Pix",
     btnCopied: "Code Copié !",
+    alertCopyFail:
+      "Échec de la copie. Veuillez essayer de sélectionner le texte manuellement.",
+    altQrCode: "Code QR Pix pour le paiement",
     labelPixString: "Code Pix Copier-Coller",
     btnClose: "Fermer",
+    btnRetry: "Réessayer",
     expiresIn: "Le code QR expire dans",
     connectionWarning:
       "Connexion lente. Nous attendons toujours la confirmation de votre paiement...",
@@ -931,6 +960,8 @@ export const translations = {
     // --- Special Tours ---
     tour_full_moon_short:
       "Un voyage mystique de 4 heures avec de la musique Forró en direct et un feu de camp sur les dunes.",
+    tour_full_moon_party_short:
+      "Une expérience magique sous la pleine lune, naviguant dans les eaux calmes de Pipa.",
     tour_full_moon_detail:
       "Découvrez le tour le plus magique que nous proposons – un voyage qui commence par le coucher du soleil et se poursuit dans la soirée enchantée pour observer la pleine lune se lever sur l'Atlantique. \n\nRDV à 14h40 à l'Escalier du Coucher de Soleil (Escadaria do Pôr do Sol). Inclut un groupe de Forró en direct, des fruits tropicaux frais et un feu de camp sur les dunes de Malombar. Une célébration de la danse céleste de la nature.",
 

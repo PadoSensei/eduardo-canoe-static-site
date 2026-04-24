@@ -4,7 +4,12 @@ import "@testing-library/jest-dom";
 import { LanguageProvider, useLanguage } from "../src/context/LanguageContext";
 import { translations } from "../src/data/translations";
 
-// --- HELPER COMPONENT ---
+// --- HELPER COMPONENTS ---
+const TranslationWrapper = ({ missingKey }) => {
+  const { t } = useLanguage();
+  return <div data-testid="missing-translation">{t(missingKey)}</div>;
+};
+
 // A simple component to test if the Context provides the correct text
 const TestComponent = () => {
   const { t, setLanguage, language } = useLanguage();
@@ -70,15 +75,16 @@ describe("Translation System", () => {
   });
 
   // STRATEGY 3: Fallback Safety
-  // If a key is missing, it should not crash, but return the key itself or English fallback
-  test("Returns the key itself if translation is missing (Safety Check)", () => {
-    // We create a specific test provider with a broken translation object
-    const BrokenProvider = () => {
-      const t = (key) => key; // Simulating simple key return if missing
-      return <div>{t("nonExistentKey")}</div>;
-    };
+  // If a key is missing, it should not crash, but return an empty string (Shielded Fallback)
+  test("Returns empty string if translation is missing (Shielded Fallback)", () => {
+    render(
+      <LanguageProvider>
+        <TestComponent />
+        <TranslationWrapper missingKey="nonExistentKey" />
+      </LanguageProvider>
+    );
 
-    render(<BrokenProvider />);
-    expect(screen.getByText("nonExistentKey")).toBeInTheDocument();
+    // Should render nothing for the missing key
+    expect(screen.getByTestId("missing-translation")).toHaveTextContent("");
   });
 });

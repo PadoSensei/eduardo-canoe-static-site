@@ -1,4 +1,5 @@
 import { createContext, useState, useContext } from "react";
+import * as Sentry from "@sentry/react";
 import { translations } from "../data/translations.js";
 import config from "../core/config";
 
@@ -15,7 +16,24 @@ export const LanguageProvider = ({ children }) => {
 
   // The function to get translation
   const t = (key) => {
-    return translations[language][key] || key;
+    const translation = translations[language][key];
+
+    if (translation === undefined) {
+      // Shielded Fallback: Return empty string instead of raw key
+      if (config.isProduction) {
+        Sentry.captureMessage(`Missing translation key: ${key}`, {
+          level: "warning",
+          tags: {
+            missing_key: key,
+            lang: language,
+          },
+          fingerprint: ["missing-translation", key],
+        });
+      }
+      return "";
+    }
+
+    return translation;
   };
 
   return (

@@ -51,7 +51,8 @@ const Tours: React.FC = () => {
           "@type": "Service",
           name: tour.name,
           description:
-            t(`tour_${tour.tourType}_short`) || tour.shortDescription,
+            t(tour.descriptionKey || `tour_${tour.tourType}_short`) ||
+            tour.shortDescription,
           offers: {
             "@type": "Offer",
             price: tour.price,
@@ -109,7 +110,8 @@ const Tours: React.FC = () => {
                     {tour.name}
                   </h3>
                   <p className="flex-grow mb-6 leading-relaxed text-gray-600">
-                    {t(`tour_${tour.tourType}_short`) || tour.shortDescription}
+                    {t(tour.descriptionKey || `tour_${tour.tourType}_short`) ||
+                      tour.shortDescription}
                   </p>
 
                   <div className="flex items-center justify-between mt-auto">

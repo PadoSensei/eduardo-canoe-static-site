@@ -18,7 +18,10 @@ const TourModal = ({ tour, onClose }) => {
 
   if (!tour) return null;
 
-  const description = t(`tour_${tour.tourType}_detail`) || tour.description;
+  const description =
+    t(tour.descriptionKey?.replace("_short", "_detail")) ||
+    t(`tour_${tour.tourType}_detail`) ||
+    tour.description;
   const paragraphs = description.split("\n\n");
 
   return (
