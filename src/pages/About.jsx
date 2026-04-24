@@ -120,7 +120,13 @@ const About = () => {
 
       {/* Section 4 — Dark Pull Quote */}
       <section className="relative py-24 px-6 bg-slate-900 overflow-hidden">
-        <div className="absolute inset-0 opacity-5 bg-[url('/img/Edu_Cover.jpeg')] bg-cover bg-center" />
+        <img
+          src="/img/Edu_Cover.jpeg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-5"
+          aria-hidden="true"
+          onError={(e) => (e.target.style.display = "none")}
+        />
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <span className="font-lora text-8xl text-red-400 leading-none block mb-4">
             &quot;
