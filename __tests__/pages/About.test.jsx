@@ -29,7 +29,7 @@ describe("About Page component", () => {
 
   it("gracefully hides the image if it fails to load", () => {
     renderWithProvider(<About />);
-    const img = screen.getByAltText(/Instructor/i);
+    const img = screen.getAllByAltText(/Edu/i)[0];
     img.dispatchEvent(new Event("error"));
     expect(img.style.display).toBe("none");
   });

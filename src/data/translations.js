@@ -188,9 +188,47 @@ export const translations = {
       "Today I follow this path through Pipa Canoa Havaiana, Pipa Kite Center, and Esporte Clube Guaraíras—projects that unite sport, culture, tourism, and connection with nature. My work is about movement, encounter, and transformation, in the water and in life.",
       "More than teaching how to paddle or sail, I want every person who crosses my path to feel what the sea gave me: freedom, balance, and belonging.",
     ],
+    about_hero_tagline: "IKO Instructor · Tibau do Sul · Aloha Spirit",
+    about_badges: [
+      "Pipa Canoa Havaiana",
+      "Pipa Kite Center",
+      "Esporte Clube Guaraíras",
+    ],
+    about_section_story: "His Story",
+    about_section_journey: "The Journey",
+    about_journey_heading: "From Rio to the Pacific, and back to Pipa",
+    about_timeline: [
+      {
+        year: "Early Years",
+        location: "Rio de Janeiro",
+        text: "Born into the rhythm of the Atlantic. Waves, surf, and open water shaped my earliest sense of self.",
+      },
+      {
+        year: "Age 25",
+        location: "Hawaii, USA",
+        text: "Ten years of deep immersion in Polynesian culture — canoe paddling, kitesurfing, and a reverence for the ocean that changed everything.",
+      },
+      {
+        year: "2011",
+        location: "Praia da Pipa, Brazil",
+        text: "Love at first sight. Wind, lagoon, sea, and nature in perfect harmony. Pipa wasn't just a destination — it was a calling.",
+      },
+      {
+        year: "Today",
+        location: "Tibau do Sul",
+        text: "IKO Certified, community builder, and guide — sharing the freedom, balance, and belonging the sea once gave me.",
+      },
+    ],
+    about_pullquote:
+      "More than teaching how to paddle or sail, I want every person who crosses my path to feel what the sea gave me: freedom, balance, and belonging.",
+    about_pullquote_attribution: "— Edu, Guide & Instructor",
     about_iko_status: "IKO Certified Instructor",
     about_projects:
       "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
+    about_credential_label: "Certified · Active since 2011 · Tibau do Sul, RN",
+    about_cta_label: "Ready for the Experience?",
+    about_cta_heading: "Book Your Tour with Edu",
+    about_cta_button: "Book Now",
     logoAlt: "Pipa Canoa Havaiana Logo",
 
     tour_full_moon_short:
@@ -441,9 +479,47 @@ export const translations = {
       "Hoje sigo esse caminho através da Pipa Canoa Havaiana, Pipa Kite Center e Esporte Clube Guaraíras — projetos que unem esporte, cultura, turismo e conexão com a natureza. Meu trabalho é sobre movimento, encontro e transformação, na água e na vida.",
       "Mais do que ensinar a remar ou velejar, quero que cada pessoa que cruza meu caminho sinta o que o mar me deu: liberdade, equilíbrio e pertencimento.",
     ],
+    about_hero_tagline: "Instrutor IKO · Tibau do Sul · Aloha Spirit",
+    about_badges: [
+      "Pipa Canoa Havaiana",
+      "Pipa Kite Center",
+      "Esporte Clube Guaraíras",
+    ],
+    about_section_story: "Sua História",
+    about_section_journey: "A Jornada",
+    about_journey_heading: "Do Rio ao Pacífico, e de volta a Pipa",
+    about_timeline: [
+      {
+        year: "Primeiros Anos",
+        location: "Rio de Janeiro",
+        text: "Nascido no ritmo do Atlântico. As ondas, o surfe e o mar aberto moldaram minha identidade desde cedo.",
+      },
+      {
+        year: "Aos 25 Anos",
+        location: "Havaí, EUA",
+        text: "Dez anos de imersão profunda na cultura polinésia — canoa havaiana, kitesurf e um respeito pelo oceano que transformou tudo.",
+      },
+      {
+        year: "2011",
+        location: "Praia da Pipa, Brasil",
+        text: "Amor à primeira vista. Vento, lagoa, mar e natureza em perfeita harmonia. Pipa não era só um destino — era um chamado.",
+      },
+      {
+        year: "Hoje",
+        location: "Tibau do Sul",
+        text: "Instrutor certificado IKO, construtor de comunidade e guia — compartilhando a liberdade, equilíbrio e pertencimento que o mar me deu.",
+      },
+    ],
+    about_pullquote:
+      "Mais do que ensinar a remar ou velejar, quero que cada pessoa que cruza meu caminho sinta o que o mar me deu: liberdade, equilíbrio e pertencimento.",
+    about_pullquote_attribution: "— Edu, Guia e Instrutor",
     about_iko_status: "Instrutor Certificado IKO",
     about_projects:
       "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
+    about_credential_label: "Certificado · Ativo desde 2011 · Tibau do Sul, RN",
+    about_cta_label: "Pronto para a Experiência?",
+    about_cta_heading: "Reserve Seu Passeio com Edu",
+    about_cta_button: "Reservar Agora",
     logoAlt: "Pipa Canoa Havaiana Logo",
 
     tour_full_moon_short:
@@ -695,9 +771,47 @@ export const translations = {
       "Hoy sigo este camino a través de Pipa Canoa Havaiana, Pipa Kite Center y Esporte Clube Guaraíras—proyectos que unen deporte, cultura, turismo y conexión con la naturaleza. Mi trabajo se trata de movimiento, encuentro y transformación, en el agua y en la vida.",
       "Más que enseñar a remar o navegar, quiero que cada persona que se cruce en mi camino sienta lo que el mar me dio: libertad, equilibrio y pertenencia.",
     ],
+    about_hero_tagline: "Instructor IKO · Tibau do Sul · Aloha Spirit",
+    about_badges: [
+      "Pipa Canoa Havaiana",
+      "Pipa Kite Center",
+      "Esporte Clube Guaraíras",
+    ],
+    about_section_story: "Su Historia",
+    about_section_journey: "El Viaje",
+    about_journey_heading: "De Río al Pacífico, y de vuelta a Pipa",
+    about_timeline: [
+      {
+        year: "Primeros Años",
+        location: "Río de Janeiro",
+        text: "Nacido al ritmo del Atlántico. Las olas, el surf y el mar abierto forjaron mi identidad desde temprano.",
+      },
+      {
+        year: "A los 25 Años",
+        location: "Hawái, EE.UU.",
+        text: "Diez años de inmersión profunda en la cultura polinesia — canoa hawaiana, kitesurf y un respeto por el océano que lo cambió todo.",
+      },
+      {
+        year: "2011",
+        location: "Praia da Pipa, Brasil",
+        text: "Amor a primera vista. Viento, laguna, mar y naturaleza en perfecta armonía. Pipa no era solo un destino — era un llamado.",
+      },
+      {
+        year: "Hoy",
+        location: "Tibau do Sul",
+        text: "Instructor certificado IKO, constructor de comunidad y guía — compartiendo la libertad, el equilibrio y la pertenencia que el mar me dio.",
+      },
+    ],
+    about_pullquote:
+      "Más que enseñar a remar o navegar, quiero que cada persona que se cruce en mi camino sienta lo que el mar me dio: libertad, equilibrio y pertenencia.",
+    about_pullquote_attribution: "— Edu, Guía e Instructor",
     about_iko_status: "Instructor Certificado IKO",
     about_projects:
       "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
+    about_credential_label: "Certificado · Activo desde 2011 · Tibau do Sul, RN",
+    about_cta_label: "¿Listo para la Experiencia?",
+    about_cta_heading: "Reserva Tu Tour con Edu",
+    about_cta_button: "Reservar Ahora",
     logoAlt: "Pipa Canoa Havaiana Logo",
 
     tour_full_moon_short:
@@ -952,9 +1066,47 @@ export const translations = {
       "Aujourd'hui, je poursuis ce chemin à travers Pipa Canoa Havaiana, Pipa Kite Center et l'Esporte Clube Guaraíras — des projets qui unissent sport, culture, tourisme et connexion avec la nature. Mon travail est une question de mouvement, de rencontre et de transformation, dans l'eau comme dans la vie.",
       "Plus que d'enseigner à pagayer ou à naviguer, je veux que chaque personne qui croise mon chemin ressente ce que la mer m'a donné : liberté, équilibre et appartenance.",
     ],
+    about_hero_tagline: "Instructeur IKO · Tibau do Sul · Aloha Spirit",
+    about_badges: [
+      "Pipa Canoa Havaiana",
+      "Pipa Kite Center",
+      "Esporte Clube Guaraíras",
+    ],
+    about_section_story: "Son Histoire",
+    about_section_journey: "Le Voyage",
+    about_journey_heading: "De Rio au Pacifique, et retour à Pipa",
+    about_timeline: [
+      {
+        year: "Premières Années",
+        location: "Rio de Janeiro",
+        text: "Né au rythme de l'Atlantique. Les vagues, le surf et la mer ouverte ont façonné mon identité dès le plus jeune âge.",
+      },
+      {
+        year: "À 25 Ans",
+        location: "Hawaï, États-Unis",
+        text: "Dix ans d'immersion profonde dans la culture polynésienne — pirogue hawaïenne, kitesurf et un respect de l'océan qui a tout changé.",
+      },
+      {
+        year: "2011",
+        location: "Praia da Pipa, Brésil",
+        text: "Le coup de foudre. Vent, lagune, mer et nature en parfaite harmonie. Pipa n'était pas seulement une destination — c'était un appel.",
+      },
+      {
+        year: "Aujourd'hui",
+        location: "Tibau do Sul",
+        text: "Instructeur certifié IKO, bâtisseur de communauté et guide — partageant la liberté, l'équilibre et l'appartenance que la mer m'a donnés.",
+      },
+    ],
+    about_pullquote:
+      "Plus que d'enseigner à pagayer ou naviguer, je veux que chaque personne qui croise mon chemin ressente ce que la mer m'a donné : liberté, équilibre et appartenance.",
+    about_pullquote_attribution: "— Edu, Guide et Instructeur",
     about_iko_status: "Instructeur certifié IKO",
     about_projects:
       "Pipa Canoa Havaiana • Pipa Kite Center • Esporte Clube Guaraíras",
+    about_credential_label: "Certifié · Actif depuis 2011 · Tibau do Sul, RN",
+    about_cta_label: "Prêt pour l'Expérience ?",
+    about_cta_heading: "Réservez Votre Tour avec Edu",
+    about_cta_button: "Réserver",
     logoAlt: "Logo Pipa Canoa Havaiana",
 
     // --- Special Tours ---
