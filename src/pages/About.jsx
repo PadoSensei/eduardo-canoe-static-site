@@ -123,7 +123,7 @@ const About = () => {
         <div className="absolute inset-0 opacity-5 bg-[url('/img/Edu_Cover.jpeg')] bg-cover bg-center" />
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <span className="font-lora text-8xl text-red-400 leading-none block mb-4">
-            "
+            &quot;
           </span>
           <blockquote className="font-lora text-2xl md:text-3xl italic text-white leading-relaxed mb-8">
             {t("about_pullquote")}
