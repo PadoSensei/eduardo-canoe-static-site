@@ -13,6 +13,7 @@ export const TourSchema = z.object({
   tour_date: z.string(),
   description: z.string().nullable().optional(),
   short_description: z.string().nullable().optional(),
+  description_key: z.string().nullable().optional(),
   inclusions: z.array(z.string()).default([]),
   requirements: z.array(z.string()).default([]),
   /** Tour instance lifecycle (e.g. available, cancelled). */
@@ -41,6 +42,7 @@ export const TourUISchema = z.object({
   tourDate: z.string(),
   description: z.string().nullable(),
   shortDescription: z.string().nullable(),
+  descriptionKey: z.string().nullable().optional(),
   inclusions: z.array(z.string()),
   requirements: z.array(z.string()),
 });
@@ -99,6 +101,7 @@ export const TourTemplateSchema = z.object({
   image_url: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   short_description: z.string().nullable().optional(),
+  description_key: z.string().nullable().optional(),
   inclusions: z.array(z.string()).default([]),
   requirements: z.array(z.string()).default([]),
 });
@@ -118,6 +121,7 @@ export const TourTemplateUISchema = z.object({
   imageUrl: z.string().nullable(),
   description: z.string().nullable(),
   shortDescription: z.string().nullable(),
+  descriptionKey: z.string().nullable().optional(),
   inclusions: z.array(z.string()),
   requirements: z.array(z.string()),
 });

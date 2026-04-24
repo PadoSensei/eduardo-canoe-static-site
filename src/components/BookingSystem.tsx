@@ -452,6 +452,11 @@ function BookingSystem() {
                     ...selectedTour,
                     name:
                       selectedTour.name || getTourName(selectedTour.tourType),
+                    shortDescription:
+                      t(
+                        selectedTour.descriptionKey ||
+                          `tour_${selectedTour.tourType}_short`
+                      ) || selectedTour.shortDescription,
                   }}
                   selectedDate={selectedDate}
                   guestName={guestName}
