@@ -64,6 +64,8 @@ export const translations = {
     duration: "Duration",
     spotsLeft: "spots left",
     pricePrefix: "R$",
+    tour_closed_badge: "Closed",
+    tour_manifest_finalized: "Manifest Finalized",
 
     // --- Tour Detail Modal ---
     tourSunriseDetail:
@@ -134,8 +136,11 @@ export const translations = {
     paymentInstruction: "Scan the QR code below to pay via Pix.",
     btnCopy: "Copy Pix Code",
     btnCopied: "Code Copied!",
+    alertCopyFail: "Failed to copy. Please try selecting the text manually.",
+    altQrCode: "Pix QR Code for payment",
     labelPixString: "Pix Copy & Paste Code",
     btnClose: "Close",
+    btnRetry: "Try Again",
     expiresIn: "QR Code expires in",
     connectionWarning:
       "Connection slow. We are still waiting for your payment confirmation...",
@@ -312,6 +317,8 @@ export const translations = {
     duration: "Duração",
     spotsLeft: "vagas restantes",
     pricePrefix: "R$",
+    tour_closed_badge: "Encerrado",
+    tour_manifest_finalized: "Manifesto Finalizado",
 
     // --- Tour Detail Modal ---
     tourSunriseDetail:
@@ -382,8 +389,11 @@ export const translations = {
     paymentInstruction: "Escaneie o QR code abaixo para pagar via Pix.",
     btnCopy: "Copiar Código Pix",
     btnCopied: "Código Copiado!",
+    alertCopyFail: "Falha ao copiar. Por favor, tente selecionar o texto manualmente.",
+    altQrCode: "QR Code Pix para pagamento",
     labelPixString: "Pix Copia e Cola",
     btnClose: "Fechar",
+    btnRetry: "Tentar Novamente",
     expiresIn: "O código expira em",
     connectionWarning:
       "Conexão lenta. Ainda estamos aguardando a confirmação do seu pagamento...",
@@ -559,6 +569,8 @@ export const translations = {
     duration: "Duración",
     spotsLeft: "lugares disponibles",
     pricePrefix: "R$",
+    tour_closed_badge: "Cerrado",
+    tour_manifest_finalized: "Manifiesto Finalizado",
 
     // --- Tour Detail Modal ---
     tourSunriseDetail:
@@ -629,8 +641,11 @@ export const translations = {
     paymentInstruction: "Escanea el código QR abajo para pagar vía Pix.",
     btnCopy: "Copiar Código Pix",
     btnCopied: "¡Código Copiado!",
+    alertCopyFail: "Error al copiar. Por favor, intente seleccionar el texto manualmente.",
+    altQrCode: "Código QR Pix para el pago",
     labelPixString: "Código Pix Copia y Pega",
     btnClose: "Cerrar",
+    btnRetry: "Reintentar",
     expiresIn: "El código expira en",
     connectionWarning:
       "Conexión lenta. Todavía estamos esperando la confirmación de su pago...",
@@ -807,6 +822,8 @@ export const translations = {
     duration: "Durée",
     spotsLeft: "places restantes",
     pricePrefix: "R$",
+    tour_closed_badge: "Fermé",
+    tour_manifest_finalized: "Manifeste Finalisé",
 
     // --- Tour Detail Modal ---
     tourSunriseDetail:
@@ -880,8 +897,11 @@ export const translations = {
     paymentInstruction: "Scannez le code QR ci-dessous pour payer via Pix.",
     btnCopy: "Copier le code Pix",
     btnCopied: "Code Copié !",
+    alertCopyFail: "Échec de la copie. Veuillez essayer de sélectionner le texte manuellement.",
+    altQrCode: "Code QR Pix pour le paiement",
     labelPixString: "Code Pix Copier-Coller",
     btnClose: "Fermer",
+    btnRetry: "Réessayer",
     expiresIn: "Le code QR expire dans",
     connectionWarning:
       "Connexion lente. Nous attendons toujours la confirmation de votre paiement...",
