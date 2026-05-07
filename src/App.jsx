@@ -130,7 +130,15 @@ const App = () => {
                 <Routes>
                   <Route
                     path="/"
-                    element={<Navigate to="/admin/operations" replace />}
+                    element={
+                      <Navigate
+                        to={{
+                          pathname: "/admin/operations",
+                          search: window.location.search,
+                        }}
+                        replace
+                      />
+                    }
                   />
                   <Route path="/operations" element={<Dashboard />} />
                   <Route path="/manifest/:date" element={<Dashboard />} />
@@ -138,7 +146,15 @@ const App = () => {
                   <Route path="/emails" element={<EmailsView />} />
                   <Route
                     path="/settings"
-                    element={<Navigate to="/admin/emails" replace />}
+                    element={
+                      <Navigate
+                        to={{
+                          pathname: "/admin/emails",
+                          search: window.location.search,
+                        }}
+                        replace
+                      />
+                    }
                   />
                 </Routes>
               </AdminLayout>

@@ -49,6 +49,7 @@ jest.mock("@sentry/react", () => ({
   setUser: jest.fn(),
   captureException: jest.fn(),
   captureMessage: jest.fn(),
+  setContext: jest.fn(),
   ErrorBoundary: ({ children }) => children,
   withScope: jest.fn((callback) =>
     callback({

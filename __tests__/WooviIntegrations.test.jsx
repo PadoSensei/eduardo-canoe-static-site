@@ -14,6 +14,7 @@ jest.mock("@sentry/react", () => ({
   init: jest.fn(),
   setUser: jest.fn(),
   captureException: jest.fn(),
+  setContext: jest.fn(),
   withScope: jest.fn((cb) =>
     cb({ setLevel: jest.fn(), setTag: jest.fn(), setExtra: jest.fn() })
   ),

@@ -6,6 +6,20 @@ const dayNumber = testDay.replace(/^0+/, ""); // "2"
 
 test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
   test.beforeEach(async ({ page }) => {
+    // FE-TEST: Freeze time to April 2026 to match the testDate exactly
+    // This prevents the calendar from defaulting to the current real-world month
+    await page.addInitScript(`{
+      const mockDate = new Date('${testDate}T12:00:00Z');
+      const originalDate = Date;
+      window.Date = class extends originalDate {
+        constructor(...args) {
+          if (args.length === 0) return mockDate;
+          return new originalDate(...args);
+        }
+        static now() { return mockDate.getTime(); }
+      };
+    }`);
+
     // Register ALL route mocks BEFORE navigating so no real fetch fires first
     await page.route("**/api/v1/admin/schedule*", (route) =>
       route.fulfill({
