@@ -246,6 +246,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
       controller.abort(); // Force-close any open network sockets
     };
     // Dependency Note: We re-run if the UUID changes, completion states reset, or timeout/error thresholds are hit
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currentBooking?.uuid,
     currentBooking?.created_at,

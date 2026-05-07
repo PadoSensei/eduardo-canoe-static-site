@@ -32,6 +32,7 @@ export function PaymentView({
         ],
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentInfo?.qr_code]);
 
   const formatTime = (seconds) => {

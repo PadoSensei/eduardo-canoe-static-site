@@ -37,6 +37,8 @@ export function BookingForm({
         },
       ],
     });
+    // We only want to track once when the form is opened
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Calculation uses a fallback to 0 if the input is temporarily empty

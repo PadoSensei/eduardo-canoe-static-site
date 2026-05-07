@@ -52,6 +52,7 @@ export type TourUI = z.infer<typeof TourUISchema>;
 export const BookingSchema = z.object({
   uuid: z.string(),
   id: z.number().optional(),
+  tour_id: z.number().optional(),
   display_id: z.string().optional(), // 8-character professional code
   guest_email: z.string().optional(),
   status: z.string().optional(),

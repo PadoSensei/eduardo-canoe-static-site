@@ -19,12 +19,13 @@ export function SuccessView({ guestEmail, booking, onClose }) {
           {
             item_id: booking.tour_instance_id,
             item_name: booking.tour_name || "Tour",
-            price: booking.total_price / booking.num_people,
+            price: booking.total_price / (booking.num_people || 1),
             quantity: booking.num_people,
           },
         ],
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [booking?.uuid]);
 
   const displayId =
