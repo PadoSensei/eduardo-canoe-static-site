@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../context/LanguageContext";
+import { trackEvent } from "../../utils/analytics";
 import ShieldedButton from "../common/ShieldedButton";
 import config from "../../core/config";
 
@@ -15,6 +16,23 @@ export function PaymentView({
 }) {
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (paymentInfo && currentBooking) {
+      trackEvent("add_payment_info", {
+        currency: "BRL",
+        value: currentBooking.total_price,
+        items: [
+          {
+            item_id: currentBooking.tour_instance_id,
+            item_name: currentBooking.tour_name || "Tour",
+            price: currentBooking.total_price / currentBooking.num_people,
+            quantity: currentBooking.num_people,
+          },
+        ],
+      });
+    }
+  }, [paymentInfo?.qr_code]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -169,17 +187,22 @@ export function PaymentView({
             {t("paymentTitle")}
           </h3>
 
-          <div className="mb-4">
+          <div className="mb-4 p-3 bg-teal-50 border border-teal-100 rounded-xl">
             <p
-              className={`text-sm font-medium ${
-                timeLeft < 60 ? "text-red-500 animate-pulse" : "text-gray-500"
+              className={`text-base font-black tracking-tight ${
+                timeLeft < 60 ? "text-red-600 animate-pulse" : "text-teal-900"
               }`}
             >
               ⏱️ {t("expiresIn")}: {formatTime(timeLeft)}
             </p>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-teal-600/70 mt-1">
+              15-Minute Payment Policy
+            </p>
           </div>
 
-          <p className="px-4 mb-6 text-gray-600">{t("paymentInstruction")}</p>
+          <p className="px-4 mb-6 text-gray-600 leading-relaxed text-sm">
+            {t("paymentInstruction")}
+          </p>
 
           <div className="flex justify-center p-4 mb-6 border border-gray-200 shadow-inner bg-gray-50 rounded-xl">
             <img

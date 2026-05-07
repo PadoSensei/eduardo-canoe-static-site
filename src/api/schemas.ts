@@ -65,11 +65,13 @@ export const BookingSessionSchema = z.object({
   currentBooking: BookingSchema.extend({
     created_at: z.string(), // Required for session
   }),
-  paymentInfo: z.object({
-    qr_code: z.string(),
-    qr_code_image: z.string(),
-    expires_in: z.number(),
-  }),
+  paymentInfo: z
+    .object({
+      qr_code: z.string(),
+      qr_code_image: z.string(),
+      expires_in: z.number(),
+    })
+    .nullable(),
 });
 
 export type BookingSession = z.infer<typeof BookingSessionSchema>;

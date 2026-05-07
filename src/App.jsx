@@ -44,6 +44,24 @@ const App = () => {
 
   return (
     <Sentry.ErrorBoundary
+      beforeCapture={(scope) => {
+        // Ensure any pending booking context is captured even during a hard crash
+        const saved = localStorage.getItem("pending_booking");
+        if (saved) {
+          try {
+            const { currentBooking } = JSON.parse(saved);
+            if (currentBooking?.uuid) {
+              scope.setContext("booking_context", {
+                uuid: currentBooking.uuid,
+                id: currentBooking.id,
+                tour_id: currentBooking.tour_id,
+              });
+            }
+          } catch {
+            /* ignore malformed storage */
+          }
+        }
+      }}
       fallback={
         <div className="flex items-center justify-center min-h-screen px-6 text-center bg-gray-50">
           <div className="max-w-md">
@@ -54,6 +72,12 @@ const App = () => {
               Something went wrong on our end. Please try refreshing the page or
               contact support if the issue persists.
             </p>
+
+            <div className="p-4 mb-8 text-xs font-mono text-gray-400 bg-white border border-gray-100 rounded-lg">
+              <p>System Error Captured</p>
+              <p className="mt-1">Correlation ID: Linked in Sentry</p>
+            </div>
+
             <button
               onClick={() => window.location.reload()}
               className="bg-[#FF6B6B] text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:bg-[#FF5252] transition-all"

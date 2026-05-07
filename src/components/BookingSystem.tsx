@@ -14,6 +14,7 @@ import { CalendarOff } from "lucide-react";
 import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
 import { formatCurrency } from "../utils/formatters";
 import { useBooking } from "../hooks/useBooking";
+import { trackEvent } from "../utils/analytics";
 import type { TourUI } from "@/api/schemas";
 
 function isAbortError(err: unknown): boolean {
@@ -149,6 +150,7 @@ function BookingSystem() {
   }, [selectedDate, language, loadAvailability]);
 
   const closeModal = useCallback(async () => {
+    // Explicitly clearing session when user clicks "Done" or "Back to Home"
     if (clearBooking) clearBooking();
     setShowBookingModal(false);
     setSelectedTour(null);
@@ -217,7 +219,14 @@ function BookingSystem() {
       );
 
       if (isMounted.current && !controller.signal.aborted) {
-        if (result && result.success) {
+        if (result && result.success && result.booking) {
+          // FE-SENTRY: Inject correlation context immediately upon booking creation
+          Sentry.setContext("booking_context", {
+            uuid: result.booking.uuid,
+            id: result.booking.id,
+            tour_id: result.booking.tour_id,
+          });
+
           setPaymentInfo(result.paymentInfo);
           setCurrentBooking(result.booking);
           setIsConfirmed(false);
@@ -257,6 +266,17 @@ function BookingSystem() {
     setSelectedTour(tour);
     setNumPeople(1);
     setShowBookingModal(true);
+
+    trackEvent("view_item", {
+      items: [
+        {
+          item_id: tour.instanceId,
+          item_name: tour.name || tour.tourType,
+          price: tour.price,
+          quantity: 1,
+        },
+      ],
+    });
   };
 
   // --- 5. RENDER HELPERS ---

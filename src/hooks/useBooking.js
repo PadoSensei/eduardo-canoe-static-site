@@ -9,7 +9,9 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
   const [paymentInfo, setPaymentInfo] = useState(
     initialSession?.paymentInfo || null
   );
-  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(
+    initialSession?.currentBooking?.status === "confirmed"
+  );
   const [isExpired, setIsExpired] = useState(false);
   const [isFailed, setIsFailed] = useState(false);
   const [isReaped, setIsReaped] = useState(false);
@@ -84,17 +86,15 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
 
   // Persistence: Save pending bookings to localStorage
   useEffect(() => {
-    if (
-      currentBooking &&
-      paymentInfo &&
-      !isConfirmed &&
-      !isExpired &&
-      !isFailed &&
-      !isTimedOut
-    ) {
+    if (currentBooking && !isExpired && !isFailed && !isTimedOut) {
       localStorage.setItem(
         "pending_booking",
-        JSON.stringify({ currentBooking, paymentInfo })
+        JSON.stringify({
+          currentBooking: isConfirmed
+            ? { ...currentBooking, status: "confirmed" }
+            : currentBooking,
+          paymentInfo,
+        })
       );
     }
   }, [
@@ -152,7 +152,15 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
           console.info("✅ Payment Verified! Switching to Success View...");
           setIsConfirmed(true);
           setPaymentInfo(null);
-          localStorage.removeItem("pending_booking");
+
+          // Persistence: Keep confirmed booking for cross-device handshake
+          localStorage.setItem(
+            "pending_booking",
+            JSON.stringify({
+              currentBooking: { ...currentBooking, status: "confirmed" },
+              paymentInfo: null,
+            })
+          );
 
           // Stop polling immediately upon confirmation
           if (intervalRef.current) clearTimeout(intervalRef.current);
@@ -175,6 +183,8 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
           statusData.status === "expired"
             ? setIsExpired(true)
             : setIsFailed(true);
+
+          // Clear localStorage on terminal failure states
           localStorage.removeItem("pending_booking");
           if (intervalRef.current) clearTimeout(intervalRef.current);
           intervalRef.current = null;

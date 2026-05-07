@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../context/LanguageContext";
+import { trackPurchaseOnce } from "../../utils/analytics";
 import BrandLogo from "../BrandLogo";
 import LocationLink from "../common/LocationLink";
 import { Copy, Check } from "lucide-react";
@@ -7,6 +8,24 @@ import { Copy, Check } from "lucide-react";
 export function SuccessView({ guestEmail, booking, onClose }) {
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (booking?.uuid) {
+      trackPurchaseOnce(booking.uuid, {
+        transaction_id: booking.display_id || booking.uuid,
+        value: booking.total_price,
+        currency: "BRL",
+        items: [
+          {
+            item_id: booking.tour_instance_id,
+            item_name: booking.tour_name || "Tour",
+            price: booking.total_price / booking.num_people,
+            quantity: booking.num_people,
+          },
+        ],
+      });
+    }
+  }, [booking?.uuid]);
 
   const displayId =
     booking?.display_id || booking?.uuid?.slice(0, 8).toUpperCase() || "------";

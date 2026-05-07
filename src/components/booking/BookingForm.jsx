@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { Plus, Minus } from "lucide-react";
+import { trackEvent } from "../../utils/analytics";
 import ShieldedButton from "../common/ShieldedButton";
 import { formatCurrency } from "../../utils/formatters";
 
@@ -24,6 +25,19 @@ export function BookingForm({
   error,
 }) {
   const { t } = useLanguage();
+
+  useEffect(() => {
+    trackEvent("begin_checkout", {
+      items: [
+        {
+          item_id: tour.instanceId,
+          item_name: tour.name || tour.tourType,
+          price: tour.price,
+          quantity: numPeople,
+        },
+      ],
+    });
+  }, []);
 
   // Calculation uses a fallback to 0 if the input is temporarily empty
   const currentNum = parseInt(numPeople, 10) || 0;
