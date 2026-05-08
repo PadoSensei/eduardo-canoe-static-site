@@ -7,7 +7,7 @@ import "@testing-library/jest-dom";
 import BookingSystem from "../src/components/BookingSystem";
 import { LanguageProvider, useLanguage } from "../src/context/LanguageContext";
 
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = "http://localhost:8080/api/v1";
 
 // Mock Supabase
 jest.mock("@/supabaseClient", () => ({

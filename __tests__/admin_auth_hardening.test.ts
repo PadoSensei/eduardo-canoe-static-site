@@ -12,7 +12,7 @@ jest.mock("@/supabaseClient", () => ({
 jest.mock("../src/core/config", () => ({
   __esModule: true,
   default: {
-    apiBaseUrl: "http://localhost:8000/api/v1",
+    apiBaseUrl: "http://localhost:8080/api/v1",
     isProduction: false,
   },
 }));

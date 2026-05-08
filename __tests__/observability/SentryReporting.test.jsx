@@ -12,7 +12,7 @@ jest.mock("@sentry/react", () => ({
 }));
 
 const server = setupServer(
-  http.post("http://localhost:8000/api/v1/bookings", () => {
+  http.post("http://localhost:8080/api/v1/bookings", () => {
     return new HttpResponse(null, { status: 500 });
   })
 );

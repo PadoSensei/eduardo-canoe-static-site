@@ -7,7 +7,7 @@ import "@testing-library/jest-dom";
 import Dashboard from "../../src/pages/Dashboard";
 import { LanguageProvider } from "../../src/context/LanguageContext";
 
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = "http://localhost:8080/api/v1";
 
 /** Matches `DayStatsSchema` / admin schedule aggregation (revenue + TourStatus-style strings). */
 function buildSchedulePayload(request) {
