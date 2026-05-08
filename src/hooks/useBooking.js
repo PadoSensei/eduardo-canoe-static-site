@@ -34,7 +34,6 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
   const [consecutiveErrors, setConsecutiveErrors] = useState(0);
   const consecutiveErrorsRef = useRef(0);
 
-  const isMounted = useRef(true);
   const intervalRef = useRef(null);
   const countdownRef = useRef(null);
 
@@ -108,7 +107,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
 
   // Polling Lifecycle
   useEffect(() => {
-    isMounted.current = true;
+    let effectActive = true;
     const controller = new AbortController();
 
     const checkStatus = async () => {
@@ -116,8 +115,8 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
       if (
         !currentBooking?.uuid ||
         controller.signal.aborted ||
-        !isMounted.current ||
-        isTimedOut ||
+        !effectActive ||
+        timeLeft <= 0 ||
         consecutiveErrorsRef.current >= 5
       ) {
         if (consecutiveErrorsRef.current >= 5 && intervalRef.current) {
@@ -127,22 +126,13 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
         return;
       }
 
-      // Guard 2: Final timeout check before API call
-      if (timeLeft <= 0) {
-        setIsTimedOut(true);
-        if (intervalRef.current) clearTimeout(intervalRef.current);
-        intervalRef.current = null;
-        return;
-      }
-
       try {
         const statusData = await getBookingStatus(currentBooking.uuid, {
           signal: controller.signal,
         });
 
         // Guard 2: Exit if the component unmounted while waiting for the network
-        if (!isMounted.current || controller.signal.aborted || !statusData)
-          return;
+        if (!effectActive || controller.signal.aborted || !statusData) return;
 
         consecutiveErrorsRef.current = 0;
         setConsecutiveErrors(0);
@@ -164,7 +154,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
               signal: controller.signal,
             });
             // Guard 3: Final check before updating parent state
-            if (isMounted.current && !controller.signal.aborted && updated) {
+            if (effectActive && !controller.signal.aborted && updated) {
               setAvailableTours(updated);
             }
           }
@@ -180,7 +170,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
           intervalRef.current = null;
         } else {
           // Schedule next check if still pending and not timed out
-          if (isMounted.current && !controller.signal.aborted && !isTimedOut) {
+          if (effectActive && !controller.signal.aborted && !isTimedOut) {
             intervalRef.current = setTimeout(checkStatus, 3000);
           }
         }
@@ -196,7 +186,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
           return;
         }
 
-        if (isMounted.current) {
+        if (effectActive) {
           consecutiveErrorsRef.current += 1;
           setConsecutiveErrors(consecutiveErrorsRef.current);
 
@@ -228,7 +218,7 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
 
     // Cleanup: This is the most critical block for passing tests
     return () => {
-      isMounted.current = false;
+      effectActive = false;
       if (intervalRef.current) {
         clearTimeout(intervalRef.current);
         intervalRef.current = null;
@@ -247,7 +237,6 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     selectedDate,
     paymentInfo,
     setAvailableTours,
-    timeLeft,
   ]);
 
   const clearBooking = useCallback(() => {

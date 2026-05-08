@@ -3,18 +3,24 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import DashboardCalendar from "../../src/components/dashboard/DashboardCalendar";
 import * as mockDataUtils from "../../src/utils/mockData";
+import { fetchMonthlySchedule } from "../../src/api";
 
 // Mock the data generator to control the "Heatmap" colors
 jest.mock("../../src/utils/mockData");
+jest.mock("../../src/api", () => ({
+  fetchMonthlySchedule: jest.fn(),
+}));
 
 describe("DashboardCalendar", () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     // Setup consistent return data
     mockDataUtils.getDayDetails.mockReturnValue([
       { capacity: 10, booked: 10, status: "available" }, // Full
       { capacity: 10, booked: 0, status: "available" }, // Empty
       { capacity: 10, booked: 0, status: "available" }, // Empty
     ]);
+    fetchMonthlySchedule.mockResolvedValue({});
   });
 
   test("renders the current month header", () => {

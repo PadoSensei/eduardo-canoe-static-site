@@ -32,7 +32,11 @@ describe("Full Booking Compliance Flow", () => {
         booking: { uuid: "123" },
         payment_info: {},
       });
-    })
+    }),
+    // Handle the polling that starts automatically after booking
+    http.get(`${API_BASE}/bookings/status/123`, () =>
+      HttpResponse.json({ status: "pending_payment" })
+    )
   );
 
   beforeAll(() => server.listen());

@@ -45,7 +45,18 @@ const server = setupServer(
     ])
   ),
   http.post(`${API_BASE}/bookings`, () =>
-    HttpResponse.json({ success: true, booking: { id: 1 }, payment_info: {} })
+    HttpResponse.json({
+      success: true,
+      booking: { uuid: "test-uuid-sentry", id: 1 },
+      payment_info: {
+        qr_code: "sentry-pix",
+        qr_code_image: "img",
+        expires_in: 900,
+      },
+    })
+  ),
+  http.get(`${API_BASE}/bookings/status/*`, () =>
+    HttpResponse.json({ status: "pending_payment" })
   )
 );
 
