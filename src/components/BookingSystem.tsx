@@ -11,10 +11,7 @@ import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 import EmptyState from "./common/EmptyState";
 import { CalendarOff } from "lucide-react";
-import {
-  getMinBookingDate,
-  formatFriendlyDate,
-} from "../utils/timeUtils";
+import { getMinBookingDate, formatFriendlyDate } from "../utils/timeUtils";
 import { formatCurrency } from "../utils/formatters";
 import { useBooking } from "../hooks/useBooking";
 import type { TourUI } from "@/api/schemas";

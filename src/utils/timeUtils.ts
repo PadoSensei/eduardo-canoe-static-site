@@ -57,7 +57,10 @@ export const getMinBookingDate = (): string => {
  * Formats a YYYY-MM-DD date into a friendly localized string.
  * e.g., "Monday, May 12th" or "Segunda-feira, 12 de maio"
  */
-export const formatFriendlyDate = (dateString: string, lang: string): string => {
+export const formatFriendlyDate = (
+  dateString: string,
+  lang: string
+): string => {
   const [year, month, day] = dateString.split("-").map(Number);
   const date = new Date(year, month - 1, day);
 

@@ -1,4 +1,9 @@
-import { getPipaHour, getPipaToday, getMinBookingDate, formatFriendlyDate } from "../../src/utils/timeUtils";
+import {
+  getPipaHour,
+  getPipaToday,
+  getMinBookingDate,
+  formatFriendlyDate,
+} from "../../src/utils/timeUtils";
 
 describe("timeUtils", () => {
   beforeEach(() => {
