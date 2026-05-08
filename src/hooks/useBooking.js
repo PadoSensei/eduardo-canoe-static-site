@@ -9,7 +9,9 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
   const [paymentInfo, setPaymentInfo] = useState(
     initialSession?.paymentInfo || null
   );
-  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(
+    initialSession?.isConfirmed || false
+  );
   const [isExpired, setIsExpired] = useState(false);
   const [isFailed, setIsFailed] = useState(false);
   const [isReaped, setIsReaped] = useState(false);
@@ -153,6 +155,16 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
           setIsConfirmed(true);
           setPaymentInfo(null);
           localStorage.removeItem("pending_booking");
+
+          // Persist successful booking for 48 hours
+          localStorage.setItem(
+            "last_successful_booking",
+            JSON.stringify({
+              ...currentBooking,
+              status: "confirmed",
+              persisted_at: Date.now(),
+            })
+          );
 
           // Stop polling immediately upon confirmation
           if (intervalRef.current) clearTimeout(intervalRef.current);

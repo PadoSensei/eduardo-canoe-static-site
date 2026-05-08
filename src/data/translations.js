@@ -92,6 +92,8 @@ export const translations = {
       "No tours available for this date. Please select another day.",
     tours_none_available_general:
       "No tours currently available. Please check back soon!",
+    booking_closed_message:
+      "Same-day bookings are closed to ensure quality preparation. We are currently accepting bookings for {{date}}.",
 
     // --- Booking Form ---
     bookTitle: "Book",
@@ -157,6 +159,7 @@ export const translations = {
       "Your adventure is booked. We have sent a confirmation email to",
     label_booking_id: "Reservation ID",
     btn_copy_id: "Copy ID",
+    btn_view_voucher: "View Your Ticket",
     btnDone: "Done",
     btn_see_meeting_point: "See Meeting Point",
     logistics_view_map: "View on Google Maps",
@@ -385,6 +388,8 @@ export const translations = {
       "Não há passeios disponíveis para esta data. Por favor, selecione outro dia.",
     tours_none_available_general:
       "Não há passeios disponíveis no momento. Por favor, volte em breve!",
+    booking_closed_message:
+      "As reservas para o mesmo dia estão encerradas para garantir a qualidade da preparação. Estamos aceitando reservas para {{date}}.",
 
     // --- Booking Form ---
     bookTitle: "Reservar",
@@ -449,6 +454,7 @@ export const translations = {
       "Sua aventura está reservada. Enviamos um e-mail de confirmação para",
     label_booking_id: "ID da Reserva",
     btn_copy_id: "Copiar ID",
+    btn_view_voucher: "Ver Seu Ingresso",
     btnDone: "Concluído",
     btn_see_meeting_point: "Ver Ponto de Encontro",
     logistics_view_map: "Ver no Google Maps",
@@ -675,6 +681,8 @@ export const translations = {
       "No hay tours disponibles para esta fecha. Por favor, seleccione otro día.",
     tours_none_available_general:
       "No hay tours disponibles en este momento. ¡Por favor, vuelva pronto!",
+    booking_closed_message:
+      "Las reservas para el mismo día están cerradas para garantizar la calidad de la preparación. Actualmente estamos aceptando reservas para el {{date}}.",
 
     // --- Booking Form ---
     bookTitle: "Reservar",
@@ -740,6 +748,7 @@ export const translations = {
       "Tu aventura está reservada. Hemos enviado un correo de confirmación a",
     label_booking_id: "ID de Reserva",
     btn_copy_id: "Copiar ID",
+    btn_view_voucher: "Ver Tu Ticket",
     btnDone: "Listo",
     btn_see_meeting_point: "Ver Punto de Encuentro",
     logistics_view_map: "Ver en Google Maps",
@@ -970,6 +979,8 @@ export const translations = {
       "Aucun tour disponible pour cette date. Veuillez sélectionner un autre jour.",
     tours_none_available_general:
       "Aucun tour disponible pour le moment. Veuillez revenir bientôt !",
+    booking_closed_message:
+      "Les réservations pour le jour même sont clôturées afin de garantir une préparation de qualité. Nous acceptons actuellement les réservations pour le {{date}}.",
 
     // --- Booking Form ---
     bookTitle: "Réserver",
@@ -1036,6 +1047,7 @@ export const translations = {
       "Votre aventure est réservée. Nous avons envoyé un email de confirmation à",
     label_booking_id: "ID de Réservation",
     btn_copy_id: "Copier l'ID",
+    btn_view_voucher: "Voir Votre Ticket",
     btnDone: "Terminé",
     btn_see_meeting_point: "Voir le point de rendez-vous",
     logistics_view_map: "Voir sur Google Maps",

@@ -1,11 +1,34 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Ticket } from "lucide-react";
 import SEO from "../components/common/SEO";
+import { getPipaToday } from "../utils/timeUtils";
 
 const Home = () => {
   const { t, language } = useLanguage();
+  const [recentBooking, setRecentBooking] = useState(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("last_successful_booking");
+    if (saved) {
+      try {
+        const booking = JSON.parse(saved);
+        const today = getPipaToday();
+
+        // Show ticket if it's for today or a future date
+        if (booking.tour_date >= today) {
+          setRecentBooking(booking);
+        } else {
+          // Cleanup expired voucher
+          localStorage.removeItem("last_successful_booking");
+        }
+      } catch (e) {
+        localStorage.removeItem("last_successful_booking");
+      }
+    }
+  }, []);
 
   return (
     <div className="flex flex-col bg-gray-900">
@@ -58,16 +81,26 @@ const Home = () => {
           </p>
 
           <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
-            <Link
-              to="/book"
-              className="group bg-[#FF6B6B] hover:bg-white hover:text-[#FF6B6B] text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-2"
-            >
-              {t("ctaButton")}
-              <ChevronRight
-                size={18}
-                className="transition-transform group-hover:translate-x-1"
-              />
-            </Link>
+            {recentBooking ? (
+              <Link
+                to="/book"
+                className="group bg-emerald-500 hover:bg-white hover:text-emerald-500 text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-3 border-2 border-emerald-500 hover:border-emerald-500"
+              >
+                <Ticket size={20} className="animate-pulse" />
+                {t("btn_view_voucher")}
+              </Link>
+            ) : (
+              <Link
+                to="/book"
+                className="group bg-[#FF6B6B] hover:bg-white hover:text-[#FF6B6B] text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl transition-all transform hover:-translate-y-1 active:scale-95 flex items-center gap-2"
+              >
+                {t("ctaButton")}
+                <ChevronRight
+                  size={18}
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </Link>
+            )}
 
             <Link
               to="/tours"

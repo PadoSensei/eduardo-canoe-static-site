@@ -11,7 +11,10 @@ import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 import EmptyState from "./common/EmptyState";
 import { CalendarOff } from "lucide-react";
-import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
+import {
+  getMinBookingDate,
+  formatFriendlyDate,
+} from "../utils/timeUtils";
 import { formatCurrency } from "../utils/formatters";
 import { useBooking } from "../hooks/useBooking";
 import type { TourUI } from "@/api/schemas";
@@ -27,20 +30,37 @@ function getErrorMessage(err: unknown): string {
 
 const getStoredSession = (t: (key: string) => string) => {
   try {
+    // 1. Try pending booking first
     const saved = localStorage.getItem("pending_booking");
-    if (!saved) return null;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const result = BookingSessionSchema.safeParse(parsed);
 
-    const parsed = JSON.parse(saved);
-    const result = BookingSessionSchema.safeParse(parsed);
-
-    if (!result.success) {
-      console.error("Contract violation in localStorage:", result.error);
-      localStorage.removeItem("pending_booking");
-      toast.error(t("error_contract_violation"));
-      return null;
+      if (!result.success) {
+        console.error("Contract violation in localStorage:", result.error);
+        localStorage.removeItem("pending_booking");
+        toast.error(t("error_contract_violation"));
+      } else {
+        return result.data;
+      }
     }
 
-    return result.data;
+    // 2. Try successful booking recovery
+    const lastSuccessful = localStorage.getItem("last_successful_booking");
+    if (lastSuccessful) {
+      const parsed = JSON.parse(lastSuccessful);
+      // We wrap it in the expected session shape but marked as confirmed
+      return {
+        currentBooking: {
+          ...parsed,
+          created_at: parsed.created_at || new Date().toISOString(),
+        },
+        paymentInfo: null,
+        isConfirmed: true, // Custom flag handled by hook
+      };
+    }
+
+    return null;
   } catch {
     localStorage.removeItem("pending_booking");
     return null;
@@ -57,7 +77,7 @@ function BookingSystem() {
   // --- 1. STATE INITIALIZATION ---
   const [session] = useState(() => getStoredSession(t));
   const [availableTours, setAvailableTours] = useState<TourUI[]>([]);
-  const [selectedDate, setSelectedDate] = useState(getTodayLocalDate());
+  const [selectedDate, setSelectedDate] = useState(getMinBookingDate());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -249,7 +269,7 @@ function BookingSystem() {
   };
 
   const openModal = (tour: TourUI) => {
-    if (isPastDate(selectedDate)) {
+    if (selectedDate < getMinBookingDate()) {
       setFormError(t("alertPastDate"));
       return;
     }
@@ -282,13 +302,18 @@ function BookingSystem() {
         </p>
       );
 
-    if (availableTours.length === 0)
-      return (
-        <EmptyState
-          message={t("tours_none_available_date")}
-          icon={CalendarOff}
-        />
-      );
+    if (availableTours.length === 0 || selectedDate < getMinBookingDate()) {
+      const minDate = getMinBookingDate();
+      const message =
+        selectedDate < minDate
+          ? t("booking_closed_message").replace(
+              "{{date}}",
+              formatFriendlyDate(minDate, language)
+            )
+          : t("tours_none_available_date");
+
+      return <EmptyState message={message} icon={CalendarOff} />;
+    }
 
     return availableTours.map((tour) => (
       <div
@@ -406,7 +431,7 @@ function BookingSystem() {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSelectedDate(e.target.value)
               }
-              min={getTodayLocalDate()}
+              min={getMinBookingDate()}
               className="p-3 bg-white px-6 rounded-xl border border-gray-200 shadow-sm focus:ring-4 focus:ring-[#FF6B6B]/20 focus:border-[#FF6B6B] transition-all outline-none font-bold text-gray-700"
             />
           </div>
