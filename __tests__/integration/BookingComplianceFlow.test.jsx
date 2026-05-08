@@ -6,7 +6,7 @@ import BookingSystem from "../../src/components/BookingSystem";
 import { LanguageProvider } from "../../src/context/LanguageContext";
 import { BrowserRouter } from "react-router-dom";
 
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = "http://localhost:8080/api/v1";
 
 describe("Full Booking Compliance Flow", () => {
   let capturedPayload;
@@ -32,7 +32,11 @@ describe("Full Booking Compliance Flow", () => {
         booking: { uuid: "123" },
         payment_info: {},
       });
-    })
+    }),
+    // Handle the polling that starts automatically after booking
+    http.get(`${API_BASE}/bookings/status/123`, () =>
+      HttpResponse.json({ status: "pending_payment" })
+    )
   );
 
   beforeAll(() => server.listen());

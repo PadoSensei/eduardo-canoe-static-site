@@ -11,7 +11,7 @@ import {
   useLanguage,
 } from "../../src/context/LanguageContext";
 
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = "http://localhost:8080/api/v1";
 const TEST_UUID = "test-uuid-123";
 
 // Mock the language context

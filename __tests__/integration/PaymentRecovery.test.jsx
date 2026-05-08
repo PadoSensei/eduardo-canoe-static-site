@@ -6,7 +6,7 @@ import { http, HttpResponse } from "msw";
 import BookingSystem from "../../src/components/BookingSystem";
 import { LanguageProvider } from "../../src/context/LanguageContext";
 
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = "http://localhost:8080/api/v1";
 
 const server = setupServer(
   http.get(`${API_BASE}/tours/available`, () => {

@@ -12,7 +12,7 @@ import {
 } from "../../src/context/LanguageContext";
 import { toast } from "sonner";
 
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = "http://localhost:8080/api/v1";
 const TEST_UUID = "test-uuid-resilience";
 
 // Mock the language context

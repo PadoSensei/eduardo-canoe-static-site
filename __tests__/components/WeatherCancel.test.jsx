@@ -13,7 +13,7 @@ import "@testing-library/jest-dom";
 import DayManifest from "../../src/components/dashboard/DayManifest";
 import { LanguageProvider } from "../../src/context/LanguageContext";
 
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = "http://localhost:8080/api/v1";
 
 jest.mock("@/supabaseClient", () => ({
   supabase: {
