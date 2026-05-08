@@ -6,6 +6,20 @@ const dayNumber = testDay.replace(/^0+/, ""); // "2"
 
 test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
   test.beforeEach(async ({ page }) => {
+    // Freeze clock to the test date
+    await page.addInitScript((dateStr) => {
+      const date = new Date(dateStr);
+      const _Date = window.Date;
+      // @ts-ignore
+      window.Date = class extends _Date {
+        constructor(...args) {
+          if (args.length === 0) return new _Date(date);
+          return new _Date(...args);
+        }
+      };
+      window.Date.now = () => date.getTime();
+    }, testDate);
+
     // Register ALL route mocks BEFORE navigating so no real fetch fires first
     await page.route("**/api/v1/admin/schedule*", (route) =>
       route.fulfill({

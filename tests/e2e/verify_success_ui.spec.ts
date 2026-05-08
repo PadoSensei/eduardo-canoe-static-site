@@ -1,7 +1,10 @@
 import { test, expect } from "@playwright/test";
 
 test("Verify Success View and Digital Voucher", async ({ page }) => {
-  const today = new Date().toISOString().split("T")[0];
+  // Use a future date (today + 2 days) to bypass the 19:00 lock rule
+  const futureDate = new Date();
+  futureDate.setDate(futureDate.getDate() + 2);
+  const targetDateStr = futureDate.toISOString().split("T")[0];
 
   // 1. Mock API Responses
   await page.route("**/api/v1/tours/available**", async (route) => {
@@ -18,7 +21,7 @@ test("Verify Success View and Digital Voucher", async ({ page }) => {
           is_bookable: true,
           capacity: 10,
           duration: "2h",
-          tour_date: today,
+          tour_date: targetDateStr,
           description_key: "tour_sunset_short",
         },
       ]),
@@ -70,8 +73,8 @@ test("Verify Success View and Digital Voucher", async ({ page }) => {
   // Let's wait for the content to load
   await page.waitForSelector('input[type="date"]');
 
-  // Set date to today or a near future date
-  await page.fill('input[type="date"]', today);
+  // Set date to target future date
+  await page.fill('input[type="date"]', targetDateStr);
 
   // Wait for tours to appear (it's reactive)
   await page.waitForSelector(

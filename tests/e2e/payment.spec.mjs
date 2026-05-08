@@ -4,6 +4,11 @@ test.describe("Payment Success Flow", () => {
   test("should transition to success view when payment is confirmed", async ({
     page,
   }) => {
+    // Use a future date to bypass the 19:00 lock rule
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 2);
+    const targetDateStr = futureDate.toISOString().split("T")[0];
+
     const mockUuid = "123e4567-e89b-12d3-a456-426614174000";
 
     // Mock tours/available so the booking page doesn't hit Railway on reload
@@ -19,7 +24,7 @@ test.describe("Payment Success Flow", () => {
             seats_available: 5,
             is_bookable: true,
             capacity: 10,
-            tour_date: new Date().toISOString().split("T")[0],
+            tour_date: targetDateStr,
           },
         ],
       })

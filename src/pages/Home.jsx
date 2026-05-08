@@ -24,7 +24,7 @@ const Home = () => {
           // Cleanup expired voucher
           localStorage.removeItem("last_successful_booking");
         }
-      } catch (e) {
+      } catch {
         localStorage.removeItem("last_successful_booking");
       }
     }
