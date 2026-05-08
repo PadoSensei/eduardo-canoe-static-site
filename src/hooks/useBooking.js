@@ -259,7 +259,6 @@ export function useBooking(initialSession, selectedDate, setAvailableTours) {
     selectedDate,
     paymentInfo,
     setAvailableTours,
-    timeLeft,
     currentBooking,
   ]);
 

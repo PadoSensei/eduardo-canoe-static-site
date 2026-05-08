@@ -6,7 +6,7 @@ test.describe("Payment Success Flow", () => {
   }) => {
     // Use a future date to bypass the 19:00 lock rule
     const futureDate = new Date();
-    futureDate.setDate(futureDate.getDate() + 2);
+    futureDate.setDate(futureDate.getDate() + 3);
     const targetDateStr = futureDate.toISOString().split("T")[0];
 
     const mockUuid = "123e4567-e89b-12d3-a456-426614174000";

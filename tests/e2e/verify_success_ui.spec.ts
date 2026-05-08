@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
 
 test("Verify Success View and Digital Voucher", async ({ page }) => {
-  // Use a future date (today + 2 days) to bypass the 19:00 lock rule
+  // Use a future date (today + 3 days) to bypass the 19:00 lock rule
   const futureDate = new Date();
-  futureDate.setDate(futureDate.getDate() + 2);
+  futureDate.setDate(futureDate.getDate() + 3);
   const targetDateStr = futureDate.toISOString().split("T")[0];
 
   // 1. Mock API Responses

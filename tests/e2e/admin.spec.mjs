@@ -6,18 +6,26 @@ const dayNumber = testDay.replace(/^0+/, ""); // "2"
 
 test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
   test.beforeEach(async ({ page }) => {
-    // Freeze clock to the test date
+    // Freeze clock to the test date at noon (to avoid timezone edge cases)
     await page.addInitScript((dateStr) => {
-      const date = new Date(dateStr);
+      const fixedDate = new Date(`${dateStr}T12:00:00`);
       const _Date = window.Date;
+
+      // Create a mock Date class
       // @ts-ignore
-      window.Date = class extends _Date {
-        constructor(...args) {
-          if (args.length === 0) return new _Date(date);
-          return new _Date(...args);
-        }
-      };
-      window.Date.now = () => date.getTime();
+      function MockDate(...args) {
+        if (args.length === 0) return new _Date(fixedDate.getTime());
+        // @ts-ignore
+        return new _Date(...args);
+      }
+
+      MockDate.prototype = _Date.prototype;
+      MockDate.now = () => fixedDate.getTime();
+      MockDate.UTC = _Date.UTC;
+      MockDate.parse = _Date.parse;
+
+      // @ts-ignore
+      window.Date = MockDate;
     }, testDate);
 
     // Register ALL route mocks BEFORE navigating so no real fetch fires first
