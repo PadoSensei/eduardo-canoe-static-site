@@ -9,7 +9,10 @@ import {
   isSameMonth,
   isSameDay,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Loader2, DollarSign } from "lucide-react";
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
 import { fetchMonthlySchedule } from "../../api";
 import { formatCurrency } from "../../utils/formatters";
 

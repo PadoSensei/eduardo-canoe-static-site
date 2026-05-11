@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { ArrowLeft, Plus, Minus, Loader2 } from "lucide-react";
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import Minus from 'lucide-react/dist/esm/icons/minus';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { adminCreateBooking } from "../../../api";
 import ManualBookingSummary from "./ManualBookingSummary";
 

@@ -1,5 +1,6 @@
 import React from "react";
-import { X, Loader2 } from "lucide-react";
+import X from 'lucide-react/dist/esm/icons/x';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { useLanguage } from "@/context/LanguageContext";
 
 interface EmailPreviewModalProps {

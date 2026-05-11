@@ -1,8 +1,16 @@
 import React, { useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigationType,
+  createRoutesFromChildren,
+  matchRoutes,
+} from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { Toaster } from "sonner";
-import { Loader2 } from "lucide-react";
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
@@ -23,26 +31,44 @@ const ActivityView = React.lazy(() => import("./pages/admin/ActivityView"));
 const EmailsView = React.lazy(() => import("./pages/admin/EmailsView"));
 
 // Components
-import BookingSystem from "./components/BookingSystem";
-import { supabase } from "./supabaseClient";
-import config from "./core/config";
+const BookingSystem = React.lazy(() => import("./components/BookingSystem"));
+const AdminAuthProvider = React.lazy(() =>
+  import("./components/admin/AdminAuthProvider")
+);
 
 const App = () => {
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!config.isProduction) {
-        // eslint-disable-next-line no-console
-        console.log(
-          `🔐 AUTH_EVENT: ${event} | User: ${session?.user?.email || "NONE"}`
-        );
-      }
-    });
+  const location = useLocation();
+  const navigationType = useNavigationType();
 
-    return () => {
-      subscription?.unsubscribe();
+  useEffect(() => {
+    let initialized = false;
+    const initSentry = () => {
+      if (initialized) return;
+      Sentry.init({
+        dsn: import.meta.env.VITE_SENTRY_DSN,
+        integrations: [
+          Sentry.reactRouterV6BrowserTracingIntegration({
+            useEffect,
+            useLocation,
+            useNavigationType,
+            createRoutesFromChildren,
+            matchRoutes,
+          }),
+          Sentry.replayIntegration(),
+        ],
+        tracesSampleRate: 1.0,
+        replaysSessionSampleRate: 0.1,
+        replaysOnErrorSampleRate: 1.0,
+        environment: import.meta.env.MODE,
+      });
+      initialized = true;
     };
+
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(() => initSentry());
+    } else {
+      setTimeout(initSentry, 2000);
+    }
   }, []);
 
   return (
@@ -123,32 +149,34 @@ const App = () => {
                   </div>
                 }
               >
-                <AdminLayout>
-                  <Routes>
-                    <Route
-                      path="/"
-                      element={
-                        <Navigate
-                          to={`/admin/operations${window.location.search}`}
-                          replace
-                        />
-                      }
-                    />
-                    <Route path="/operations" element={<Dashboard />} />
-                    <Route path="/manifest/:date" element={<Dashboard />} />
-                    <Route path="/activity" element={<ActivityView />} />
-                    <Route path="/emails" element={<EmailsView />} />
-                    <Route
-                      path="/settings"
-                      element={
-                        <Navigate
-                          to={`/admin/emails${window.location.search}`}
-                          replace
-                        />
-                      }
-                    />
-                  </Routes>
-                </AdminLayout>
+                <AdminAuthProvider>
+                  <AdminLayout>
+                    <Routes>
+                      <Route
+                        path="/"
+                        element={
+                          <Navigate
+                            to={`/admin/operations${window.location.search}`}
+                            replace
+                          />
+                        }
+                      />
+                      <Route path="/operations" element={<Dashboard />} />
+                      <Route path="/manifest/:date" element={<Dashboard />} />
+                      <Route path="/activity" element={<ActivityView />} />
+                      <Route path="/emails" element={<EmailsView />} />
+                      <Route
+                        path="/settings"
+                        element={
+                          <Navigate
+                            to={`/admin/emails${window.location.search}`}
+                            replace
+                          />
+                        }
+                      />
+                    </Routes>
+                  </AdminLayout>
+                </AdminAuthProvider>
               </React.Suspense>
             }
           />

@@ -1,6 +1,6 @@
 // src/components/common/LocationLink.jsx
 import React from "react";
-import { MapPin } from "lucide-react";
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 import { useLanguage } from "../../context/LanguageContext";
 import config from "../../core/config";
 

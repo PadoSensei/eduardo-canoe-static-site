@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { faqData } from "../data/faqData";
-import { ChevronDown, Search, X } from "lucide-react";
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import Search from 'lucide-react/dist/esm/icons/search';
+import X from 'lucide-react/dist/esm/icons/x';
 import LocationLink from "../components/common/LocationLink";
 
 const FAQItem = ({ question, answer, searchTerm, showLocationButton }) => {

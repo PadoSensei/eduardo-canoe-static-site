@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
-import { Instagram, ArrowUpRight } from "lucide-react";
+import Instagram from 'lucide-react/dist/esm/icons/instagram';
+import ArrowUpRight from 'lucide-react/dist/esm/icons/arrow-up-right';
 import BrandLogo from "./BrandLogo";
 
 // Optimized Link Component for Horizontal Layout

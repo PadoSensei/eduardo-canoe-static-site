@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import BrandLogo from "../BrandLogo";
 import LocationLink from "../common/LocationLink";
-import { Copy, Check } from "lucide-react";
+import Copy from 'lucide-react/dist/esm/icons/copy';
+import Check from 'lucide-react/dist/esm/icons/check';
 
 export function SuccessView({ guestEmail, booking, onClose }) {
   const { t } = useLanguage();

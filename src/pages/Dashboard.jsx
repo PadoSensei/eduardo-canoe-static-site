@@ -4,7 +4,10 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import DashboardCalendar from "../components/dashboard/DashboardCalendar";
 import DayManifest from "../components/dashboard/DayManifest";
-import { Lock, Mail, Loader2, LogOut } from "lucide-react";
+import Lock from 'lucide-react/dist/esm/icons/lock';
+import Mail from 'lucide-react/dist/esm/icons/mail';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import LogOut from 'lucide-react/dist/esm/icons/log-out';
 import config from "@/core/config";
 
 const Dashboard = () => {

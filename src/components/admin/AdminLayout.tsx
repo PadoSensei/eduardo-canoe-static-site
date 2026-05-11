@@ -2,17 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
-import {
-  LayoutDashboard,
-  Mail,
-  LogOut,
-  Lock,
-  Loader2,
-  Menu,
-  X,
-  Bell,
-  LucideIcon,
-} from "lucide-react";
+import LayoutDashboard from 'lucide-react/dist/esm/icons/layout-dashboard';
+import Mail from 'lucide-react/dist/esm/icons/mail';
+import LogOut from 'lucide-react/dist/esm/icons/log-out';
+import Lock from 'lucide-react/dist/esm/icons/lock';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import Menu from 'lucide-react/dist/esm/icons/menu';
+import X from 'lucide-react/dist/esm/icons/x';
+import Bell from 'lucide-react/dist/esm/icons/bell';
+import { LucideIcon } from 'lucide-react';
 import config from "@/core/config";
 import { useLanguage } from "@/context/LanguageContext";
 
