@@ -2,22 +2,25 @@ import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { Toaster } from "sonner";
+import { Loader2 } from "lucide-react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
 // Pages
 import Home from "./pages/Home";
 import Tours from "./pages/Tours";
-import FAQ from "./pages/FAQ";
-import Dashboard from "./pages/Dashboard";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import About from "./pages/About";
+
+// Lazy-loaded pages
+const FAQ = React.lazy(() => import("./pages/FAQ"));
+const Dashboard = React.lazy(() => import("./pages/Dashboard"));
+const Terms = React.lazy(() => import("./pages/Terms"));
+const Privacy = React.lazy(() => import("./pages/Privacy"));
+const About = React.lazy(() => import("./pages/About"));
 
 // Admin
-import AdminLayout from "./components/admin/AdminLayout";
-import ActivityView from "./pages/admin/ActivityView";
-import EmailsView from "./pages/admin/EmailsView";
+const AdminLayout = React.lazy(() => import("./components/admin/AdminLayout"));
+const ActivityView = React.lazy(() => import("./pages/admin/ActivityView"));
+const EmailsView = React.lazy(() => import("./pages/admin/EmailsView"));
 
 // Components
 import BookingSystem from "./components/BookingSystem";
@@ -75,59 +78,78 @@ const App = () => {
               <>
                 <Header />
                 <main className="flex-grow">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/tours" element={<Tours />} />
-                    <Route
-                      path="/book"
-                      element={
-                        <div className="pt-24">
-                          <BookingSystem />
-                        </div>
-                      }
-                    />
-                    <Route path="/faq" element={<FAQ />} />
-                    <Route path="/terms" element={<Terms />} />
-                    <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                  </Routes>
+                  {/* Inner Suspense for secondary pages (FAQ, About, Legal)
+                      min-h-[60vh] ensures the footer doesn't jump to the top while loading. */}
+                  <React.Suspense
+                    fallback={
+                      <div className="flex items-center justify-center min-h-[60vh] bg-gray-50/50">
+                        <Loader2 className="w-10 h-10 text-[#FF6B6B] animate-spin" />
+                      </div>
+                    }
+                  >
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/tours" element={<Tours />} />
+                      <Route
+                        path="/book"
+                        element={
+                          <div className="pt-24">
+                            <BookingSystem />
+                          </div>
+                        }
+                      />
+                      <Route path="/faq" element={<FAQ />} />
+                      <Route path="/terms" element={<Terms />} />
+                      <Route path="/privacy" element={<Privacy />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </React.Suspense>
                 </main>
                 <Footer />
               </>
             }
           />
 
-          {/* Admin Routes with Sidebar Layout */}
+          {/* Admin Routes with Sidebar Layout
+              Wrapped in its own Suspense because AdminLayout itself is lazy-loaded. */}
           <Route
             path="/admin/*"
             element={
-              <AdminLayout>
-                <Routes>
-                  <Route
-                    path="/"
-                    element={
-                      <Navigate
-                        to={`/admin/operations${window.location.search}`}
-                        replace
-                      />
-                    }
-                  />
-                  <Route path="/operations" element={<Dashboard />} />
-                  <Route path="/manifest/:date" element={<Dashboard />} />
-                  <Route path="/activity" element={<ActivityView />} />
-                  <Route path="/emails" element={<EmailsView />} />
-                  <Route
-                    path="/settings"
-                    element={
-                      <Navigate
-                        to={`/admin/emails${window.location.search}`}
-                        replace
-                      />
-                    }
-                  />
-                </Routes>
-              </AdminLayout>
+              <React.Suspense
+                fallback={
+                  <div className="flex items-center justify-center min-h-screen bg-gray-950">
+                    <Loader2 className="w-10 h-10 text-[#FF6B6B] animate-spin" />
+                  </div>
+                }
+              >
+                <AdminLayout>
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        <Navigate
+                          to={`/admin/operations${window.location.search}`}
+                          replace
+                        />
+                      }
+                    />
+                    <Route path="/operations" element={<Dashboard />} />
+                    <Route path="/manifest/:date" element={<Dashboard />} />
+                    <Route path="/activity" element={<ActivityView />} />
+                    <Route path="/emails" element={<EmailsView />} />
+                    <Route
+                      path="/settings"
+                      element={
+                        <Navigate
+                          to={`/admin/emails${window.location.search}`}
+                          replace
+                        />
+                      }
+                    />
+                  </Routes>
+                </AdminLayout>
+              </React.Suspense>
             }
           />
         </Routes>

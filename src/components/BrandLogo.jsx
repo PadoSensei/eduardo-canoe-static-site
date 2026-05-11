@@ -14,7 +14,7 @@ const BrandLogo = ({ className = "w-16 h-16" }) => {
       className={`overflow-hidden rounded-full bg-white shadow-xl flex items-center justify-center border-2 border-white ${className}`}
     >
       <img
-        src="/img/logo.png"
+        src="/img/logo.webp"
         alt={t("logoAlt")}
         /* 
            object-cover + w-full: This ensures the black background 

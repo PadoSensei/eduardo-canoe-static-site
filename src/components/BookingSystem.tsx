@@ -303,8 +303,9 @@ function BookingSystem() {
         {/* 1. IMAGE THUMBNAIL - Fixed Aspect Ratio */}
         <div className="w-full h-40 overflow-hidden border border-gray-100 shadow-sm sm:w-48 sm:h-32 shrink-0 rounded-2xl">
           <img
-            src={tour.imageUrl || "/img/sunset_pic.jpeg"}
+            src={tour.imageUrl || "/img/sunset_pic.webp"}
             alt={tour.name}
+            loading="lazy"
             className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
           />
         </div>

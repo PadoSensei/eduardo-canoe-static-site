@@ -94,8 +94,9 @@ const Tours: React.FC = () => {
               >
                 <div className="relative h-64 overflow-hidden">
                   <img
-                    src={tour.imageUrl || "/img/sunrise_pic.jpg"}
+                    src={tour.imageUrl || "/img/sunrise_pic.webp"}
                     alt={tour.name}
+                    loading="lazy"
                     className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 flex items-center justify-center transition-colors bg-teal-900/0 group-hover:bg-teal-900/20">

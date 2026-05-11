@@ -24,15 +24,17 @@ const About = () => {
         description={t("seo_about_description")}
         path="/about"
         lang={language}
-        image="/img/Edu_Cover.jpeg"
+        image="/img/Edu_Cover.webp"
       />
 
       {/* Section 1 — Cinematic Hero */}
       <section className="relative h-screen min-h-[600px] overflow-hidden">
         <img
-          src="/img/Edu_Cover.jpeg"
+          src="/img/Edu_Cover.webp"
           alt="Edu"
           className="absolute inset-0 w-full h-full object-cover object-top"
+          fetchPriority="high"
+          loading="eager"
           onError={(e) => (e.target.style.display = "none")}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
@@ -53,9 +55,10 @@ const About = () => {
           <div className="md:col-span-2 md:sticky md:top-28 self-start">
             <div className="relative w-full aspect-square max-w-sm mx-auto">
               <img
-                src="/img/Edu_Cover.jpeg"
+                src="/img/Edu_Cover.webp"
                 alt="Edu"
                 className="w-full h-full object-cover rounded-2xl shadow-2xl"
+                loading="lazy"
                 onError={(e) => (e.target.style.display = "none")}
               />
               <div className="absolute -bottom-3 -right-3 w-full h-full rounded-2xl border-2 border-red-400 -z-10" />
@@ -121,10 +124,11 @@ const About = () => {
       {/* Section 4 — Dark Pull Quote */}
       <section className="relative py-24 px-6 bg-slate-900 overflow-hidden">
         <img
-          src="/img/Edu_Cover.jpeg"
+          src="/img/Edu_Cover.webp"
           alt=""
           className="absolute inset-0 w-full h-full object-cover object-center opacity-5"
           aria-hidden="true"
+          loading="lazy"
           onError={(e) => (e.target.style.display = "none")}
         />
         <div className="max-w-3xl mx-auto text-center relative z-10">
@@ -170,9 +174,10 @@ const About = () => {
       {/* Section 6 — Closing CTA Strip */}
       <section className="relative py-28 px-6 overflow-hidden">
         <img
-          src="/img/Edu_Cover.jpeg"
+          src="/img/Edu_Cover.webp"
           alt="CTA Background"
           className="absolute inset-0 w-full h-full object-cover object-center -z-10 scale-105"
+          loading="lazy"
           onError={(e) => (e.target.style.display = "none")}
         />
         <div className="absolute inset-0 bg-slate-900/70 -z-10" />

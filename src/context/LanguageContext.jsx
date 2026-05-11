@@ -16,6 +16,7 @@ export const LanguageProvider = ({ children }) => {
 
   // The function to get translation
   const t = (key) => {
+    if (!translations[language]) return "";
     const translation = translations[language][key];
 
     if (translation === undefined) {
