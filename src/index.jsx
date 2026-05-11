@@ -12,6 +12,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "./context/LanguageContext";
 import App from "./App";
 import "../src/styles.css";
+import "./fonts.css";
 
 // --- 1. Sentry Initialization ---
 // We initialize this as the very first thing to catch any startup errors.

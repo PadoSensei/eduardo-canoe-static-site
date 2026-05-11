@@ -38,8 +38,9 @@ const TourModal = ({ tour, onClose }) => {
         {/* Header Image Section */}
         <div className="relative h-48 md:h-72 shrink-0">
           <img
-            src={tour.imageUrl || "/img/sunset_pic.jpeg"}
+            src={tour.imageUrl || "/img/sunset_pic.webp"}
             className="object-cover w-full h-full"
+            loading="lazy"
             alt={tour.name}
           />
           <div className="absolute top-6 left-6">

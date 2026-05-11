@@ -24,7 +24,8 @@ const Home = () => {
             autoPlay
             muted
             loop
-            preload="metadata"
+            preload="none"
+            poster="/img/hero-poster.webp"
             className="object-cover w-full h-full"
           >
             <source src="/img/Pipa-Canoe_1.mp4" type="video/mp4" />
