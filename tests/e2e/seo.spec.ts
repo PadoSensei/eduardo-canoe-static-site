@@ -26,7 +26,7 @@ test.describe("SEO and Metadata", () => {
     const ogImage = page.locator('meta[property="og:image"]').last();
     await expect(ogImage).toHaveAttribute(
       "content",
-      /https:\/\/pipacanoahavaiana.com.br\/img\/sunset_pic.jpeg/
+      /https:\/\/pipacanoahavaiana.com.br\/img\/sunset_pic.webp/
     );
 
     // Verify JSON-LD Structured Data
@@ -57,7 +57,7 @@ test.describe("SEO and Metadata", () => {
     const ogImage = page.locator('meta[property="og:image"]').last();
     await expect(ogImage).toHaveAttribute(
       "content",
-      /https:\/\/pipacanoahavaiana.com.br\/img\/Edu_Cover.jpeg/
+      /https:\/\/pipacanoahavaiana.com.br\/img\/Edu_Cover.webp/
     );
   });
 });
