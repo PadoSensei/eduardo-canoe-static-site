@@ -1,5 +1,6 @@
 import React from "react";
-import { CalendarOff, type LucideIcon } from "lucide-react";
+import CalendarOff from "lucide-react/dist/esm/icons/calendar-off";
+import type { LucideIcon } from "lucide-react";
 
 export interface EmptyStateProps {
   message: string;

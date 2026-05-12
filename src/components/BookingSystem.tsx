@@ -10,9 +10,14 @@ import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 import EmptyState from "./common/EmptyState";
-import { CalendarOff } from "lucide-react";
+
+// 🟢 PERFORMANCE: Direct path import to keep Speed Index low
+import CalendarOff from "lucide-react/dist/esm/icons/calendar-off";
+
+// 🟢 TEMPORAL INTEGRITY: Using the Shoreline Clock (Pipa time)
 import { isPastDate } from "../utils/dateUtils";
 import { calculateBookingHorizon } from "../utils/timeUtils";
+
 import { formatCurrency } from "../utils/formatters";
 import { useBooking } from "../hooks/useBooking";
 import type { TourUI } from "@/api/schemas";

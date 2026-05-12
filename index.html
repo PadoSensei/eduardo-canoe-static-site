@@ -39,7 +39,7 @@
       fetchpriority="high"
     />
 
-    <!-- Font Preloading (Critical Few: Lora Regular/Bold Latin) -->
+    <!-- Font Preloading (Critical Few: Lora & Open Sans Latin) -->
     <link
       rel="preload"
       href="/fonts/0QIvMX1D_JOuMwr7Iw.woff2"
@@ -47,8 +47,120 @@
       type="font/woff2"
       crossorigin
     />
+    <link
+      rel="preload"
+      href="/fonts/0QIvMX1D_JOuMwf7I-NP.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS-muw.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <style id="critical-css">
+      :root {
+        --font-lora: "Lora", serif;
+        --font-sans: "Open Sans", sans-serif;
+      }
+      @font-face {
+        font-family: "Lora";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(/fonts/0QIvMX1D_JOuMwr7Iw.woff2) format("woff2");
+        unicode-range:
+          U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+          U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+          U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: "Lora";
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url(/fonts/0QIvMX1D_JOuMwf7I-NP.woff2) format("woff2");
+        unicode-range:
+          U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+          U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+          U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: "Open Sans";
+        font-style: normal;
+        font-weight: 400;
+        font-stretch: 100%;
+        font-display: swap;
+        src: url(/fonts/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS-muw.woff2)
+          format("woff2");
+        unicode-range:
+          U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+          U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+          U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      body {
+        margin: 0;
+        font-family: var(--font-sans);
+        background-color: #111827;
+        color: #f9fafb;
+        -webkit-font-smoothing: antialiased;
+      }
+      .nav-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1rem;
+        height: 80px;
+        background: transparent;
+      }
+      .hero-section {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-color: #111827;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-title {
+        font-family: var(--font-lora);
+        font-size: 3rem;
+        font-weight: 900;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+        color: white;
+      }
+      @media (min-width: 640px) {
+        .hero-title {
+          font-size: 3.75rem;
+        }
+      }
+      @media (min-width: 768px) {
+        .hero-title {
+          font-size: 6rem;
+        }
+        .nav-container {
+          padding: 1rem 2rem;
+        }
+      }
+      .hero-description {
+        max-width: 42rem;
+        margin: 0 auto 2.5rem;
+        font-size: 1.125rem;
+        color: rgba(255, 255, 255, 0.8);
+        min-height: 1.5em;
+      }
+    </style>
   </head>
-  <body class="antialiased text-gray-800 bg-gray-50">
+  <body class="antialiased">
     <!-- This is where React will mount the entire application -->
     <div id="root"></div>
 

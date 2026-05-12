@@ -1,14 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
-import { ChevronRight } from "lucide-react";
+import ChevronRight from "lucide-react/dist/esm/icons/chevron-right";
 import SEO from "../components/common/SEO";
 
 const Home = () => {
   const { t, language } = useLanguage();
 
   return (
-    <div className="flex flex-col bg-gray-900">
+    <div className="flex flex-col bg-gray-900 hero-section">
       <SEO
         title={t("seo_home_title")}
         description={t("seo_home_description")}
@@ -50,11 +50,11 @@ const Home = () => {
             </span>
           </div> */}
 
-          <h1 className="mb-6 text-5xl font-black leading-tight text-white sm:text-6xl md:text-8xl font-lora drop-shadow-2xl">
+          <h1 className="mb-6 text-5xl font-black leading-tight text-white sm:text-6xl md:text-8xl font-lora drop-shadow-2xl hero-title">
             {t("heroTitle")}
           </h1>
 
-          <p className="max-w-2xl mx-auto mb-10 text-lg font-medium leading-relaxed sm:text-xl text-white/80 drop-shadow-lg">
+          <p className="max-w-2xl mx-auto mb-10 text-lg font-medium leading-relaxed sm:text-xl text-white/80 drop-shadow-lg hero-description">
             {t("heroSubtitle")}
           </p>
 

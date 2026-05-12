@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  eachDayOfInterval,
-  format,
-  isSameMonth,
-  isSameDay,
-} from "date-fns";
-import { ChevronLeft, ChevronRight, Loader2, DollarSign } from "lucide-react";
+import { startOfMonth } from "date-fns";
+import { endOfMonth } from "date-fns";
+import { startOfWeek } from "date-fns";
+import { endOfWeek } from "date-fns";
+import { eachDayOfInterval } from "date-fns";
+import { format } from "date-fns";
+import { isSameMonth } from "date-fns";
+import { isSameDay } from "date-fns";
+import ChevronLeft from "lucide-react/dist/esm/icons/chevron-left";
+import ChevronRight from "lucide-react/dist/esm/icons/chevron-right";
+import Loader2 from "lucide-react/dist/esm/icons/loader-2";
+import DollarSign from "lucide-react/dist/esm/icons/dollar-sign";
 import { fetchMonthlySchedule } from "../../api";
 import { formatCurrency } from "../../utils/formatters";
 

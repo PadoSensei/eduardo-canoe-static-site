@@ -6,14 +6,12 @@ import React, {
   useMemo,
 } from "react";
 import { format } from "date-fns";
-import {
-  X,
-  ArrowLeft,
-  UserPlus,
-  Loader2,
-  Users,
-  AlertTriangle,
-} from "lucide-react";
+import X from "lucide-react/dist/esm/icons/x";
+import ArrowLeft from "lucide-react/dist/esm/icons/arrow-left";
+import UserPlus from "lucide-react/dist/esm/icons/user-plus";
+import Loader2 from "lucide-react/dist/esm/icons/loader-2";
+import Users from "lucide-react/dist/esm/icons/users";
+import AlertTriangle from "lucide-react/dist/esm/icons/alert-triangle";
 import { toast } from "sonner";
 import {
   fetchDayManifest,

@@ -1,5 +1,6 @@
 import React from "react";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import CheckCircle2 from "lucide-react/dist/esm/icons/check-circle-2";
+import ArrowRight from "lucide-react/dist/esm/icons/arrow-right";
 import { useLanguage } from "../../../context/LanguageContext";
 
 interface ManualBookingSummaryProps {

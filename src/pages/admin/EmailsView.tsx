@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
-import {
-  Mail,
-  Clock,
-  ShieldCheck,
-  Loader2,
-  Eye,
-  LayoutDashboard,
-} from "lucide-react";
+import Mail from "lucide-react/dist/esm/icons/mail";
+import Clock from "lucide-react/dist/esm/icons/clock";
+import ShieldCheck from "lucide-react/dist/esm/icons/shield-check";
+import Loader2 from "lucide-react/dist/esm/icons/loader-2";
+import Eye from "lucide-react/dist/esm/icons/eye";
+import LayoutDashboard from "lucide-react/dist/esm/icons/layout-dashboard";
 import { getEmailSettings, updateEmailSetting, getEmailPreview } from "@/api";
 import type { EmailSetting } from "@/api/schemas";
 import { useLanguage } from "@/context/LanguageContext";
