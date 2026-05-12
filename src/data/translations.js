@@ -90,6 +90,8 @@ export const translations = {
     errorGeneric: "Sorry, we couldn't load tour availability.",
     tours_none_available_date:
       "No tours available for this date. Please select another day.",
+    closed_notice: "Bookings for this date are closed.",
+    view_next_available: "View next available date",
     tours_none_available_general:
       "No tours currently available. Please check back soon!",
 
@@ -383,6 +385,8 @@ export const translations = {
     errorGeneric: "Desculpe, não conseguimos carregar a disponibilidade.",
     tours_none_available_date:
       "Não há passeios disponíveis para esta data. Por favor, selecione outro dia.",
+    closed_notice: "Passeios para esta data estão encerrados.",
+    view_next_available: "Ver próxima data disponível",
     tours_none_available_general:
       "Não há passeios disponíveis no momento. Por favor, volte em breve!",
 
@@ -673,6 +677,8 @@ export const translations = {
     errorGeneric: "Lo siento, no pudimos cargar la disponibilidad.",
     tours_none_available_date:
       "No hay tours disponibles para esta fecha. Por favor, seleccione otro día.",
+    closed_notice: "Las reservas para esta fecha están cerradas.",
+    view_next_available: "Ver próxima fecha disponible",
     tours_none_available_general:
       "No hay tours disponibles en este momento. ¡Por favor, vuelva pronto!",
 
@@ -968,6 +974,8 @@ export const translations = {
     errorGeneric: "Désolé, nous n'avons pas pu charger les disponibilités.",
     tours_none_available_date:
       "Aucun tour disponible pour cette date. Veuillez sélectionner un autre jour.",
+    closed_notice: "Les réservations pour cette date sont fermées.",
+    view_next_available: "Voir la prochaine date disponible",
     tours_none_available_general:
       "Aucun tour disponible pour le moment. Veuillez revenir bientôt !",
 
