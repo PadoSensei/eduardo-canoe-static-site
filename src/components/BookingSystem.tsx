@@ -296,7 +296,9 @@ function BookingSystem() {
           }
           icon={CalendarOff}
           actionLabel={isBeforeHorizon ? t("view_next_available") : undefined}
-          onAction={isBeforeHorizon ? () => setSelectedDate(horizon) : undefined}
+          onAction={
+            isBeforeHorizon ? () => setSelectedDate(horizon) : undefined
+          }
         />
       );
     }
