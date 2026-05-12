@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Routes,
   Route,
@@ -10,15 +10,15 @@ import {
 } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { Toaster } from "sonner";
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import Loader2 from "lucide-react/dist/esm/icons/loader-2";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
 // Pages
 import Home from "./pages/Home";
-import Tours from "./pages/Tours";
 
 // Lazy-loaded pages
+const Tours = React.lazy(() => import("./pages/Tours"));
 const FAQ = React.lazy(() => import("./pages/FAQ"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 const Terms = React.lazy(() => import("./pages/Terms"));
@@ -32,18 +32,20 @@ const EmailsView = React.lazy(() => import("./pages/admin/EmailsView"));
 
 // Components
 const BookingSystem = React.lazy(() => import("./components/BookingSystem"));
-const AdminAuthProvider = React.lazy(() =>
-  import("./components/admin/AdminAuthProvider")
+const AdminAuthProvider = React.lazy(
+  () => import("./components/admin/AdminAuthProvider")
 );
 
 const App = () => {
   const location = useLocation();
-  const navigationType = useNavigationType();
+  const isInitialized = useRef(false);
 
+  // 1. One-time Initialization
   useEffect(() => {
-    let initialized = false;
-    const initSentry = () => {
-      if (initialized) return;
+    const initThirdParties = () => {
+      if (isInitialized.current) return;
+
+      // Sentry Initialization
       Sentry.init({
         dsn: import.meta.env.VITE_SENTRY_DSN,
         integrations: [
@@ -61,15 +63,44 @@ const App = () => {
         replaysOnErrorSampleRate: 1.0,
         environment: import.meta.env.MODE,
       });
-      initialized = true;
+
+      // GA4 Initialization (deferred)
+      const gaId = import.meta.env.VITE_GA_ID;
+      if (gaId && typeof window !== "undefined") {
+        const script = document.createElement("script");
+        script.async = true;
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+        document.head.appendChild(script);
+
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function gtag() {
+          window.dataLayer.push(arguments);
+        };
+        window.gtag("js", new Date());
+        window.gtag("config", gaId, {
+          page_path: window.location.pathname,
+        });
+      }
+
+      isInitialized.current = true;
     };
 
     if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(() => initSentry());
+      window.requestIdleCallback(() => initThirdParties());
     } else {
-      setTimeout(initSentry, 2000);
+      setTimeout(initThirdParties, 2000);
     }
-  }, []);
+  }, []); // Empty dependency array: runs once on mount
+
+  // 2. Route Tracking (GA4)
+  useEffect(() => {
+    const gaId = import.meta.env.VITE_GA_ID;
+    if (gaId && window.gtag) {
+      window.gtag("config", gaId, {
+        page_path: location.pathname,
+      });
+    }
+  }, [location.pathname]);
 
   return (
     <Sentry.ErrorBoundary
@@ -115,7 +146,14 @@ const App = () => {
                   >
                     <Routes>
                       <Route path="/" element={<Home />} />
-                      <Route path="/tours" element={<Tours />} />
+                      <Route
+                        path="/tours"
+                        element={
+                          <div className="pt-20">
+                            <Tours />
+                          </div>
+                        }
+                      />
                       <Route
                         path="/book"
                         element={

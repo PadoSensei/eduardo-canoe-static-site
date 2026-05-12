@@ -1,13 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import BrandLogo from "../BrandLogo";
 import LocationLink from "../common/LocationLink";
-import Copy from 'lucide-react/dist/esm/icons/copy';
-import Check from 'lucide-react/dist/esm/icons/check';
+import Copy from "lucide-react/dist/esm/icons/copy";
+import Check from "lucide-react/dist/esm/icons/check";
 
 export function SuccessView({ guestEmail, booking, onClose }) {
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    // GA4 Purchase Event
+    if (window.gtag && booking?.uuid) {
+      const firedKey = `fired_purchase_${booking.uuid}`;
+      if (!localStorage.getItem(firedKey)) {
+        window.gtag("event", "purchase", {
+          transaction_id: booking.display_id || booking.uuid,
+          value: booking.total_price || 0,
+          currency: "BRL",
+          items: [
+            {
+              item_id: booking.tour_id,
+              item_name: "Canoe Tour",
+            },
+          ],
+        });
+        localStorage.setItem(firedKey, "true");
+      }
+    }
+  }, [booking]);
 
   const displayId =
     booking?.display_id || booking?.uuid?.slice(0, 8).toUpperCase() || "------";

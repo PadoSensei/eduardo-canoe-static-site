@@ -1,5 +1,5 @@
 import React from "react";
-import CloudRain from 'lucide-react/dist/esm/icons/cloud-rain';
+import CloudRain from "lucide-react/dist/esm/icons/cloud-rain";
 import ShieldedButton from "../../common/ShieldedButton";
 import { useLanguage } from "../../../context/LanguageContext";
 

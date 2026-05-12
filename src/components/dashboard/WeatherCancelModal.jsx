@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
-import CloudRain from 'lucide-react/dist/esm/icons/cloud-rain';
-import X from 'lucide-react/dist/esm/icons/x';
+import AlertTriangle from "lucide-react/dist/esm/icons/alert-triangle";
+import CloudRain from "lucide-react/dist/esm/icons/cloud-rain";
+import X from "lucide-react/dist/esm/icons/x";
 import { useLanguage } from "../../context/LanguageContext";
 import ShieldedButton from "../common/ShieldedButton";
 

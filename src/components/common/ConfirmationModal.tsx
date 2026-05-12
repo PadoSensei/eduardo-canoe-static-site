@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
-import X from 'lucide-react/dist/esm/icons/x';
+import AlertCircle from "lucide-react/dist/esm/icons/alert-circle";
+import X from "lucide-react/dist/esm/icons/x";
 
 interface ConfirmationModalProps {
   isOpen: boolean;

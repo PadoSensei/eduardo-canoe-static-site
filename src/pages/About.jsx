@@ -1,7 +1,7 @@
 import React from "react";
 import { useLanguage } from "../context/LanguageContext";
 import SEO from "../components/common/SEO";
-import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import ShieldCheck from "lucide-react/dist/esm/icons/shield-check";
 
 const About = () => {
   const { t, language } = useLanguage();

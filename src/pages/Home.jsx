@@ -1,14 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import ChevronRight from "lucide-react/dist/esm/icons/chevron-right";
 import SEO from "../components/common/SEO";
 
 const Home = () => {
   const { t, language } = useLanguage();
 
   return (
-    <div className="flex flex-col bg-gray-900">
+    <div className="flex flex-col bg-gray-900 hero-section">
       <SEO
         title={t("seo_home_title")}
         description={t("seo_home_description")}

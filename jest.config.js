@@ -15,8 +15,14 @@ module.exports = {
   ],
   // Required for MSW v2 to work correctly with JSDOM
   testEnvironmentOptions: { customExportConditions: [""] },
-  testPathIgnorePatterns: ["/node_modules/", "/__tests__/.*[Hh]elper.*\\.(js|jsx)$"],
-  testMatch: ["**/__tests__/**/*.test.(js|jsx|ts|tsx)", "**/__tests__/**/*.spec.(js|jsx|ts|tsx)"],
+  testPathIgnorePatterns: [
+    "/node_modules/",
+    "/__tests__/.*[Hh]elper.*\\.(js|jsx)$",
+  ],
+  testMatch: [
+    "**/__tests__/**/*.test.(js|jsx|ts|tsx)",
+    "**/__tests__/**/*.spec.(js|jsx|ts|tsx)",
+  ],
   maxWorkers: 1,
   testTimeout: 30000,
   forceExit: true,

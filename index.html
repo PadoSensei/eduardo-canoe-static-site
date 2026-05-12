@@ -49,6 +49,13 @@
     />
     <link
       rel="preload"
+      href="/fonts/0QIvMX1D_JOuMwf7I-NP.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
       href="/fonts/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS-muw.woff2"
       as="font"
       type="font/woff2"
@@ -66,19 +73,21 @@
         font-weight: 400;
         font-display: swap;
         src: url(/fonts/0QIvMX1D_JOuMwr7Iw.woff2) format("woff2");
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
-          U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
-          U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        unicode-range:
+          U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+          U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+          U+2212, U+2215, U+FEFF, U+FFFD;
       }
       @font-face {
         font-family: "Lora";
         font-style: normal;
         font-weight: 600;
         font-display: swap;
-        src: url(/fonts/0QIvMX1D_JOuMwr7Iw.woff2) format("woff2");
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
-          U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
-          U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        src: url(/fonts/0QIvMX1D_JOuMwf7I-NP.woff2) format("woff2");
+        unicode-range:
+          U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+          U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+          U+2212, U+2215, U+FEFF, U+FFFD;
       }
       @font-face {
         font-family: "Open Sans";
@@ -88,9 +97,10 @@
         font-display: swap;
         src: url(/fonts/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS-muw.woff2)
           format("woff2");
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
-          U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
-          U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        unicode-range:
+          U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+          U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+          U+2212, U+2215, U+FEFF, U+FFFD;
       }
       body {
         margin: 0;
@@ -109,6 +119,16 @@
         align-items: center;
         justify-content: space-between;
         padding: 1rem 1rem;
+        height: 80px;
+        background: transparent;
+      }
+      .hero-section {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-color: #111827;
+        position: relative;
+        overflow: hidden;
       }
       .hero-title {
         font-family: var(--font-lora);
@@ -136,10 +156,11 @@
         margin: 0 auto 2.5rem;
         font-size: 1.125rem;
         color: rgba(255, 255, 255, 0.8);
+        min-height: 1.5em;
       }
     </style>
   </head>
-  <body class="antialiased text-gray-800 bg-gray-50">
+  <body class="antialiased">
     <!-- This is where React will mount the entire application -->
     <div id="root"></div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import ShieldedButton from "../common/ShieldedButton";
 import config from "../../core/config";
@@ -15,6 +15,24 @@ export function PaymentView({
 }) {
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    // GA4 Begin Checkout Event
+    if (window.gtag && currentBooking?.uuid) {
+      const firedKey = `fired_checkout_${currentBooking.uuid}`;
+      if (!localStorage.getItem(firedKey)) {
+        window.gtag("event", "begin_checkout", {
+          items: [
+            {
+              item_id: currentBooking.tour_id,
+              item_name: "Canoe Tour",
+            },
+          ],
+        });
+        localStorage.setItem(firedKey, "true");
+      }
+    }
+  }, [currentBooking]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);

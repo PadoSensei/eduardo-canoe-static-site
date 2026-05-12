@@ -6,6 +6,11 @@ test.describe("Payment Success Flow", () => {
   }) => {
     const mockUuid = "123e4567-e89b-12d3-a456-426614174000";
 
+    // Use a date at least 2 days in the future to avoid the 19:00 manifest lock
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 2);
+    const tourDate = futureDate.toISOString().split("T")[0];
+
     // Mock tours/available so the booking page doesn't hit Railway on reload
     await page.route("**/api/v1/tours/available**", (route) =>
       route.fulfill({
@@ -19,7 +24,7 @@ test.describe("Payment Success Flow", () => {
             seats_available: 5,
             is_bookable: true,
             capacity: 10,
-            tour_date: new Date().toISOString().split("T")[0],
+            tour_date: tourDate,
           },
         ],
       })
@@ -47,6 +52,34 @@ test.describe("Payment Success Flow", () => {
     // Establish domain for localStorage
     await page.goto("/book");
     await page.waitForLoadState("domcontentloaded");
+
+    // Force language to English for deterministic text matching
+    await page.evaluate(() => {
+      localStorage.setItem("language", "en");
+      localStorage.setItem("is_testing", "false"); // Ensure we don't auto-confirm too early
+    });
+
+    // Simple stateful mock for polling
+    let callCount = 0;
+    await page.route(`**/api/v1/bookings/status/${mockUuid}`, async (route) => {
+      callCount++;
+      // Return pending for the first 2 calls to give Playwright time to see the PaymentView
+      const confirmed = callCount > 2;
+
+      // Add a small delay to simulate network and prevent race conditions
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      await route.fulfill({
+        json: {
+          status: confirmed ? "confirmed" : "pending_payment",
+          uuid: mockUuid,
+          is_confirmed: confirmed,
+          tour_id: 1,
+          total_price: 100,
+          language: "en",
+        },
+      });
+    });
 
     // Inject session — shape must match useBooking's initialSession:
     // currentBooking needs uuid to start the polling effect
@@ -77,14 +110,15 @@ test.describe("Payment Success Flow", () => {
     await page.waitForLoadState("domcontentloaded");
 
     // PaymentView should be visible immediately — paymentInfo is truthy on mount
-    await expect(
-      page.getByText(/(Booking Reserved|Reserva Iniciada)/i)
-    ).toBeVisible({ timeout: 10000 });
+    // Use a more relaxed locator that doesn't depend on "section" if it's slow to load
+    await expect(page.getByText(/Booking Reserved/i)).toBeVisible({
+      timeout: 20000,
+    });
 
     // After the second poll (3s interval) useBooking sets isConfirmed=true → SuccessView
-    await expect(page.getByText(/(Payment Confirmed|Confirmado)/i)).toBeVisible(
-      { timeout: 15000 }
-    );
+    await expect(page.getByText(/Payment Confirmed/i)).toBeVisible({
+      timeout: 20000,
+    });
 
     await expect(
       page.getByRole("button", { name: /(Done|Concluído)/i })

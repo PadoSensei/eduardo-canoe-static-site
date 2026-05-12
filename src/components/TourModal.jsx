@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import X from 'lucide-react/dist/esm/icons/x';
-import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
-import Backpack from 'lucide-react/dist/esm/icons/backpack';
-import Clock from 'lucide-react/dist/esm/icons/clock';
-import Users from 'lucide-react/dist/esm/icons/users';
-import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import X from "lucide-react/dist/esm/icons/x";
+import CheckCircle from "lucide-react/dist/esm/icons/check-circle";
+import Backpack from "lucide-react/dist/esm/icons/backpack";
+import Clock from "lucide-react/dist/esm/icons/clock";
+import Users from "lucide-react/dist/esm/icons/users";
+import MapPin from "lucide-react/dist/esm/icons/map-pin";
 import { useLanguage } from "../context/LanguageContext";
 import BrandLogo from "./BrandLogo";
 import { formatCurrency } from "../utils/formatters";
