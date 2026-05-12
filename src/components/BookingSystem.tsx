@@ -10,8 +10,14 @@ import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 import EmptyState from "./common/EmptyState";
+
+// 🟢 PERFORMANCE: Direct path import to keep Speed Index low
 import CalendarOff from "lucide-react/dist/esm/icons/calendar-off";
-import { getTodayLocalDate, isPastDate } from "../utils/dateUtils";
+
+// 🟢 TEMPORAL INTEGRITY: Using the Shoreline Clock (Pipa time)
+import { isPastDate } from "../utils/dateUtils";
+import { calculateBookingHorizon } from "../utils/timeUtils";
+
 import { formatCurrency } from "../utils/formatters";
 import { useBooking } from "../hooks/useBooking";
 import type { TourUI } from "@/api/schemas";
@@ -57,7 +63,7 @@ function BookingSystem() {
   // --- 1. STATE INITIALIZATION ---
   const [session] = useState(() => getStoredSession(t));
   const [availableTours, setAvailableTours] = useState<TourUI[]>([]);
-  const [selectedDate, setSelectedDate] = useState(getTodayLocalDate());
+  const [selectedDate, setSelectedDate] = useState(calculateBookingHorizon());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -282,13 +288,25 @@ function BookingSystem() {
         </p>
       );
 
-    if (availableTours.length === 0)
+    if (availableTours.length === 0) {
+      const horizon = calculateBookingHorizon();
+      const isBeforeHorizon = selectedDate < horizon;
+
       return (
         <EmptyState
-          message={t("tours_none_available_date")}
+          message={
+            isBeforeHorizon
+              ? t("closed_notice")
+              : t("tours_none_available_date")
+          }
           icon={CalendarOff}
+          actionLabel={isBeforeHorizon ? t("view_next_available") : undefined}
+          onAction={
+            isBeforeHorizon ? () => setSelectedDate(horizon) : undefined
+          }
         />
       );
+    }
 
     return availableTours.map((tour) => (
       <div
@@ -407,7 +425,7 @@ function BookingSystem() {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSelectedDate(e.target.value)
               }
-              min={getTodayLocalDate()}
+              min={calculateBookingHorizon()}
               className="p-3 bg-white px-6 rounded-xl border border-gray-200 shadow-sm focus:ring-4 focus:ring-[#FF6B6B]/20 focus:border-[#FF6B6B] transition-all outline-none font-bold text-gray-700"
             />
           </div>
