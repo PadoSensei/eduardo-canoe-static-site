@@ -216,6 +216,24 @@ async function request<T>(
   }
 }
 
+export async function getNextSpecialtyTour(
+  type: string,
+  options: { signal?: AbortSignal } = {}
+): Promise<{ next_date: string | null } | null> {
+  try {
+    return await request<{ next_date: string | null }>(
+      `/tours/specialty/next?type=${type}`,
+      {
+        signal: options.signal,
+      }
+    );
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return null;
+    // Fallback for specialty tours discovery to keep it non-blocking
+    return null;
+  }
+}
+
 export async function getActivityLog(
   options: { category?: string; search?: string; signal?: AbortSignal } = {}
 ): Promise<ActivityLog[] | null> {

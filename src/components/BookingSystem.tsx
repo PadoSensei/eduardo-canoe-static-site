@@ -2,13 +2,14 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { toast } from "sonner";
-import { getAvailableTours, createBooking } from "../api";
+import { getAvailableTours, createBooking, getNextSpecialtyTour } from "../api";
 import { useLanguage } from "../context/LanguageContext";
 import { BookingSessionSchema } from "../api/schemas";
 import { handleSessionExpired } from "../utils/sessionUtils";
 import { PaymentView } from "./booking/PaymentView";
 import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
+import { NextFullMoonBanner } from "./booking/NextFullMoonBanner";
 import EmptyState from "./common/EmptyState";
 
 // 🟢 PERFORMANCE: Direct path import to keep Speed Index low
@@ -64,6 +65,7 @@ function BookingSystem() {
   const [session] = useState(() => getStoredSession(t));
   const [availableTours, setAvailableTours] = useState<TourUI[]>([]);
   const [selectedDate, setSelectedDate] = useState(calculateBookingHorizon());
+  const [nextFullMoonDate, setNextFullMoonDate] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -97,6 +99,17 @@ function BookingSystem() {
   );
 
   // --- 3. ASYNC DATA LOADING ---
+
+  const loadNextFullMoon = useCallback(async (signal?: AbortSignal) => {
+    try {
+      const result = await getNextSpecialtyTour("full_moon_party", { signal });
+      if (isMounted.current && result) {
+        setNextFullMoonDate(result.next_date);
+      }
+    } catch (err) {
+      console.error("Failed to load next full moon:", err);
+    }
+  }, []);
 
   const loadAvailability = useCallback(
     async (signal?: AbortSignal) => {
@@ -153,6 +166,13 @@ function BookingSystem() {
       controller.abort();
     };
   }, [selectedDate, language, loadAvailability]);
+
+  // Discovery Lifecycle (Next Full Moon)
+  useEffect(() => {
+    const controller = new AbortController();
+    loadNextFullMoon(controller.signal);
+    return () => controller.abort();
+  }, [loadNextFullMoon]);
 
   const closeModal = useCallback(async () => {
     if (clearBooking) clearBooking();
@@ -411,6 +431,14 @@ function BookingSystem() {
               {formError}
             </div>
           )}
+
+          <div className="w-full max-w-3xl">
+            <NextFullMoonBanner
+              nextDate={nextFullMoonDate}
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
+            />
+          </div>
           <label
             htmlFor="tour-date-input"
             className="mb-2 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase"
