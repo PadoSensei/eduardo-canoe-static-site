@@ -131,7 +131,7 @@ export function BookingForm({
             value={numPeople}
             onChange={handlePeopleChange}
             onBlur={handleBlur}
-          className="w-16 p-2 text-center font-bold text-3xl bg-transparent text-slate-900 focus:outline-none border-b-2 border-gray-100 focus:border-[#FF6B6B]"
+            className="w-16 p-2 text-center font-bold text-3xl bg-transparent text-slate-900 focus:outline-none border-b-2 border-gray-100 focus:border-[#FF6B6B]"
             required
           />
 
