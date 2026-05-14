@@ -3,6 +3,8 @@ import { createBooking } from "../../src/api";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 
+const API_BASE = "http://localhost:8080/api/v1";
+
 // Mock Sentry
 jest.mock("@sentry/react", () => ({
   captureException: jest.fn(),
@@ -15,7 +17,7 @@ const server = setupServer(
   http.get(`${API_BASE}/tours/specialty/next`, () =>
     HttpResponse.json({ next_date: null })
   ),
-  http.post("http://localhost:8080/api/v1/bookings", () => {
+  http.post(`${API_BASE}/bookings`, () => {
     return new HttpResponse(null, { status: 500 });
   })
 );
