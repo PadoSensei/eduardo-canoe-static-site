@@ -42,7 +42,9 @@ export function SuccessView({ guestEmail, booking, selectedDate, onClose }) {
   };
 
   const dateToFormat = booking?.tour_date || selectedDate;
-  const tourDateObj = dateToFormat ? new Date(dateToFormat + "T12:00:00") : null;
+  const tourDateObj = dateToFormat
+    ? new Date(dateToFormat + "T12:00:00")
+    : null;
 
   const formattedDate = tourDateObj
     ? new Intl.DateTimeFormat(language || "en", {

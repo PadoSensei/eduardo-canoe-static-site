@@ -96,7 +96,9 @@ const DashboardCalendar = ({ onDateSelect, selectedDate, refreshKey }) => {
     if (!data) return classes + "bg-white";
 
     if (data.status?.includes("cancelled"))
-      return classes + "bg-gray-200 text-slate-500 striped-background font-black";
+      return (
+        classes + "bg-gray-200 text-slate-500 striped-background font-black"
+      );
 
     if (data.bookings === 0) return classes + "bg-white hover:bg-gray-50";
     if (data.percent < 0.4)
