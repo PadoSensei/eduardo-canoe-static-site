@@ -1,11 +1,18 @@
 import React from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import Moon from "lucide-react/dist/esm/icons/moon";
+import { formatDateForComparison } from "../../utils/timeUtils";
 
 export function NextFullMoonBanner({ nextDate, selectedDate, onDateSelect }) {
   const { t, language } = useLanguage();
 
-  if (!nextDate || nextDate === selectedDate) return null;
+  // eslint-disable-next-line no-console
+  console.log("[Banner Debug] nextDate:", nextDate, "selectedDate:", selectedDate);
+
+  const normalizedNext = formatDateForComparison(nextDate);
+  const normalizedSelected = formatDateForComparison(selectedDate);
+
+  if (!normalizedNext || normalizedNext === normalizedSelected) return null;
 
   // 🛡️ IRON SHIELD: Visibility logic prevents redundant noise
   // If the prize date is already selected, we hide the shortcut.

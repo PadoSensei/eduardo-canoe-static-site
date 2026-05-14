@@ -32,3 +32,16 @@ export const calculateBookingHorizon = (): string => {
   const result = `${year}-${month}-${day}`;
   return result;
 };
+
+/**
+ * Normalizes any date input (string or Date) into a YYYY-MM-DD string
+ * for reliable strict equality checks.
+ */
+export const formatDateForComparison = (date: string | Date | null | undefined): string => {
+  if (!date) return "";
+  const d = typeof date === "string" ? new Date(date.split("T")[0] + "T12:00:00") : date;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
