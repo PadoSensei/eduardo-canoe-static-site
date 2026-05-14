@@ -31,6 +31,9 @@ jest.mock("../../src/context/LanguageContext", () => ({
 }));
 
 const server = setupServer(
+  http.get(`${API_BASE}/tours/specialty/next`, () =>
+    HttpResponse.json({ next_date: null })
+  ),
   http.get(`${API_BASE}/tours/available*`, () =>
     HttpResponse.json([
       {

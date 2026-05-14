@@ -9,6 +9,9 @@ import { LanguageProvider } from "../../src/context/LanguageContext";
 const API_BASE = "http://localhost:8080/api/v1";
 
 const server = setupServer(
+  http.get(`${API_BASE}/tours/specialty/next`, () =>
+    HttpResponse.json({ next_date: null })
+  ),
   http.get(`${API_BASE}/tours/available`, () => {
     return HttpResponse.json([]); // List doesn't matter for this test
   }),
