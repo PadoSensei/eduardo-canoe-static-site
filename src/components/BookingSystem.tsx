@@ -104,7 +104,14 @@ function BookingSystem() {
     try {
       const result = await getNextSpecialtyTour("full_moon_party", { signal });
       if (isMounted.current && result) {
-        setNextFullMoonDate(result.next_date);
+        // 🛡️ IRON SHIELD: Extract next_date string if result is wrapped in an object
+        // Although getNextSpecialtyTour now sanitizes, we harden the state update here.
+        const dateValue =
+          typeof result === "object" && result !== null
+            ? (result as any).next_date || (result as any).nextDate
+            : result;
+
+        setNextFullMoonDate(dateValue || null);
       }
     } catch (err) {
       console.error("Failed to load next full moon:", err);

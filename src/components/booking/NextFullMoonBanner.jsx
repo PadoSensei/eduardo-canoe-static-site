@@ -7,7 +7,12 @@ export function NextFullMoonBanner({ nextDate, selectedDate, onDateSelect }) {
   const { t, language } = useLanguage();
 
   // eslint-disable-next-line no-console
-  console.log("[Banner Debug] nextDate:", nextDate, "selectedDate:", selectedDate);
+  console.log(
+    "[Banner Debug] nextDate:",
+    nextDate,
+    "selectedDate:",
+    selectedDate
+  );
 
   const normalizedNext = formatDateForComparison(nextDate);
   const normalizedSelected = formatDateForComparison(selectedDate);
