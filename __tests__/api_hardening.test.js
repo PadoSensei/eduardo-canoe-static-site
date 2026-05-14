@@ -11,7 +11,8 @@ const API_BASE = "http://localhost:8080/api/v1";
 const server = setupServer(
   http.get(`${API_BASE}/tours/specialty/next`, () =>
     HttpResponse.json({ next_date: null })
-  ),);
+  )
+);
 
 beforeAll(() => server.listen({ onUnhandledRequest: "bypass" }));
 afterEach(() => server.resetHandlers());
