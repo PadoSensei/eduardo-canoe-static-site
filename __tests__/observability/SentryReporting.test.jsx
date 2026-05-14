@@ -12,6 +12,9 @@ jest.mock("@sentry/react", () => ({
 }));
 
 const server = setupServer(
+  http.get(`${API_BASE}/tours/specialty/next`, () =>
+    HttpResponse.json({ next_date: null })
+  ),
   http.post("http://localhost:8080/api/v1/bookings", () => {
     return new HttpResponse(null, { status: 500 });
   })

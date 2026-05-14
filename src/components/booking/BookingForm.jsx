@@ -131,7 +131,7 @@ export function BookingForm({
             value={numPeople}
             onChange={handlePeopleChange}
             onBlur={handleBlur}
-            className="w-16 p-2 text-center font-bold text-3xl bg-transparent focus:outline-none border-b-2 border-gray-100 focus:border-[#FF6B6B]"
+            className="w-16 p-2 text-center font-bold text-3xl bg-transparent text-slate-900 focus:outline-none border-b-2 border-gray-100 focus:border-[#FF6B6B]"
             required
           />
 
@@ -159,7 +159,7 @@ export function BookingForm({
           id="guest-name"
           value={guestName}
           onChange={(e) => setGuestName(e.target.value)}
-          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
+          className="w-full p-3 rounded-lg border border-gray-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
           placeholder={t("placeholderName")}
           required
         />
@@ -178,7 +178,7 @@ export function BookingForm({
           id="guest-email"
           value={guestEmail}
           onChange={(e) => setGuestEmail(e.target.value)}
-          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
+          className="w-full p-3 rounded-lg border border-gray-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
           placeholder={t("placeholderEmail")}
           required
         />
@@ -196,7 +196,7 @@ export function BookingForm({
           id="special-notes"
           value={specialNotes}
           onChange={(e) => setSpecialNotes(e.target.value)}
-          className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
+          className="w-full p-3 rounded-lg border border-gray-300 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
           placeholder={t("placeholderNotes")}
           rows="3"
         />

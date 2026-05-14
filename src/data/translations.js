@@ -160,6 +160,9 @@ export const translations = {
     label_booking_id: "Reservation ID",
     btn_copy_id: "Copy ID",
     btnDone: "Done",
+    booking_next_full_moon_on: "The next Full Moon tour is on {date}",
+    booking_no_full_moon_scheduled:
+      "No Full Moon tour scheduled at the moment.",
     btn_see_meeting_point: "See Meeting Point",
     logistics_view_map: "View on Google Maps",
     logistics_meeting_instruction:
@@ -454,6 +457,9 @@ export const translations = {
     label_booking_id: "ID da Reserva",
     btn_copy_id: "Copiar ID",
     btnDone: "Concluído",
+    booking_next_full_moon_on: "O próximo passeio de Lua Cheia é dia {date}",
+    booking_no_full_moon_scheduled:
+      "Nenhum passeio de Lua Cheia agendado no momento.",
     btn_see_meeting_point: "Ver Ponto de Encontro",
     logistics_view_map: "Ver no Google Maps",
     logistics_meeting_instruction:
@@ -747,6 +753,9 @@ export const translations = {
     label_booking_id: "ID de Reserva",
     btn_copy_id: "Copiar ID",
     btnDone: "Listo",
+    booking_next_full_moon_on: "El próximo tour de Luna Llena es el {date}",
+    booking_no_full_moon_scheduled:
+      "No hay tours de Luna Llena programados en este momento.",
     btn_see_meeting_point: "Ver Punto de Encuentro",
     logistics_view_map: "Ver en Google Maps",
     logistics_meeting_instruction:
@@ -1045,6 +1054,9 @@ export const translations = {
     label_booking_id: "ID de Réservation",
     btn_copy_id: "Copier l'ID",
     btnDone: "Terminé",
+    booking_next_full_moon_on: "Le prochain tour de Pleine Lune est le {date}",
+    booking_no_full_moon_scheduled:
+      "Aucun tour de Pleine Lune prévu pour le moment.",
     btn_see_meeting_point: "Voir le point de rendez-vous",
     logistics_view_map: "Voir sur Google Maps",
     logistics_meeting_instruction:

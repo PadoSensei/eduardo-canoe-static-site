@@ -72,6 +72,9 @@ const mockLanguageValue = {
 };
 
 const server = setupServer(
+  http.get(`${API_BASE}/tours/specialty/next`, () =>
+    HttpResponse.json({ next_date: null })
+  ),
   http.options(`${API_BASE}/*`, () => new HttpResponse(null, { status: 204 })),
 
   http.get(`${API_BASE}/tours/available`, () =>

@@ -63,6 +63,10 @@ export const defaultHandlers = [
   http.get(`${API_BASE}/admin/manifest/:date`, () =>
     HttpResponse.json({ tours: [], date: "2026-01-19" })
   ),
+
+  http.get(`${API_BASE}/tours/specialty/next`, () =>
+    HttpResponse.json({ next_date: null })
+  ),
 ];
 
 // ============================================================================

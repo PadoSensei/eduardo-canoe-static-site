@@ -9,6 +9,9 @@ config.isTest = true;
 const API_BASE = "http://localhost:8080/api/v1";
 
 const server = setupServer(
+  http.get(`${API_BASE}/tours/specialty/next`, () =>
+    HttpResponse.json({ next_date: null })
+  ),
   http.get(`${API_BASE}/admin/activity-log`, ({ request }) => {
     const url = new URL(request.url);
     const category = url.searchParams.get("category");
