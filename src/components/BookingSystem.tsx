@@ -426,12 +426,13 @@ function BookingSystem() {
           {formError && !showBookingModal && (
             <div
               role="alert"
-              className="w-full max-w-3xl p-4 mb-4 text-red-700 bg-red-100 border-l-4 border-red-500 rounded shadow-sm"
+              className="w-full max-w-3xl p-4 mb-6 text-red-700 bg-red-100 border-l-4 border-red-500 rounded shadow-sm"
             >
               {formError}
             </div>
           )}
 
+          {/* 🟢 PROACTIVE DISCOVERY: Shortcut for high-demand dates */}
           <div className="w-full max-w-3xl">
             <NextFullMoonBanner
               nextDate={nextFullMoonDate}
@@ -439,23 +440,26 @@ function BookingSystem() {
               onDateSelect={setSelectedDate}
             />
           </div>
-          <label
-            htmlFor="tour-date-input"
-            className="mb-2 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase"
-          >
-            {t("selectDateLabel")}
-          </label>
-          <div className="relative group">
-            <input
-              id="tour-date-input"
-              type="date"
-              value={selectedDate}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setSelectedDate(e.target.value)
-              }
-              min={calculateBookingHorizon()}
-              className="p-3 bg-white px-6 rounded-xl border border-gray-200 shadow-sm focus:ring-4 focus:ring-[#FF6B6B]/20 focus:border-[#FF6B6B] transition-all outline-none font-bold text-gray-700"
-            />
+
+          <div className="flex flex-col items-center gap-2">
+            <label
+              htmlFor="tour-date-input"
+              className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase"
+            >
+              {t("selectDateLabel")}
+            </label>
+            <div className="relative group">
+              <input
+                id="tour-date-input"
+                type="date"
+                value={selectedDate}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setSelectedDate(e.target.value)
+                }
+                min={calculateBookingHorizon()}
+                className="p-3 bg-white px-6 rounded-xl border border-gray-200 shadow-sm focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all outline-none font-bold text-gray-700"
+              />
+            </div>
           </div>
         </div>
 

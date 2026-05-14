@@ -7,6 +7,9 @@ export function NextFullMoonBanner({ nextDate, selectedDate, onDateSelect }) {
 
   if (!nextDate || nextDate === selectedDate) return null;
 
+  // 🛡️ IRON SHIELD: Visibility logic prevents redundant noise
+  // If the prize date is already selected, we hide the shortcut.
+
   // Format the date using Intl.DateTimeFormat as per technical directive
   const formattedDate = new Intl.DateTimeFormat(
     language === "en" ? "en-US" : language === "pt" ? "pt-BR" : language,
