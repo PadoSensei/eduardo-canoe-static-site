@@ -23,7 +23,7 @@ const TourCard = ({ tour, isSubmitting, onCancel, onSelect }) => {
           </h4>
           <span
             className={`text-[10px] uppercase font-black tracking-widest ${
-              isCancelled ? "text-red-500" : "text-gray-400"
+              isCancelled ? "text-red-600" : "text-slate-500"
             }`}
           >
             {tour.status}

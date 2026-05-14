@@ -87,16 +87,16 @@ const DashboardCalendar = ({ onDateSelect, selectedDate, refreshKey }) => {
       "relative border border-gray-100 cursor-pointer transition-all duration-200 h-16 md:h-32 ";
 
     if (!isSameMonth(day, monthStart))
-      return classes + "bg-gray-50/50 text-gray-300";
+      return classes + "bg-gray-50/50 text-slate-400";
 
     if (selectedDate && isSameDay(day, selectedDate)) {
-      classes += "ring-2 ring-teal-600 ring-inset z-10 ";
+      classes += "ring-4 ring-teal-600 ring-inset z-10 bg-teal-50/30 ";
     }
 
     if (!data) return classes + "bg-white";
 
     if (data.status?.includes("cancelled"))
-      return classes + "bg-gray-200 text-gray-400 striped-background";
+      return classes + "bg-gray-200 text-slate-500 striped-background font-black";
 
     if (data.bookings === 0) return classes + "bg-white hover:bg-gray-50";
     if (data.percent < 0.4)
@@ -137,10 +137,10 @@ const DashboardCalendar = ({ onDateSelect, selectedDate, refreshKey }) => {
                 )
               )
             }
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-100"
+            className="p-2 border-2 border-slate-200 rounded-lg hover:bg-slate-100 transition-colors text-slate-900 opacity-100"
             aria-label="Previous Month"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={24} strokeWidth={3} />
           </button>
           <button
             onClick={() =>
@@ -153,10 +153,10 @@ const DashboardCalendar = ({ onDateSelect, selectedDate, refreshKey }) => {
                 )
               )
             }
-            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-100"
+            className="p-2 border-2 border-slate-200 rounded-lg hover:bg-slate-100 transition-colors text-slate-900 opacity-100"
             aria-label="Next Month"
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={24} strokeWidth={3} />
           </button>
         </div>
       </div>
@@ -165,7 +165,7 @@ const DashboardCalendar = ({ onDateSelect, selectedDate, refreshKey }) => {
         {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
           <div
             key={i}
-            className="py-2 text-xs font-bold text-center text-gray-400"
+            className="py-2 text-xs font-black text-center text-slate-500"
           >
             {day}
           </div>
@@ -176,6 +176,7 @@ const DashboardCalendar = ({ onDateSelect, selectedDate, refreshKey }) => {
         {calendarDays.map((day) => {
           const dateKey = format(day, "yyyy-MM-dd");
           const data = bookingData[dateKey];
+          const isSelected = selectedDate && isSameDay(day, selectedDate);
           return (
             <div
               key={day.toString()}
@@ -183,11 +184,23 @@ const DashboardCalendar = ({ onDateSelect, selectedDate, refreshKey }) => {
               className={getStyleForDate(day)}
             >
               <div className="flex flex-col items-start h-full p-2">
-                <span className="text-xs font-bold md:text-sm">
+                <span
+                  className={`text-xs font-black md:text-sm ${
+                    isSelected
+                      ? "text-teal-900"
+                      : isSameMonth(day, monthStart)
+                        ? "text-slate-700"
+                        : "text-slate-400"
+                  }`}
+                >
                   {format(day, "d")}
                 </span>
                 {data && isSameMonth(day, monthStart) && data.capacity > 0 && (
-                  <div className="mt-auto text-[9px] md:text-xs font-black opacity-60">
+                  <div
+                    className={`mt-auto text-[9px] md:text-xs font-black ${
+                      data.percent >= 0.8 ? "text-white" : "text-slate-600"
+                    }`}
+                  >
                     {data.bookings}/{data.capacity}
                   </div>
                 )}

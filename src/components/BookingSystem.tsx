@@ -64,6 +64,7 @@ function BookingSystem() {
   // --- 1. STATE INITIALIZATION ---
   const [session] = useState(() => getStoredSession(t));
   const [availableTours, setAvailableTours] = useState<TourUI[]>([]);
+  const [isCreatingBooking, setIsCreatingBooking] = useState(false);
   const [selectedDate, setSelectedDate] = useState(calculateBookingHorizon());
   const [nextFullMoonDate, setNextFullMoonDate] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -216,7 +217,7 @@ function BookingSystem() {
   // --- 4. EVENT HANDLERS ---
 
   const handleBookTour = async () => {
-    if (bookingTourId || !selectedTour) return;
+    if (isCreatingBooking || bookingTourId || !selectedTour) return;
     setFormError(null);
 
     if (!acceptedTerms) {
@@ -233,6 +234,7 @@ function BookingSystem() {
 
     const controller = new AbortController();
     setBookingTourId(selectedTour.instanceId);
+    setIsCreatingBooking(true);
 
     try {
       const total = selectedTour.price * numPeople;
@@ -277,7 +279,10 @@ function BookingSystem() {
         }
       }
     } finally {
-      if (isMounted.current) setBookingTourId(null);
+      if (isMounted.current) {
+        setBookingTourId(null);
+        setIsCreatingBooking(false);
+      }
     }
   };
 
@@ -480,16 +485,31 @@ function BookingSystem() {
             onClick={closeModal}
           >
             <div
-              className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto"
+              className={`bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto relative transition-all ${
+                isCreatingBooking ? "opacity-90 scale-[0.98]" : ""
+              }`}
               role="dialog"
               aria-modal="true"
               aria-labelledby="modal-title"
               onClick={(e) => e.stopPropagation()}
             >
+              {/* SUBMIT LOCK OVERLAY */}
+              {isCreatingBooking && (
+                <div className="absolute inset-0 z-[60] bg-white/40 backdrop-blur-[1px] flex flex-col items-center justify-center rounded-3xl pointer-events-auto">
+                  <div className="flex flex-col items-center p-6 bg-white shadow-xl rounded-2xl border border-gray-100 animate-fadeIn">
+                    <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="text-sm font-black text-slate-900 uppercase tracking-widest">
+                      {t("btnSubmitting")}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {isConfirmed ? (
                 <SuccessView
                   guestEmail={guestEmail || currentBooking?.guest_email}
                   booking={currentBooking}
+                  selectedDate={selectedDate}
                   onClose={closeModal}
                 />
               ) : paymentInfo ? (

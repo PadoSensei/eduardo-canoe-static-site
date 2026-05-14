@@ -220,20 +220,20 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
               <Users size={20} className="text-emerald-50" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200 leading-none mb-1">
+              <p className="text-[10px] font-black uppercase tracking-widest text-white leading-none mb-1">
                 Boarding Status
               </p>
-              <h3 className="text-lg font-black leading-none">
+              <h3 className="text-lg font-bold leading-none text-white">
                 {headcount.boarded}{" "}
-                <span className="text-emerald-300">/ {headcount.total}</span>
+                <span className="text-white/80">/ {headcount.total}</span>
               </h3>
             </div>
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-[10px] font-bold uppercase text-emerald-200">
+            <span className="text-[10px] font-bold uppercase text-white/90">
               Total Boarded
             </span>
-            <span className="text-xl font-black">
+            <span className="text-xl font-bold text-white">
               {Math.round((headcount.boarded / (headcount.total || 1)) * 100)}%
             </span>
           </div>
@@ -286,7 +286,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
               </div>
             </div>
           )}
-          <h3 className="mb-4 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase">
+          <h3 className="mb-4 text-[10px] font-black tracking-[0.2em] text-slate-500 uppercase">
             Confirmed Bookings
           </h3>
 
@@ -320,13 +320,13 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
           <h2 className="text-xl font-bold font-lora text-teal-950">
             {format(date, "EEEE")}
           </h2>
-          <p className="text-xs font-bold tracking-widest text-gray-400 uppercase">
+          <p className="text-xs font-black tracking-widest text-slate-500 uppercase">
             {format(date, "MMM do, yyyy")}
           </p>
         </div>
         <button
           onClick={onClose}
-          className="p-2 text-gray-400 transition-colors rounded-full hover:bg-gray-100"
+          className="p-2 text-slate-500 transition-colors rounded-full hover:bg-gray-100"
           aria-label="Close manifest"
         >
           <X size={24} />
@@ -334,7 +334,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
       </div>
 
       <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-gray-50/30">
-        <h3 className="mb-2 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase">
+        <h3 className="mb-2 text-[10px] font-black tracking-[0.2em] text-slate-500 uppercase">
           Daily Schedule
         </h3>
 
