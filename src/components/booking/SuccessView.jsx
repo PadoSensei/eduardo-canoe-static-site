@@ -4,9 +4,10 @@ import BrandLogo from "../BrandLogo";
 import LocationLink from "../common/LocationLink";
 import Copy from "lucide-react/dist/esm/icons/copy";
 import Check from "lucide-react/dist/esm/icons/check";
+import Calendar from "lucide-react/dist/esm/icons/calendar";
 
-export function SuccessView({ guestEmail, booking, onClose }) {
-  const { t } = useLanguage();
+export function SuccessView({ guestEmail, booking, selectedDate, onClose }) {
+  const { language, t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -40,10 +41,32 @@ export function SuccessView({ guestEmail, booking, onClose }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const dateToFormat = booking?.tour_date || selectedDate;
+  const tourDateObj = dateToFormat
+    ? new Date(dateToFormat + "T12:00:00")
+    : null;
+
+  const formattedDate = tourDateObj
+    ? new Intl.DateTimeFormat(language || "en", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(tourDateObj)
+    : "";
+
+  const secondaryDate =
+    tourDateObj && language !== "pt"
+      ? new Intl.DateTimeFormat("pt-BR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }).format(tourDateObj)
+      : null;
+
   return (
     <div className="text-center animate-fadeIn">
       {/* Brand Header for Success */}
-      <div className="flex flex-col items-center mb-8">
+      <div className="flex flex-col items-center mb-6">
         <BrandLogo className="w-20 h-20 mb-4 shadow-xl" />
         <div className="relative">
           {/* The checkmark now sits as a badge on the brand */}
@@ -64,6 +87,28 @@ export function SuccessView({ guestEmail, booking, onClose }) {
           </div>
         </div>
       </div>
+
+      {/* Prominent Tour Date for Quick Verification */}
+      {formattedDate && (
+        <div className="mb-6 animate-fadeInUp">
+          <div className="inline-flex flex-col items-center px-6 py-2 border-2 border-emerald-100 rounded-2xl bg-emerald-50/50">
+            <div className="flex items-center gap-2 mb-0.5">
+              <Calendar size={14} className="text-emerald-600" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                {t("labelDate")}
+              </span>
+            </div>
+            <span className="text-lg font-black text-emerald-900 leading-tight">
+              {formattedDate}
+            </span>
+            {secondaryDate && (
+              <span className="text-[11px] font-bold text-emerald-600/70 mt-0.5">
+                {secondaryDate}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       <h3 id="modal-title" className="mb-2 text-2xl font-bold text-gray-800">
         {t("successTitle")}
