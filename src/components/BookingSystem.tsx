@@ -104,7 +104,14 @@ function BookingSystem() {
     try {
       const result = await getNextSpecialtyTour("full_moon_party", { signal });
       if (isMounted.current && result) {
-        setNextFullMoonDate(result.next_date);
+        // 🛡️ IRON SHIELD: Extract next_date string if result is wrapped in an object
+        // Although getNextSpecialtyTour now sanitizes, we harden the state update here.
+        const dateValue =
+          typeof result === "object" && result !== null
+            ? (result as any).next_date || (result as any).nextDate
+            : result;
+
+        setNextFullMoonDate(dateValue || null);
       }
     } catch (err) {
       console.error("Failed to load next full moon:", err);
@@ -432,22 +439,21 @@ function BookingSystem() {
             </div>
           )}
 
-          {/* 🟢 PROACTIVE DISCOVERY: Shortcut for high-demand dates */}
-          <div className="w-full max-w-3xl">
-            <NextFullMoonBanner
-              nextDate={nextFullMoonDate}
-              selectedDate={selectedDate}
-              onDateSelect={setSelectedDate}
-            />
-          </div>
-
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center w-full max-w-3xl gap-2">
             <label
               htmlFor="tour-date-input"
               className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase"
             >
               {t("selectDateLabel")}
             </label>
+
+            {/* 🟢 PROACTIVE DISCOVERY: Shortcut for high-demand dates */}
+            <NextFullMoonBanner
+              nextDate={nextFullMoonDate}
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
+            />
+
             <div className="relative group">
               <input
                 id="tour-date-input"

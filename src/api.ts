@@ -221,12 +221,19 @@ export async function getNextSpecialtyTour(
   options: { signal?: AbortSignal } = {}
 ): Promise<{ next_date: string | null } | null> {
   try {
-    return await request<{ next_date: string | null }>(
+    const data = await request<{ next_date: string | null }>(
       `/tours/specialty/next?type=${type}`,
       {
         signal: options.signal,
       }
     );
+
+    // 🛡️ IRON SHIELD: Sanitize date to YYYY-MM-DD
+    if (data?.next_date) {
+      data.next_date = data.next_date.split("T")[0];
+    }
+
+    return data;
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") return null;
     // Fallback for specialty tours discovery to keep it non-blocking
