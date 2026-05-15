@@ -85,15 +85,18 @@ test("Verify Success View and Digital Voucher", async ({ page }) => {
     .click();
 
   // Fill form
-  await page.fill("#guest-name", "Jules Test");
-  await page.fill("#guest-email", "jules@example.com");
+  await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Jules Test");
+  await page
+    .getByLabel(/Your Email|Seu E-mail|E-mail/i)
+    .fill("jules@example.com");
+  await page.getByLabel(/Phone|Telefone/i).fill("123456789");
 
   // Accept terms
-  await page.check("#accept-terms");
+  await page.getByLabel(/I accept|Eu aceito/i).check();
 
   // Submit booking
   await page
-    .getByRole("button", { name: /Confirmar Reserva|Confirm Booking/i })
+    .getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i })
     .click();
 
   // Now we should be on SuccessView

@@ -86,11 +86,16 @@ test.describe("Session Recovery Pillar", () => {
       .first()
       .click();
 
-    await page.getByLabel(/your name/i).fill("Recovery User");
-    await page.getByLabel(/your email/i).fill("recovery@example.com");
-    await page.getByLabel(/i accept the/i).check();
+    await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Recovery User");
+    await page
+      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
+      .fill("recovery@example.com");
+    await page.getByLabel(/Phone|Telefone/i).fill("123456789");
+    await page.getByLabel(/I accept|Eu aceito/i).check();
 
-    await page.getByRole("button", { name: /confirm booking/i }).click();
+    await page
+      .getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i })
+      .click();
 
     // 2. WHEN: I reach the payment screen
     await expect(
@@ -134,10 +139,15 @@ test.describe("Session Recovery Pillar", () => {
       .getByRole("button", { name: /book now/i })
       .first()
       .click();
-    await page.getByLabel(/your name/i).fill("Recovery User");
-    await page.getByLabel(/your email/i).fill("recovery@example.com");
-    await page.getByLabel(/i accept the/i).check();
-    await page.getByRole("button", { name: /confirm booking/i }).click();
+    await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Recovery User");
+    await page
+      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
+      .fill("recovery@example.com");
+    await page.getByLabel(/Phone|Telefone/i).fill("123456789");
+    await page.getByLabel(/I accept|Eu aceito/i).check();
+    await page
+      .getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i })
+      .click();
     await expect(
       page.getByText(/Booking Reserved|Reserva Iniciada/i)
     ).toBeVisible();

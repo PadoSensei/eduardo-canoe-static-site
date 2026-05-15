@@ -96,12 +96,14 @@ test.describe("Content Integrity & Proactive UI", () => {
       .first()
       .click();
 
-    const nameInput = page.locator("#guest-name");
-    const emailInput = page.locator("#guest-email");
+    const nameInput = page.getByLabel(/Your Name|Seu Nome|Nome/i);
+    const emailInput = page.getByLabel(/Your Email|Seu E-mail|E-mail/i);
+    const phoneInput = page.getByLabel(/Phone|Telefone/i);
 
     await expect(nameInput).toBeVisible();
     await nameInput.fill("Jules Test");
     await emailInput.fill("jules@example.com");
+    await phoneInput.fill("123456789");
 
     // The color might be returned as OKLCH or RGB depending on the browser/environment.
     // We check that it's NOT white or transparent, and specifically that it contains the expected color intensity.

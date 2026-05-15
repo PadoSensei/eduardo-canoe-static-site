@@ -10,6 +10,7 @@ import MessageSquare from "lucide-react/dist/esm/icons/message-square";
 
 export function SuccessView({
   guestEmail,
+  guestPhone,
   booking,
   selectedDate,
   onClose,
@@ -116,6 +117,8 @@ export function SuccessView({
         {t("successMessage")}{" "}
         <strong className="block mt-1 font-semibold text-gray-900">
           {guestEmail}
+          {guestPhone && <span className="mx-1">|</span>}
+          {guestPhone}
         </strong>
       </p>
 

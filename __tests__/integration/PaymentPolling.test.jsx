@@ -77,6 +77,7 @@ const mockLanguageValue = {
       btnCancel: "Cancel",
       labelName: "Your Name",
       labelEmail: "Your Email",
+      labelPhone: "Phone",
       labelNotes: "Special Notes",
       paymentTitle: "Booking Reserved!",
       successTitle: "Payment Confirmed!",
@@ -115,6 +116,9 @@ describe("Payment Polling Integration", () => {
     });
     fireEvent.input(screen.getByLabelText(/Your Email/i), {
       target: { value: "john@test.com" },
+    });
+    fireEvent.input(screen.getByLabelText(/Phone/i), {
+      target: { value: "12345678" },
     });
 
     fireEvent.click(screen.getByRole("checkbox"));
