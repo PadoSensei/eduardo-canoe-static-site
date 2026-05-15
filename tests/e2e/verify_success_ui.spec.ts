@@ -86,7 +86,9 @@ test("Verify Success View and Digital Voucher", async ({ page }) => {
 
   // Fill form
   await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Jules Test");
-  await page.getByLabel(/Your Email|Seu E-mail|E-mail/i).fill("jules@example.com");
+  await page
+    .getByLabel(/Your Email|Seu E-mail|E-mail/i)
+    .fill("jules@example.com");
   await page.getByLabel(/Phone|Telefone/i).fill("123456789");
 
   // Accept terms

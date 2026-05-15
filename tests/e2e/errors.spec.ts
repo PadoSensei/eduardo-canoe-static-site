@@ -54,12 +54,16 @@ test.describe("Overbook/API Error Handling Pillar", () => {
       .first()
       .click();
     await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Error User");
-    await page.getByLabel(/Your Email|Seu E-mail|E-mail/i).fill("error@example.com");
+    await page
+      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
+      .fill("error@example.com");
     await page.getByLabel(/Phone|Telefone/i).fill("123456789");
     await page.getByLabel(/I accept|Eu aceito/i).check();
 
     // 2. WHEN: I confirm the booking
-    await page.getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i }).click();
+    await page
+      .getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i })
+      .click();
 
     // 3. THEN: I should remain on the booking form (not redirected to payment)
     await expect(page.getByRole("heading", { name: /Book/i })).toBeVisible();
