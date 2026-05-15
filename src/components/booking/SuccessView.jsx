@@ -78,7 +78,7 @@ export function SuccessView({
         <BrandLogo className="w-20 h-20 mb-6 shadow-xl" />
         <CheckCircle2
           size={64}
-          className="text-emerald-500 animate-bounce-short mb-2"
+          className="mb-2 text-emerald-500 animate-bounce-short"
         />
       </div>
 
@@ -86,7 +86,7 @@ export function SuccessView({
         {t("successTitle")}
       </h3>
 
-      <p className="mb-6 text-emerald-600 font-bold uppercase tracking-widest text-xs">
+      <p className="mb-6 text-xs font-bold tracking-widest uppercase text-emerald-600">
         {tourName || booking?.tour_name || t("card3Title")}
       </p>
 
@@ -100,7 +100,7 @@ export function SuccessView({
                 {t("labelDate")}
               </span>
             </div>
-            <span className="text-lg font-black text-emerald-900 leading-tight">
+            <span className="text-lg font-black leading-tight text-emerald-900">
               {formattedDate}
             </span>
             {secondaryDate && (
@@ -112,7 +112,7 @@ export function SuccessView({
         </div>
       )}
 
-      <p className="px-4 mb-6 leading-relaxed text-gray-600 text-sm">
+      <p className="px-4 mb-6 text-sm leading-relaxed text-gray-600">
         {t("successMessage")}{" "}
         <strong className="block mt-1 font-semibold text-gray-900">
           {guestEmail}
@@ -120,34 +120,34 @@ export function SuccessView({
       </p>
 
       {/* Special Notes Section */}
-      {booking?.special_notes && (
-        <div className="mb-6 px-4">
-          <div className="bg-slate-50 border-l-4 border-slate-200 p-3 italic text-slate-700 text-sm text-left relative overflow-hidden">
+      {/* {booking?.special_notes && (
+        <div className="px-4 mb-6">
+          <div className="relative p-3 overflow-hidden text-sm italic text-left border-l-4 bg-slate-50 border-slate-200 text-slate-700">
             <div className="flex items-center gap-2 mb-1.5 non-italic">
               <MessageSquare size={14} className="text-slate-400" />
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                 {t("booking.your_notes")}
               </span>
             </div>
-            <p className="whitespace-pre-wrap break-words max-h-24 overflow-y-auto">
+            <p className="overflow-y-auto break-words whitespace-pre-wrap max-h-24">
               {booking.special_notes}
             </p>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Digital Voucher ID Card */}
-      <div className="mb-8 px-4">
-        <div className="bg-emerald-50 border-2 border-dashed border-emerald-200 rounded-2xl p-6 relative overflow-hidden group">
+      <div className="px-4 mb-8">
+        <div className="relative p-6 overflow-hidden border-2 border-dashed bg-emerald-50 border-emerald-200 rounded-2xl group">
           {/* Decorative circles for ticket effect */}
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white border-r-2 border-dashed border-emerald-200 rounded-full" />
-          <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white border-l-2 border-dashed border-emerald-200 rounded-full" />
+          <div className="absolute w-6 h-6 -translate-y-1/2 bg-white border-r-2 border-dashed rounded-full -left-3 top-1/2 border-emerald-200" />
+          <div className="absolute w-6 h-6 -translate-y-1/2 bg-white border-l-2 border-dashed rounded-full -right-3 top-1/2 border-emerald-200" />
 
           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600/60 block mb-1">
             {t("label_booking_id")}
           </span>
           <div className="flex items-center justify-center gap-3">
-            <span className="text-3xl font-mono font-black text-emerald-900 tracking-wider">
+            <span className="font-mono text-3xl font-black tracking-wider text-emerald-900">
               #{displayId}
             </span>
             <button
@@ -176,7 +176,7 @@ export function SuccessView({
 
       <button
         onClick={onClose}
-        className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-3 px-6 rounded-lg transition-all"
+        className="w-full px-6 py-3 font-bold text-gray-600 transition-all bg-gray-100 rounded-lg hover:bg-gray-200"
       >
         {t("btnDone")}
       </button>

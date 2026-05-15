@@ -155,7 +155,7 @@ const ManualBookingForm = ({
         </div>
 
         {/* Special Notes */}
-        <div className="space-y-1">
+        {/* <div className="space-y-1">
           <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
             Special Notes (Optional)
           </label>
@@ -166,7 +166,7 @@ const ManualBookingForm = ({
             value={specialNotes}
             onChange={(e) => setSpecialNotes(e.target.value)}
           />
-        </div>
+        </div> */}
 
         <div className="pt-4">
           <button
