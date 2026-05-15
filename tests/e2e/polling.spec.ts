@@ -96,7 +96,6 @@ test.describe("Slow Webhook Persistence Pillar", () => {
     await page
       .getByLabel(/Your Email|Seu E-mail|E-mail/i)
       .fill("polling@example.com");
-    await page.getByLabel(/Phone|Telefone/i).fill("123456789");
     await page.getByLabel(/I accept|Eu aceito/i).check();
     await page
       .getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i })

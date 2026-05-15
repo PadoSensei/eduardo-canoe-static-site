@@ -57,7 +57,6 @@ test.describe("Overbook/API Error Handling Pillar", () => {
     await page
       .getByLabel(/Your Email|Seu E-mail|E-mail/i)
       .fill("error@example.com");
-    await page.getByLabel(/Phone|Telefone/i).fill("123456789");
     await page.getByLabel(/I accept|Eu aceito/i).check();
 
     // 2. WHEN: I confirm the booking
