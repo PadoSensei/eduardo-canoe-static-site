@@ -5,8 +5,16 @@ import LocationLink from "../common/LocationLink";
 import Copy from "lucide-react/dist/esm/icons/copy";
 import Check from "lucide-react/dist/esm/icons/check";
 import Calendar from "lucide-react/dist/esm/icons/calendar";
+import CheckCircle2 from "lucide-react/dist/esm/icons/check-circle-2";
+import MessageSquare from "lucide-react/dist/esm/icons/message-square";
 
-export function SuccessView({ guestEmail, booking, selectedDate, onClose }) {
+export function SuccessView({
+  guestEmail,
+  booking,
+  selectedDate,
+  onClose,
+  tourName,
+}) {
   const { language, t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
@@ -67,30 +75,24 @@ export function SuccessView({ guestEmail, booking, selectedDate, onClose }) {
     <div className="text-center animate-fadeIn">
       {/* Brand Header for Success */}
       <div className="flex flex-col items-center mb-6">
-        <BrandLogo className="w-20 h-20 mb-4 shadow-xl" />
-        <div className="relative">
-          {/* The checkmark now sits as a badge on the brand */}
-          <div className="absolute flex items-center justify-center w-12 h-12 bg-green-100 border-2 border-white rounded-full shadow-sm animate-bounce-short -bottom-2 -right-2">
-            <svg
-              className="w-6 h-6 text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="4"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-        </div>
+        <BrandLogo className="w-20 h-20 mb-6 shadow-xl" />
+        <CheckCircle2
+          size={64}
+          className="text-emerald-500 animate-bounce-short mb-2"
+        />
       </div>
+
+      <h3 id="modal-title" className="mb-1 text-2xl font-bold text-gray-800">
+        {t("successTitle")}
+      </h3>
+
+      <p className="mb-6 text-emerald-600 font-bold uppercase tracking-widest text-xs">
+        {tourName || booking?.tour_name || t("card3Title")}
+      </p>
 
       {/* Prominent Tour Date for Quick Verification */}
       {formattedDate && (
-        <div className="mb-6 animate-fadeInUp">
+        <div className="mb-4 animate-fadeInUp">
           <div className="inline-flex flex-col items-center px-6 py-2 border-2 border-emerald-100 rounded-2xl bg-emerald-50/50">
             <div className="flex items-center gap-2 mb-0.5">
               <Calendar size={14} className="text-emerald-600" />
@@ -110,16 +112,29 @@ export function SuccessView({ guestEmail, booking, selectedDate, onClose }) {
         </div>
       )}
 
-      <h3 id="modal-title" className="mb-2 text-2xl font-bold text-gray-800">
-        {t("successTitle")}
-      </h3>
-
       <p className="px-4 mb-6 leading-relaxed text-gray-600 text-sm">
         {t("successMessage")}{" "}
         <strong className="block mt-1 font-semibold text-gray-900">
           {guestEmail}
         </strong>
       </p>
+
+      {/* Special Notes Section */}
+      {booking?.special_notes && (
+        <div className="mb-6 px-4">
+          <div className="bg-slate-50 border-l-4 border-slate-200 p-3 italic text-slate-700 text-sm text-left relative overflow-hidden">
+            <div className="flex items-center gap-2 mb-1.5 non-italic">
+              <MessageSquare size={14} className="text-slate-400" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                {t("booking.your_notes")}
+              </span>
+            </div>
+            <p className="whitespace-pre-wrap break-words max-h-24 overflow-y-auto">
+              {booking.special_notes}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Digital Voucher ID Card */}
       <div className="mb-8 px-4">

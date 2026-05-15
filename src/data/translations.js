@@ -104,6 +104,7 @@ export const translations = {
     placeholderEmail: "your@email.com",
     labelNotes: "Special Notes (Optional)",
     placeholderNotes: "Food allergies or special occasions...",
+    "booking.your_notes": "Your Special Requests",
     btnSubmitting: "Booking...",
     btnConfirm: "Confirm Booking",
     btnCancel: "Cancel",
@@ -309,6 +310,7 @@ export const translations = {
     admin_cc_confirm_toggle_cancel: "No, Keep It",
     admin_cc_toast_settings_updated:
       "Settings updated. Event logged in Activity Feed.",
+    "admin.notes_label": "Notes:",
   },
 
   pt: {
@@ -402,6 +404,7 @@ export const translations = {
     placeholderEmail: "seu@email.com",
     labelNotes: "Observações (Opcional)",
     placeholderNotes: "Alergias alimentares ou ocasiões especiais...",
+    "booking.your_notes": "Suas Observações",
     btnSubmitting: "Reservando...",
     btnConfirm: "Confirmar Reserva",
     btnCancel: "Cancelar",
@@ -605,6 +608,7 @@ export const translations = {
     admin_cc_confirm_toggle_cancel: "Não, Manter",
     admin_cc_toast_settings_updated:
       "Configurações atualizadas. Evento registrado no Feed de Atividade.",
+    "admin.notes_label": "Notas:",
   },
 
   es: {
@@ -697,6 +701,7 @@ export const translations = {
     placeholderEmail: "tu@email.com",
     labelNotes: "Notas Especiales (Opcional)",
     placeholderNotes: "Alergias u ocasiones especiales...",
+    "booking.your_notes": "Tus Observaciones",
     btnSubmitting: "Reservando...",
     btnConfirm: "Confirmar Reserva",
     btnCancel: "Cancelar",
@@ -903,6 +908,7 @@ export const translations = {
     admin_cc_confirm_toggle_cancel: "No, Mantener",
     admin_cc_toast_settings_updated:
       "Configuraciones actualizadas. Evento registrado en el Feed de Atividad.",
+    "admin.notes_label": "Notas:",
   },
   fr: {
     // --- SEO ---
@@ -997,6 +1003,7 @@ export const translations = {
     placeholderEmail: "votre@email.com",
     labelNotes: "Notes Spéciales (Optionnel)",
     placeholderNotes: "Allergies alimentaires ou occasions spéciales...",
+    "booking.your_notes": "Vos Observations",
     btnSubmitting: "Réservation...",
     btnConfirm: "Confirmer la réservation",
     btnCancel: "Annuler",
@@ -1205,5 +1212,6 @@ export const translations = {
     admin_cc_confirm_toggle_cancel: "Non, Garder",
     admin_cc_toast_settings_updated:
       "Paramètres mis à jour. Événement enregistré dans le flux d'activité.",
+    "admin.notes_label": "Notes :",
   },
 };
