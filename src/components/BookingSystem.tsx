@@ -7,7 +7,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { BookingSessionSchema } from "../api/schemas";
 import { handleSessionExpired } from "../utils/sessionUtils";
 import { PaymentView } from "./booking/PaymentView";
-import { SuccessView } from "./booking/SuccessView";
+import SuccessView from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 import { NextFullMoonBanner } from "./booking/NextFullMoonBanner";
 import EmptyState from "./common/EmptyState";
