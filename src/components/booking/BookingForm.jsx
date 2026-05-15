@@ -184,7 +184,8 @@ export function BookingForm({
         />
       </div>
 
-      {/* Notes Input */}
+      {/* ARCHITECT_NOTE: REINSTATE_SPECIAL_NOTES_HERE */}
+      {/* Notes Input
       <div className="mb-6">
         <label
           htmlFor="special-notes"
@@ -201,6 +202,7 @@ export function BookingForm({
           rows="3"
         />
       </div>
+      */}
 
       {/* LGPD COMPLIANCE CHECKBOX */}
       <div className="flex items-start gap-3 p-3 mb-6 border border-gray-200 rounded-lg bg-gray-50">
