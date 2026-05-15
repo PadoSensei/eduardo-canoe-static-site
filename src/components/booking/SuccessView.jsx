@@ -6,7 +6,7 @@ import Copy from "lucide-react/dist/esm/icons/copy";
 import Check from "lucide-react/dist/esm/icons/check";
 import Calendar from "lucide-react/dist/esm/icons/calendar";
 import CheckCircle2 from "lucide-react/dist/esm/icons/check-circle-2";
-import MessageSquare from "lucide-react/dist/esm/icons/message-square";
+// import MessageSquare from "lucide-react/dist/esm/icons/message-square";
 
 export function SuccessView({
   guestEmail,
