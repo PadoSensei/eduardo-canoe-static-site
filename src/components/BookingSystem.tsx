@@ -7,7 +7,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { BookingSessionSchema } from "../api/schemas";
 import { handleSessionExpired } from "../utils/sessionUtils";
 import { PaymentView } from "./booking/PaymentView";
-import SuccessView from "./booking/SuccessView";
+import { SuccessView } from "./booking/SuccessView";
 import { BookingForm } from "./booking/BookingForm";
 import { NextFullMoonBanner } from "./booking/NextFullMoonBanner";
 import EmptyState from "./common/EmptyState";
@@ -77,7 +77,7 @@ function BookingSystem() {
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
-  const [numPeople, setNumPeople] = useState(1);
+  const [numPeople, setNumPeople] = useState<number | string>(1);
   const [specialNotes, setSpecialNotes] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -239,14 +239,15 @@ function BookingSystem() {
     setIsCreatingBooking(true);
 
     try {
-      const total = selectedTour.price * numPeople;
+      const paxCount = parseInt(String(numPeople), 10) || 1;
+      const total = selectedTour.price * paxCount;
       const result = await createBooking(
         {
           tourId: selectedTour.instanceId,
           guestName,
           guestEmail,
           guestPhone,
-          numPeople,
+          numPeople: paxCount,
           totalPrice: total,
           specialNotes,
           acceptedTerms,

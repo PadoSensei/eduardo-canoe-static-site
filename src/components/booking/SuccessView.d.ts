@@ -1,4 +1,5 @@
 import { Booking } from "@/api/schemas";
+import React from "react";
 
 export interface SuccessViewProps {
   guestEmail: string;
@@ -9,5 +10,4 @@ export interface SuccessViewProps {
   tourName: string;
 }
 
-declare const SuccessView: React.FC<SuccessViewProps>;
-export default SuccessView;
+export const SuccessView: React.FC<SuccessViewProps>;
