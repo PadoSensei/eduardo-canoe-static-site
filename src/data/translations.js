@@ -1014,8 +1014,7 @@ export const translations = {
     linkAnd: " et la ",
     linkPrivacy: "Politique de confidentialité",
     errorTerms: "Vous devez accepter les conditions pour continuer.",
-    alertMissing:
-      "Veuillez fournir un nom et un email.",
+    alertMissing: "Veuillez fournir un nom et un email.",
     alertEmail: "Adresse email invalide.",
     alertFailed: "Échec de la réservation",
     alertError: "Une erreur inattendue est survenue.",

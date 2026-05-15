@@ -184,7 +184,6 @@ export function BookingForm({
         />
       </div>
 
-
       {/* Notes Input */}
       <div className="mb-6">
         <label
