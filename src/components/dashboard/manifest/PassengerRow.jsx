@@ -49,9 +49,6 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
             {paxCount} Pax
           </span>{" "}
           • {passenger.email || passenger.guest_email}
-          {(passenger.phone || passenger.guest_phone) && (
-            <> | {passenger.phone || passenger.guest_phone}</>
-          )}
           {passenger.total_price && (
             <span className="ml-2 font-bold text-emerald-600">
               • {formatCurrency(passenger.total_price)}
@@ -59,12 +56,12 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
           )}
         </p>
 
-        {/* Notes Block */}
+        {/* Notes Block - Rugged UI Integration */}
         {passenger.special_notes && (
-          <div className="mt-2 p-2 bg-amber-50 border-l-2 border-amber-400 rounded-r-md max-h-32 overflow-y-auto">
+          <div className="mt-2 p-2 bg-amber-50 border-l-4 border-amber-500 rounded-r-md max-h-32 overflow-y-auto">
             <div className="flex items-start gap-1.5">
-              <MessageSquare className="text-amber-600 mt-0.5" size={14} />
-              <p className="text-sm text-slate-950 font-normal leading-snug">
+              <MessageSquare className="text-amber-500 mt-0.5" size={14} />
+              <p className="text-sm text-slate-950 font-medium leading-snug">
                 {passenger.special_notes}
               </p>
             </div>

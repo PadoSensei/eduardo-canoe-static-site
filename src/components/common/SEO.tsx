@@ -58,7 +58,6 @@ const SEO: React.FC<SEOProps> = ({
         image: absoluteImageUrl,
         "@id": config.siteUrl,
         url: config.siteUrl,
-        telephone: "",
         address: {
           "@type": "PostalAddress",
           streetAddress: "Escadaria do Pôr do Sol",

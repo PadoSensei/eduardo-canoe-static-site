@@ -81,7 +81,6 @@ describe("Sentry User Context", () => {
         ({
           labelName: "Name",
           labelEmail: "Email",
-          labelPhone: "Phone",
           ctaButton: "Book Now",
           btnConfirm: "Confirm Booking",
         })[key] || key,
@@ -103,9 +102,6 @@ describe("Sentry User Context", () => {
     });
     fireEvent.input(screen.getByLabelText(/Email/i), {
       target: { value: "tester@sentry.com" },
-    });
-    fireEvent.input(screen.getByLabelText(/Phone/i), {
-      target: { value: "12345678" },
     });
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));

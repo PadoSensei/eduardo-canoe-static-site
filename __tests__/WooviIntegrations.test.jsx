@@ -54,7 +54,6 @@ const mockLanguageValue = {
       labelDate: "Date",
       labelName: "Name",
       labelEmail: "Email",
-      labelPhone: "Phone",
       labelNotes: "Special Notes",
       placeholderName: "Enter your name",
       placeholderEmail: "Enter your email",
@@ -147,9 +146,6 @@ describe("Woovi PIX Integration - Full Lifecycle", () => {
     });
     fireEvent.input(screen.getByLabelText(/Email/i), {
       target: { value: "test@woovi.com" },
-    });
-    fireEvent.input(screen.getByLabelText(/Phone/i), {
-      target: { value: "12345678" },
     });
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));

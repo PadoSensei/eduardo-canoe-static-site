@@ -97,11 +97,8 @@ const mockLanguageValue = {
       labelDate: "Date",
       labelName: "Your Name",
       labelEmail: "Your Email",
-      labelPhone: "Phone Number",
       labelNotes: "Special Notes",
       placeholderName: "Enter your name",
-      placeholderEmail: "Enter your email",
-      placeholderPhone: "Enter your phone",
       placeholderNotes: "Any special requests?",
       btnConfirm: "Confirm Booking",
       btnCancel: "Cancel",
@@ -138,9 +135,6 @@ describe("BookingSystem Integration & Resilience", () => {
     });
     fireEvent.input(screen.getByLabelText(/Your Email/i), {
       target: { value: "john@test.com" },
-    });
-    fireEvent.input(screen.getByLabelText(/Phone Number/i), {
-      target: { value: "123456789" },
     });
     fireEvent.click(screen.getByRole("checkbox"));
 
@@ -224,9 +218,6 @@ describe("BookingSystem Integration & Resilience", () => {
     fireEvent.input(screen.getByLabelText(/Your Email/i), {
       target: { value: "john@test.com" },
     });
-    fireEvent.input(screen.getByLabelText(/Phone Number/i), {
-      target: { value: "123456789" },
-    });
     fireEvent.click(screen.getByRole("checkbox"));
 
     const confirmBtn = screen.getByRole("button", { name: /Confirm Booking/i });
@@ -257,9 +248,6 @@ describe("BookingSystem Integration & Resilience", () => {
     });
     fireEvent.input(screen.getByLabelText(/Your Email/i), {
       target: { value: "john@test.com" },
-    });
-    fireEvent.input(screen.getByLabelText(/Phone Number/i), {
-      target: { value: "123456789" },
     });
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: /Confirm Booking/i }));

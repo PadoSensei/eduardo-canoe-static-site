@@ -73,7 +73,6 @@ const mockLanguageValue = {
       ctaButton: "Book Now",
       labelName: "Name",
       labelEmail: "Email",
-      labelPhone: "Phone",
       labelNotes: "Special Notes",
       btnConfirm: "Confirm Booking",
       btnCancel: "Cancel",
@@ -132,9 +131,6 @@ describe("Payment Failure Logic", () => {
     });
     fireEvent.input(screen.getByLabelText(/Email/i), {
       target: { value: "john@test.com" },
-    });
-    fireEvent.input(screen.getByLabelText(/Phone/i), {
-      target: { value: "12345678" },
     });
 
     // Click the mandatory terms checkbox
