@@ -76,6 +76,7 @@ function BookingSystem() {
 
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
   const [numPeople, setNumPeople] = useState(1);
   const [specialNotes, setSpecialNotes] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
@@ -188,6 +189,7 @@ function BookingSystem() {
     setSelectedTour(null);
     setGuestName("");
     setGuestEmail("");
+    setGuestPhone("");
     setNumPeople(1);
     setSpecialNotes("");
     setAcceptedTerms(false);
@@ -225,7 +227,7 @@ function BookingSystem() {
       return;
     }
 
-    if (!guestName || !guestEmail) {
+    if (!guestName || !guestEmail || !guestPhone) {
       setFormError(t("alertMissing"));
       return;
     }
@@ -243,6 +245,7 @@ function BookingSystem() {
           tourId: selectedTour.instanceId,
           guestName,
           guestEmail,
+          guestPhone,
           numPeople,
           totalPrice: total,
           specialNotes,
@@ -508,6 +511,9 @@ function BookingSystem() {
               {isConfirmed ? (
                 <SuccessView
                   guestEmail={guestEmail || currentBooking?.guest_email}
+                  guestPhone={
+                    guestPhone || (currentBooking as any)?.guest_phone
+                  }
                   booking={currentBooking}
                   selectedDate={selectedDate}
                   onClose={closeModal}
@@ -547,6 +553,8 @@ function BookingSystem() {
                   setGuestName={setGuestName}
                   guestEmail={guestEmail}
                   setGuestEmail={setGuestEmail}
+                  guestPhone={guestPhone}
+                  setGuestPhone={setGuestPhone}
                   numPeople={numPeople}
                   setNumPeople={setNumPeople}
                   specialNotes={specialNotes}

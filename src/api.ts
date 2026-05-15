@@ -379,6 +379,7 @@ export interface BookingData {
   tourId: number;
   guestName: string;
   guestEmail: string;
+  guestPhone: string;
   numPeople: number;
   totalPrice: number;
   specialNotes?: string;
@@ -401,6 +402,7 @@ export async function createBooking(
     tour_id: bookingData.tourId,
     guest_name: bookingData.guestName,
     guest_email: bookingData.guestEmail,
+    guest_phone: bookingData.guestPhone,
     num_people: bookingData.numPeople,
     total_price: bookingData.totalPrice,
     special_notes: bookingData.specialNotes,

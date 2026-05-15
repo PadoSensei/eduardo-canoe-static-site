@@ -2,14 +2,12 @@ import React from "react";
 import Check from "lucide-react/dist/esm/icons/check";
 import MessageSquare from "lucide-react/dist/esm/icons/message-square";
 import { formatCurrency } from "../../../utils/formatters";
-import { useLanguage } from "../../../context/LanguageContext";
 
 /**
  * PassengerRow Component
  * Renders a single guest booking with check-in capability.
  */
 const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
-  const { t } = useLanguage();
   const shortId = (
     passenger.display_id || passenger.uuid?.slice(0, 8)
   ).toUpperCase();
@@ -40,7 +38,7 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
             </span>
           )}
           {passenger.special_notes && (
-            <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-600 text-[10px] font-black rounded-full">
+            <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 border border-amber-200 text-amber-600 text-[10px] font-black rounded-full">
               <MessageSquare size={10} />
               NOTES
             </div>
@@ -51,6 +49,9 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
             {paxCount} Pax
           </span>{" "}
           • {passenger.email || passenger.guest_email}
+          {(passenger.phone || passenger.guest_phone) && (
+            <> | {passenger.phone || passenger.guest_phone}</>
+          )}
           {passenger.total_price && (
             <span className="ml-2 font-bold text-emerald-600">
               • {formatCurrency(passenger.total_price)}
@@ -58,13 +59,16 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
           )}
         </p>
 
+        {/* Notes Block */}
         {passenger.special_notes && (
-          <p className="text-[11px] font-bold text-slate-900 italic mt-1 bg-amber-50/50 p-2 rounded-lg border-l-2 border-amber-400 break-words">
-            <span className="text-[9px] uppercase not-italic text-amber-700 mr-1">
-              {t("admin.notes_label")}
-            </span>
-            {passenger.special_notes}
-          </p>
+          <div className="mt-2 p-2 bg-amber-50 border-l-2 border-amber-400 rounded-r-md max-h-32 overflow-y-auto">
+            <div className="flex items-start gap-1.5">
+              <MessageSquare className="text-amber-600 mt-0.5" size={14} />
+              <p className="text-sm text-slate-950 font-normal leading-snug">
+                {passenger.special_notes}
+              </p>
+            </div>
+          </div>
         )}
 
         <div className="flex flex-wrap items-center gap-3 mt-2">
