@@ -92,11 +92,11 @@ test.describe("Slow Webhook Persistence Pillar", () => {
       .getByRole("button", { name: /book now/i })
       .first()
       .click();
-    await page.getByLabel(/your name/i).fill("Polling User");
-    await page.getByLabel(/your email/i).fill("polling@example.com");
-    await page.getByLabel(/phone/i).fill("123456789");
-    await page.getByLabel(/i accept the/i).check();
-    await page.getByRole("button", { name: /confirm booking/i }).click();
+    await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Polling User");
+    await page.getByLabel(/Your Email|Seu E-mail|E-mail/i).fill("polling@example.com");
+    await page.getByLabel(/Phone|Telefone/i).fill("123456789");
+    await page.getByLabel(/I accept|Eu aceito/i).check();
+    await page.getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i }).click();
 
     // 2. WHEN: I am on the payment screen
     await expect(

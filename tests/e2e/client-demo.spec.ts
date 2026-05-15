@@ -212,17 +212,17 @@ test.describe("EduCanoe Guided Tour", () => {
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
 
-    await dialog.getByPlaceholder(/Enter your full name/i).fill("Ana Silva");
+    await dialog.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Ana Silva");
     await dialog
-      .getByPlaceholder(/your@email.com/i)
+      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
       .fill("ana.silva@example.com");
     await dialog
-      .getByPlaceholder(/\+55 \(84\) 99999-9999/i)
+      .getByLabel(/Phone|Telefone/i)
       .fill("123456789");
-    await dialog.getByLabel(/I accept the/i).check();
+    await dialog.getByLabel(/I accept|Eu aceito/i).check();
 
     // 5. Submit and View Pix QR Code
-    const bookingBtn = dialog.getByRole("button", { name: /Confirm Booking/i });
+    const bookingBtn = dialog.getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i });
     await bookingBtn.click();
 
     // Wait for Payment View
@@ -253,16 +253,16 @@ test.describe("EduCanoe Guided Tour", () => {
 
     const dialog = page.getByRole("dialog");
     await dialog
-      .getByPlaceholder(/Enter your full name/i)
+      .getByLabel(/Your Name|Seu Nome|Nome/i)
       .fill("Beatriz Oliveira");
     await dialog
-      .getByPlaceholder(/your@email.com/i)
+      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
       .fill("beatriz.oliveira@example.com");
     await dialog
-      .getByPlaceholder(/\+55 \(84\) 99999-9999/i)
+      .getByLabel(/Phone|Telefone/i)
       .fill("987654321");
-    await dialog.getByLabel(/I accept the/i).check();
-    await dialog.getByRole("button", { name: /Confirm Booking/i }).click();
+    await dialog.getByLabel(/I accept|Eu aceito/i).check();
+    await dialog.getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i }).click();
 
     await expect(page.getByText(/Booking Reserved/i)).toBeVisible({
       timeout: 20000,
