@@ -122,6 +122,7 @@ test.describe("Railway Production Loop", () => {
     // =========================================================
     await page.fill('input[placeholder*="full name"]', guestName);
     await page.fill('input[placeholder*="email.com"]', guestEmail);
+    await page.fill('input[placeholder*="84"]', "123456789");
     await page.check('input[type="checkbox"]');
     await page.getByRole("button", { name: /Confirm/i }).click();
 

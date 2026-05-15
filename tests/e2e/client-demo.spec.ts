@@ -216,6 +216,9 @@ test.describe("EduCanoe Guided Tour", () => {
     await dialog
       .getByPlaceholder(/your@email.com/i)
       .fill("ana.silva@example.com");
+    await dialog
+      .getByPlaceholder(/\+55 \(84\) 99999-9999/i)
+      .fill("123456789");
     await dialog.getByLabel(/I accept the/i).check();
 
     // 5. Submit and View Pix QR Code
@@ -255,6 +258,9 @@ test.describe("EduCanoe Guided Tour", () => {
     await dialog
       .getByPlaceholder(/your@email.com/i)
       .fill("beatriz.oliveira@example.com");
+    await dialog
+      .getByPlaceholder(/\+55 \(84\) 99999-9999/i)
+      .fill("987654321");
     await dialog.getByLabel(/I accept the/i).check();
     await dialog.getByRole("button", { name: /Confirm Booking/i }).click();
 

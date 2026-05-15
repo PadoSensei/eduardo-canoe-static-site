@@ -84,6 +84,9 @@ test.describe("Money Loop Smoke Test", () => {
     // BILINGUAL: Matches "Your Email" or "Seu E-mail"
     await page.getByLabel(/Your Email|Seu E-mail/i).fill("test@example.com");
 
+    // BILINGUAL: Matches "Phone" or "Telefone"
+    await page.getByLabel(/Phone|Telefone/i).fill("123456789");
+
     // BILINGUAL: Matches "Number of Guests" or "Número de Convidados"
     const paxInput = page.getByLabel(/Number of Guests|Número de Convidados/i);
     await paxInput.fill("2");

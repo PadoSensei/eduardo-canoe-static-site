@@ -88,6 +88,7 @@ test.describe("Session Recovery Pillar", () => {
 
     await page.getByLabel(/your name/i).fill("Recovery User");
     await page.getByLabel(/your email/i).fill("recovery@example.com");
+    await page.getByLabel(/phone/i).fill("123456789");
     await page.getByLabel(/i accept the/i).check();
 
     await page.getByRole("button", { name: /confirm booking/i }).click();
@@ -136,6 +137,7 @@ test.describe("Session Recovery Pillar", () => {
       .click();
     await page.getByLabel(/your name/i).fill("Recovery User");
     await page.getByLabel(/your email/i).fill("recovery@example.com");
+    await page.getByLabel(/phone/i).fill("123456789");
     await page.getByLabel(/i accept the/i).check();
     await page.getByRole("button", { name: /confirm booking/i }).click();
     await expect(

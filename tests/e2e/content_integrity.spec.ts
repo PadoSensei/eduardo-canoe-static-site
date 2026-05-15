@@ -102,6 +102,7 @@ test.describe("Content Integrity & Proactive UI", () => {
     await expect(nameInput).toBeVisible();
     await nameInput.fill("Jules Test");
     await emailInput.fill("jules@example.com");
+    await page.fill("#guest-phone", "123456789");
 
     // The color might be returned as OKLCH or RGB depending on the browser/environment.
     // We check that it's NOT white or transparent, and specifically that it contains the expected color intensity.
