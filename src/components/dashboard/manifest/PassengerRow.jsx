@@ -1,12 +1,15 @@
 import React from "react";
 import Check from "lucide-react/dist/esm/icons/check";
+import MessageSquare from "lucide-react/dist/esm/icons/message-square";
 import { formatCurrency } from "../../../utils/formatters";
+import { useLanguage } from "../../../context/LanguageContext";
 
 /**
  * PassengerRow Component
  * Renders a single guest booking with check-in capability.
  */
 const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
+  const { t } = useLanguage();
   const shortId = (
     passenger.display_id || passenger.uuid?.slice(0, 8)
   ).toUpperCase();
@@ -36,6 +39,12 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
               ✓ ON BOARD
             </span>
           )}
+          {passenger.special_notes && (
+            <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-600 text-[10px] font-black rounded-full">
+              <MessageSquare size={10} />
+              NOTES
+            </div>
+          )}
         </div>
         <p className="text-xs font-medium text-gray-500">
           <span className={isCheckedIn ? "text-emerald-700" : "text-teal-600"}>
@@ -48,6 +57,15 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
             </span>
           )}
         </p>
+
+        {passenger.special_notes && (
+          <p className="text-[11px] font-bold text-slate-900 italic mt-1 bg-amber-50/50 p-2 rounded-lg border-l-2 border-amber-400 break-words">
+            <span className="text-[9px] uppercase not-italic text-amber-700 mr-1">
+              {t("admin.notes_label")}
+            </span>
+            {passenger.special_notes}
+          </p>
+        )}
 
         <div className="flex flex-wrap items-center gap-3 mt-2">
           {/* Short ID */}

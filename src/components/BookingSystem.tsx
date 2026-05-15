@@ -511,6 +511,13 @@ function BookingSystem() {
                   booking={currentBooking}
                   selectedDate={selectedDate}
                   onClose={closeModal}
+                  tourName={
+                    selectedTour?.name ||
+                    (currentBooking?.tour_name as string) ||
+                    getTourName(
+                      selectedTour?.tourType || currentBooking?.tour_type || ""
+                    )
+                  }
                 />
               ) : paymentInfo ? (
                 <PaymentView
