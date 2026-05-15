@@ -3,7 +3,6 @@ import React from "react";
 
 export interface SuccessViewProps {
   guestEmail: string;
-  guestPhone?: string;
   booking: Booking | null;
   selectedDate: string;
   onClose: () => void;

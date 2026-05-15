@@ -153,7 +153,6 @@ test.describe("Resilience & Error Handling", () => {
     await page
       .getByLabel(/Your Email|Seu E-mail|E-mail/i)
       .fill("fail@test.com");
-    await page.getByLabel(/Phone|Telefone/i).fill("123456789");
     await page.getByLabel(/I accept|Eu aceito/i).check();
 
     // 4. ACT: Submit

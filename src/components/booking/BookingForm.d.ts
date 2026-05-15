@@ -8,8 +8,6 @@ export interface BookingFormProps {
   setGuestName: (val: string) => void;
   guestEmail: string;
   setGuestEmail: (val: string) => void;
-  guestPhone: string;
-  setGuestPhone: (val: string) => void;
   numPeople: number | string;
   setNumPeople: (val: number | string) => void;
   specialNotes: string;

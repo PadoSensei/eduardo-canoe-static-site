@@ -34,11 +34,9 @@ describe("BookingForm Compliance (LGPD)", () => {
           pricePrefix: "R$",
           labelName: "Your Name",
           labelEmail: "Your Email",
-          labelPhone: "Phone",
           labelNotes: "Special Notes (Optional)",
           placeholderName: "Enter your full name",
           placeholderEmail: "your@email.com",
-          placeholderPhone: "your phone",
           placeholderNotes: "Food allergies or special occasions...",
           btnConfirm: "Confirm Booking",
           btnCancel: "Cancel",
@@ -62,8 +60,6 @@ describe("BookingForm Compliance (LGPD)", () => {
             setGuestName={() => {}}
             guestEmail="john@test.com"
             setGuestEmail={() => {}}
-            guestPhone="12345678"
-            setGuestPhone={() => {}}
             numPeople={1}
             setNumPeople={() => {}}
             specialNotes=""

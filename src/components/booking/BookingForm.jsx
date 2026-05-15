@@ -13,8 +13,6 @@ export function BookingForm({
   setGuestName,
   guestEmail,
   setGuestEmail,
-  guestPhone,
-  setGuestPhone,
   numPeople,
   setNumPeople,
   specialNotes,
@@ -182,25 +180,6 @@ export function BookingForm({
           onChange={(e) => setGuestEmail(e.target.value)}
           className="w-full p-3 bg-white text-slate-900 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400"
           placeholder={t("placeholderEmail")}
-          required
-        />
-      </div>
-
-      {/* Phone Input */}
-      <div className="mb-6">
-        <label
-          htmlFor="guest-phone"
-          className="block mb-2 font-semibold text-gray-700"
-        >
-          {t("labelPhone")} *
-        </label>
-        <input
-          type="tel"
-          id="guest-phone"
-          value={guestPhone}
-          onChange={(e) => setGuestPhone(e.target.value)}
-          className="w-full p-3 bg-white text-slate-900 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400"
-          placeholder={t("placeholderPhone")}
           required
         />
       </div>

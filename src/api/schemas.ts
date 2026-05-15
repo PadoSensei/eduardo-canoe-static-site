@@ -55,7 +55,6 @@ export const BookingSchema = z.object({
   display_id: z.string().optional(), // 8-character professional code
   guest_name: z.string().optional(),
   guest_email: z.string().optional(),
-  guest_phone: z.string().optional(),
   num_people: z.number().optional(),
   total_price: z.number().optional(),
   special_notes: z.string().nullable().optional(),
@@ -144,8 +143,6 @@ export const ManifestPassengerSchema = z.object({
   pax: z.number().optional(),
   email: z.string().nullable().optional(),
   guest_email: z.string().nullable().optional(),
-  phone: z.string().nullable().optional(),
-  guest_phone: z.string().nullable().optional(),
   special_notes: z.string().nullable().optional(),
   checked_in: z.boolean().default(false),
   total_price: z.number().optional(),

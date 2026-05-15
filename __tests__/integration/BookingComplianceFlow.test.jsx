@@ -71,9 +71,6 @@ describe("Full Booking Compliance Flow", () => {
     fireEvent.input(screen.getByLabelText(/Seu E-mail|Your Email/i), {
       target: { value: "test@lgpd.com" },
     });
-    fireEvent.input(screen.getByLabelText(/Telefone|Phone Number/i), {
-      target: { value: "12345678" },
-    });
 
     // 3. Verify Button is locked — PT default is "Confirmar Reserva"
     const confirmBtn = screen.getByRole("button", {

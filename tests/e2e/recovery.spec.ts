@@ -90,7 +90,6 @@ test.describe("Session Recovery Pillar", () => {
     await page
       .getByLabel(/Your Email|Seu E-mail|E-mail/i)
       .fill("recovery@example.com");
-    await page.getByLabel(/Phone|Telefone/i).fill("123456789");
     await page.getByLabel(/I accept|Eu aceito/i).check();
 
     await page
@@ -143,7 +142,6 @@ test.describe("Session Recovery Pillar", () => {
     await page
       .getByLabel(/Your Email|Seu E-mail|E-mail/i)
       .fill("recovery@example.com");
-    await page.getByLabel(/Phone|Telefone/i).fill("123456789");
     await page.getByLabel(/I accept|Eu aceito/i).check();
     await page
       .getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i })
