@@ -57,6 +57,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
                 uuid: "test-uuid-123",
                 payment_transaction_id: "WVI-TRX-999",
                 checked_in: false,
+                status: "confirmed",
               },
               {
                 id: 2,
@@ -66,6 +67,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
                 uuid: "test-uuid-456",
                 payment_transaction_id: "WVI-TRX-888",
                 checked_in: true,
+                status: "confirmed",
               },
             ],
           },
@@ -141,7 +143,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
     await tourCard.click();
 
     // Passenger list should now be visible
-    await expect(page.getByText(/Confirmed Bookings/i)).toBeVisible({
+    await expect(page.getByText(/Operational Manifest/i)).toBeVisible({
       timeout: 10000,
     });
 
@@ -184,7 +186,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
     await tourCard.waitFor({ state: "visible", timeout: 10000 });
     await tourCard.click();
 
-    await expect(page.getByText(/Confirmed Bookings/i)).toBeVisible({
+    await expect(page.getByText(/Operational Manifest/i)).toBeVisible({
       timeout: 10000,
     });
 

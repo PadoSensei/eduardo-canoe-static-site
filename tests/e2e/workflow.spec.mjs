@@ -278,7 +278,7 @@ test.describe("Railway Production Loop", () => {
     // =========================================================
     // 11. FINAL ASSERTION: GUEST IN PASSENGER LIST
     // =========================================================
-    await expect(page.getByText(/Confirmed Bookings/i)).toBeVisible({
+    await expect(page.getByText(/Operational Manifest/i)).toBeVisible({
       timeout: 10000,
     });
 
