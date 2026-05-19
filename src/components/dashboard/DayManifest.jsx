@@ -12,12 +12,23 @@ import UserPlus from "lucide-react/dist/esm/icons/user-plus";
 import Loader2 from "lucide-react/dist/esm/icons/loader-2";
 import Users from "lucide-react/dist/esm/icons/users";
 import AlertTriangle from "lucide-react/dist/esm/icons/alert-triangle";
+import ChevronDown from "lucide-react/dist/esm/icons/chevron-down";
+import ChevronUp from "lucide-react/dist/esm/icons/chevron-up";
 import { toast } from "sonner";
 import {
   fetchDayManifest,
   cancelTourForWeather,
   patchCheckIn,
 } from "../../api";
+
+// --- BUSINESS LOGIC CONSTANTS ---
+const ACTIVE_STATUSES = ["confirmed", "paid", "completed"];
+const INACTIVE_STATUSES = [
+  "cancelled",
+  "cancelled_weather",
+  "expired",
+  "failed",
+];
 
 // Import sub-components for modular architecture
 import PassengerRow from "./manifest/PassengerRow";
@@ -34,6 +45,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
   const [isAddingGuest, setIsAddingGuest] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tourToCancel, setTourToCancel] = useState(null);
+  const [showInactive, setShowInactive] = useState(false);
 
   // Local UI state for check-ins (visual only for Eduardo's use at the lagoon)
   const [checkedIn, setCheckedIn] = useState({});
@@ -84,6 +96,9 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
 
     return selectedTour.passengers.reduce(
       (acc, p) => {
+        // Only bookings with statuses confirmed, paid, or completed should be aggregated into the manifest totals.
+        if (!ACTIVE_STATUSES.includes(p.status)) return acc;
+
         const count = p.pax_count ?? (p.pax || p.num_people || 0);
         const id = p.id || p.uuid;
         acc.total += count;
@@ -95,6 +110,23 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
       { boarded: 0, total: 0 }
     );
   }, [selectedTour, checkedIn]);
+
+  // Partition passengers into Operational and Forensic groups
+  const { primaryList, inactiveList } = useMemo(() => {
+    if (!selectedTour?.passengers) return { primaryList: [], inactiveList: [] };
+
+    return selectedTour.passengers.reduce(
+      (acc, p) => {
+        if (INACTIVE_STATUSES.includes(p.status)) {
+          acc.inactiveList.push(p);
+        } else {
+          acc.primaryList.push(p);
+        }
+        return acc;
+      },
+      { primaryList: [], inactiveList: [] }
+    );
+  }, [selectedTour]);
 
   const loadManifest = useCallback(
     async (signal) => {
@@ -234,7 +266,10 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
               Total Boarded
             </span>
             <span className="text-xl font-bold text-white">
-              {Math.round((headcount.boarded / (headcount.total || 1)) * 100)}%
+              {headcount.total > 0
+                ? Math.round((headcount.boarded / headcount.total) * 100)
+                : 0}
+              %
             </span>
           </div>
         </div>
@@ -287,11 +322,11 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
             </div>
           )}
           <h3 className="mb-4 text-[10px] font-black tracking-[0.2em] text-slate-500 uppercase">
-            Confirmed Bookings
+            Operational Manifest
           </h3>
 
-          {selectedTour.passengers?.length > 0 ? (
-            selectedTour.passengers.map((p) => {
+          {primaryList.length > 0 ? (
+            primaryList.map((p) => {
               const id = p.id || p.uuid;
               return (
                 <PassengerRow
@@ -303,8 +338,45 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
               );
             })
           ) : (
-            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-              <p className="italic">No passengers registered yet.</p>
+            <div className="flex flex-col items-center justify-center py-10 text-gray-400 bg-white border border-dashed rounded-xl">
+              <p className="text-sm font-medium italic">
+                No active passengers.
+              </p>
+            </div>
+          )}
+
+          {/* Forensic View: Inactive/Cancelled Bookings */}
+          {inactiveList.length > 0 && (
+            <div className="mt-8">
+              <button
+                onClick={() => setShowInactive(!showInactive)}
+                className="flex items-center justify-between w-full p-3 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200"
+              >
+                <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">
+                  Cancelled / Inactive ({inactiveList.length})
+                </span>
+                {showInactive ? (
+                  <ChevronUp size={16} className="text-gray-400" />
+                ) : (
+                  <ChevronDown size={16} className="text-gray-400" />
+                )}
+              </button>
+
+              {showInactive && (
+                <div className="mt-4 space-y-3 opacity-60 grayscale">
+                  {inactiveList.map((p) => {
+                    const id = p.id || p.uuid;
+                    return (
+                      <PassengerRow
+                        key={id}
+                        passenger={p}
+                        isCheckedIn={!!checkedIn[id]}
+                        onCheckIn={toggleCheckIn}
+                      />
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </div>

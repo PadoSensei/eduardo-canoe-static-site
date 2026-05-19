@@ -148,9 +148,9 @@ describe("Dashboard Page Integration", () => {
       fireEvent.click(tourCard);
     });
 
-    // "Confirmed Bookings" is the heading in DayManifest — was "Confirmed Passengers"
+    // "Operational Manifest" is the heading in DayManifest — was "Confirmed Bookings"
     expect(
-      await screen.findByText(/Confirmed Bookings/i, {}, { timeout: 5000 })
+      await screen.findByText(/Operational Manifest/i, {}, { timeout: 5000 })
     ).toBeInTheDocument();
   });
 
