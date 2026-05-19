@@ -1,6 +1,7 @@
 import React from "react";
 import Check from "lucide-react/dist/esm/icons/check";
 import MessageSquare from "lucide-react/dist/esm/icons/message-square";
+import Clock from "lucide-react/dist/esm/icons/clock";
 import { formatCurrency } from "../../../utils/formatters";
 
 /**
@@ -14,13 +15,17 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
   const paxCount =
     passenger.pax_count ?? (passenger.pax || passenger.num_people || 0);
 
+  const isPending = passenger.status === "pending_payment";
+
   return (
     <div
       data-testid="passenger-row"
       className={`p-4 mb-3 border rounded-xl shadow-sm flex items-center justify-between transition-all duration-300 ${
         isCheckedIn
           ? "bg-emerald-50 border-emerald-200 shadow-inner"
-          : "bg-white border-gray-100"
+          : isPending
+            ? "bg-amber-50/30 border-amber-100 opacity-90"
+            : "bg-white border-gray-100"
       }`}
     >
       <div className="space-y-1">
@@ -35,6 +40,12 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
           {isCheckedIn && (
             <span className="px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-black rounded-full animate-in zoom-in-50 duration-300">
               ✓ ON BOARD
+            </span>
+          )}
+          {isPending && (
+            <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded-full">
+              <Clock size={10} />
+              AWAITING PAYMENT
             </span>
           )}
           {passenger.special_notes && (

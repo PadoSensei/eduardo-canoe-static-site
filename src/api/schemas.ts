@@ -147,6 +147,7 @@ export const ManifestPassengerSchema = z.object({
   checked_in: z.boolean().default(false),
   total_price: z.number().optional(),
   payment_transaction_id: z.string().nullable().optional(),
+  status: z.string().optional(),
 });
 
 export type ManifestPassenger = z.infer<typeof ManifestPassengerSchema>;
