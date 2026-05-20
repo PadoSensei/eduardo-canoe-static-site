@@ -15,8 +15,11 @@ const TourModal = ({ tour, onClose }) => {
   const [nextDate, setNextDate] = useState(null);
 
   useEffect(() => {
-    if (tour?.tourType === "full_moon_party" || tour?.name?.toLowerCase().includes("full moon")) {
-      getNextSpecialtyTour("full_moon_party").then(data => {
+    if (
+      tour?.tourType === "full_moon_party" ||
+      tour?.name?.toLowerCase().includes("full moon")
+    ) {
+      getNextSpecialtyTour("full_moon_party").then((data) => {
         if (data?.next_date) setNextDate(data.next_date);
       });
     } else {
@@ -162,7 +165,7 @@ const TourModal = ({ tour, onClose }) => {
         </div>
 
         {/* Action Bar - Fixed Bottom with Glassmorphism */}
-        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between gap-4 p-6 border-t border-gray-100 md:px-10 bg-white/90 backdrop-blur-md">
+        <div className="flex items-center justify-between gap-4 p-6 border-t border-gray-100 md:px-10 bg-white/90 backdrop-blur-md shrink-0">
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm font-bold text-gray-400 transition-colors hover:text-gray-600"
