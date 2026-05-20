@@ -1,17 +1,28 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import X from "lucide-react/dist/esm/icons/x";
 import CheckCircle from "lucide-react/dist/esm/icons/check-circle";
 import Backpack from "lucide-react/dist/esm/icons/backpack";
 import Clock from "lucide-react/dist/esm/icons/clock";
-import Users from "lucide-react/dist/esm/icons/users";
 import MapPin from "lucide-react/dist/esm/icons/map-pin";
 import { useLanguage } from "../context/LanguageContext";
 import BrandLogo from "./BrandLogo";
 import { formatCurrency } from "../utils/formatters";
+import { getNextSpecialtyTour } from "../api";
 
 const TourModal = ({ tour, onClose }) => {
   const { t } = useLanguage();
+  const [nextDate, setNextDate] = useState(null);
+
+  useEffect(() => {
+    if (tour?.tourType === "full_moon_party" || tour?.name?.toLowerCase().includes("full moon")) {
+      getNextSpecialtyTour("full_moon_party").then(data => {
+        if (data?.next_date) setNextDate(data.next_date);
+      });
+    } else {
+      setNextDate(null);
+    }
+  }, [tour]);
 
   useEffect(() => {
     const handleEsc = (e) => {
@@ -60,7 +71,7 @@ const TourModal = ({ tour, onClose }) => {
         </div>
 
         {/* Content Section */}
-        <div className="p-8 pb-32 overflow-y-auto md:p-10">
+        <div className="p-8 pb-12 overflow-y-auto md:p-10">
           {/* Header Metadata */}
           <div className="flex flex-col justify-between gap-4 mb-8 md:flex-row md:items-start">
             <div className="space-y-1">
@@ -72,9 +83,6 @@ const TourModal = ({ tour, onClose }) => {
               </h2>
             </div>
             <div className="px-4 py-2 border bg-teal-50 rounded-2xl border-teal-100/50">
-              <span className="text-[10px] text-teal-600 font-bold uppercase tracking-widest block text-center mb-0.5">
-                {t("pricePrefix")}
-              </span>
               <span className="block text-2xl font-black text-teal-900">
                 {formatCurrency(tour.price)}
               </span>
@@ -90,15 +98,6 @@ const TourModal = ({ tour, onClose }) => {
               </span>
               <span className="text-xs font-black text-teal-950">
                 {tour.duration}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users size={16} className="text-teal-500" />
-              <span className="text-xs font-bold tracking-tighter text-gray-500 uppercase">
-                {t("logistics_capacity")}:
-              </span>
-              <span className="text-xs font-black text-teal-950">
-                {tour.capacity} Pax
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -172,7 +171,7 @@ const TourModal = ({ tour, onClose }) => {
           </button>
 
           <Link
-            to="/book"
+            to={nextDate ? `/book?date=${nextDate}` : "/book"}
             className="bg-teal-950 hover:bg-black text-white px-8 py-3.5 rounded-2xl font-bold text-sm shadow-xl transition-all hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"
           >
             {t("ctaButton")}

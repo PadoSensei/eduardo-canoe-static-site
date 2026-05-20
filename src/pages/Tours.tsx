@@ -86,7 +86,7 @@ const Tours: React.FC = () => {
             icon={CalendarOff}
           />
         ) : (
-          <div className="grid justify-center gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid justify-center gap-8 mx-auto md:grid-cols-2 lg:grid-cols-3 justify-items-center">
             {tours.map((tour) => (
               <div
                 key={tour.id}
@@ -118,9 +118,6 @@ const Tours: React.FC = () => {
 
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                        {t("pricePrefix")}
-                      </span>
                       <span className="text-xl font-black text-teal-900">
                         R$ {tour.price}
                       </span>
