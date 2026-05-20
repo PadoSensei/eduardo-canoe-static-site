@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { toast } from "sonner";
 import { getAvailableTours, createBooking, getNextSpecialtyTour } from "../api";
@@ -57,6 +57,7 @@ const getStoredSession = (t: (key: string) => string) => {
 function BookingSystem() {
   const { language, t } = useLanguage();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // Ref to track component mount status for async safety
   const isMounted = useRef(true);
@@ -65,7 +66,10 @@ function BookingSystem() {
   const [session] = useState(() => getStoredSession(t));
   const [availableTours, setAvailableTours] = useState<TourUI[]>([]);
   const [isCreatingBooking, setIsCreatingBooking] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(calculateBookingHorizon());
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const urlDate = searchParams.get("date");
+    return urlDate || calculateBookingHorizon();
+  });
   const [nextFullMoonDate, setNextFullMoonDate] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

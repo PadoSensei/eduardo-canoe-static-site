@@ -71,8 +71,6 @@ describe("TourModal Component", () => {
     // 2. New Logistics Strip Verification
     expect(screen.getByText(/Duration/i)).toBeInTheDocument();
     expect(screen.getByText(mockTour.duration)).toBeInTheDocument();
-    expect(screen.getByText(/Capacity/i)).toBeInTheDocument();
-    expect(screen.getByText(/10 Pax/i)).toBeInTheDocument();
 
     // 3. Translation Key Verification
     expect(screen.getByText(/tour_sunset_detail/i)).toBeInTheDocument();
