@@ -74,7 +74,7 @@ const TourModal = ({ tour, onClose }) => {
         </div>
 
         {/* Content Section */}
-        <div className="p-8 pb-12 overflow-y-auto md:p-10">
+        <div className="flex-1 min-h-0 p-8 pb-12 overflow-y-auto md:p-10">
           {/* Header Metadata */}
           <div className="flex flex-col justify-between gap-4 mb-8 md:flex-row md:items-start">
             <div className="space-y-1">
