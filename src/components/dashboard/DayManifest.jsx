@@ -15,6 +15,7 @@ import AlertTriangle from "lucide-react/dist/esm/icons/alert-triangle";
 import ChevronDown from "lucide-react/dist/esm/icons/chevron-down";
 import ChevronUp from "lucide-react/dist/esm/icons/chevron-up";
 import { toast } from "sonner";
+import * as Sentry from "@sentry/react";
 import {
   fetchDayManifest,
   cancelTourForWeather,
@@ -60,8 +61,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
     if (!passenger) return;
 
     const newStatus = !checkedIn[bookingId];
-    const paxCount =
-      passenger.pax_count ?? (passenger.pax || passenger.num_people || 0);
+    const paxCount = passenger.num_people || 0;
 
     // 1. Update UI immediately
     setCheckedIn((prev) => ({ ...prev, [bookingId]: newStatus }));
@@ -96,10 +96,17 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
 
     return selectedTour.passengers.reduce(
       (acc, p) => {
-        // Only bookings with statuses confirmed, paid, or completed should be aggregated into the manifest totals.
+        // Ledger Integrity Rule: Only count confirmed revenue
         if (!ACTIVE_STATUSES.includes(p.status)) return acc;
 
-        const count = p.pax_count ?? (p.pax || p.num_people || 0);
+        if (p.num_people === undefined || p.num_people === null) {
+          Sentry.captureMessage("Malformed Passenger Data: Missing num_people", {
+            extra: { passengerId: p.id || p.uuid, status: p.status },
+            level: "warning",
+          });
+        }
+
+        const count = p.num_people || 0; // Pruned fallbacks
         const id = p.id || p.uuid;
         acc.total += count;
         if (checkedIn[id]) {

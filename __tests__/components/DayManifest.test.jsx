@@ -44,6 +44,9 @@ const server = setupServer(
   ),
   http.post(`${API_BASE}/admin/tours/*/weather-cancel`, () =>
     HttpResponse.json({ success: true })
+  ),
+  http.patch(`${API_BASE}/admin/bookings/*/check-in`, () =>
+    HttpResponse.json({ success: true })
   )
 );
 
@@ -97,6 +100,114 @@ test("Weather Cancel button triggers confirmation and API call", async () => {
       screen.queryByText(/Cancelar Passeio por Clima|Cancel Tour for Weather/i)
     ).not.toBeInTheDocument();
   });
+});
+
+test("should_calculate_headcount_only_from_confirmed", async () => {
+  const mockTour = {
+    tour_id: 103,
+    display_name: "Headcount Test Tour",
+    booked_count: 3, // Backend might return 3, but frontend should only sum confirmed
+    capacity: 10,
+    status: "available",
+    passengers: [
+      {
+        id: 1,
+        uuid: "uuid-1",
+        guest_name: "Confirmed Guest",
+        num_people: 2,
+        status: "confirmed",
+        checked_in: false,
+      },
+      {
+        id: 2,
+        uuid: "uuid-2",
+        guest_name: "Pending Guest",
+        num_people: 1,
+        status: "pending_payment",
+        checked_in: false,
+      },
+    ],
+  };
+
+  server.use(
+    http.get(`${API_BASE}/admin/manifest/*`, () => HttpResponse.json([mockTour]))
+  );
+
+  render(
+    <MemoryRouter>
+      <LanguageProvider>
+        <DayManifest
+          date={new Date("2026-01-19T12:00:00Z")}
+          onClose={jest.fn()}
+        />
+      </LanguageProvider>
+    </MemoryRouter>
+  );
+
+  // Click on the tour to see details/headcount
+  fireEvent.click(await screen.findByText("Headcount Test Tour"));
+
+  // Assert header displays 0 / 2 (boarded / total confirmed), NOT 0 / 3
+  // We look for "0" and "/ 2" in the headcount section
+  const boardingStatus = await screen.findByText(/Boarding Status/i);
+  const headcountContainer = boardingStatus.closest("div").nextElementSibling;
+
+  expect(screen.getByText("0")).toBeInTheDocument();
+  expect(screen.getByText("/ 2")).toBeInTheDocument();
+
+  // Verify percentage is 0%
+  expect(screen.getByText("0%")).toBeInTheDocument();
+
+  // Now mock checking in the confirmed guest
+  const checkInBtn = screen.getAllByLabelText(/Check-in/i)[0]; // First guest is confirmed
+  fireEvent.click(checkInBtn);
+
+  // After check-in, it should be 2 / 2 and 100%
+  // Since toggleCheckIn is optimistic, it updates immediately
+  expect(await screen.findByText("2")).toBeInTheDocument();
+  expect(screen.getByText("100%")).toBeInTheDocument();
+});
+
+test("should handle 0 confirmed passengers without crashing", async () => {
+  const mockTour = {
+    tour_id: 104,
+    display_name: "Empty Tour",
+    booked_count: 1,
+    capacity: 10,
+    status: "available",
+    passengers: [
+      {
+        id: 3,
+        uuid: "uuid-3",
+        guest_name: "Pending Only",
+        num_people: 1,
+        status: "pending_payment",
+        checked_in: false,
+      },
+    ],
+  };
+
+  server.use(
+    http.get(`${API_BASE}/admin/manifest/*`, () => HttpResponse.json([mockTour]))
+  );
+
+  render(
+    <MemoryRouter>
+      <LanguageProvider>
+        <DayManifest
+          date={new Date("2026-01-19T12:00:00Z")}
+          onClose={jest.fn()}
+        />
+      </LanguageProvider>
+    </MemoryRouter>
+  );
+
+  fireEvent.click(await screen.findByText("Empty Tour"));
+
+  // Assert 0 / 0 and 0%
+  expect(await screen.findByText("0")).toBeInTheDocument();
+  expect(screen.getByText("/ 0")).toBeInTheDocument();
+  expect(screen.getByText("0%")).toBeInTheDocument();
 });
 
 test("Cancelled tour shows badge and no Weather Cancel button", async () => {

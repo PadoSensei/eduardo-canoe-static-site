@@ -518,6 +518,10 @@ For technical support or questions:
 - Check VoltAgent documentation: https://voltagent.dev/docs/
 - Deep Chat documentation: https://deepchat.dev/docs/
 
+## Learning & Architecture
+
+*   [Ledger Integrity & The Ghost Passenger Problem](docs/learning/019_ledger_integrity.md)
+
 ---
 
 **Pipa Canoa Havaiana** - Experience the magic of Pipa from the water with our guided canoe excursions and intelligent booking assistant.
