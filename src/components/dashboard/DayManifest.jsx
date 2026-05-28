@@ -100,10 +100,13 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
         if (!ACTIVE_STATUSES.includes(p.status)) return acc;
 
         if (p.num_people === undefined || p.num_people === null) {
-          Sentry.captureMessage("Malformed Passenger Data: Missing num_people", {
-            extra: { passengerId: p.id || p.uuid, status: p.status },
-            level: "warning",
-          });
+          Sentry.captureMessage(
+            "Malformed Passenger Data: Missing num_people",
+            {
+              extra: { passengerId: p.id || p.uuid, status: p.status },
+              level: "warning",
+            }
+          );
         }
 
         const count = p.num_people || 0; // Pruned fallbacks

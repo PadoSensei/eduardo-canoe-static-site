@@ -520,7 +520,7 @@ For technical support or questions:
 
 ## Learning & Architecture
 
-*   [Ledger Integrity & The Ghost Passenger Problem](docs/learning/019_ledger_integrity.md)
+- [Ledger Integrity & The Ghost Passenger Problem](docs/learning/019_ledger_integrity.md)
 
 ---
 

@@ -130,7 +130,9 @@ test("should_calculate_headcount_only_from_confirmed", async () => {
   };
 
   server.use(
-    http.get(`${API_BASE}/admin/manifest/*`, () => HttpResponse.json([mockTour]))
+    http.get(`${API_BASE}/admin/manifest/*`, () =>
+      HttpResponse.json([mockTour])
+    )
   );
 
   render(
@@ -188,7 +190,9 @@ test("should handle 0 confirmed passengers without crashing", async () => {
   };
 
   server.use(
-    http.get(`${API_BASE}/admin/manifest/*`, () => HttpResponse.json([mockTour]))
+    http.get(`${API_BASE}/admin/manifest/*`, () =>
+      HttpResponse.json([mockTour])
+    )
   );
 
   render(
