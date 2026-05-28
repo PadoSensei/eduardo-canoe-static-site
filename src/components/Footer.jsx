@@ -69,7 +69,7 @@ const Footer = () => {
                     Instagram
                   </span>
                   <span className="text-xs text-gray-400 group-hover:text-[#FF6B6B] transition-colors">
-                    @pipacanoe
+                    @Pipa_canoa_havaiana
                   </span>
                 </div>
               </a>
