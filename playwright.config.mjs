@@ -16,12 +16,13 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? "50%" : undefined,
   reporter: "html",
 
   use: {
     baseURL: "http://localhost:5173",
-    trace: "on-first-retry",
+    trace: "retain-on-failure",
+    video: "on-first-retry",
     screenshot: "only-on-failure",
     actionTimeout: 15000,
     navigationTimeout: 20000,
@@ -60,17 +61,13 @@ export default defineConfig({
     },
 
     // =========================================================
-    // 3. GUEST FLOW TESTS (MOBILE) - Skip in CI
+    // 3. GUEST FLOW TESTS (MOBILE)
     // =========================================================
-    ...(!process.env.CI
-      ? [
-          {
-            name: "guest-mobile-safari",
-            use: { ...devices["iPhone 12"] },
-            testIgnore: [/admin\.spec\.mjs/, /workflow\.spec\.mjs/],
-          },
-        ]
-      : []),
+    {
+      name: "guest-mobile-safari",
+      use: { ...devices["iPhone 12"] },
+      testIgnore: [/admin\.spec\.mjs/, /workflow\.spec\.mjs/],
+    },
 
     // =========================================================
     // 4. PRODUCTION WORKFLOW - Skip in CI

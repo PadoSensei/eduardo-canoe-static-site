@@ -190,7 +190,7 @@ test.describe("EduCanoe Guided Tour", () => {
   });
 
   // Narrative 1: The Seamless Guest (The Money Loop)
-  test("story_guest_booking: Complete a full booking journey", async ({
+  test("story_guest_booking: Complete a full booking journey @smoke", async ({
     page,
   }) => {
     // 1. Home Page
