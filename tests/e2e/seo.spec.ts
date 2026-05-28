@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("SEO and Metadata", () => {
-  test("should have correct SEO tags on the home page @smoke", async ({
+  test("should have correct SEO tags on the home page", async ({
     page,
   }) => {
     await page.goto("/");

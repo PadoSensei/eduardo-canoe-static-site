@@ -19,7 +19,7 @@ jobs:
         run: npm ci
       - name: Run Playwright tests
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
             npx playwright test --grep @smoke
           else
             npx playwright test
