@@ -12,8 +12,7 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
   const shortId = (
     passenger.display_id || passenger.uuid?.slice(0, 8)
   ).toUpperCase();
-  const paxCount =
-    passenger.pax_count ?? (passenger.pax || passenger.num_people || 0);
+  const paxCount = passenger.num_people || 0;
 
   const isPending = passenger.status === "pending_payment";
 
@@ -24,7 +23,7 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
         isCheckedIn
           ? "bg-emerald-50 border-emerald-200 shadow-inner"
           : isPending
-            ? "bg-amber-50/30 border-amber-100 opacity-90"
+            ? "bg-amber-50/30 border-amber-100 opacity-50"
             : "bg-white border-gray-100"
       }`}
     >
@@ -43,7 +42,7 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
             </span>
           )}
           {isPending && (
-            <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded-full">
+            <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 border border-amber-200 text-amber-950 text-[10px] font-black rounded-full">
               <Clock size={10} />
               AWAITING PAYMENT
             </span>

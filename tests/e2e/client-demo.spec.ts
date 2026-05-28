@@ -130,8 +130,9 @@ test.describe("EduCanoe Guided Tour", () => {
                 uuid: "demo-uuid-123",
                 display_id: "SUN-123",
                 guest_name: "Ana Silva",
-                pax_count: 3,
+                num_people: 3,
                 checked_in: false,
+                status: "confirmed",
               },
             ],
           },
@@ -190,7 +191,7 @@ test.describe("EduCanoe Guided Tour", () => {
   });
 
   // Narrative 1: The Seamless Guest (The Money Loop)
-  test("story_guest_booking: Complete a full booking journey", async ({
+  test("story_guest_booking: Complete a full booking journey @smoke", async ({
     page,
   }) => {
     // 1. Home Page

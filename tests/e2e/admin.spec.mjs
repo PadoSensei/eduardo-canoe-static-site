@@ -52,7 +52,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
               {
                 id: 1,
                 name: "John Doe",
-                pax_count: 2,
+                num_people: 2,
                 email: "john@example.com",
                 uuid: "test-uuid-123",
                 payment_transaction_id: "WVI-TRX-999",
@@ -62,7 +62,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
               {
                 id: 2,
                 name: "Jane Smith",
-                pax_count: 3,
+                num_people: 3,
                 email: "jane@example.com",
                 uuid: "test-uuid-456",
                 payment_transaction_id: "WVI-TRX-888",
@@ -150,7 +150,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
     await expect(page.getByText("WVI-TRX-999")).toBeVisible();
   });
 
-  test("should handle passenger check-in toggle and headcount logic", async ({
+  test("should handle passenger check-in toggle and headcount logic @smoke", async ({
     page,
   }) => {
     // Mock the PATCH request

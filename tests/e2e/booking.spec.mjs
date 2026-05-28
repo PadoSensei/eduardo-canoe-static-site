@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Booking Flow", () => {
-  test("should navigate from home to booking page", async ({ page }) => {
+  test("should navigate from home to booking page @smoke", async ({ page }) => {
     // 1. GIVEN: I am on the home page
     await page.goto("/");
 
