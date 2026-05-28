@@ -186,7 +186,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 placeholder="eduardo@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full py-3 pl-10 pr-4 border border-gray-200 outline-none rounded-xl focus:ring-2 focus:ring-teal-500"
+                className="w-full py-3 pl-10 pr-4 bg-white text-slate-900 border border-gray-200 outline-none rounded-xl focus:ring-2 focus:ring-teal-500 placeholder:text-slate-400"
               />
             </div>
             <button
