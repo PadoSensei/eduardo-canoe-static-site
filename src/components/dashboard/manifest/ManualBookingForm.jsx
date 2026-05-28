@@ -104,7 +104,7 @@ const ManualBookingForm = ({
           <input
             required
             autoFocus
-            className="w-full p-4 font-medium transition-all bg-white border border-gray-200 shadow-sm outline-none rounded-2xl focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500"
+            className="w-full p-4 font-medium transition-all bg-white text-slate-900 border border-gray-200 shadow-sm outline-none rounded-2xl focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 placeholder:text-slate-400"
             placeholder="e.g. John Doe"
             value={guestName}
             onChange={(e) => setGuestName(e.target.value)}
@@ -119,7 +119,7 @@ const ManualBookingForm = ({
           <input
             type="email"
             required
-            className="w-full p-4 font-medium transition-all bg-white border border-gray-200 shadow-sm outline-none rounded-2xl focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500"
+            className="w-full p-4 font-medium transition-all bg-white text-slate-900 border border-gray-200 shadow-sm outline-none rounded-2xl focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 placeholder:text-slate-400"
             placeholder="guest@example.com"
             value={guestEmail}
             onChange={(e) => setGuestEmail(e.target.value)}
@@ -161,7 +161,7 @@ const ManualBookingForm = ({
           </label>
           <textarea
             rows={3}
-            className="w-full p-4 font-medium transition-all bg-white border border-gray-200 shadow-sm outline-none rounded-2xl focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500"
+            className="w-full p-4 font-medium transition-all bg-white text-slate-900 border border-gray-200 shadow-sm outline-none rounded-2xl focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 placeholder:text-slate-400"
             placeholder="Allergies, special occasions, etc..."
             value={specialNotes}
             onChange={(e) => setSpecialNotes(e.target.value)}

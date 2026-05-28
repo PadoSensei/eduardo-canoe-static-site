@@ -196,7 +196,7 @@ const ActivityView: React.FC = () => {
             placeholder={t("admin_cc_search_placeholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all"
+            className="w-full pl-12 pr-4 py-3 bg-white text-slate-900 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 placeholder:text-slate-400 transition-all"
           />
         </div>
 

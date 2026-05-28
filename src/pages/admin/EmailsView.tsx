@@ -79,7 +79,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
               onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
                 onTimeChange(setting.slug, e.target.value)
               }
-              className="bg-slate-50 border border-slate-100 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none"
+              className="bg-white border border-slate-100 rounded-lg px-2 py-1 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
             />
             {updatingSlugs.has(setting.slug) && (
               <div className="absolute -right-5 top-1/2 -translate-y-1/2">

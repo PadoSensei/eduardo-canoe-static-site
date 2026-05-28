@@ -163,6 +163,7 @@ const Dashboard = () => {
   };
 
   if (!session) {
+    // @todo: Remove this redundant login logic. AdminLayout.tsx now handles the auth guard for all /admin routes.
     return (
       <div className="flex items-center justify-center min-h-screen p-6 bg-gray-50">
         <div className="w-full max-w-md p-10 bg-white border border-gray-100 shadow-xl rounded-3xl">
@@ -183,7 +184,7 @@ const Dashboard = () => {
                 placeholder="eduardo@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full py-3 pl-10 pr-4 border border-gray-200 outline-none rounded-xl focus:ring-2 focus:ring-teal-500"
+                className="w-full py-3 pl-10 pr-4 bg-white text-slate-900 border border-gray-200 outline-none rounded-xl focus:ring-2 focus:ring-teal-500 placeholder:text-slate-400"
               />
             </div>
             <button
