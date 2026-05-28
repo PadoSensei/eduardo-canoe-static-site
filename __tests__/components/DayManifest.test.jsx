@@ -151,8 +151,7 @@ test("should_calculate_headcount_only_from_confirmed", async () => {
 
   // Assert header displays 0 / 2 (boarded / total confirmed), NOT 0 / 3
   // We look for "0" and "/ 2" in the headcount section
-  const boardingStatus = await screen.findByText(/Boarding Status/i);
-  const headcountContainer = boardingStatus.closest("div").nextElementSibling;
+  await screen.findByText(/Boarding Status/i);
 
   expect(screen.getByText("0")).toBeInTheDocument();
   expect(screen.getByText("/ 2")).toBeInTheDocument();
