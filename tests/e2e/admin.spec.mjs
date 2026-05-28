@@ -150,7 +150,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
     await expect(page.getByText("WVI-TRX-999")).toBeVisible();
   });
 
-  test("should handle passenger check-in toggle and headcount logic", async ({
+  test("should handle passenger check-in toggle and headcount logic @smoke", async ({
     page,
   }) => {
     // Mock the PATCH request
