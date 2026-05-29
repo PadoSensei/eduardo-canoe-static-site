@@ -23,7 +23,15 @@ import {
 } from "../../api";
 
 // --- BUSINESS LOGIC CONSTANTS ---
-const ACTIVE_STATUSES = ["confirmed", "paid", "completed"];
+// Ledger Integrity: active hold statuses that occupy a seat in the manifest/calendar
+const ACTIVE_STATUSES = [
+  "confirmed",
+  "paid",
+  "completed",
+  "pending_payment",
+  "review_required",
+];
+// Forensic Audit: terminal statuses that no longer occupy inventory
 const INACTIVE_STATUSES = [
   "cancelled",
   "cancelled_weather",
@@ -96,7 +104,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
 
     return selectedTour.passengers.reduce(
       (acc, p) => {
-        // Ledger Integrity Rule: Only count confirmed revenue
+        // Iron Shield: Only count active inventory holds (confirmed or fresh pending)
         if (!ACTIVE_STATUSES.includes(p.status)) return acc;
 
         if (p.num_people === undefined || p.num_people === null) {

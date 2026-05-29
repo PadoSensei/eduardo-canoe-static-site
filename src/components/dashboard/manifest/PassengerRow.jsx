@@ -42,7 +42,7 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
             </span>
           )}
           {isPending && (
-            <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 border border-amber-200 text-amber-950 text-[10px] font-black rounded-full">
+            <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-400 border border-amber-500 text-slate-950 text-[10px] font-black rounded-full shadow-sm">
               <Clock size={10} />
               AWAITING PAYMENT
             </span>

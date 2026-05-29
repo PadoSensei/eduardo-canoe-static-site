@@ -102,11 +102,11 @@ test("Weather Cancel button triggers confirmation and API call", async () => {
   });
 });
 
-test("should_calculate_headcount_only_from_confirmed", async () => {
+test("should_calculate_headcount_including_pending_payment", async () => {
   const mockTour = {
     tour_id: 103,
     display_name: "Headcount Test Tour",
-    booked_count: 3, // Backend might return 3, but frontend should only sum confirmed
+    booked_count: 3,
     capacity: 10,
     status: "available",
     passengers: [
@@ -149,27 +149,25 @@ test("should_calculate_headcount_only_from_confirmed", async () => {
   // Click on the tour to see details/headcount
   fireEvent.click(await screen.findByText("Headcount Test Tour"));
 
-  // Assert header displays 0 / 2 (boarded / total confirmed), NOT 0 / 3
-  // We look for "0" and "/ 2" in the headcount section
+  // Iron Shield: Now counts BOTH confirmed (2) and pending_payment (1) = 3
   await screen.findByText(/Boarding Status/i);
 
   expect(screen.getByText("0")).toBeInTheDocument();
-  expect(screen.getByText("/ 2")).toBeInTheDocument();
+  expect(screen.getByText("/ 3")).toBeInTheDocument();
 
   // Verify percentage is 0%
   expect(screen.getByText("0%")).toBeInTheDocument();
 
   // Now mock checking in the confirmed guest
-  const checkInBtn = screen.getAllByLabelText(/Check-in/i)[0]; // First guest is confirmed
+  const checkInBtn = screen.getAllByLabelText(/Check-in/i)[0]; // First guest
   fireEvent.click(checkInBtn);
 
-  // After check-in, it should be 2 / 2 and 100%
-  // Since toggleCheckIn is optimistic, it updates immediately
+  // After check-in of 2 pax, it should be 2 / 3
   expect(await screen.findByText("2")).toBeInTheDocument();
-  expect(screen.getByText("100%")).toBeInTheDocument();
+  expect(screen.getByText("67%")).toBeInTheDocument();
 });
 
-test("should handle 0 confirmed passengers without crashing", async () => {
+test("should handle 0 active passengers without crashing", async () => {
   const mockTour = {
     tour_id: 104,
     display_name: "Empty Tour",
@@ -180,9 +178,9 @@ test("should handle 0 confirmed passengers without crashing", async () => {
       {
         id: 3,
         uuid: "uuid-3",
-        guest_name: "Pending Only",
+        guest_name: "Expired Guest",
         num_people: 1,
-        status: "pending_payment",
+        status: "expired",
         checked_in: false,
       },
     ],
@@ -207,7 +205,7 @@ test("should handle 0 confirmed passengers without crashing", async () => {
 
   fireEvent.click(await screen.findByText("Empty Tour"));
 
-  // Assert 0 / 0 and 0%
+  // Assert 0 / 0 and 0% (since expired guest is inactive)
   expect(await screen.findByText("0")).toBeInTheDocument();
   expect(screen.getByText("/ 0")).toBeInTheDocument();
   expect(screen.getByText("0%")).toBeInTheDocument();
