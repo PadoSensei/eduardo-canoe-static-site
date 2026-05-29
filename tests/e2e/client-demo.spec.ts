@@ -281,7 +281,9 @@ test.describe("EduCanoe Guided Tour", () => {
   });
 
   // Narrative 3: The Dashboard Master (Financial Control)
-  test("story_admin_operations: Login and Dashboard View @smoke", async ({ page }) => {
+  test("story_admin_operations: Login and Dashboard View @smoke", async ({
+    page,
+  }) => {
     // 1. Admin Login
     await page.goto("/admin?bypass=true");
 
