@@ -28,11 +28,11 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
         status: 200,
         json: {
           [testDate]: {
-            booked_count: 8,
+            booked_count: 5,
             capacity: 10,
             status: "available",
             price: 100.0,
-            revenue: 800.0,
+            revenue: 500.0,
           },
         },
       })
@@ -47,7 +47,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
             display_name: "Sunset Tour",
             status: "available",
             capacity: 10,
-            booked_count: 8,
+            booked_count: 5,
             passengers: [
               {
                 id: 1,
@@ -68,6 +68,16 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
                 payment_transaction_id: "WVI-TRX-888",
                 checked_in: true,
                 status: "confirmed",
+              },
+              {
+                id: 3,
+                name: "Ghost Guest",
+                num_people: 3,
+                email: "ghost@example.com",
+                uuid: "test-uuid-789",
+                payment_transaction_id: "WVI-TRX-777",
+                checked_in: false,
+                status: "pending_payment",
               },
             ],
           },
@@ -91,8 +101,8 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
 
   test("should display monthly revenue in the header", async ({ page }) => {
     await expect(page.getByText(/Revenue:/i)).toBeVisible();
-    // Matcher for R$ 800,00 with flexible spacing/symbol
-    await expect(page.getByText(/R\$.*800,00/)).toBeVisible();
+    // Matcher for R$ 500,00 with flexible spacing/symbol
+    await expect(page.getByText(/R\$.*500,00/)).toBeVisible();
   });
 
   test("should show capacity heatmap detail (X/Y) in calendar cells", async ({
@@ -107,7 +117,7 @@ test.describe("Admin Dashboard - Lagoon Commander Sprint", () => {
           hasText: new RegExp(`^${dayNumber}$`),
         }),
       })
-      .filter({ hasText: "8/10" })
+      .filter({ hasText: "5/10" })
       .first();
 
     await expect(dateCell).toBeVisible({ timeout: 10000 });
