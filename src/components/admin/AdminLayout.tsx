@@ -14,6 +14,22 @@ import { LucideIcon } from "lucide-react";
 import config from "@/core/config";
 import { useLanguage } from "@/context/LanguageContext";
 
+interface MobileOverlayProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const MobileOverlay: React.FC<MobileOverlayProps> = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm md:hidden transition-opacity duration-300"
+      onClick={onClose}
+      aria-hidden="true"
+    />
+  );
+};
+
 export interface AdminLayoutProps {
   children: React.ReactNode;
 }
@@ -60,6 +76,18 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMounted = useRef(true);
+
+  // Scroll Lock for Mobile Sidebar
+  useEffect(() => {
+    if (isSidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isSidebarOpen]);
 
   const shouldBypass =
     !config.isProduction &&
@@ -234,33 +262,51 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       {!config.isProduction && (
-        <div className="fixed top-2 right-2 z-[70] px-3 py-1 bg-orange-500/80 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg pointer-events-none">
+        <div className="fixed top-2 right-2 z-[70] px-3 py-1 bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg pointer-events-none">
           LOCAL DEV
         </div>
       )}
 
       {/* Mobile Header */}
-      <div className="md:hidden bg-white border-b border-gray-200 p-4 flex justify-between items-center z-50">
-        <h1 className="text-xl font-bold text-teal-900 font-lora">
-          Admin Suite
+      <header className="md:hidden sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center z-40">
+        <h1 className="text-xl font-bold text-slate-900 font-lora">
+          EduCanoe Admin
         </h1>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-          {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="text-slate-900"
+          aria-label="Toggle Menu"
+        >
+          {isSidebarOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
-      </div>
+      </header>
+
+      <MobileOverlay
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
 
       {/* Sidebar */}
       <aside
         className={`
-        fixed inset-0 z-40 bg-teal-900 text-white w-64 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0
+        fixed inset-y-0 left-0 z-60 bg-slate-950 text-white w-72 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
       `}
       >
-        <div className="p-6">
-          <h1 className="text-2xl font-bold font-lora mb-8 hidden md:block">
-            Admin Suite
-          </h1>
-          <nav className="space-y-2">
+        <div className="p-6 h-full flex flex-col">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-2xl font-bold font-lora text-white">
+              EduCanoe Admin
+            </h1>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="md:hidden text-slate-400 hover:text-white transition-colors"
+              aria-label="Close Menu"
+            >
+              <X size={28} />
+            </button>
+          </div>
+          <nav className="space-y-4 flex-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -273,31 +319,35 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   key={item.path}
                   to={item.path + (shouldBypass ? "?bypass=true" : "")}
                   onClick={() => setIsSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                  className={`flex items-center gap-3 px-4 py-4 rounded-xl transition-all font-black uppercase tracking-tight ${
                     isActive
-                      ? "bg-teal-800 text-white"
-                      : "text-teal-100 hover:bg-teal-800/50"
+                      ? "bg-white text-slate-950"
+                      : "text-slate-100 hover:bg-slate-800"
                   }`}
                 >
-                  <Icon size={20} />
-                  <span className="font-medium">{item.label}</span>
+                  <Icon
+                    size={20}
+                    className={isActive ? "text-slate-950" : "text-slate-100"}
+                  />
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
           </nav>
-        </div>
-        <div className="absolute bottom-0 w-full p-6 border-t border-teal-800">
-          <p
-            className={`text-xs mb-4 truncate ${!session?.user?.email ? "text-red-400 font-bold" : "text-teal-300"}`}
-          >
-            {session?.user?.email || "⚠️ No Active Session"}
-          </p>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-xs font-bold tracking-widest text-teal-400 uppercase hover:text-red-400 transition-colors w-full"
-          >
-            <LogOut size={16} /> Logout
-          </button>
+
+          <div className="mt-auto pt-6 border-t border-slate-800">
+            <p
+              className={`text-xs mb-4 truncate font-medium ${!session?.user?.email ? "text-red-400 font-bold" : "text-slate-400"}`}
+            >
+              {session?.user?.email || "⚠️ No Active Session"}
+            </p>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-xs font-bold tracking-widest text-slate-100 uppercase border border-slate-700 py-4 rounded-lg hover:bg-red-500 transition-colors w-full justify-center"
+            >
+              <LogOut size={16} /> Logout
+            </button>
+          </div>
         </div>
       </aside>
 
