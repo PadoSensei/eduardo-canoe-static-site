@@ -239,7 +239,7 @@ test.describe("EduCanoe Guided Tour", () => {
   });
 
   // Narrative 2: The Resilient Guest (The Recovery)
-  test("story_guest_recovery: System restores state after refresh", async ({
+  test("story_guest_recovery: System restores state after refresh @smoke", async ({
     page,
   }) => {
     // Setup: Get to the Payment View first
@@ -281,7 +281,7 @@ test.describe("EduCanoe Guided Tour", () => {
   });
 
   // Narrative 3: The Dashboard Master (Financial Control)
-  test("story_admin_operations: Login and Dashboard View", async ({ page }) => {
+  test("story_admin_operations: Login and Dashboard View @smoke", async ({ page }) => {
     // 1. Admin Login
     await page.goto("/admin?bypass=true");
 
@@ -315,7 +315,7 @@ test.describe("EduCanoe Guided Tour", () => {
   });
 
   // Narrative 4: The Captain's Tool (Manifest & Headcount)
-  test("story_captain_manifest: Open manifest and check-in", async ({
+  test("story_captain_manifest: Open manifest and check-in @smoke", async ({
     page,
   }) => {
     // Use iPhone 13 viewport to show mobile readiness
