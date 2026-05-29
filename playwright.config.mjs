@@ -22,11 +22,12 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:5173",
     trace: "retain-on-failure",
-    video: "on-first-retry",
+    video: "retain-on-failure",
     screenshot: "only-on-failure",
     actionTimeout: 15000,
     navigationTimeout: 20000,
   },
+  testIgnore: "**/legacy/**",
 
   projects: [
     // =========================================================

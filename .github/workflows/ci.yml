@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: [master]
+
+jobs:
+  validate:
+    name: Validate Codebase
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Formatting Check
+        run: npm run format:check
+      - name: Run Linter
+        run: npm run lint
+      - name: Run Type Check
+        run: npx tsc --noEmit
+      - name: Run Unit Tests
+        run: npm test
+
+  e2e-smoke:
+    name: E2E Smoke Tests (Fast Path)
+    needs: validate
+    if: github.event_name == 'pull_request' || github.ref != 'refs/heads/master'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-jammy
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Playwright Smoke Tests
+        run: npx playwright test --project=guest-chromium --grep @smoke
+        env:
+          VITE_SUPABASE_URL: "https://mock.supabase.co"
+          SUPABASE_SERVICE_ROLE_KEY: "mock-key"
+          E2E_ADMIN_EMAIL: "admin@example.com"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-smoke
+          path: playwright-report/
+          retention-days: 7
+
+  e2e-audit:
+    name: E2E Audit Tests (Master Gate)
+    needs: validate
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-jammy
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Run All Playwright Tests
+        run: npx playwright test
+        env:
+          VITE_SUPABASE_URL: "https://mock.supabase.co"
+          SUPABASE_SERVICE_ROLE_KEY: "mock-key"
+          E2E_ADMIN_EMAIL: "admin@example.com"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-audit
+          path: playwright-report/
+          retention-days: 30
