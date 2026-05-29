@@ -325,7 +325,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                       : "text-slate-100 hover:bg-slate-800"
                   }`}
                 >
-                  <Icon size={20} className={isActive ? "text-slate-950" : "text-slate-100"} />
+                  <Icon
+                    size={20}
+                    className={isActive ? "text-slate-950" : "text-slate-100"}
+                  />
                   <span>{item.label}</span>
                 </Link>
               );
