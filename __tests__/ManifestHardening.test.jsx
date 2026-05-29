@@ -74,7 +74,7 @@ describe("DayManifest Headcount Logic", () => {
     expect(totalDisplay).toBeInTheDocument();
   });
 
-  it("includes pending_payment in primary list but excludes from header total", async () => {
+  it("includes pending_payment in both primary list and header total", async () => {
     const passengers = [
       { uuid: "p1", name: "Active", num_people: 2, status: "confirmed" },
       { uuid: "p2", name: "Pending", num_people: 1, status: "pending_payment" },
@@ -99,9 +99,9 @@ describe("DayManifest Headcount Logic", () => {
 
     fireEvent.click(await screen.findByText("Test Tour"));
 
-    // Headcount should still be "0 / 2"
+    // Iron Shield: Now counts BOTH confirmed (2) and pending_payment (1) = 3
     expect(await screen.findByText("0")).toBeInTheDocument();
-    expect(screen.getByText("/ 2")).toBeInTheDocument();
+    expect(screen.getByText("/ 3")).toBeInTheDocument();
 
     // Both should be in primary list (Operational Manifest)
     expect(screen.getByText("Active")).toBeInTheDocument();
