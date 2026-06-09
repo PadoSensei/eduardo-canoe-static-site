@@ -552,6 +552,24 @@ export async function patchCheckIn(
   }
 }
 
+export async function cancelBooking(
+  bookingId: number,
+  reason: string = "Admin manual cancellation",
+  options: { signal?: AbortSignal } = {}
+): Promise<unknown> {
+  try {
+    return await request(`/admin/bookings/${bookingId}/cancel`, {
+      method: "POST",
+      body: { reason },
+      includeAuth: true,
+      signal: options.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return null;
+    throw error;
+  }
+}
+
 export async function adminCreateBooking(
   bookingData: unknown,
   options: { signal?: AbortSignal } = {}

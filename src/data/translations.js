@@ -258,6 +258,9 @@ export const translations = {
     admin_cancel_go_back: "Go Back",
     admin_cancel_guests_booked: "Guests Booked",
     admin_cancel_weather_button: "Weather Cancel",
+    admin_cancel_passenger_button: "Cancel Booking",
+    admin_cancel_passenger_confirm:
+      "Are you sure? This will release {{count}} seats back to the tour.",
 
     // --- Command Center ---
     admin_cc_title: "Command Center",
@@ -556,6 +559,9 @@ export const translations = {
     admin_cancel_go_back: "Voltar",
     admin_cancel_guests_booked: "Hóspedes Reservados",
     admin_cancel_weather_button: "Cancelar Clima",
+    admin_cancel_passenger_button: "Cancelar Reserva",
+    admin_cancel_passenger_confirm:
+      "Tem certeza? Isso liberará {{count}} vagas de volta para o passeio.",
 
     // --- Command Center ---
     admin_cc_title: "Central de Comando",
@@ -855,6 +861,9 @@ export const translations = {
     admin_cancel_go_back: "Volver",
     admin_cancel_guests_booked: "Huéspedes Reservados",
     admin_cancel_weather_button: "Cancelar Clima",
+    admin_cancel_passenger_button: "Cancelar Reserva",
+    admin_cancel_passenger_confirm:
+      "¿Está seguro? Esto liberará {{count}} lugares de regreso al tour.",
 
     // --- Command Center ---
     admin_cc_title: "Centro de Comando",
@@ -1159,6 +1168,9 @@ export const translations = {
     admin_cancel_go_back: "Retour",
     admin_cancel_guests_booked: "Clients réservés",
     admin_cancel_weather_button: "Annulation météo",
+    admin_cancel_passenger_button: "Annuler la réservation",
+    admin_cancel_passenger_confirm:
+      "Êtes-vous sûr ? Cela libérera {{count}} places pour le tour.",
 
     // --- Command Center ---
     admin_cc_title: "Centre de Commande",
