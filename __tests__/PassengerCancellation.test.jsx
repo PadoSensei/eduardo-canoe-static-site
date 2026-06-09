@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-} from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { MemoryRouter } from "react-router-dom";
@@ -60,15 +55,21 @@ describe("Passenger Cancellation", () => {
     let manifestData = [mockTour];
 
     server.use(
-      http.get(`${API_BASE}/admin/manifest/*`, () => HttpResponse.json(manifestData)),
+      http.get(`${API_BASE}/admin/manifest/*`, () =>
+        HttpResponse.json(manifestData)
+      ),
       http.post(`${API_BASE}/admin/bookings/*/cancel`, () => {
-        manifestData = [{
-          ...mockTour,
-          passengers: [{
-            ...mockTour.passengers[0],
-            status: "cancelled"
-          }]
-        }];
+        manifestData = [
+          {
+            ...mockTour,
+            passengers: [
+              {
+                ...mockTour.passengers[0],
+                status: "cancelled",
+              },
+            ],
+          },
+        ];
         return HttpResponse.json({ success: true });
       })
     );
@@ -89,7 +90,9 @@ describe("Passenger Cancellation", () => {
     fireEvent.click(tourCard);
 
     // Find Cancel Booking button
-    const cancelBtn = await screen.findByLabelText(/Cancelar Reserva|Cancel Booking/i);
+    const cancelBtn = await screen.findByLabelText(
+      /Cancelar Reserva|Cancel Booking/i
+    );
     expect(cancelBtn).toBeInTheDocument();
 
     // Click cancel
@@ -101,9 +104,14 @@ describe("Passenger Cancellation", () => {
     );
 
     // Wait for the UI to reflect the change
-    await waitFor(() => {
-      expect(screen.getByText(/Nenhum passageiro ativo|No active passengers/i)).toBeInTheDocument();
-    }, { timeout: 5000 });
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText(/Nenhum passageiro ativo|No active passengers/i)
+        ).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
 
     // Also verify the passenger moved to the inactive section
     const inactiveBtn = screen.getByText(/Cancelled \/ Inactive/i);
@@ -112,23 +120,23 @@ describe("Passenger Cancellation", () => {
 
   test("Cancel Booking button is NOT visible for inactive statuses", async () => {
     const cancelledTour = {
-        ...mockTour,
-        passengers: [
-            {
-                id: 2,
-                uuid: "uuid-2",
-                guest_name: "Already Cancelled",
-                num_people: 1,
-                status: "cancelled",
-                checked_in: false,
-            }
-        ]
+      ...mockTour,
+      passengers: [
+        {
+          id: 2,
+          uuid: "uuid-2",
+          guest_name: "Already Cancelled",
+          num_people: 1,
+          status: "cancelled",
+          checked_in: false,
+        },
+      ],
     };
 
     server.use(
-        http.get(`${API_BASE}/admin/manifest/*`, () =>
-          HttpResponse.json([cancelledTour])
-        )
+      http.get(`${API_BASE}/admin/manifest/*`, () =>
+        HttpResponse.json([cancelledTour])
+      )
     );
 
     render(
@@ -144,6 +152,8 @@ describe("Passenger Cancellation", () => {
 
     fireEvent.click(await screen.findByText("Cancellation Test Tour"));
 
-    expect(screen.queryByLabelText(/Cancelar Reserva|Cancel Booking/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(/Cancelar Reserva|Cancel Booking/i)
+    ).not.toBeInTheDocument();
   });
 });
