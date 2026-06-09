@@ -2,13 +2,16 @@ import React from "react";
 import Check from "lucide-react/dist/esm/icons/check";
 import MessageSquare from "lucide-react/dist/esm/icons/message-square";
 import Clock from "lucide-react/dist/esm/icons/clock";
+import UserX from "lucide-react/dist/esm/icons/user-x";
 import { formatCurrency } from "../../../utils/formatters";
+import { useLanguage } from "../../../context/LanguageContext";
 
 /**
  * PassengerRow Component
  * Renders a single guest booking with check-in capability.
  */
-const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
+const PassengerRow = ({ passenger, isCheckedIn, onCheckIn, onCancel }) => {
+  const { t } = useLanguage();
   const shortId = (
     passenger.display_id || passenger.uuid?.slice(0, 8)
   ).toUpperCase();
@@ -103,18 +106,33 @@ const PassengerRow = ({ passenger, isCheckedIn, onCheckIn }) => {
         </div>
       </div>
 
-      {/* Check-in Toggle Button */}
-      <button
-        onClick={() => onCheckIn(passenger.id || passenger.uuid)}
-        aria-label={isCheckedIn ? "Check-out" : "Check-in"}
-        className={`p-3 rounded-full border-2 transition-all transform active:scale-90 ${
-          isCheckedIn
-            ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200"
-            : "bg-white border-gray-200 text-gray-300 hover:border-teal-400 hover:text-teal-500"
-        }`}
-      >
-        <Check size={20} strokeWidth={3} />
-      </button>
+      <div className="flex items-center gap-2">
+        {/* Cancel Booking Button - Admin Manual Cancel */}
+        {["confirmed", "paid", "pending_payment"].includes(
+          passenger.status
+        ) && (
+          <button
+            onClick={() => onCancel(passenger)}
+            aria-label={t("admin_cancel_passenger_button")}
+            className="p-3 rounded-full border-2 border-red-100 text-red-600 hover:bg-red-50 transition-all transform active:scale-90"
+          >
+            <UserX size={20} strokeWidth={2.5} />
+          </button>
+        )}
+
+        {/* Check-in Toggle Button */}
+        <button
+          onClick={() => onCheckIn(passenger.id || passenger.uuid)}
+          aria-label={isCheckedIn ? "Check-out" : "Check-in"}
+          className={`p-3 rounded-full border-2 transition-all transform active:scale-90 ${
+            isCheckedIn
+              ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200"
+              : "bg-white border-gray-200 text-gray-300 hover:border-teal-400 hover:text-teal-500"
+          }`}
+        >
+          <Check size={20} strokeWidth={3} />
+        </button>
+      </div>
     </div>
   );
 };

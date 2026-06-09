@@ -20,6 +20,7 @@ import {
   fetchDayManifest,
   cancelTourForWeather,
   patchCheckIn,
+  cancelBooking,
 } from "../../api";
 
 // --- BUSINESS LOGIC CONSTANTS ---
@@ -96,6 +97,37 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
       toast.error("Failed to update check-in. Please try again.");
       // Rollback on failure
       setCheckedIn((prev) => ({ ...prev, [bookingId]: !newStatus }));
+    }
+  };
+
+  // Atomic Passenger Cancellation
+  const handleCancelBooking = async (passenger) => {
+    const paxCount = passenger.num_people || 0;
+    const confirmMessage = t("admin_cancel_passenger_confirm").replace(
+      "{{count}}",
+      paxCount
+    );
+
+    if (!window.confirm(confirmMessage)) return;
+
+    try {
+      setIsSubmitting(true);
+      const bookingId = passenger.id || passenger.uuid;
+
+      // Ensure we have a numeric ID for the admin endpoint if possible
+      // though the request wrapper handles the URL construction.
+      await cancelBooking(bookingId);
+
+      toast.success("Booking cancelled successfully", { icon: "🚫" });
+
+      // Refresh data to reflect cancellation (moves to inactiveList)
+      if (onActionSuccess) onActionSuccess();
+      await loadManifest();
+    } catch (err) {
+      console.error("Failed to cancel booking:", err);
+      toast.error(`Cancellation failed: ${err.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -352,6 +384,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
                   passenger={p}
                   isCheckedIn={!!checkedIn[id]}
                   onCheckIn={toggleCheckIn}
+                  onCancel={handleCancelBooking}
                 />
               );
             })
@@ -390,6 +423,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
                         passenger={p}
                         isCheckedIn={!!checkedIn[id]}
                         onCheckIn={toggleCheckIn}
+                        onCancel={handleCancelBooking}
                       />
                     );
                   })}
