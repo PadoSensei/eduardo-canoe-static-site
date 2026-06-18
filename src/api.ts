@@ -216,6 +216,39 @@ async function request<T>(
   }
 }
 
+/**
+ * Public endpoint to fetch high-level tour template metadata for dynamic UI injection (e.g. FAQ).
+ */
+export async function fetchLogisticsMetadata(
+  options: { signal?: AbortSignal } = {}
+): Promise<
+  {
+    id: number;
+    name: string;
+    display_name: string;
+    default_start_time: string | null;
+    default_meeting_time: string | null;
+  }[]
+> {
+  try {
+    const data = await request<any[]>("/tours/templates", {
+      signal: options.signal,
+    });
+
+    return data.map((template) => ({
+      id: template.id,
+      name: template.name,
+      display_name: template.display_name,
+      default_start_time: template.default_start_time,
+      default_meeting_time: template.default_meeting_time,
+    }));
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return [];
+    console.error("Failed to fetch logistics metadata:", error);
+    return [];
+  }
+}
+
 export async function getNextSpecialtyTour(
   options: { signal?: AbortSignal } = {}
 ): Promise<{ next_date: string | null } | null> {
@@ -391,6 +424,9 @@ export async function getAvailableTours(
       startTime: tour.start_time,
       meetingTime: tour.meeting_time,
       isSpecialEvent: tour.is_special_event,
+      start_time: tour.start_time,
+      meeting_time: tour.meeting_time,
+      is_special_event: tour.is_special_event,
     }));
     return z.array(TourUISchema).parse(mapped);
   } catch (error) {
@@ -513,6 +549,9 @@ export async function getTourTemplates(
       startTime: template.start_time,
       meetingTime: template.meeting_time,
       isSpecialEvent: template.is_special_event,
+      start_time: template.start_time,
+      meeting_time: template.meeting_time,
+      is_special_event: template.is_special_event,
     }));
     return z.array(TourTemplateUISchema).parse(mapped);
   } catch (error) {
