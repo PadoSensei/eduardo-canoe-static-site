@@ -16,10 +16,10 @@ const TourModal = ({ tour, onClose }) => {
 
   useEffect(() => {
     if (
-      tour?.tourType === "full_moon_party" ||
+      tour?.is_special_event ||
       tour?.name?.toLowerCase().includes("full moon")
     ) {
-      getNextSpecialtyTour("full_moon_party").then((data) => {
+      getNextSpecialtyTour().then((data) => {
         if (data?.next_date) setNextDate(data.next_date);
       });
     } else {

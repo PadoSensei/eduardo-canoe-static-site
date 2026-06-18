@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { faqData } from "../data/faqData";
+import { getTourTemplates } from "../api";
 import ChevronDown from "lucide-react/dist/esm/icons/chevron-down";
 import Search from "lucide-react/dist/esm/icons/search";
 import X from "lucide-react/dist/esm/icons/x";
@@ -75,8 +76,68 @@ const FAQ = () => {
   const { language, t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
+  const [templates, setTemplates] = useState([]);
 
-  const currentFaqData = faqData[language] || faqData["en"];
+  useEffect(() => {
+    getTourTemplates().then((data) => {
+      if (data) setTemplates(data);
+    });
+  }, []);
+
+  const currentFaqData = useMemo(() => {
+    const baseData = faqData[language] || faqData["en"];
+    if (!templates.length) return baseData;
+
+    // Dynamically update times in FAQ if templates are available
+    return baseData.map((cat) => {
+      if (cat.id === "sunset" || cat.id === "fullmoon") {
+        const template = templates.find((tpl) =>
+          cat.id === "sunset"
+            ? tpl.tourType === "sunset" || tpl.name === "sunset"
+            : tpl.tourType === "full_moon_party" ||
+              tpl.name === "full_moon_party"
+        );
+
+        const startTimeVal = template?.startTime || template?.start_time;
+        if (template && startTimeVal) {
+          return {
+            ...cat,
+            items: cat.items.map((item) => {
+              const question = item.q.toLowerCase();
+              const isLogisticsQ =
+                question.includes(t("duration")?.toLowerCase() || "duration") ||
+                question.includes("price") ||
+                question.includes("preço") ||
+                question.includes("prix");
+
+              if (isLogisticsQ) {
+                // Replace "3:00 PM" / "15:00" patterns with template value
+                let newAnswer = item.a;
+                const startTime = startTimeVal.substring(0, 5);
+
+                // Simple regex-based replacement for common time patterns in the seed data
+                newAnswer = newAnswer.replace(/15:00/g, startTime);
+                newAnswer = newAnswer.replace(/3:00 PM/g, startTime);
+
+                // Return times (approximate 3h/4h)
+                const meetingTimeVal =
+                  template.meetingTime || template.meeting_time;
+                if (meetingTimeVal) {
+                  const meetingTime = meetingTimeVal.substring(0, 5);
+                  newAnswer = newAnswer.replace(/2:40 PM/g, meetingTime);
+                  newAnswer = newAnswer.replace(/14:40/g, meetingTime);
+                }
+
+                return { ...item, a: newAnswer };
+              }
+              return item;
+            }),
+          };
+        }
+      }
+      return cat;
+    });
+  }, [language, templates, t]);
 
   // Filter Logic
   const filteredFaq = useMemo(() => {
