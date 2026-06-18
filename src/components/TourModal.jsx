@@ -15,10 +15,7 @@ const TourModal = ({ tour, onClose }) => {
   const [nextDate, setNextDate] = useState(null);
 
   useEffect(() => {
-    if (
-      tour?.is_special_event ||
-      tour?.name?.toLowerCase().includes("full moon")
-    ) {
+    if (tour?.isSpecialEvent || tour?.is_special_event) {
       getNextSpecialtyTour().then((data) => {
         if (data?.next_date) setNextDate(data.next_date);
       });
@@ -112,6 +109,28 @@ const TourModal = ({ tour, onClose }) => {
                 Sunset Stairs
               </span>
             </div>
+            {(tour.meetingTime || tour.meeting_time) && (
+              <div className="flex items-center gap-2">
+                <Clock size={16} className="text-blue-500" />
+                <span className="text-xs font-bold tracking-tighter text-gray-500 uppercase">
+                  {t("logistics_meeting")}:
+                </span>
+                <span className="text-xs font-black text-teal-950">
+                  {tour.meetingTime || tour.meeting_time}
+                </span>
+              </div>
+            )}
+            {(tour.startTime || tour.start_time) && (
+              <div className="flex items-center gap-2">
+                <Clock size={16} className="text-orange-500" />
+                <span className="text-xs font-bold tracking-tighter text-gray-500 uppercase">
+                  {t("admin_cc_time_label")}:
+                </span>
+                <span className="text-xs font-black text-teal-950">
+                  {tour.startTime || tour.start_time}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Narrative Body */}
