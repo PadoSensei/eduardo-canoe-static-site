@@ -45,7 +45,9 @@ import PassengerRow from "./manifest/PassengerRow";
 import TourCard from "./manifest/TourCard";
 import ManualBookingForm from "./manifest/ManualBookingForm";
 import WeatherCancelModal from "./WeatherCancelModal";
+import LogisticsModal from "./LogisticsModal";
 import { useLanguage } from "../../context/LanguageContext";
+import { patchTourLogistics } from "../../api";
 
 const DayManifest = ({ date, onClose, onActionSuccess }) => {
   const { t } = useLanguage();
@@ -55,6 +57,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
   const [isAddingGuest, setIsAddingGuest] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tourToCancel, setTourToCancel] = useState(null);
+  const [tourForLogistics, setTourForLogistics] = useState(null);
   const [showInactive, setShowInactive] = useState(false);
 
   // Local UI state for check-ins (visual only for Eduardo's use at the lagoon)
@@ -237,6 +240,24 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
     };
   }, [date, loadManifest]); // Only re-run when the date from the calendar changes
 
+  const handleUpdateLogistics = async (logisticsData) => {
+    if (!tourForLogistics) return;
+
+    try {
+      setIsSubmitting(true);
+      const tourId = tourForLogistics.tour_id || tourForLogistics.id;
+      await patchTourLogistics(tourId, logisticsData);
+
+      toast.success("Logistics updated successfully", { icon: "🕒" });
+      setTourForLogistics(null);
+      await loadManifest();
+    } catch (err) {
+      toast.error(`Failed to update logistics: ${err.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleWeatherCancellation = async (tour) => {
     const controller = new AbortController();
     try {
@@ -336,9 +357,19 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
               <h2 className="font-bold truncate max-w-[180px] leading-none">
                 {selectedTour.display_name}
               </h2>
-              <p className="text-[10px] text-teal-400 font-bold uppercase mt-1">
-                Passenger List
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-[10px] text-teal-400 font-bold uppercase">
+                  Passenger List
+                </p>
+                {selectedTour.time && (
+                  <>
+                    <span className="text-teal-700">•</span>
+                    <span className="text-[10px] font-black text-white bg-teal-600 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                      {selectedTour.time}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
           <button
@@ -470,6 +501,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
               isSubmitting={isSubmitting}
               onCancel={() => setTourToCancel(tour)}
               onSelect={setSelectedTour}
+              onSetLogistics={setTourForLogistics}
             />
           ))
         ) : (
@@ -484,6 +516,14 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
         tour={tourToCancel}
         onClose={() => setTourToCancel(null)}
         onConfirm={() => handleWeatherCancellation(tourToCancel)}
+        isSubmitting={isSubmitting}
+      />
+
+      <LogisticsModal
+        isOpen={!!tourForLogistics}
+        tour={tourForLogistics}
+        onClose={() => setTourForLogistics(null)}
+        onConfirm={handleUpdateLogistics}
         isSubmitting={isSubmitting}
       />
     </div>
