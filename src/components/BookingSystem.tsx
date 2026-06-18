@@ -107,7 +107,7 @@ function BookingSystem() {
 
   const loadNextFullMoon = useCallback(async (signal?: AbortSignal) => {
     try {
-      const result = await getNextSpecialtyTour("full_moon_party", { signal });
+      const result = await getNextSpecialtyTour({ signal });
       if (isMounted.current && result) {
         // 🛡️ IRON SHIELD: Extract next_date string if result is wrapped in an object
         // Although getNextSpecialtyTour now sanitizes, we harden the state update here.

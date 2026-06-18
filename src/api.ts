@@ -217,12 +217,11 @@ async function request<T>(
 }
 
 export async function getNextSpecialtyTour(
-  type: string,
   options: { signal?: AbortSignal } = {}
 ): Promise<{ next_date: string | null } | null> {
   try {
     const data = await request<{ next_date: string | null }>(
-      `/tours/specialty/next?type=${type}`,
+      "/tours/specialty/next",
       {
         signal: options.signal,
       }
@@ -260,6 +259,28 @@ export async function getActivityLog(
       includeAuth: true,
       signal: options.signal,
       schema: ActivityLogResponseSchema,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return null;
+    throw error;
+  }
+}
+
+export async function patchTourLogistics(
+  tourId: number,
+  data: {
+    start_time: string | null;
+    meeting_time: string | null;
+    is_special_event: boolean | null;
+  },
+  options: { signal?: AbortSignal } = {}
+): Promise<unknown> {
+  try {
+    return await request(`/admin/tours/${tourId}/logistics`, {
+      method: "PATCH",
+      body: data,
+      includeAuth: true,
+      signal: options.signal,
     });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") return null;
@@ -367,6 +388,9 @@ export async function getAvailableTours(
       descriptionKey: tour.description_key ?? null,
       inclusions: tour.inclusions,
       requirements: tour.requirements,
+      startTime: tour.start_time,
+      meetingTime: tour.meeting_time,
+      isSpecialEvent: tour.is_special_event,
     }));
     return z.array(TourUISchema).parse(mapped);
   } catch (error) {
@@ -486,6 +510,9 @@ export async function getTourTemplates(
       descriptionKey: template.description_key ?? null,
       inclusions: template.inclusions || [],
       requirements: template.requirements || [],
+      startTime: template.start_time,
+      meetingTime: template.meeting_time,
+      isSpecialEvent: template.is_special_event,
     }));
     return z.array(TourTemplateUISchema).parse(mapped);
   } catch (error) {

@@ -18,6 +18,9 @@ export const TourSchema = z.object({
   requirements: z.array(z.string()).default([]),
   /** Tour instance lifecycle (e.g. available, cancelled). */
   status: z.string().default("available"),
+  start_time: z.string().nullable().optional(),
+  meeting_time: z.string().nullable().optional(),
+  is_special_event: z.boolean().nullable().optional(),
 });
 
 export type Tour = z.infer<typeof TourSchema>;
@@ -45,6 +48,7 @@ export const TourUISchema = z.object({
   descriptionKey: z.string().nullable().optional(),
   inclusions: z.array(z.string()),
   requirements: z.array(z.string()),
+  isSpecialEvent: z.boolean().nullable().optional(),
 });
 
 export type TourUI = z.infer<typeof TourUISchema>;
@@ -108,6 +112,9 @@ export const TourTemplateSchema = z.object({
   description_key: z.string().nullable().optional(),
   inclusions: z.array(z.string()).default([]),
   requirements: z.array(z.string()).default([]),
+  start_time: z.string().nullable().optional(),
+  meeting_time: z.string().nullable().optional(),
+  is_special_event: z.boolean().nullable().optional(),
 });
 
 export type TourTemplate = z.infer<typeof TourTemplateSchema>;
@@ -128,6 +135,9 @@ export const TourTemplateUISchema = z.object({
   descriptionKey: z.string().nullable().optional(),
   inclusions: z.array(z.string()),
   requirements: z.array(z.string()),
+  start_time: z.string().nullable().optional(),
+  meeting_time: z.string().nullable().optional(),
+  is_special_event: z.boolean().nullable().optional(),
 });
 
 export type TourTemplateUI = z.infer<typeof TourTemplateUISchema>;
@@ -157,9 +167,13 @@ export const ManifestTourSchema = z.object({
   id: z.number().optional(),
   display_name: z.string(),
   status: z.string(),
+  time: z.string().optional(), // Backend dynamic time string ("Scheduled" or HH:mm)
   capacity: z.number(),
   booked_count: z.number(),
   passengers: z.array(ManifestPassengerSchema).default([]),
+  start_time: z.string().nullable().optional(),
+  meeting_time: z.string().nullable().optional(),
+  is_special_event: z.boolean().nullable().optional(),
 });
 
 export type ManifestTour = z.infer<typeof ManifestTourSchema>;
