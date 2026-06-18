@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
 export const TourSchema = z.object({
   tour_instance_id: z.number(),
   tour_type: z.string(),
@@ -18,8 +20,8 @@ export const TourSchema = z.object({
   requirements: z.array(z.string()).default([]),
   /** Tour instance lifecycle (e.g. available, cancelled). */
   status: z.string().default("available"),
-  start_time: z.string().nullable().optional(),
-  meeting_time: z.string().nullable().optional(),
+  start_time: z.string().regex(timeRegex).nullable().optional(),
+  meeting_time: z.string().regex(timeRegex).nullable().optional(),
   is_special_event: z.boolean().nullable().optional(),
 });
 
@@ -48,7 +50,12 @@ export const TourUISchema = z.object({
   descriptionKey: z.string().nullable().optional(),
   inclusions: z.array(z.string()),
   requirements: z.array(z.string()),
+  startTime: z.string().regex(timeRegex).nullable().optional(),
+  meetingTime: z.string().regex(timeRegex).nullable().optional(),
   isSpecialEvent: z.boolean().nullable().optional(),
+  start_time: z.string().regex(timeRegex).nullable().optional(),
+  meeting_time: z.string().regex(timeRegex).nullable().optional(),
+  is_special_event: z.boolean().nullable().optional(),
 });
 
 export type TourUI = z.infer<typeof TourUISchema>;
@@ -112,8 +119,8 @@ export const TourTemplateSchema = z.object({
   description_key: z.string().nullable().optional(),
   inclusions: z.array(z.string()).default([]),
   requirements: z.array(z.string()).default([]),
-  start_time: z.string().nullable().optional(),
-  meeting_time: z.string().nullable().optional(),
+  start_time: z.string().regex(timeRegex).nullable().optional(),
+  meeting_time: z.string().regex(timeRegex).nullable().optional(),
   is_special_event: z.boolean().nullable().optional(),
 });
 
@@ -135,8 +142,11 @@ export const TourTemplateUISchema = z.object({
   descriptionKey: z.string().nullable().optional(),
   inclusions: z.array(z.string()),
   requirements: z.array(z.string()),
-  start_time: z.string().nullable().optional(),
-  meeting_time: z.string().nullable().optional(),
+  startTime: z.string().regex(timeRegex).nullable().optional(),
+  meetingTime: z.string().regex(timeRegex).nullable().optional(),
+  isSpecialEvent: z.boolean().nullable().optional(),
+  start_time: z.string().regex(timeRegex).nullable().optional(),
+  meeting_time: z.string().regex(timeRegex).nullable().optional(),
   is_special_event: z.boolean().nullable().optional(),
 });
 
@@ -171,8 +181,8 @@ export const ManifestTourSchema = z.object({
   capacity: z.number(),
   booked_count: z.number(),
   passengers: z.array(ManifestPassengerSchema).default([]),
-  start_time: z.string().nullable().optional(),
-  meeting_time: z.string().nullable().optional(),
+  start_time: z.string().regex(timeRegex).nullable().optional(),
+  meeting_time: z.string().regex(timeRegex).nullable().optional(),
   is_special_event: z.boolean().nullable().optional(),
 });
 

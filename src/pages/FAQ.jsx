@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { faqData } from "../data/faqData";
-import { getTourTemplates } from "../api";
+import { fetchLogisticsMetadata } from "../api";
 import ChevronDown from "lucide-react/dist/esm/icons/chevron-down";
 import Search from "lucide-react/dist/esm/icons/search";
 import X from "lucide-react/dist/esm/icons/x";
@@ -79,7 +79,7 @@ const FAQ = () => {
   const [templates, setTemplates] = useState([]);
 
   useEffect(() => {
-    getTourTemplates().then((data) => {
+    fetchLogisticsMetadata().then((data) => {
       if (data) setTemplates(data);
     });
   }, []);
@@ -90,54 +90,41 @@ const FAQ = () => {
 
     // Dynamically update times in FAQ if templates are available
     return baseData.map((cat) => {
-      if (cat.id === "sunset" || cat.id === "fullmoon") {
-        const template = templates.find((tpl) =>
-          cat.id === "sunset"
-            ? tpl.tourType === "sunset" || tpl.name === "sunset"
-            : tpl.tourType === "full_moon_party" ||
-              tpl.name === "full_moon_party"
-        );
+      // Data Injection Strategy:
+      // Replace placeholders like {sunset_start_time} and {sunset_meeting_time}
+      // with dynamic data from the templates.
+      const updatedItems = cat.items.map((item) => {
+        let newAnswer = item.a;
 
-        const startTimeVal = template?.startTime || template?.start_time;
-        if (template && startTimeVal) {
-          return {
-            ...cat,
-            items: cat.items.map((item) => {
-              const question = item.q.toLowerCase();
-              const isLogisticsQ =
-                question.includes(t("duration")?.toLowerCase() || "duration") ||
-                question.includes("price") ||
-                question.includes("preço") ||
-                question.includes("prix");
+        templates.forEach((tpl) => {
+          const startTime = tpl.default_start_time || "16:30";
+          const meetingTime = tpl.default_meeting_time || "16:00";
 
-              if (isLogisticsQ) {
-                // Replace "3:00 PM" / "15:00" patterns with template value
-                let newAnswer = item.a;
-                const startTime = startTimeVal.substring(0, 5);
+          // Injecting using explicit placeholders
+          newAnswer = newAnswer.replace(
+            new RegExp(`{${tpl.name}_start_time}`, "g"),
+            startTime
+          );
+          newAnswer = newAnswer.replace(
+            new RegExp(`{${tpl.name}_meeting_time}`, "g"),
+            meetingTime
+          );
 
-                // Simple regex-based replacement for common time patterns in the seed data
-                newAnswer = newAnswer.replace(/15:00/g, startTime);
-                newAnswer = newAnswer.replace(/3:00 PM/g, startTime);
+          // Fallback legacy replacement for hardcoded strings if placeholders aren't yet in faqData
+          if (tpl.name === "sunset") {
+            newAnswer = newAnswer.replace(/15:00/g, startTime);
+            newAnswer = newAnswer.replace(/3:00 PM/g, startTime);
+            newAnswer = newAnswer.replace(/2:40 PM/g, meetingTime);
+            newAnswer = newAnswer.replace(/14:40/g, meetingTime);
+          }
+        });
 
-                // Return times (approximate 3h/4h)
-                const meetingTimeVal =
-                  template.meetingTime || template.meeting_time;
-                if (meetingTimeVal) {
-                  const meetingTime = meetingTimeVal.substring(0, 5);
-                  newAnswer = newAnswer.replace(/2:40 PM/g, meetingTime);
-                  newAnswer = newAnswer.replace(/14:40/g, meetingTime);
-                }
+        return { ...item, a: newAnswer };
+      });
 
-                return { ...item, a: newAnswer };
-              }
-              return item;
-            }),
-          };
-        }
-      }
-      return cat;
+      return { ...cat, items: updatedItems };
     });
-  }, [language, templates, t]);
+  }, [language, templates]);
 
   // Filter Logic
   const filteredFaq = useMemo(() => {

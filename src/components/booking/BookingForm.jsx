@@ -93,6 +93,12 @@ export function BookingForm({
           <span className="font-semibold">{t("labelDate")}:</span>
           <span>{selectedDate}</span>
         </p>
+        {(tour.startTime || tour.start_time) && (
+          <p className="flex justify-between mt-1 text-gray-600">
+            <span className="font-semibold">Start Time:</span>
+            <span>{tour.startTime || tour.start_time}</span>
+          </p>
+        )}
         <p className="flex justify-between mt-1 text-gray-600">
           <span className="font-semibold">Price per person:</span>
           <span>{formatCurrency(tour.price)}</span>

@@ -14,6 +14,7 @@ import EmptyState from "./common/EmptyState";
 
 // 🟢 PERFORMANCE: Direct path import to keep Speed Index low
 import CalendarOff from "lucide-react/dist/esm/icons/calendar-off";
+import Moon from "lucide-react/dist/esm/icons/moon";
 
 // 🟢 TEMPORAL INTEGRITY: Using the Shoreline Clock (Pipa time)
 import { isPastDate } from "../utils/dateUtils";
@@ -351,7 +352,9 @@ function BookingSystem() {
         onClick={() => tour.isBookable && openModal(tour)}
         className={`flex flex-col items-center gap-6 p-5 transition-all border-b group last:border-b-0 sm:flex-row ${
           tour.isBookable
-            ? "cursor-pointer hover:bg-gray-50/80"
+            ? tour.isSpecialEvent
+              ? "cursor-pointer bg-slate-900 hover:bg-slate-800 text-white border-slate-800"
+              : "cursor-pointer hover:bg-gray-50/80"
             : "cursor-not-allowed opacity-75 grayscale-[0.5] pointer-events-none select-none"
         }`}
       >
@@ -368,9 +371,18 @@ function BookingSystem() {
         {/* 2. TOUR INFO - Better Typography */}
         <div className="flex-grow space-y-2 text-center sm:text-left">
           <div className="flex flex-col gap-2 mb-1 sm:flex-row sm:items-center">
-            <h4 className="text-2xl font-bold text-teal-950 font-lora">
+            <h4
+              className={`text-2xl font-bold font-lora ${tour.isSpecialEvent ? "text-amber-400" : "text-teal-950"}`}
+            >
               {tour.name || getTourName(tour.tourType)}
             </h4>
+
+            {tour.isSpecialEvent && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-slate-900 text-amber-400 border border-amber-500/30 uppercase tracking-tight">
+                Monthly Special Event
+              </span>
+            )}
+
             {!tour.isBookable && (
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-tight">
                 {t("tour_closed_badge")}
@@ -378,13 +390,27 @@ function BookingSystem() {
             )}
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 font-medium text-gray-500 sm:justify-start">
-            <span className="flex items-center gap-1.5 text-sm bg-gray-100 px-3 py-1 rounded-full text-gray-600">
-              <span className="text-orange-500">⏳</span>{" "}
+          <div
+            className={`flex flex-wrap items-center justify-center gap-3 font-medium sm:justify-start ${tour.isSpecialEvent ? "text-slate-300" : "text-gray-500"}`}
+          >
+            <span
+              className={`flex items-center gap-1.5 text-sm px-3 py-1 rounded-full ${tour.isSpecialEvent ? "bg-slate-800 text-amber-100" : "bg-gray-100 text-gray-600"}`}
+            >
+              {tour.isSpecialEvent ? (
+                <Moon size={14} className="text-amber-400" />
+              ) : (
+                <span className="text-orange-500">⏳</span>
+              )}{" "}
               {tour.duration || "2h"}
             </span>
 
-            <span className="text-[10px] bg-teal-50 text-teal-700 px-2.5 py-1 rounded-md font-black uppercase tracking-widest border border-teal-100">
+            <span
+              className={`text-[10px] px-2.5 py-1 rounded-md font-black uppercase tracking-widest border ${
+                tour.isSpecialEvent
+                  ? "bg-slate-800 text-amber-400 border-amber-500/30"
+                  : "bg-teal-50 text-teal-700 border-teal-100"
+              }`}
+            >
               {t("navTours")}
             </span>
           </div>
@@ -393,10 +419,14 @@ function BookingSystem() {
         {/* 3. PRICE & CTA - Clear Visual Hierarchy */}
         <div className="flex flex-row items-center justify-between w-full gap-6 sm:flex-col sm:w-auto sm:items-end sm:justify-center">
           <div className="text-left sm:text-right">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter block mb-[-4px]">
+            <span
+              className={`text-xs font-bold uppercase tracking-tighter block mb-[-4px] ${tour.isSpecialEvent ? "text-slate-400" : "text-gray-400"}`}
+            >
               Total
             </span>
-            <p className="text-3xl font-black text-teal-950">
+            <p
+              className={`text-3xl font-black ${tour.isSpecialEvent ? "text-amber-400" : "text-teal-950"}`}
+            >
               {formatCurrency(tour.price)}
             </p>
           </div>
@@ -407,7 +437,11 @@ function BookingSystem() {
                 e.stopPropagation(); // Prevent double trigger since card is clickable
                 openModal(tour);
               }}
-              className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-black py-3 px-10 rounded-2xl shadow-lg shadow-orange-200 transition-all active:scale-95 group-hover:shadow-orange-300"
+              className={`font-black py-3 px-10 rounded-2xl shadow-lg transition-all active:scale-95 ${
+                tour.isSpecialEvent
+                  ? "bg-amber-400 hover:bg-amber-300 text-slate-900 shadow-amber-900/20"
+                  : "bg-[#FF6B6B] hover:bg-[#FF5252] text-white shadow-orange-200 group-hover:shadow-orange-300"
+              }`}
             >
               {t("ctaButton")}
             </button>
