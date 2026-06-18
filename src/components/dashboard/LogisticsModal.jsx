@@ -98,7 +98,8 @@ const LogisticsModal = ({ isOpen, tour, onClose, onConfirm, isSubmitting }) => {
               />
               {template && !meetingTime && (
                 <p className="text-[10px] text-slate-400 font-bold italic">
-                  Default: {template.meetingTime || template.meeting_time || "N/A"}
+                  Default:{" "}
+                  {template.meetingTime || template.meeting_time || "N/A"}
                 </p>
               )}
             </div>
