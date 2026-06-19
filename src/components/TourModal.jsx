@@ -76,7 +76,9 @@ const TourModal = ({ tour, onClose }) => {
           <div className="flex flex-col justify-between gap-4 mb-8 md:flex-row md:items-start">
             <div className="space-y-1">
               <p className="text-[10px] uppercase tracking-[0.4em] text-[#FF6B6B] font-black">
-                {tour.tourType === "full_moon" ? "Monthly Event" : "Daily Tour"}
+                {tour.isSpecialEvent || tour.is_special_event
+                  ? "Monthly Event"
+                  : "Daily Tour"}
               </p>
               <h2 className="text-3xl font-bold md:text-4xl text-teal-950 font-lora">
                 {tour.name}
