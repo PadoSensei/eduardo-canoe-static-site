@@ -4,7 +4,8 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "VITE_"); // only load public VITE_ vars
+  // 1. Load ALL env vars (empty prefix) to access SENTRY_ variables from .env
+  const env = loadEnv(mode, process.cwd(), "");
   const isProd = mode === "production";
 
   return {
@@ -15,12 +16,14 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
+      // 2. Conditional Sentry Plugin
       ...(isProd
         ? [
             sentryVitePlugin({
-              org: process.env.SENTRY_ORG,
-              project: process.env.SENTRY_PROJECT,
-              authToken: process.env.SENTRY_AUTH_TOKEN, // never from loadEnv
+              // SENIOR MOVE: Use the 'env' object to satisfy ESLint and prevent project drift
+              org: env.SENTRY_ORG || "ai-solutions-s6",
+              project: env.SENTRY_PROJECT || "eduardo-canoe-frontend",
+              authToken: env.SENTRY_AUTH_TOKEN,
             }),
           ]
         : []),
@@ -29,7 +32,9 @@ export default defineConfig(({ mode }) => {
       exclude: ["@playwright/test", "playwright-core", "chromium-bidi"],
     },
     build: {
-      sourcemap: "hidden", // upload to Sentry, hidden from browsers
+      // 3. 'hidden' sourcemaps provide forensic data to Sentry
+      // without exposing raw code to the browser's DevTools.
+      sourcemap: isProd ? "hidden" : true,
       rollupOptions: {
         output: {
           manualChunks: {
