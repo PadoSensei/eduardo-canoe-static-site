@@ -53,11 +53,9 @@ test.describe("Overbook/API Error Handling Pillar", () => {
       .getByRole("button", { name: /book now/i })
       .first()
       .click();
-    await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Error User");
-    await page
-      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
-      .fill("error@example.com");
-    await page.getByLabel(/I accept|Eu aceito/i).check();
+    await page.getByTestId("guest-name-input").fill("Error User");
+    await page.getByTestId("guest-email-input").fill("error@example.com");
+    await page.getByTestId("terms-checkbox").check();
 
     // 2. WHEN: I confirm the booking
     await page

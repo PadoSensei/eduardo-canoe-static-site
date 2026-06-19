@@ -213,11 +213,9 @@ test.describe("EduCanoe Guided Tour", () => {
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
 
-    await dialog.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Ana Silva");
-    await dialog
-      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
-      .fill("ana.silva@example.com");
-    await dialog.getByLabel(/I accept|Eu aceito/i).check();
+    await dialog.getByTestId("guest-name-input").fill("Ana Silva");
+    await dialog.getByTestId("guest-email-input").fill("ana.silva@example.com");
+    await dialog.getByTestId("terms-checkbox").check();
 
     // 5. Submit and View Pix QR Code
     const bookingBtn = dialog.getByRole("button", {
@@ -252,13 +250,11 @@ test.describe("EduCanoe Guided Tour", () => {
     await tourCardBtn.click();
 
     const dialog = page.getByRole("dialog");
+    await dialog.getByTestId("guest-name-input").fill("Beatriz Oliveira");
     await dialog
-      .getByLabel(/Your Name|Seu Nome|Nome/i)
-      .fill("Beatriz Oliveira");
-    await dialog
-      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
+      .getByTestId("guest-email-input")
       .fill("beatriz.oliveira@example.com");
-    await dialog.getByLabel(/I accept|Eu aceito/i).check();
+    await dialog.getByTestId("terms-checkbox").check();
     await dialog
       .getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i })
       .click();

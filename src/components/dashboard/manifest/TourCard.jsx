@@ -1,6 +1,7 @@
 import React from "react";
 import CloudRain from "lucide-react/dist/esm/icons/cloud-rain";
 import Settings from "lucide-react/dist/esm/icons/settings";
+import Moon from "lucide-react/dist/esm/icons/moon";
 import ShieldedButton from "../../common/ShieldedButton";
 import { useLanguage } from "../../../context/LanguageContext";
 
@@ -16,18 +17,29 @@ const TourCard = ({
 
   return (
     <div
-      className={`p-5 bg-white border rounded-xl shadow-sm transition-all ${
+      className={`p-5 border rounded-xl shadow-sm transition-all ${
         isCancelled
           ? "cursor-pointer border-red-200 bg-red-50/40 hover:border-red-300"
-          : "hover:shadow-md cursor-pointer hover:border-teal-100"
+          : tour.is_special_event
+            ? "cursor-pointer bg-slate-900 border-slate-800 hover:bg-slate-800"
+            : "bg-white hover:shadow-md cursor-pointer hover:border-teal-100"
       }`}
       onClick={() => onSelect(tour)}
     >
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="text-lg font-bold text-teal-950 font-lora">
-            {tour.display_name}
-          </h4>
+          <div className="flex items-center gap-2">
+            <h4
+              className={`text-lg font-bold font-lora ${
+                tour.is_special_event ? "text-amber-400" : "text-teal-950"
+              }`}
+            >
+              {tour.display_name}
+            </h4>
+            {tour.is_special_event && (
+              <Moon size={16} className="text-amber-400 animate-pulse" />
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <span
               className={`text-[10px] uppercase font-black tracking-widest ${
@@ -39,7 +51,13 @@ const TourCard = ({
             {tour.time && (
               <>
                 <span className="text-slate-300">•</span>
-                <span className="text-[10px] uppercase font-black tracking-widest text-teal-600">
+                <span
+                  className={`text-[10px] uppercase font-black tracking-widest ${
+                    tour.is_special_event
+                      ? "text-amber-200/60"
+                      : "text-teal-600"
+                  }`}
+                >
                   {tour.time}
                 </span>
               </>
@@ -47,10 +65,18 @@ const TourCard = ({
           </div>
         </div>
         <div className="text-right">
-          <span className="text-2xl font-black text-teal-600">
+          <span
+            className={`text-2xl font-black ${
+              tour.is_special_event ? "text-amber-400" : "text-teal-600"
+            }`}
+          >
             {tour.booked_count}
           </span>
-          <span className="text-sm font-bold text-gray-300">
+          <span
+            className={`text-sm font-bold ${
+              tour.is_special_event ? "text-slate-500" : "text-gray-300"
+            }`}
+          >
             {" "}
             / {tour.capacity}
           </span>

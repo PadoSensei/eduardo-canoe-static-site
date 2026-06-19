@@ -96,8 +96,8 @@ test.describe("Content Integrity & Proactive UI", () => {
       .first()
       .click();
 
-    const nameInput = page.getByLabel(/Your Name|Seu Nome|Nome/i);
-    const emailInput = page.getByLabel(/Your Email|Seu E-mail|E-mail/i);
+    const nameInput = page.getByTestId("guest-name-input");
+    const emailInput = page.getByTestId("guest-email-input");
 
     await expect(nameInput).toBeVisible();
     await nameInput.fill("Jules Test");

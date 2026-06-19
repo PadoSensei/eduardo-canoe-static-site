@@ -149,11 +149,9 @@ test.describe("Resilience & Error Handling", () => {
     await bookNowButton.click();
 
     // 3. Fill the form
-    await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Failure Tester");
-    await page
-      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
-      .fill("fail@test.com");
-    await page.getByLabel(/I accept|Eu aceito/i).check();
+    await page.getByTestId("guest-name-input").fill("Failure Tester");
+    await page.getByTestId("guest-email-input").fill("fail@test.com");
+    await page.getByTestId("terms-checkbox").check();
 
     // 4. ACT: Submit
     const confirmButton = page.getByRole("button", {

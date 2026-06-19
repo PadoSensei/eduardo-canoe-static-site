@@ -86,11 +86,9 @@ test.describe("Session Recovery Pillar", () => {
       .first()
       .click();
 
-    await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Recovery User");
-    await page
-      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
-      .fill("recovery@example.com");
-    await page.getByLabel(/I accept|Eu aceito/i).check();
+    await page.getByTestId("guest-name-input").fill("Recovery User");
+    await page.getByTestId("guest-email-input").fill("recovery@example.com");
+    await page.getByTestId("terms-checkbox").check();
 
     await page
       .getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i })
@@ -138,11 +136,9 @@ test.describe("Session Recovery Pillar", () => {
       .getByRole("button", { name: /book now/i })
       .first()
       .click();
-    await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Recovery User");
-    await page
-      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
-      .fill("recovery@example.com");
-    await page.getByLabel(/I accept|Eu aceito/i).check();
+    await page.getByTestId("guest-name-input").fill("Recovery User");
+    await page.getByTestId("guest-email-input").fill("recovery@example.com");
+    await page.getByTestId("terms-checkbox").check();
     await page
       .getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i })
       .click();
