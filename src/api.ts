@@ -227,7 +227,6 @@ export async function getTourTemplates(
   try {
     return await request<TourTemplateUI[]>("/tours/templates", {
       signal: options.signal,
-      schema: TourTemplatesResponseSchema,
     });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") return null;
