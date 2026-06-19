@@ -11,7 +11,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "bundler", // TS 5.0+ standard
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -21,8 +21,10 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["vite/client"]
+    // SENIOR MOVE: Remove explicit "types" if vite-env.d.ts is present.
+    // TS will find them via the "include" and the triple-slash reference.
+    "types": []
   },
-  "include": ["src"],
+  "include": ["src", "src/**/*.d.ts"], // Explicitly include definition files
   "exclude": ["node_modules", "dist"]
 }
