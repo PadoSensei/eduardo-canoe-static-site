@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
       react(),
       // 2. Configure Sentry Plugin correctly
       sentryVitePlugin({
-        org: "ai-solutions",
+        org: "ai-solutions-s6",
         project: "python-fastapi",
         authToken: env.SENTRY_AUTH_TOKEN,
       }),

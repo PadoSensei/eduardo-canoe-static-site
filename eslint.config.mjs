@@ -5,7 +5,14 @@ import globals from "globals";
 
 export default [
   {
-    ignores: ["dist/**"],
+    ignores: [
+      "**/dist/**",
+      "**/playwright-report/**",
+      "**/test-results/**",
+      "**/node_modules/**",
+      "**/coverage/**",
+      "**/.pnpm-store/**",
+    ],
   },
   {
     files: ["**/*.{js,jsx}"],
