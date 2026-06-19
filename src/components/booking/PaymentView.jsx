@@ -55,7 +55,8 @@ export function PaymentView({
   const supportLink = `mailto:${config.supportEmail}?subject=Suporte%20de%20Pagamento%20-%20Reserva%20%23${currentBooking?.uuid || currentBooking?.id}`;
 
   return (
-    <div className="text-center animate-fadeIn">
+    /* SENIOR FIX: Added data-testid="payment-view" for E2E test reliability */
+    <div data-testid="payment-view" className="text-center animate-fadeIn">
       {isTimedOut || hasConnectionIssue ? (
         /* --- STATE: POLLING TIMEOUT --- */
         <div className="py-4">
@@ -200,11 +201,13 @@ export function PaymentView({
           <p className="px-4 mb-6 text-gray-600">{t("paymentInstruction")}</p>
 
           <div className="flex justify-center p-4 mb-6 border border-gray-200 shadow-inner bg-gray-50 rounded-xl">
-            <img
-              src={paymentInfo.qr_code_image}
-              alt={t("altQrCode")}
-              className="object-contain w-48 h-48 mix-blend-multiply"
-            />
+            {paymentInfo?.qr_code_image && (
+              <img
+                src={paymentInfo.qr_code_image}
+                alt={t("altQrCode")}
+                className="object-contain w-48 h-48 mix-blend-multiply"
+              />
+            )}
           </div>
 
           <button
@@ -224,7 +227,7 @@ export function PaymentView({
               {t("labelPixString")}
             </p>
             <p className="p-3 font-mono text-xs text-gray-500 break-all border border-gray-200 rounded-lg select-all bg-gray-50">
-              {paymentInfo.qr_code}
+              {paymentInfo?.qr_code}
             </p>
           </div>
         </>
