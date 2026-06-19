@@ -87,7 +87,7 @@ test.describe("Money Loop Smoke Test", () => {
     // BILINGUAL: Matches "Phone" or "Telefone"
 
     // BILINGUAL: Matches "Number of Guests" or "Número de Convidados"
-    const paxInput = page.getByLabel(/Number of Guests|Número de Convidados/i);
+    const paxInput = page.getByLabel(/Number of Guests|Número de Hóspedes/i);
     await paxInput.fill("2");
 
     // BILINGUAL: Matches "I accept" or "Eu aceito"
