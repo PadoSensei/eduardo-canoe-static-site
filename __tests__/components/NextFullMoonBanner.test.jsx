@@ -36,9 +36,13 @@ describe("NextFullMoonBanner", () => {
       />
     );
     expect(
-      screen.getByText(/You have selected the Full Moon party|Você selecionou o lual de Lua Cheia/i)
+      screen.getByText(
+        /You have selected the Full Moon party|Você selecionou o lual de Lua Cheia/i
+      )
     ).toBeInTheDocument();
-    expect(screen.getByText(/Confirmed Selection|Seleção Confirmada/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Confirmed Selection|Seleção Confirmada/i)
+    ).toBeInTheDocument();
   });
 
   test("renders banner when nextDate is different from selectedDate", () => {
