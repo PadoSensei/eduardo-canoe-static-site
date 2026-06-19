@@ -103,7 +103,7 @@ const TourModal = ({ tour, onClose }) => {
             <div className="flex items-center gap-2">
               <MapPin size={16} className="text-blue-500" />
               <span className="text-xs font-bold tracking-tighter text-gray-500 uppercase">
-                {t("logistics_meeting")}:
+                {t("label_meeting_point")}:
               </span>
               <span className="text-xs font-black text-teal-950">
                 Sunset Stairs
@@ -111,23 +111,12 @@ const TourModal = ({ tour, onClose }) => {
             </div>
             {(tour.meetingTime || tour.meeting_time) && (
               <div className="flex items-center gap-2">
-                <Clock size={16} className="text-blue-500" />
-                <span className="text-xs font-bold tracking-tighter text-gray-500 uppercase">
+                <Clock size={18} className="text-blue-600" />
+                <span className="text-sm font-black tracking-tighter text-gray-500 uppercase">
                   {t("logistics_meeting")}:
                 </span>
-                <span className="text-xs font-black text-teal-950">
+                <span className="text-lg font-black text-teal-950">
                   {tour.meetingTime || tour.meeting_time}
-                </span>
-              </div>
-            )}
-            {(tour.startTime || tour.start_time) && (
-              <div className="flex items-center gap-2">
-                <Clock size={16} className="text-orange-500" />
-                <span className="text-xs font-bold tracking-tighter text-gray-500 uppercase">
-                  {t("admin_cc_time_label")}:
-                </span>
-                <span className="text-xs font-black text-teal-950">
-                  {tour.startTime || tour.start_time}
                 </span>
               </div>
             )}

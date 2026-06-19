@@ -15,6 +15,7 @@ import EmptyState from "./common/EmptyState";
 // 🟢 PERFORMANCE: Direct path import to keep Speed Index low
 import CalendarOff from "lucide-react/dist/esm/icons/calendar-off";
 import Moon from "lucide-react/dist/esm/icons/moon";
+import Clock from "lucide-react/dist/esm/icons/clock";
 
 // 🟢 TEMPORAL INTEGRITY: Using the Shoreline Clock (Pipa time)
 import { isPastDate } from "../utils/dateUtils";
@@ -403,6 +404,20 @@ function BookingSystem() {
               )}{" "}
               {tour.duration || "2h"}
             </span>
+
+            {(tour.meetingTime || tour.meeting_time) && (
+              <span
+                className={`flex items-center gap-1.5 text-sm px-3 py-1 rounded-full font-bold ${
+                  tour.isSpecialEvent
+                    ? "bg-amber-400/10 text-amber-400 border border-amber-400/20"
+                    : "bg-blue-50 text-blue-700 border border-blue-100"
+                }`}
+              >
+                <Clock size={14} />
+                {t("logistics_meeting")}:{" "}
+                {tour.meetingTime || tour.meeting_time}
+              </span>
+            )}
 
             <span
               className={`text-[10px] px-2.5 py-1 rounded-md font-black uppercase tracking-widest border ${
