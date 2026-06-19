@@ -1,4 +1,4 @@
 const React = require("react");
-const icon = ({ size, color, ...props }) => React.createElement("svg", props);
-const handler = { get: (_, key) => icon };
+const icon = (_props) => React.createElement("svg", {});
+const handler = { get: (_target, _key) => icon };
 module.exports = new Proxy({}, handler);

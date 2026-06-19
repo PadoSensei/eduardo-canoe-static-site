@@ -17,7 +17,10 @@ export function NextFullMoonBanner({ nextDate, selectedDate, onDateSelect }) {
     { day: "numeric", month: "long" }
   ).format(new Date(nextDate + "T12:00:00"));
 
-  const message = t("booking_next_full_moon_on").replace("{date}", formattedDate);
+  const message = t("booking_next_full_moon_on").replace(
+    "{date}",
+    formattedDate
+  );
 
   return (
     <div
