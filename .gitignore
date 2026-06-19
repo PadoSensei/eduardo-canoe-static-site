@@ -12,3 +12,4 @@ test_results.json
 /playwright/.cache/
 /playwright/.auth/
 tests/.auth/
+.env.local
