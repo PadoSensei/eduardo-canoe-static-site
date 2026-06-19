@@ -37,6 +37,7 @@ describe("Booking Recovery Logic", () => {
       currentBooking: {
         id: 123,
         uuid: "recovered-uuid",
+        tour_name: "Sunrise Tour",
         created_at: new Date().toISOString(),
       },
       paymentInfo: {

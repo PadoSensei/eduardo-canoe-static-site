@@ -24,7 +24,12 @@ const server = setupServer(
   http.post(`${API_BASE}/bookings`, () =>
     HttpResponse.json({
       success: true,
-      booking: { uuid: "test-uuid", id: 1 },
+            booking: {
+              uuid: "test-uuid",
+              id: 1,
+              tour_name: "Sunrise Tour",
+              created_at: new Date().toISOString(),
+            },
       payment_info: {
         qr_code: "pix-key",
         qr_code_image: "img",
@@ -107,7 +112,12 @@ describe("API Module", () => {
 
       expect(result).toEqual({
         success: true,
-        booking: { uuid: "test-uuid", id: 1, checked_in: false },
+        booking: expect.objectContaining({
+          uuid: "test-uuid",
+          id: 1,
+          checked_in: false,
+          tour_name: "Sunrise Tour",
+        }),
         paymentInfo: {
           qr_code: "pix-key",
           qr_code_image: "img",

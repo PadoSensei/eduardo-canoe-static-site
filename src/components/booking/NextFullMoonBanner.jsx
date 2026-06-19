@@ -18,7 +18,7 @@ export function NextFullMoonBanner({ nextDate, selectedDate, onDateSelect }) {
   ).format(new Date(nextDate + "T12:00:00"));
 
   const message = isSelected
-    ? "🌟 You have selected the Full Moon party for this date!"
+    ? t("booking_full_moon_selected")
     : t("booking_next_full_moon_on").replace("{date}", formattedDate);
 
   return (
@@ -53,7 +53,7 @@ export function NextFullMoonBanner({ nextDate, selectedDate, onDateSelect }) {
         )}
         {isSelected && (
           <p className="text-amber-600 text-[10px] font-black uppercase tracking-widest mt-1">
-            Confirmed Selection
+            {t("booking_full_moon_confirmed")}
           </p>
         )}
       </div>

@@ -40,7 +40,12 @@ const server = setupServer(
   http.post(`${API_BASE}/bookings`, () =>
     HttpResponse.json({
       success: true,
-      booking: { id: 123, uuid: TEST_UUID },
+      booking: {
+        id: 123,
+        uuid: TEST_UUID,
+        tour_name: "Sunrise Tour",
+        created_at: new Date().toISOString(),
+      },
       payment_info: {
         qr_code: "pix-key",
         qr_code_image: "img",
