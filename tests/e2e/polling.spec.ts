@@ -93,9 +93,7 @@ test.describe("Slow Webhook Persistence Pillar", () => {
       .first()
       .click();
     await page.getByTestId("guest-name-input").fill("Polling User");
-    await page
-      .getByTestId("guest-email-input")
-      .fill("polling@example.com");
+    await page.getByTestId("guest-email-input").fill("polling@example.com");
     await page.getByTestId("terms-checkbox").check();
     await page
       .getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i })

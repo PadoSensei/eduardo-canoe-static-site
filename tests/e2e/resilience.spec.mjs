@@ -150,9 +150,7 @@ test.describe("Resilience & Error Handling", () => {
 
     // 3. Fill the form
     await page.getByTestId("guest-name-input").fill("Failure Tester");
-    await page
-      .getByTestId("guest-email-input")
-      .fill("fail@test.com");
+    await page.getByTestId("guest-email-input").fill("fail@test.com");
     await page.getByTestId("terms-checkbox").check();
 
     // 4. ACT: Submit

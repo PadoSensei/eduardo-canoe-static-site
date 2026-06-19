@@ -87,9 +87,7 @@ test.describe("Session Recovery Pillar", () => {
       .click();
 
     await page.getByTestId("guest-name-input").fill("Recovery User");
-    await page
-      .getByTestId("guest-email-input")
-      .fill("recovery@example.com");
+    await page.getByTestId("guest-email-input").fill("recovery@example.com");
     await page.getByTestId("terms-checkbox").check();
 
     await page
@@ -139,9 +137,7 @@ test.describe("Session Recovery Pillar", () => {
       .first()
       .click();
     await page.getByTestId("guest-name-input").fill("Recovery User");
-    await page
-      .getByTestId("guest-email-input")
-      .fill("recovery@example.com");
+    await page.getByTestId("guest-email-input").fill("recovery@example.com");
     await page.getByTestId("terms-checkbox").check();
     await page
       .getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i })

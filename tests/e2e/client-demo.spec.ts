@@ -214,9 +214,7 @@ test.describe("EduCanoe Guided Tour", () => {
     await expect(dialog).toBeVisible();
 
     await dialog.getByTestId("guest-name-input").fill("Ana Silva");
-    await dialog
-      .getByTestId("guest-email-input")
-      .fill("ana.silva@example.com");
+    await dialog.getByTestId("guest-email-input").fill("ana.silva@example.com");
     await dialog.getByTestId("terms-checkbox").check();
 
     // 5. Submit and View Pix QR Code
@@ -252,9 +250,7 @@ test.describe("EduCanoe Guided Tour", () => {
     await tourCardBtn.click();
 
     const dialog = page.getByRole("dialog");
-    await dialog
-      .getByTestId("guest-name-input")
-      .fill("Beatriz Oliveira");
+    await dialog.getByTestId("guest-name-input").fill("Beatriz Oliveira");
     await dialog
       .getByTestId("guest-email-input")
       .fill("beatriz.oliveira@example.com");

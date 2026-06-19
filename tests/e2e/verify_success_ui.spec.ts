@@ -86,9 +86,7 @@ test("Verify Success View and Digital Voucher", async ({ page }) => {
 
   // Fill form
   await page.getByTestId("guest-name-input").fill("Jules Test");
-  await page
-    .getByTestId("guest-email-input")
-    .fill("jules@example.com");
+  await page.getByTestId("guest-email-input").fill("jules@example.com");
 
   // Accept terms
   await page.getByTestId("terms-checkbox").check();
