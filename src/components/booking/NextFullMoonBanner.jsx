@@ -15,12 +15,8 @@ export function NextFullMoonBanner({ nextDate, selectedDate, onDateSelect }) {
   );
 
   const normalizedNext = formatDateForComparison(nextDate);
-  const normalizedSelected = formatDateForComparison(selectedDate);
 
-  if (!normalizedNext || normalizedNext === normalizedSelected) return null;
-
-  // 🛡️ IRON SHIELD: Visibility logic prevents redundant noise
-  // If the prize date is already selected, we hide the shortcut.
+  if (!normalizedNext) return null;
 
   // Format the date using Intl.DateTimeFormat as per technical directive
   const formattedDate = new Intl.DateTimeFormat(

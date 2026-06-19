@@ -244,9 +244,13 @@ export const translations = {
     tour_full_moon_detail:
       "Experience the most magical tour we offer – a journey that begins with the sunset and continues into the enchanted evening to witness the full moon rising over the Atlantic. \n\nMeeting at 2:40 PM at the Sunset Stairs (Escadaria do Pôr do Sol). Includes a live Forró band, fresh tropical fruits, and a bonfire experience on the Malombar dunes. A celebration of nature's celestial dance.",
 
-    logistics_meeting: "Meeting Point",
+    logistics_meeting: "Meeting Time",
     logistics_duration: "Duration",
     logistics_capacity: "Capacity",
+    label_price_per_person: "Price per person",
+    label_total: "Total",
+    label_num_guests: "Number of Guests",
+    label_meeting_point: "Meeting Point",
 
     // --- Admin Dashboard ---
     admin_cancel_confirm_title: "Cancel Tour for Weather?",
@@ -545,9 +549,13 @@ export const translations = {
     tour_full_moon_detail:
       "Viva o passeio mais mágico que oferecemos – uma jornada que começa com o pôr do sol e continua pela noite encantada para testemunhar a lua cheia nascendo sobre o Oceano Atlântico. \n\nEncontro às 14:40 na Escadaria do Pôr do Sol. Inclui banda de Forró ao vivo, frutas tropicais frescas e fogueira nas dunas da Malembar. Uma celebração da dança celestial da natureza.",
 
-    logistics_meeting: "Ponto de Encontro",
+    logistics_meeting: "Horário de Encontro",
     logistics_duration: "Duração",
     logistics_capacity: "Capacidade",
+    label_price_per_person: "Preço por pessoa",
+    label_total: "Total",
+    label_num_guests: "Número de Hóspedes",
+    label_meeting_point: "Ponto de Encontro",
 
     // --- Admin Dashboard ---
     admin_cancel_confirm_title: "Cancelar Passeio por Clima?",
@@ -847,9 +855,13 @@ export const translations = {
       "Una experiencia mágica bajo la luna llena, navegando por las tranquilas aguas de Pipa.",
     tour_full_moon_detail:
       "Vive el tour más mágico que ofrecemos – un viaje que comienza con el atardecer y continúa en la noche encantada para presenciar la luna llena elevándose sobre el Océano Atlántico. \n\nEncuentro a las 14:40 en la Escalera del Atardecer. Incluye banda de Forró en vivo, frutas tropicales frescas y fogata en las dunas de Malembar. Una celebración de la danza celestial de la naturaleza.",
-    logistics_meeting: "Punto de Encuentro",
+    logistics_meeting: "Hora de Encuentro",
     logistics_duration: "Duración",
     logistics_capacity: "Capacidad",
+    label_price_per_person: "Precio por persona",
+    label_total: "Total",
+    label_num_guests: "Número de Huéspedes",
+    label_meeting_point: "Punto de Encuentro",
 
     // --- Admin Dashboard ---
     admin_cancel_confirm_title: "¿Cancelar Tour por Clima?",
@@ -1154,9 +1166,13 @@ export const translations = {
     tour_full_moon_detail:
       "Découvrez le tour le plus magique que nous proposons – un voyage qui commence par le coucher du soleil et se poursuit dans la soirée enchantée pour observer la pleine lune se lever sur l'Atlantique. \n\nRDV à 14h40 à l'Escalier du Coucher de Soleil (Escadaria do Pôr do Sol). Inclut un groupe de Forró en direct, des fruits tropicaux frais et un feu de camp sur les dunes de Malombar. Une célébration de la danse céleste de la nature.",
 
-    logistics_meeting: "Point de rencontre",
+    logistics_meeting: "Heure de rendez-vous",
     logistics_duration: "Durée",
     logistics_capacity: "Capacité",
+    label_price_per_person: "Prix par personne",
+    label_total: "Total",
+    label_num_guests: "Nombre de personnes",
+    label_meeting_point: "Point de rendez-vous",
 
     // --- Admin Dashboard ---
     admin_cancel_confirm_title: "Annuler le tour pour météo ?",
