@@ -271,7 +271,7 @@ test.describe("EduCanoe Guided Tour", () => {
     await page.reload();
 
     // Proof: System immediately restores the exact same booking and timer
-    await expect(page.getByTestId('payment-view')).toBeVisible();
+    await expect(page.getByTestId("payment-view")).toBeVisible();
     await expect(page.getByText(/Scan the QR code below/i)).toBeVisible();
 
     await page.screenshot({
