@@ -83,10 +83,7 @@ describe("API Hardening (URL Cleaning & Smart Errors)", () => {
     test("triggers BOOKING_EXPIRED for booking 400 with 'expired' message", async () => {
       server.use(
         http.get(`${API_BASE}/bookings/status/some-uuid`, () =>
-          HttpResponse.json(
-            { detail: "Booking has expired" },
-            { status: 400 }
-          )
+          HttpResponse.json({ detail: "Booking has expired" }, { status: 400 })
         )
       );
       await expect(getBookingStatus("some-uuid")).rejects.toThrow(
