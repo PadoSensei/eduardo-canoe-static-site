@@ -90,25 +90,41 @@ export function SuccessView({
         {tourName || booking?.tour_name || t("card3Title")}
       </p>
 
-      {/* Prominent Tour Date for Quick Verification */}
-      {formattedDate && (
-        <div className="mb-4 animate-fadeInUp">
-          <div className="inline-flex flex-col items-center px-6 py-2 border-2 border-emerald-100 rounded-2xl bg-emerald-50/50">
-            <div className="flex items-center gap-2 mb-0.5">
-              <Calendar size={14} className="text-emerald-600" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
-                {t("labelDate")}
+      {/* Prominent Tour Date & Meeting Time for Quick Verification */}
+      {(formattedDate || booking?.meeting_time) && (
+        <div className="mb-4 animate-fadeInUp flex flex-col items-center gap-2">
+          {formattedDate && (
+            <div className="inline-flex flex-col items-center px-6 py-2 border-2 border-emerald-100 rounded-2xl bg-emerald-50/50 w-full max-w-[240px]">
+              <div className="flex items-center gap-2 mb-0.5">
+                <Calendar size={14} className="text-emerald-600" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                  {t("labelDate")}
+                </span>
+              </div>
+              <span className="text-lg font-black leading-tight text-emerald-900">
+                {formattedDate}
+              </span>
+              {secondaryDate && (
+                <span className="text-[11px] font-bold text-emerald-600/70 mt-0.5">
+                  {secondaryDate}
+                </span>
+              )}
+            </div>
+          )}
+
+          {booking?.meeting_time && (
+            <div className="inline-flex flex-col items-center px-6 py-4 border-2 border-amber-100 rounded-2xl bg-amber-50/50 w-full max-w-[240px] shadow-sm">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-amber-600 text-sm">🕒</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-amber-600">
+                  {t("logistics_meeting")}
+                </span>
+              </div>
+              <span className="text-3xl font-black leading-tight text-slate-950">
+                {booking.meeting_time}
               </span>
             </div>
-            <span className="text-lg font-black leading-tight text-emerald-900">
-              {formattedDate}
-            </span>
-            {secondaryDate && (
-              <span className="text-[11px] font-bold text-emerald-600/70 mt-0.5">
-                {secondaryDate}
-              </span>
-            )}
-          </div>
+          )}
         </div>
       )}
 

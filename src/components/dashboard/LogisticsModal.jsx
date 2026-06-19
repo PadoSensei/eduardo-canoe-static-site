@@ -36,6 +36,7 @@ const LogisticsModal = ({ isOpen, tour, onClose, onConfirm, isSubmitting }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // 🛡️ IRON SHIELD: Explicitly wiring all fields to the PATCH request payload
     onConfirm({
       start_time: startTime || null,
       meeting_time: meetingTime || null,

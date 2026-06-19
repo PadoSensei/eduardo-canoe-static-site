@@ -85,13 +85,13 @@ test("Verify Success View and Digital Voucher", async ({ page }) => {
     .click();
 
   // Fill form
-  await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Jules Test");
+  await page.getByTestId("guest-name-input").fill("Jules Test");
   await page
-    .getByLabel(/Your Email|Seu E-mail|E-mail/i)
+    .getByTestId("guest-email-input")
     .fill("jules@example.com");
 
   // Accept terms
-  await page.getByLabel(/I accept|Eu aceito/i).check();
+  await page.getByTestId("terms-checkbox").check();
 
   // Submit booking
   await page

@@ -86,38 +86,56 @@ const FAQ = () => {
 
   const currentFaqData = useMemo(() => {
     const baseData = faqData[language] || faqData["en"];
-    if (!templates.length) return baseData;
 
     // Dynamically update times in FAQ if templates are available
     return baseData.map((cat) => {
-      // Data Injection Strategy:
-      // Replace placeholders like {sunset_start_time} and {sunset_meeting_time}
-      // with dynamic data from the templates.
       const updatedItems = cat.items.map((item) => {
         let newAnswer = item.a;
 
-        templates.forEach((tpl) => {
-          const startTime = tpl.default_start_time || "16:30";
-          const meetingTime = tpl.default_meeting_time || "16:00";
+        if (templates.length > 0) {
+          templates.forEach((tpl) => {
+            const meetingTime = tpl.default_meeting_time || "16:00";
 
-          // Injecting using explicit placeholders
-          newAnswer = newAnswer.replace(
-            new RegExp(`{${tpl.name}_start_time}`, "g"),
-            startTime
-          );
-          newAnswer = newAnswer.replace(
-            new RegExp(`{${tpl.name}_meeting_time}`, "g"),
-            meetingTime
-          );
+            // Injecting using explicit placeholders
+            // 🛡️ LATENNESS SHIELD: We only inject meeting_time now.
+            newAnswer = newAnswer.replace(
+              new RegExp(`{${tpl.name}_meeting_time}`, "g"),
+              meetingTime
+            );
 
-          // Fallback legacy replacement for hardcoded strings if placeholders aren't yet in faqData
-          if (tpl.name === "sunset") {
-            newAnswer = newAnswer.replace(/15:00/g, startTime);
-            newAnswer = newAnswer.replace(/3:00 PM/g, startTime);
-            newAnswer = newAnswer.replace(/2:40 PM/g, meetingTime);
-            newAnswer = newAnswer.replace(/14:40/g, meetingTime);
-          }
-        });
+            // Full Moon specific placeholder support
+            if (tpl.name === "full_moon" || tpl.name === "full_moon_party") {
+              newAnswer = newAnswer.replace(
+                /{full_moon_meeting_time}/g,
+                meetingTime
+              );
+            }
+
+            // Fallback legacy replacement for hardcoded strings
+            if (tpl.name === "sunset") {
+              newAnswer = newAnswer.replace(/15:00/g, meetingTime);
+              newAnswer = newAnswer.replace(/3:00 PM/g, meetingTime);
+              newAnswer = newAnswer.replace(/2:40 PM/g, meetingTime);
+              newAnswer = newAnswer.replace(/14:40/g, meetingTime);
+            }
+          });
+        }
+
+        // 🛡️ SAFE FALLBACK: If placeholders still exist after template injection (or if templates failed),
+        // replace them with a generic localized hint.
+        const fallbackText =
+          language === "pt"
+            ? "consulte o calendário de reservas"
+            : language === "es"
+              ? "consulte el calendario de reservas"
+              : language === "fr"
+                ? "consultez le calendrier de réservation"
+                : "check the booking calendar";
+
+        newAnswer = newAnswer.replace(
+          /{[a-z0-9_]+_meeting_time}/g,
+          fallbackText
+        );
 
         return { ...item, a: newAnswer };
       });

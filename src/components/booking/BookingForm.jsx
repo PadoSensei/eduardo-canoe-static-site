@@ -93,18 +93,18 @@ export function BookingForm({
           <span className="font-semibold">{t("labelDate")}:</span>
           <span>{selectedDate}</span>
         </p>
-        {(tour.startTime || tour.start_time) && (
-          <p className="flex justify-between mt-1 text-gray-600">
-            <span className="font-semibold">Start Time:</span>
-            <span>{tour.startTime || tour.start_time}</span>
+        {(tour.meetingTime || tour.meeting_time) && (
+          <p className="flex justify-between mt-1 text-slate-900 font-bold">
+            <span>{t("logistics_meeting")}:</span>
+            <span>{tour.meetingTime || tour.meeting_time}</span>
           </p>
         )}
         <p className="flex justify-between mt-1 text-gray-600">
-          <span className="font-semibold">Price per person:</span>
+          <span className="font-semibold">{t("label_price_per_person")}:</span>
           <span>{formatCurrency(tour.price)}</span>
         </p>
         <div className="flex items-center justify-between pt-3 mt-3 text-lg border-t border-gray-200">
-          <span className="font-bold text-gray-800">Total:</span>
+          <span className="font-bold text-gray-800">{t("label_total")}:</span>
           <span className="font-bold text-[#FF6B6B]">
             {formatCurrency(totalPrice)}
           </span>
@@ -117,7 +117,7 @@ export function BookingForm({
           htmlFor="num-people"
           className="block mb-3 font-semibold text-gray-700"
         >
-          Number of Guests (Max {tour.remaining})
+          {t("label_num_guests")} (Max {tour.remaining})
         </label>
         <div className="flex items-center gap-6">
           <button
@@ -134,6 +134,7 @@ export function BookingForm({
             inputMode="numeric"
             pattern="[0-9]*"
             id="num-people"
+            data-testid="pax-input"
             value={numPeople}
             onChange={handlePeopleChange}
             onBlur={handleBlur}
@@ -163,6 +164,7 @@ export function BookingForm({
         <input
           type="text"
           id="guest-name"
+          data-testid="guest-name-input"
           value={guestName}
           onChange={(e) => setGuestName(e.target.value)}
           className="w-full p-3 bg-white text-slate-900 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400"
@@ -182,6 +184,7 @@ export function BookingForm({
         <input
           type="email"
           id="guest-email"
+          data-testid="guest-email-input"
           value={guestEmail}
           onChange={(e) => setGuestEmail(e.target.value)}
           className="w-full p-3 bg-white text-slate-900 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400"
@@ -215,6 +218,7 @@ export function BookingForm({
         <input
           type="checkbox"
           id="accept-terms"
+          data-testid="terms-checkbox"
           checked={acceptedTerms}
           onChange={(e) => setAcceptedTerms(e.target.checked)}
           className="mt-1 h-5 w-5 rounded border-gray-300 text-[#FF6B6B] focus:ring-[#FF6B6B] cursor-pointer"

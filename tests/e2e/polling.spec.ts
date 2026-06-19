@@ -92,11 +92,11 @@ test.describe("Slow Webhook Persistence Pillar", () => {
       .getByRole("button", { name: /book now/i })
       .first()
       .click();
-    await page.getByLabel(/Your Name|Seu Nome|Nome/i).fill("Polling User");
+    await page.getByTestId("guest-name-input").fill("Polling User");
     await page
-      .getByLabel(/Your Email|Seu E-mail|E-mail/i)
+      .getByTestId("guest-email-input")
       .fill("polling@example.com");
-    await page.getByLabel(/I accept|Eu aceito/i).check();
+    await page.getByTestId("terms-checkbox").check();
     await page
       .getByRole("button", { name: /Confirm Booking|Confirmar Reserva/i })
       .click();

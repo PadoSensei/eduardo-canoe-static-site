@@ -78,20 +78,14 @@ test.describe("Money Loop Smoke Test", () => {
       .first()
       .click();
 
-    // 4. Fill out the booking form
-    // BILINGUAL: Matches "Your Name" or "Seu Nome"
-    await page.getByLabel(/Your Name|Seu Nome/i).fill("John Doe");
-    // BILINGUAL: Matches "Your Email" or "Seu E-mail"
-    await page.getByLabel(/Your Email|Seu E-mail/i).fill("test@example.com");
+    // 4. Fill out the booking form using stable data-testids
+    await page.getByTestId("guest-name-input").fill("John Doe");
+    await page.getByTestId("guest-email-input").fill("test@example.com");
 
-    // BILINGUAL: Matches "Phone" or "Telefone"
-
-    // BILINGUAL: Matches "Number of Guests" or "Número de Convidados"
-    const paxInput = page.getByLabel(/Number of Guests|Número de Convidados/i);
+    const paxInput = page.getByTestId("pax-input");
     await paxInput.fill("2");
 
-    // BILINGUAL: Matches "I accept" or "Eu aceito"
-    await page.getByLabel(/I accept the|Eu aceito os/i).check();
+    await page.getByTestId("terms-checkbox").check();
 
     // 5. The "Shielded" Submit
     // BILINGUAL: Matches "Confirm Booking" or "Confirmar Reserva"
