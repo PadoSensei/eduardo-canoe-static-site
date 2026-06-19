@@ -1,49 +1,11 @@
-// jest.setup.js
-// ==============================================================================
-// POLYFILLS - Required for MSW v2 with JSDOM
-// ==============================================================================
-const util = require("util");
-const {
-  ReadableStream,
-  TransformStream,
-  WritableStream,
-} = require("node:stream/web");
-const { BroadcastChannel } = require("worker_threads");
-const { Blob, File } = require("node:buffer");
-
-global.TextEncoder = util.TextEncoder;
-global.TextDecoder = util.TextDecoder;
-global.ReadableStream = ReadableStream;
-global.TransformStream = TransformStream;
-global.WritableStream = WritableStream;
-global.setImmediate = (fn) => setTimeout(fn, 0);
-
-if (typeof global.BroadcastChannel === "undefined") {
-  global.BroadcastChannel = BroadcastChannel;
-}
-
-if (typeof global.Blob === "undefined") {
-  global.Blob = Blob;
-  global.File = File;
-}
-
 require("@testing-library/jest-dom");
-require("whatwg-fetch");
 
-// ==============================================================================
-// BROWSER API MOCKS
-// ==============================================================================
 Object.assign(navigator, {
   clipboard: {
     writeText: jest.fn().mockImplementation(() => Promise.resolve()),
   },
 });
 
-// ==============================================================================
-// GLOBAL MOCKS - Prevent background network/timer leakage
-// ==============================================================================
-
-// Sentry Mock
 jest.mock("@sentry/react", () => ({
   init: jest.fn(),
   setUser: jest.fn(),
@@ -63,7 +25,6 @@ jest.mock("@sentry/react", () => ({
   })),
 }));
 
-// Supabase Mock - Prevents auth websocket/timer leaks
 jest.mock("./src/supabaseClient", () => ({
   supabase: {
     auth: {
@@ -79,8 +40,5 @@ jest.mock("./src/supabaseClient", () => ({
   },
 }));
 
-// ==============================================================================
-// NOTE: Do NOT add global afterEach/afterAll with async operations here!
-// They conflict with fake timers in individual tests and cause timeouts.
-// Each test file should handle its own cleanup.
-// ==============================================================================
+// NOTE: No global afterEach/afterAll with async here — conflicts with fake timers.
+// Each test file handles its own MSW server lifecycle.

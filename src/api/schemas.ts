@@ -72,6 +72,12 @@ export const BookingSchema = z.object({
   status: z.string().optional(),
   created_at: z.string().optional(),
   checked_in: z.boolean().default(false),
+  // 🛡️ IRON SHIELD: Enhanced metadata for digital voucher resilience
+  tour_name: z.string().optional(),
+  tour_date: z.string().optional(),
+  meeting_time: z.string().regex(timeRegex).nullable().optional(),
+  tour_type: z.string().optional(),
+  tour_id: z.number().optional(),
 });
 
 export type Booking = z.infer<typeof BookingSchema>;

@@ -5,7 +5,13 @@ import globals from "globals";
 
 export default [
   {
-    ignores: ["dist/**"],
+    // SENIOR FIX: Expand the "Exclusion Shield" to ignore test reports and artifacts
+    ignores: [
+      "dist/**",
+      "playwright-report/**",
+      "test-results/**",
+      "node_modules/**",
+    ],
   },
   {
     files: ["**/*.{js,jsx}"],
@@ -13,6 +19,7 @@ export default [
       react: reactPlugin,
       "react-hooks": hooksPlugin,
     },
+    // ... rest of your config remains exactly the same
     languageOptions: {
       parserOptions: {
         ecmaFeatures: {

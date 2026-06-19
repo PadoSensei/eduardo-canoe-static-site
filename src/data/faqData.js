@@ -55,7 +55,7 @@ export const faqData = {
       items: [
         {
           q: "What is the price and duration?",
-          a: "The Sunset Tour is R$ 100 per person. The experience lasts approximately 3 hours, departing at 3:00 PM and returning at 6:00 PM.",
+          a: "The Sunset Tour is R$ 100 per person. The experience lasts approximately 3 hours. The standard meeting time is {sunset_meeting_time}.",
         },
         {
           q: "How many people can join?",
@@ -70,7 +70,7 @@ export const faqData = {
       items: [
         {
           q: "How is this different from the Sunset Tour?",
-          a: "This is a premium 4-hour special event. It includes the sunset paddle, but continues into the night. It features a live Forró band on support boats, fresh tropical fruits, and a bonfire experience on the Malombar dunes to watch the moon rise over the ocean.",
+          a: "This is a premium 4-hour special event. It includes the sunset paddle, but continues into the night. The meeting time is usually earlier, at {full_moon_meeting_time}. It features a live Forró band on support boats, fresh tropical fruits, and a bonfire experience on the Malombar dunes to watch the moon rise over the ocean.",
         },
         {
           q: "What is the price?",
@@ -157,7 +157,7 @@ export const faqData = {
       items: [
         {
           q: "Qual é o preço e a duração?",
-          a: "O Passeio ao Pôr do Sol custa R$ 100 por pessoa. A experiência dura aproximadamente 3 horas, saindo às 15:00 e retornando às 18:00.",
+          a: "O Passeio ao Pôr do Sol custa R$ 100 por pessoa. A experiência dura aproximadamente 3 horas. O horário padrão de encontro é às {sunset_meeting_time}.",
         },
         {
           q: "Quantas pessoas podem participar?",
@@ -172,7 +172,7 @@ export const faqData = {
       items: [
         {
           q: "Como este passeio difere do Pôr do Sol?",
-          a: "Este é um evento especial premium de 4 horas. Inclui a remada ao pôr do sol, mas continua pela noite. Conta com uma banda de Forró ao vivo em barcos de apoio, frutas tropicais frescas e uma experiência de fogueira nas dunas da Malembar para ver a lua nascer sobre o oceano.",
+          a: "Este é um evento especial premium de 4 horas. Inclui a remada ao pôr do sol, mas continua pela noite. O horário de encontro geralmente é mais cedo, às {full_moon_meeting_time}. Conta com uma banda de Forró ao vivo em barcos de apoio, frutas tropicais frescas e uma experiência de fogueira nas dunas da Malembar para ver a lua nascer sobre o oceano.",
         },
         {
           q: "Qual é o preço?",
@@ -259,7 +259,7 @@ export const faqData = {
       items: [
         {
           q: "¿Cuál es el precio y la duración?",
-          a: "El Tour Atardecer cuesta R$ 100 por persona. La experiencia dura aproximadamente 3 horas, saliendo a las 15:00 y regresando a las 18:00.",
+          a: "El Tour Atardecer cuesta R$ 100 por persona. La experiencia dura aproximadamente 3 horas. El horario de encuentro estándar es a las {sunset_meeting_time}.",
         },
         {
           q: "¿Cuántas personas pueden unirse?",
@@ -274,7 +274,7 @@ export const faqData = {
       items: [
         {
           q: "¿En qué se diferencia del Tour Atardecer?",
-          a: "Este es un evento especial premium de 4 horas. Incluye el remado al atardecer, pero continúa en la noche. Cuenta con una banda de Forró en vivo en botes de apoyo, frutas tropicales frescas y una experiencia de fogata en las dunas de Malombar para ver la luna salir sobre el océano.",
+          a: "Este es un evento especial premium de 4 horas. Incluye el remado al atardecer, pero continúa en la noche. El horario de encuentro suele ser más temprano, a las {full_moon_meeting_time}. Cuenta con una banda de Forró en vivo en botes de apoyo, frutas tropicales frescas y una experiencia de fogata en las dunas de Malombar para ver la luna salir sobre el océano.",
         },
         {
           q: "¿Cuál es el precio?",
@@ -361,7 +361,7 @@ export const faqData = {
       items: [
         {
           q: "Quel est le prix et la durée ?",
-          a: "Le Tour au Coucher du Soleil est à 100 R$ par personne. L'expérience dure environ 3 heures, avec un départ à 15h00 et un retour à 18h00.",
+          a: "Le Tour au Coucher du Soleil est à 100 R$ par personne. L'expérience dure environ 3 heures. L'heure de rendez-vous standard est {sunset_meeting_time}.",
         },
         {
           q: "Combien de personnes peuvent participer ?",
@@ -376,7 +376,7 @@ export const faqData = {
       items: [
         {
           q: "En quoi cela diffère-t-il du Tour au Coucher du Soleil ?",
-          a: "Il s'agit d'un événement spécial premium de 4 heures. Il comprend la pagaie au coucher du soleil, mais se poursuit dans la nuit. Il propose un groupe de Forró en direct sur des bateaux de soutien, des fruits tropicaux frais et une expérience de feu de camp sur les dunes de Malombar pour regarder la lune se lever sur l'océan.",
+          a: "Il s'agit d'un événement spécial premium de 4 heures. Il comprend la pagaie au coucher du soleil, mais se poursuit dans la nuit. L'heure de rendez-vous est généralement plus tôt, à {full_moon_meeting_time}. Il propose un groupe de Forró en direct sur des bateaux de soutien, des fruits tropicaux frais et une expérience de feu de camp sur les dunes de Malombar pour regarder la lune se lever sur l'océan.",
         },
         {
           q: "Quel est le prix ?",

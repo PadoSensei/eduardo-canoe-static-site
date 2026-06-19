@@ -1,12 +1,12 @@
-// vite.config.js
-import { sentryVitePlugin } from "@sentry/vite-plugin"; // CORRECTED: was @sentry/react
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig(({ mode }) => {
-  // 1. Manually load env variables based on the current mode (e.g., production)
+  // 1. Load ALL env vars (empty prefix) to access SENTRY_ variables from .env
   const env = loadEnv(mode, process.cwd(), "");
+  const isProd = mode === "production";
 
   return {
     resolve: {
@@ -16,22 +16,25 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
-      // 2. Configure Sentry Plugin correctly
-      sentryVitePlugin({
-        org: "ai-solutions",
-        project: "python-fastapi",
-        authToken: env.SENTRY_AUTH_TOKEN,
-      }),
+      // 2. Conditional Sentry Plugin
+      ...(isProd
+        ? [
+            sentryVitePlugin({
+              // SENIOR MOVE: Use the 'env' object to satisfy ESLint and prevent project drift
+              org: env.SENTRY_ORG || "ai-solutions-s6",
+              project: env.SENTRY_PROJECT || "eduardo-canoe-frontend",
+              authToken: env.SENTRY_AUTH_TOKEN,
+            }),
+          ]
+        : []),
     ],
-
-    // 3. SENIOR FIX: Stop Vite from trying to optimize Playwright dependencies
-    // This resolves the chromium-bidi errors we saw in the previous run
     optimizeDeps: {
       exclude: ["@playwright/test", "playwright-core", "chromium-bidi"],
     },
-
     build: {
-      sourcemap: true,
+      // 3. 'hidden' sourcemaps provide forensic data to Sentry
+      // without exposing raw code to the browser's DevTools.
+      sourcemap: isProd ? "hidden" : true,
       rollupOptions: {
         output: {
           manualChunks: {

@@ -6,29 +6,15 @@ import { formatDateForComparison } from "../../utils/timeUtils";
 export function NextFullMoonBanner({ nextDate, selectedDate, onDateSelect }) {
   const { t, language } = useLanguage();
 
-  // eslint-disable-next-line no-console
-  console.log(
-    "[Banner Debug] nextDate:",
-    nextDate,
-    "selectedDate:",
-    selectedDate
-  );
-
   const normalizedNext = formatDateForComparison(nextDate);
   const normalizedSelected = formatDateForComparison(selectedDate);
 
-  if (!normalizedNext || normalizedNext === normalizedSelected) return null;
+  if (!normalizedNext) return null;
+  if (normalizedNext === normalizedSelected) return null;
 
-  // 🛡️ IRON SHIELD: Visibility logic prevents redundant noise
-  // If the prize date is already selected, we hide the shortcut.
-
-  // Format the date using Intl.DateTimeFormat as per technical directive
   const formattedDate = new Intl.DateTimeFormat(
     language === "en" ? "en-US" : language === "pt" ? "pt-BR" : language,
-    {
-      day: "numeric",
-      month: "long",
-    }
+    { day: "numeric", month: "long" }
   ).format(new Date(nextDate + "T12:00:00"));
 
   const message = t("booking_next_full_moon_on").replace(

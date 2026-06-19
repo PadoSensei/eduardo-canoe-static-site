@@ -93,18 +93,18 @@ export function BookingForm({
           <span className="font-semibold">{t("labelDate")}:</span>
           <span>{selectedDate}</span>
         </p>
-        {(tour.startTime || tour.start_time) && (
-          <p className="flex justify-between mt-1 text-gray-600">
-            <span className="font-semibold">Start Time:</span>
-            <span>{tour.startTime || tour.start_time}</span>
+        {(tour.meetingTime || tour.meeting_time) && (
+          <p className="flex justify-between mt-1 text-slate-900 font-bold">
+            <span>{t("logistics_meeting")}:</span>
+            <span>{tour.meetingTime || tour.meeting_time}</span>
           </p>
         )}
         <p className="flex justify-between mt-1 text-gray-600">
-          <span className="font-semibold">Price per person:</span>
+          <span className="font-semibold">{t("label_price_per_person")}:</span>
           <span>{formatCurrency(tour.price)}</span>
         </p>
         <div className="flex items-center justify-between pt-3 mt-3 text-lg border-t border-gray-200">
-          <span className="font-bold text-gray-800">Total:</span>
+          <span className="font-bold text-gray-800">{t("label_total")}:</span>
           <span className="font-bold text-[#FF6B6B]">
             {formatCurrency(totalPrice)}
           </span>
@@ -117,7 +117,7 @@ export function BookingForm({
           htmlFor="num-people"
           className="block mb-3 font-semibold text-gray-700"
         >
-          Number of Guests (Max {tour.remaining})
+          {t("label_num_guests")} (Max {tour.remaining})
         </label>
         <div className="flex items-center gap-6">
           <button

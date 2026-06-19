@@ -7,9 +7,13 @@ import "@testing-library/jest-dom";
 import BookingSystem from "../src/components/BookingSystem";
 import { LanguageProvider, useLanguage } from "../src/context/LanguageContext";
 
+jest.mock("../src/context/LanguageContext", () => {
+  const actual = jest.requireActual("../src/context/LanguageContext");
+  return { ...actual, useLanguage: jest.fn() };
+});
+
 const API_BASE = "http://localhost:8080/api/v1";
 
-// Mock Supabase
 jest.mock("@/supabaseClient", () => ({
   supabase: {
     auth: {
@@ -24,7 +28,6 @@ jest.mock("@/supabaseClient", () => ({
   },
 }));
 
-// Setup MSW
 const server = setupServer(
   http.get(`${API_BASE}/tours/specialty/next`, () =>
     HttpResponse.json({ next_date: null })
@@ -52,13 +55,6 @@ const server = setupServer(
   )
 );
 
-// Mock Language Context
-jest.mock("../src/context/LanguageContext", () => {
-  const actual = jest.requireActual("../src/context/LanguageContext");
-  return { ...actual, useLanguage: jest.fn() };
-});
-
-// Complete translation mock - includes ALL keys used by BookingSystem
 const mockLanguageValue = {
   language: "en",
   setLanguage: jest.fn(),
@@ -70,6 +66,9 @@ const mockLanguageValue = {
       ctaButton: "Book Now",
       bookTitle: "Book",
       labelDate: "Date",
+      label_num_guests: "Number of Guests",
+      label_price_per_person: "Price per person",
+      label_total: "Total",
       labelName: "Your Name",
       labelEmail: "Your Email",
       labelNotes: "Special Notes",
@@ -94,7 +93,6 @@ const mockLanguageValue = {
 beforeAll(() => server.listen());
 
 afterEach(() => {
-  // CRITICAL: No async operations, no setTimeout
   server.resetHandlers();
   localStorage.clear();
   jest.clearAllMocks();
@@ -121,12 +119,9 @@ describe("Multi-Seat Booking Flow", () => {
 
     const guestsInput = screen.getByLabelText(/Number of Guests/i);
 
-    // Test Calculation (5 * 150)
     fireEvent.change(guestsInput, { target: { value: "5" } });
-    // Matcher for R$ 750,00 with flexible spacing/symbol
     expect(screen.getByText(/R\$.*750,00/)).toBeInTheDocument();
 
-    // Test Enforcement (Cap at 5)
     fireEvent.change(guestsInput, { target: { value: "10" } });
     expect(guestsInput.value).toBe("5");
   });
