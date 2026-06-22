@@ -65,11 +65,9 @@ test.describe("EduCanoe Guided Tour", () => {
           body: JSON.stringify({
             booking: {
               uuid: "demo-uuid-123",
-              id: 1,
               display_id: "SUN-123",
-              guest_email: "ana.silva@example.com",
-              guest_name: "Ana Silva",
               tour_name: "Amanhecer no Mar (Sunrise)",
+              guest_email: "ana.silva@example.com",
               status: "pending_payment",
               created_at: new Date().toISOString(),
               checked_in: false,
@@ -245,49 +243,6 @@ test.describe("EduCanoe Guided Tour", () => {
   test("story_guest_recovery: System restores state after refresh @smoke", async ({
     page,
   }) => {
-    // Mock API routes -- no backend in CI
-    await page.route("**/api/v1/tours/available**", (route) =>
-      route.fulfill({
-        json: [
-          {
-            tour_instance_id: 101,
-            tour_type: "morning",
-            display_name: "Sunrise Tour",
-            price: 150.0,
-            seats_available: 5,
-            is_bookable: true,
-            tour_date: today,
-            duration: "2h",
-          },
-        ],
-      })
-    );
-    await page.route("**/api/v1/tours/specialty/next", (route) =>
-      route.fulfill({ json: { next_date: null } })
-    );
-    await page.route("**/api/v1/bookings", (route) =>
-      route.fulfill({
-        json: {
-          success: true,
-          booking: {
-            uuid: "test-recovery-uuid",
-            id: 1,
-            tour_name: "Sunrise Tour",
-          },
-          payment_info: {
-            qr_code: "pix-test-code",
-            qr_code_image: "data:image/png;base64,iVBORw0KGgo=",
-            expires_in: 900,
-          },
-        },
-      })
-    );
-    await page.route("**/api/v1/bookings/status/**", (route) =>
-      route.fulfill({
-        json: { status: "pending_payment", is_confirmed: false },
-      })
-    );
-
     // Setup: Get to the Payment View first
     await page.goto(`/book?date=${today}`);
     const tourCardBtn = page
@@ -314,41 +269,10 @@ test.describe("EduCanoe Guided Tour", () => {
     });
 
     // Flow: Reach Payment View -> Refresh Page
-    // Re-register routes BEFORE reload -- Playwright mocks don't survive reload
-    await page.route("**/api/v1/tours/available**", (route) =>
-      route.fulfill({
-        json: [
-          {
-            tour_instance_id: 1,
-            tour_type: "sunrise",
-            display_name: "Amanhecer no Mar (Sunrise)",
-            price: 150,
-            seats_available: 10,
-            is_bookable: true,
-            capacity: 12,
-            duration: "2h",
-            image_url: "",
-            tour_date: today,
-            inclusions: ["Breakfast", "Guide"],
-            requirements: ["Sunscreen"],
-          },
-        ],
-      })
-    );
-    await page.route("**/api/v1/tours/specialty/next", (route) =>
-      route.fulfill({ json: { next_date: null } })
-    );
-    await page.route("**/api/v1/bookings/status/**", (route) =>
-      route.fulfill({
-        json: { status: "pending_payment", is_confirmed: false },
-      })
-    );
     await page.reload();
 
     // Proof: System immediately restores the exact same booking and timer
-    await expect(page.getByTestId("payment-view")).toBeVisible({
-      timeout: 10000,
-    });
+    await expect(page.getByText(/Booking Reserved/i)).toBeVisible();
     await expect(page.getByText(/Scan the QR code below/i)).toBeVisible();
 
     await page.screenshot({
@@ -401,7 +325,7 @@ test.describe("EduCanoe Guided Tour", () => {
     await page.setViewportSize({ width: 390, height: 844 });
 
     // 1. Navigate to Admin
-    await page.goto(`/manifest/${today}?bypass=true`);
+    await page.goto(`/admin/manifest/${today}?bypass=true`);
 
     // 2. Enter Manifest
     await expect(page.getByText(/Amanhecer no Mar/i).first()).toBeVisible({

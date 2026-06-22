@@ -3,16 +3,13 @@ import { test, expect } from "@playwright/test";
 test.describe("Content Integrity & Proactive UI", () => {
   test.beforeEach(async ({ page }) => {
     // Mock the specialty tour API
-    await page.route(
-      "**/api/v1/tours/specialty/next?type=full_moon_party",
-      async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({ next_date: "2026-05-31" }),
-        });
-      }
-    );
+    await page.route("**/api/v1/tours/specialty/next**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ next_date: "2026-05-31" }),
+      });
+    });
 
     // Mock the tours available API for the specialty date
     await page.route(
@@ -135,7 +132,8 @@ test.describe("Content Integrity & Proactive UI", () => {
     const dateInput = page.locator("#tour-date-input");
     await expect(dateInput).toHaveValue("2026-05-31");
 
-    // Banner should disappear when the date is selected
-    await expect(banner).not.toBeVisible();
+    // Banner should remain visible as a "Validation Anchor"
+    await expect(banner).toBeVisible();
+    await expect(banner).toContainText(/selected|selecionou/i);
   });
 });

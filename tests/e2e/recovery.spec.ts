@@ -43,6 +43,7 @@ test.describe("Session Recovery Pillar", () => {
             booking: {
               uuid: "recovery-uuid-123",
               guest_email: "recovery@example.com",
+              tour_name: "Recovery Test Tour",
               created_at: createdAt.toISOString(),
             },
             payment_info: {

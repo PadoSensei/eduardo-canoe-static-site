@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
-import {
-  LayoutDashboard,
-  Mail,
-  LogOut,
-  Lock,
-  Loader2,
-  Menu,
-  X,
-  Bell,
-} from "lucide-react";
+import LayoutDashboard from "lucide-react/dist/esm/icons/layout-dashboard";
+import Mail from "lucide-react/dist/esm/icons/mail";
+import LogOut from "lucide-react/dist/esm/icons/log-out";
+import Lock from "lucide-react/dist/esm/icons/lock";
+import Loader2 from "lucide-react/dist/esm/icons/loader-2";
+import Menu from "lucide-react/dist/esm/icons/menu";
+import X from "lucide-react/dist/esm/icons/x";
+import Bell from "lucide-react/dist/esm/icons/bell";
+import { LucideIcon } from "lucide-react";
 import config from "@/core/config";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -24,34 +23,47 @@ const MobileOverlay: React.FC<MobileOverlayProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
   return (
     <div
-      className="fixed inset-0 z-50 transition-opacity duration-300 bg-slate-950/60 backdrop-blur-sm md:hidden"
+      className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm md:hidden transition-opacity duration-300"
       onClick={onClose}
       aria-hidden="true"
     />
   );
 };
 
+export interface AdminLayoutProps {
+  children: React.ReactNode;
+}
+
+interface NavItem {
+  label: string;
+  path: string;
+  icon: LucideIcon;
+}
+
+/** Minimal dev session when `VITE_SKIP_AUTH` / `?bypass=true` is used (not a full Supabase JWT). */
 function createDevBypassSession(): Session {
   const expiresAt = Math.floor(Date.now() / 1000) + 3600;
   return {
-    access_token: "bypass",
+    access_token: "",
     refresh_token: "",
     expires_in: 3600,
     expires_at: expiresAt,
     token_type: "bearer",
     user: {
       id: "bypass",
-      email: "Bypass Mode",
-      user_metadata: {},
-      app_metadata: {},
       aud: "authenticated",
       role: "authenticated",
+      email: "Bypass Mode",
+      app_metadata: {},
+      user_metadata: {},
+      identities: [],
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
   } as Session;
 }
 
-const AdminLayout: React.FC = () => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
@@ -65,9 +77,13 @@ const AdminLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMounted = useRef(true);
 
+  // Scroll Lock for Mobile Sidebar
   useEffect(() => {
-    if (isSidebarOpen) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
+    if (isSidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
     return () => {
       document.body.style.overflow = "";
     };
@@ -76,17 +92,22 @@ const AdminLayout: React.FC = () => {
   const shouldBypass =
     !config.isProduction &&
     (import.meta.env.VITE_SKIP_AUTH === "true" ||
-      location.search.includes("bypass=true"));
+      new URLSearchParams(location.search).get("bypass") === "true");
 
   useEffect(() => {
     isMounted.current = true;
+
+    const setBypassSession = () => {
+      setSession(createDevBypassSession());
+    };
+
     const recoverSession = () => {
       try {
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key?.includes("auth-token")) {
+          if (key && key.includes("auth-token")) {
             const data = JSON.parse(localStorage.getItem(key) || "");
-            if (data?.user) return data;
+            if (data && data.user) return data;
           }
         }
       } catch {
@@ -95,45 +116,81 @@ const AdminLayout: React.FC = () => {
       return null;
     };
 
-    const local = recoverSession();
-    if (local) setSession(local);
-    else if (shouldBypass) setSession(createDevBypassSession());
+    const localSession = recoverSession();
 
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      if (isMounted.current && s) setSession(s);
+    if (localSession) {
+      setSession(localSession);
+    } else if (shouldBypass) {
+      setBypassSession();
+    }
+
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      if (isMounted.current) {
+        if (currentSession) {
+          setSession(currentSession);
+        } else if (shouldBypass && !localSession) {
+          setBypassSession();
+        }
+      }
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, s) => {
-      if (isMounted.current)
-        setSession(s || (shouldBypass ? createDevBypassSession() : null));
+    } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      if (isMounted.current) {
+        if (currentSession) {
+          setSession(currentSession);
+        } else if (shouldBypass) {
+          // Double check if we can recover from storage before falling back to bypass mode
+          const recovered = recoverSession();
+          if (recovered) {
+            setSession(recovered);
+          } else {
+            setBypassSession();
+          }
+        } else {
+          setSession(null);
+        }
+      }
     });
 
     return () => {
       isMounted.current = false;
-      subscription.unsubscribe();
+      if (subscription) subscription.unsubscribe();
     };
   }, [shouldBypass]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setAuthMessage(null);
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: window.location.origin + "/admin" },
     });
+
     if (isMounted.current) {
-      if (error) setAuthMessage({ type: "error", text: error.message });
-      else setAuthMessage({ type: "success", text: "Check your email!" });
+      if (error) {
+        setAuthMessage({ type: "error", text: error.message });
+      } else {
+        setAuthMessage({ type: "success", text: "Check your email!" });
+      }
       setLoading(false);
     }
   };
 
   const handleLogout = async () => {
+    if (shouldBypass) {
+      setSession(null);
+      navigate("/admin");
+      return;
+    }
     await supabase.auth.signOut();
-    setSession(null);
-    navigate("/admin");
+    if (isMounted.current) {
+      setSession(null);
+      navigate("/admin");
+    }
   };
 
   if (!session) {
@@ -145,18 +202,21 @@ const AdminLayout: React.FC = () => {
               <Lock size={32} />
             </div>
           </div>
-          <h1 className="mb-2 text-2xl font-bold text-center text-teal-900 font-lora text-uppercase">
+          <h1 className="mb-2 text-2xl font-bold text-center text-teal-900">
             Admin Access
           </h1>
           <form onSubmit={handleLogin} className="space-y-4">
-            <input
-              type="email"
-              required
-              placeholder="eduardo@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-white border border-gray-200 outline-none text-slate-900 rounded-xl focus:ring-2 focus:ring-teal-500"
-            />
+            <div className="relative">
+              <Mail className="absolute text-gray-400 left-3 top-3" size={20} />
+              <input
+                type="email"
+                required
+                placeholder="eduardo@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full py-3 pl-10 pr-4 bg-white text-slate-900 border border-gray-200 outline-none rounded-xl focus:ring-2 focus:ring-teal-500 placeholder:text-slate-400"
+              />
+            </div>
             <button
               type="submit"
               disabled={loading}
@@ -181,7 +241,7 @@ const AdminLayout: React.FC = () => {
     );
   }
 
-  const menuItems = [
+  const menuItems: NavItem[] = [
     {
       label: t("nav_operations") || "Operações",
       path: "/admin/operations",
@@ -192,21 +252,29 @@ const AdminLayout: React.FC = () => {
       path: "/admin/activity",
       icon: Bell,
     },
-    { label: t("nav_emails") || "E-mails", path: "/admin/emails", icon: Mail },
+    {
+      label: t("nav_emails") || "E-mails",
+      path: "/admin/emails",
+      icon: Mail,
+    },
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 md:flex-row text-slate-950">
+    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       {!config.isProduction && (
-        <div className="fixed top-0 left-0 w-full z-[100] h-1 bg-orange-600" />
+        <div className="fixed top-2 right-2 z-[70] px-3 py-1 bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg pointer-events-none">
+          LOCAL DEV
+        </div>
       )}
 
-      <header className="sticky top-0 z-40 flex items-center justify-between p-4 bg-white border-b-2 md:hidden border-slate-200">
-        <h1 className="text-xl font-black tracking-tight uppercase text-slate-900 font-lora">
+      {/* Mobile Header */}
+      <header className="md:hidden sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center z-40">
+        <h1 className="text-xl font-bold text-slate-900 font-lora">
           EduCanoe Admin
         </h1>
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="text-slate-900"
           aria-label="Toggle Menu"
         >
           {isSidebarOpen ? <X size={28} /> : <Menu size={28} />}
@@ -218,38 +286,64 @@ const AdminLayout: React.FC = () => {
         onClose={() => setIsSidebarOpen(false)}
       />
 
+      {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-60 bg-slate-950 text-white w-72 transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`
+        fixed inset-y-0 left-0 z-60 bg-slate-950 text-white w-72 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0
+        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+      `}
       >
-        <div className="flex flex-col h-full p-6">
-          <h1 className="hidden mb-10 text-2xl font-bold tracking-tight uppercase font-lora md:block">
-            EduCanoe Admin
-          </h1>
-          <nav className="flex-1 space-y-2">
+        <div className="p-6 h-full flex flex-col">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-2xl font-bold font-lora text-white">
+              EduCanoe Admin
+            </h1>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="md:hidden text-slate-400 hover:text-white transition-colors"
+              aria-label="Close Menu"
+            >
+              <X size={28} />
+            </button>
+          </div>
+          <nav className="space-y-4 flex-1">
             {menuItems.map((item) => {
+              const Icon = item.icon;
               const isActive =
-                location.pathname.startsWith(item.path) ||
+                location.pathname === item.path ||
                 (item.path === "/admin/operations" &&
-                  location.pathname === "/admin");
+                  (location.pathname === "/admin" ||
+                    location.pathname.startsWith("/admin/manifest")));
               return (
                 <Link
                   key={item.path}
                   to={item.path + (shouldBypass ? "?bypass=true" : "")}
                   onClick={() => setIsSidebarOpen(false)}
-                  className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all font-black uppercase text-xs tracking-widest ${isActive ? "bg-white text-slate-950 shadow-lg" : "text-slate-400 hover:text-white hover:bg-slate-900"}`}
+                  className={`flex items-center gap-3 px-4 py-4 rounded-xl transition-all font-black uppercase tracking-tight ${
+                    isActive
+                      ? "bg-white text-slate-950"
+                      : "text-slate-100 hover:bg-slate-800"
+                  }`}
                 >
-                  <item.icon size={20} /> <span>{item.label}</span>
+                  <Icon
+                    size={20}
+                    className={isActive ? "text-slate-950" : "text-slate-100"}
+                  />
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
           </nav>
-          <div className="pt-6 border-t border-slate-800">
-            <p className="text-[10px] mb-4 truncate font-mono text-slate-500 uppercase">
-              {session.user.email}
+
+          <div className="mt-auto pt-6 border-t border-slate-800">
+            <p
+              className={`text-xs mb-4 truncate font-medium ${!session?.user?.email ? "text-red-400 font-bold" : "text-slate-400"}`}
+            >
+              {session?.user?.email || "⚠️ No Active Session"}
             </p>
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center w-full gap-2 py-3 text-xs font-black tracking-widest uppercase transition-all border border-slate-700 rounded-xl text-slate-300 hover:bg-red-500 hover:text-white"
+              className="flex items-center gap-2 text-xs font-bold tracking-widest text-slate-100 uppercase border border-slate-700 py-4 rounded-lg hover:bg-red-500 transition-colors w-full justify-center"
             >
               <LogOut size={16} /> Logout
             </button>
@@ -257,10 +351,8 @@ const AdminLayout: React.FC = () => {
         </div>
       </aside>
 
-      <main className="flex-1 min-h-0 overflow-x-hidden bg-white md:bg-gray-50">
-        {/* IRON SHIELD: Passing the session down via Context */}
-        <Outlet context={{ session }} />
-      </main>
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto p-4 md:p-8">{children}</main>
     </div>
   );
 };

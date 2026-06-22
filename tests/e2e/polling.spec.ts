@@ -42,6 +42,7 @@ test.describe("Slow Webhook Persistence Pillar", () => {
             booking: {
               uuid: "polling-uuid-123",
               guest_email: "polling@example.com",
+              tour_name: "Polling Test Tour",
               created_at: new Date().toISOString(),
             },
             payment_info: {
