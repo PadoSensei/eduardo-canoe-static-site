@@ -34,6 +34,7 @@ test("Verify Success View and Digital Voucher", async ({ page }) => {
           booking: {
             uuid: "mock-voucher-12345",
             display_id: "ABC12345",
+            tour_name: "Passeio ao pôr do sol",
             guest_email: "jules@example.com",
             created_at: new Date().toISOString(),
           },

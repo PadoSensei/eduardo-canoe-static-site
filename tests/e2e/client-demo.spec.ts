@@ -66,6 +66,7 @@ test.describe("EduCanoe Guided Tour", () => {
             booking: {
               uuid: "demo-uuid-123",
               display_id: "SUN-123",
+              tour_name: "Amanhecer no Mar (Sunrise)",
               guest_email: "ana.silva@example.com",
               status: "pending_payment",
               created_at: new Date().toISOString(),

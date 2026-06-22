@@ -112,6 +112,7 @@ describe("Resilience & Recovery Integration Tests", () => {
       currentBooking: {
         uuid: TEST_UUID,
         id: 123,
+        tour_name: "Sunrise Tour",
         created_at: BASE_TIME.toISOString(),
       },
       paymentInfo: {
@@ -152,6 +153,7 @@ describe("Resilience & Recovery Integration Tests", () => {
       currentBooking: {
         uuid: TEST_UUID,
         id: 123,
+        tour_name: "Sunrise Tour",
         created_at: sixteenMinutesAgo,
       },
       paymentInfo: {
@@ -208,6 +210,7 @@ describe("Resilience & Recovery Integration Tests", () => {
       currentBooking: {
         uuid: TEST_UUID,
         id: 123,
+        tour_name: "Sunrise Tour",
         created_at: BASE_TIME.toISOString(),
       },
       paymentInfo: {

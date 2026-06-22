@@ -162,6 +162,9 @@ export const translations = {
     btn_copy_id: "Copy ID",
     btnDone: "Done",
     booking_next_full_moon_on: "The next Full Moon tour is on {date}",
+    booking_full_moon_selected:
+      "🌟 You have selected the Full Moon party for this date!",
+    booking_full_moon_confirmed: "Confirmed Selection",
     booking_no_full_moon_scheduled:
       "No Full Moon tour scheduled at the moment.",
     btn_see_meeting_point: "See Meeting Point",
@@ -468,6 +471,9 @@ export const translations = {
     btn_copy_id: "Copiar ID",
     btnDone: "Concluído",
     booking_next_full_moon_on: "O próximo passeio de Lua Cheia é dia {date}",
+    booking_full_moon_selected:
+      "🌟 Você selecionou o lual de Lua Cheia para esta data!",
+    booking_full_moon_confirmed: "Seleção Confirmada",
     booking_no_full_moon_scheduled:
       "Nenhum passeio de Lua Cheia agendado no momento.",
     btn_see_meeting_point: "Ver Ponto de Encontro",
@@ -773,6 +779,9 @@ export const translations = {
     btn_copy_id: "Copiar ID",
     btnDone: "Listo",
     booking_next_full_moon_on: "El próximo tour de Luna Llena es el {date}",
+    booking_full_moon_selected:
+      "🌟 ¡Has seleccionado la fiesta de Luna Llena para esta fecha!",
+    booking_full_moon_confirmed: "Selección Confirmada",
     booking_no_full_moon_scheduled:
       "No hay tours de Luna Llena programados en este momento.",
     btn_see_meeting_point: "Ver Punto de Encuentro",
@@ -1083,6 +1092,9 @@ export const translations = {
     btn_copy_id: "Copier l'ID",
     btnDone: "Terminé",
     booking_next_full_moon_on: "Le prochain tour de Pleine Lune est le {date}",
+    booking_full_moon_selected:
+      "🌟 Vous avez sélectionné la soirée Pleine Lune pour cette date !",
+    booking_full_moon_confirmed: "Sélection Confirmée",
     booking_no_full_moon_scheduled:
       "Aucun tour de Pleine Lune prévu pour le moment.",
     btn_see_meeting_point: "Voir le point de rendez-vous",

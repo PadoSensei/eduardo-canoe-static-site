@@ -50,6 +50,7 @@ const server = setupServer(
       booking: {
         uuid: TEST_UUID,
         id: 1,
+        tour_name: "Sunrise Tour",
         created_at: new Date().toISOString(),
       },
       payment_info: {

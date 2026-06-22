@@ -87,24 +87,6 @@ function BookingSystem() {
   const [formError, setFormError] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  // --- 2. LOGIC HELPERS ---
-
-  const getTourName = useCallback(
-    (tourType: string) => {
-      const mapping: Record<string, string> = {
-        sunrise: "card1Title",
-        morning: "card1Title",
-        full_day: "card2Title",
-        all_day: "card2Title",
-        sunset: "card3Title",
-        evening: "card3Title",
-      };
-      const key = mapping[tourType];
-      return key ? t(key) : "Unknown Tour";
-    },
-    [t]
-  );
-
   // --- 3. ASYNC DATA LOADING ---
 
   const loadNextFullMoon = useCallback(async (signal?: AbortSignal) => {
@@ -375,7 +357,7 @@ function BookingSystem() {
             <h4
               className={`text-2xl font-bold font-lora ${tour.isSpecialEvent ? "text-amber-400" : "text-teal-950"}`}
             >
-              {tour.name || getTourName(tour.tourType)}
+              {tour.name}
             </h4>
 
             {tour.isSpecialEvent && (
@@ -566,11 +548,7 @@ function BookingSystem() {
                   selectedDate={selectedDate}
                   onClose={closeModal}
                   tourName={
-                    selectedTour?.name ||
-                    (currentBooking?.tour_name as string) ||
-                    getTourName(
-                      selectedTour?.tourType || currentBooking?.tour_type || ""
-                    )
+                    selectedTour?.name || (currentBooking?.tour_name as string)
                   }
                 />
               ) : paymentInfo ? (
@@ -588,8 +566,6 @@ function BookingSystem() {
                 <BookingForm
                   tour={{
                     ...selectedTour,
-                    name:
-                      selectedTour.name || getTourName(selectedTour.tourType),
                     shortDescription:
                       t(
                         selectedTour.descriptionKey ||

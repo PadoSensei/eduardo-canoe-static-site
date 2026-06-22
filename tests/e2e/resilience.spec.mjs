@@ -50,6 +50,7 @@ test.describe("Resilience & Error Handling", () => {
         currentBooking: {
           uuid: mockUuid,
           id: 777,
+          tour_name: "Slow Tour",
           created_at: new Date().toISOString(),
         },
         paymentInfo: {
