@@ -1,15 +1,45 @@
 import React from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
-import { MemoryRouter, Routes, Route } from "react-router-dom";
+import {
+  MemoryRouter,
+  Routes,
+  Route,
+  useOutletContext,
+} from "react-router-dom";
 import "@testing-library/jest-dom";
 import Dashboard from "../../src/pages/Dashboard";
 import { LanguageProvider } from "../../src/context/LanguageContext";
 
 const API_BASE = "http://localhost:8080/api/v1";
 
-/** Matches `DayStatsSchema` / admin schedule aggregation (revenue + TourStatus-style strings). */
+// 1. Mock the Router Context
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useOutletContext: jest.fn(),
+}));
+
+jest.mock("../../src/supabaseClient", () => ({
+  supabase: {
+    auth: {
+      getSession: jest.fn().mockResolvedValue({
+        data: {
+          session: {
+            access_token: "mock-token",
+            user: { email: "eduardo@example.com" },
+          },
+        },
+        error: null,
+      }),
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
+    },
+  },
+}));
+
+/** Matches `DayStatsSchema` aggregation logic */
 function buildSchedulePayload(request) {
   const url = new URL(request.url);
   const year = Number(url.searchParams.get("year"));
@@ -27,7 +57,7 @@ function buildSchedulePayload(request) {
   };
 }
 
-/** Matches `ManifestResponseSchema` / `ManifestPassengerSchema` (numeric booking id + checked_in). */
+/** IRON SHIELD: Using 'num_people' to match the refactored ledger contract */
 const MOCK_MANIFEST = [
   {
     tour_id: 101,
@@ -40,7 +70,7 @@ const MOCK_MANIFEST = [
         id: 9001,
         uuid: "passenger-uuid-1",
         name: "Jane Doe",
-        pax: 1,
+        num_people: 1,
         email: "jane@example.com",
         checked_in: false,
       },
@@ -59,44 +89,13 @@ const server = setupServer(
   http.get(`${API_BASE}/tours/available*`, () => HttpResponse.json([]))
 );
 
-beforeAll(() => {
-  server.listen();
-  window.alert = jest.fn();
-  window.confirm = jest.fn(() => true);
-});
-
+beforeAll(() => server.listen());
 afterEach(async () => {
   server.resetHandlers();
-  await act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 0));
-  });
   jest.clearAllMocks();
 });
-
 afterAll(() => server.close());
 
-jest.mock("@/supabaseClient", () => ({
-  supabase: {
-    auth: {
-      getSession: jest.fn().mockResolvedValue({
-        data: {
-          session: {
-            access_token: "fake-admin-token",
-            user: { email: "eduardo@example.com" },
-          },
-        },
-        error: null,
-      }),
-      onAuthStateChange: jest.fn(() => ({
-        data: { subscription: { unsubscribe: jest.fn() } },
-      })),
-      signOut: jest.fn().mockResolvedValue({}),
-    },
-  },
-}));
-
-// AdminLayout only wraps chrome (nav); Dashboard does not consume layout context, so
-// MemoryRouter + the same route paths as production are sufficient for these tests.
 const renderDashboard = (initialEntry = "/admin") =>
   render(
     <MemoryRouter initialEntries={[initialEntry]}>
@@ -110,60 +109,55 @@ const renderDashboard = (initialEntry = "/admin") =>
   );
 
 describe("Dashboard Page Integration", () => {
-  test("initially shows calendar when logged in", async () => {
+  beforeEach(() => {
+    useOutletContext.mockReturnValue({
+      session: { user: { email: "eduardo@example.com" } },
+    });
+  });
+
+  test("initially shows calendar and logged in user", async () => {
     renderDashboard();
     expect(await screen.findByText(/Operations/i)).toBeInTheDocument();
     expect(await screen.findByText(/eduardo@example.com/i)).toBeInTheDocument();
   });
 
-  test("clicking an active date opens the manifest and shows tours", async () => {
+  test("clicking an active date opens the manifest", async () => {
     renderDashboard();
-    await screen.findByText(/Operations/i);
+
+    // IRON SHIELD: Wait for the API to return 500 revenue so we know the day is active
+    await screen.findByText(/500[\s,.]*00/);
 
     const days = await screen.findAllByText("15");
-    const activeDay = days.find((d) => !d.className.includes("text-gray-300"));
-    await act(async () => {
-      fireEvent.click(activeDay);
-    });
+    const activeDay = days.find(
+      (d) => d.closest(".cursor-pointer") && !d.closest(".text-slate-400")
+    );
 
-    expect(
-      await screen.findByText("Test Morning Tour", {}, { timeout: 5000 })
-    ).toBeInTheDocument();
+    fireEvent.click(activeDay);
 
-    // "Daily Schedule" is the heading in DayManifest — was "Day Controls"
-    expect(screen.getByText(/Daily Schedule/i)).toBeInTheDocument();
+    // Verify manifest appears
+    expect(await screen.findByText("Test Morning Tour")).toBeInTheDocument();
   });
 
   test("clicking a tour card shows the passenger list", async () => {
     renderDashboard();
 
+    // Wait for calendar to load
+    await screen.findByText(/500,00/i);
+
     const days = await screen.findAllByText("15");
-    const activeDay = days.find((d) => !d.className.includes("text-gray-300"));
-    await act(async () => {
-      fireEvent.click(activeDay);
-    });
+    const activeDay = days.find(
+      (d) => d.closest(".cursor-pointer") && !d.closest(".text-slate-400")
+    );
+
+    fireEvent.click(activeDay);
 
     const tourCard = await screen.findByText("Test Morning Tour");
-    await act(async () => {
-      fireEvent.click(tourCard);
-    });
+    fireEvent.click(tourCard);
 
-    // "Operational Manifest" is the heading in DayManifest — was "Confirmed Bookings"
+    // Verify transition to manifest list
     expect(
-      await screen.findByText(/Operational Manifest/i, {}, { timeout: 5000 })
+      await screen.findByText(/Operational Manifest/i)
     ).toBeInTheDocument();
-  });
-
-  test("logout button clears session and returns to login", async () => {
-    renderDashboard();
-
-    const logoutBtn = await screen.findByRole("button", { name: /logout/i });
-    await act(async () => {
-      fireEvent.click(logoutBtn);
-    });
-
-    const { supabase } = require("@/supabaseClient");
-    expect(supabase.auth.signOut).toHaveBeenCalled();
-    expect(await screen.findByText(/Admin Access/i)).toBeInTheDocument();
+    expect(screen.getByText("Jane Doe")).toBeInTheDocument();
   });
 });

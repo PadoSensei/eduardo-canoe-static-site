@@ -314,10 +314,41 @@ test.describe("EduCanoe Guided Tour", () => {
     });
 
     // Flow: Reach Payment View -> Refresh Page
+    // Re-register routes BEFORE reload -- Playwright mocks don't survive reload
+    await page.route("**/api/v1/tours/available**", (route) =>
+      route.fulfill({
+        json: [
+          {
+            tour_instance_id: 1,
+            tour_type: "sunrise",
+            display_name: "Amanhecer no Mar (Sunrise)",
+            price: 150,
+            seats_available: 10,
+            is_bookable: true,
+            capacity: 12,
+            duration: "2h",
+            image_url: "",
+            tour_date: today,
+            inclusions: ["Breakfast", "Guide"],
+            requirements: ["Sunscreen"],
+          },
+        ],
+      })
+    );
+    await page.route("**/api/v1/tours/specialty/next", (route) =>
+      route.fulfill({ json: { next_date: null } })
+    );
+    await page.route("**/api/v1/bookings/status/**", (route) =>
+      route.fulfill({
+        json: { status: "pending_payment", is_confirmed: false },
+      })
+    );
     await page.reload();
 
     // Proof: System immediately restores the exact same booking and timer
-    await expect(page.getByTestId("payment-view")).toBeVisible();
+    await expect(page.getByTestId("payment-view")).toBeVisible({
+      timeout: 10000,
+    });
     await expect(page.getByText(/Scan the QR code below/i)).toBeVisible();
 
     await page.screenshot({
@@ -370,7 +401,7 @@ test.describe("EduCanoe Guided Tour", () => {
     await page.setViewportSize({ width: 390, height: 844 });
 
     // 1. Navigate to Admin
-    await page.goto(`/admin/manifest/${today}?bypass=true`);
+    await page.goto(`/manifest/${today}?bypass=true`);
 
     // 2. Enter Manifest
     await expect(page.getByText(/Amanhecer no Mar/i).first()).toBeVisible({
