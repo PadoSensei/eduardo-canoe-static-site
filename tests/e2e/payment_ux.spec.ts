@@ -18,6 +18,7 @@ test.describe("Payment UX Interactions", () => {
         currentBooking: {
           uuid: mockUuid,
           id: 555,
+          tour_name: "Mock Tour",
           created_at: new Date().toISOString(),
         },
         paymentInfo: {

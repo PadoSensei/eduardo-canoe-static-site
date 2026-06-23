@@ -73,7 +73,7 @@ export const BookingSchema = z.object({
   created_at: z.string().optional(),
   checked_in: z.boolean().default(false),
   // 🛡️ IRON SHIELD: Enhanced metadata for digital voucher resilience
-  tour_name: z.string().optional(),
+  tour_name: z.string(),
   tour_date: z.string().optional(),
   meeting_time: z.string().regex(timeRegex).nullable().optional(),
   tour_type: z.string().optional(),

@@ -32,8 +32,17 @@ describe("Full Booking Compliance Flow", () => {
       capturedPayload = await request.json();
       return HttpResponse.json({
         success: true,
-        booking: { uuid: "123" },
-        payment_info: {},
+        booking: {
+          uuid: "123",
+          id: 1,
+          tour_name: "Sunrise",
+          created_at: new Date().toISOString(),
+        },
+        payment_info: {
+          qr_code: "pix",
+          qr_code_image: "img",
+          expires_in: 900,
+        },
       });
     }),
     // Handle the polling that starts automatically after booking

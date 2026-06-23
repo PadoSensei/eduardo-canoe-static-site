@@ -91,6 +91,7 @@ test.describe("Payment Success Flow", () => {
         currentBooking: {
           uuid: mockUuid,
           id: 123,
+          tour_name: "Sunset Tour",
           created_at: new Date().toISOString(), // Added for Zod
         },
         paymentInfo: {

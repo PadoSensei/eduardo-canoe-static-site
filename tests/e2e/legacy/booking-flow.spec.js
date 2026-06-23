@@ -38,6 +38,7 @@ test.describe("Money Loop Smoke Test", () => {
             booking: {
               uuid: "mock-booking-uuid-123",
               guest_email: "test@example.com",
+              tour_name: "Mock Sunset Tour",
               created_at: new Date().toISOString(),
             },
             payment_info: {
