@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { faqData } from "../data/faqData";
 import { translations } from "../data/translations";
-import { fetchLogisticsMetadata } from "../api";
+import { fetchLogisticsMetadata, getSystemSettings } from "../api";
 import ChevronDown from "lucide-react/dist/esm/icons/chevron-down";
 import Search from "lucide-react/dist/esm/icons/search";
 import X from "lucide-react/dist/esm/icons/x";
@@ -11,7 +11,6 @@ import LocationLink from "../components/common/LocationLink";
 const FAQItem = ({ question, answer, searchTerm, showLocationButton }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Simple highlight logic for the search term
   const highlightText = (text, highlight) => {
     if (!highlight.trim()) return text;
     const parts = text.split(new RegExp(`(${highlight})`, "gi"));
@@ -78,30 +77,50 @@ const FAQ = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [templates, setTemplates] = useState([]);
+  const [systemSettings, setSystemSettings] = useState({});
 
   useEffect(() => {
     fetchLogisticsMetadata().then((data) => {
       if (data) setTemplates(data);
+    });
+    getSystemSettings().then((data) => {
+      if (data) setSystemSettings(data);
     });
   }, []);
 
   const currentFaqData = useMemo(() => {
     const baseData = faqData[language] || faqData["en"];
 
-    // 1. IRON SHIELD: Establish the "Absolute Truth" for logistics
-    // These are the defaults you requested: 3pm and 4pm.
+    // 1. IRON SHIELD: Hard defaults (Eduardo's requested baseline)
     const logisticsMap = {
-      sunset_meeting_time: "16:00",     // 4:00 PM
-      full_moon_meeting_time: "15:00",  // 3:00 PM
+      sunset_meeting_time: "16:00",
+      full_moon_meeting_time: "15:00",
     };
 
-    // 2. Overlay with API data if available ( Eduardo's live settings)
+    // 2. Overlay with tour template defaults
     if (templates.length > 0) {
       templates.forEach((tpl) => {
-        const time = (tpl.default_meeting_time || "").slice(0, 5); // Format HH:mm
+        const time = (tpl.default_meeting_time || "").slice(0, 5);
         if (tpl.name === "sunset") logisticsMap.sunset_meeting_time = time;
-        if (tpl.name.includes("full_moon")) logisticsMap.full_moon_meeting_time = time;
+        if (tpl.name.includes("full_moon"))
+          logisticsMap.full_moon_meeting_time = time;
       });
+    }
+
+    // 3. PRIORITY OVERRIDE: system_settings always wins (Eduardo's live edits)
+    if (systemSettings.sunset_tour_time) {
+      const val =
+        typeof systemSettings.sunset_tour_time === "string"
+          ? systemSettings.sunset_tour_time
+          : String(systemSettings.sunset_tour_time);
+      logisticsMap.sunset_meeting_time = val.slice(0, 5);
+    }
+    if (systemSettings.full_moon_tour_time) {
+      const val =
+        typeof systemSettings.full_moon_tour_time === "string"
+          ? systemSettings.full_moon_tour_time
+          : String(systemSettings.full_moon_tour_time);
+      logisticsMap.full_moon_meeting_time = val.slice(0, 5);
     }
 
     return baseData.map((cat) => {
@@ -109,7 +128,7 @@ const FAQ = () => {
         let newQuestion = item.q;
         let newAnswer = item.a;
 
-        // 3. Inject Translation keys (SEO/Static strings)
+        // 4. Inject translation keys
         const tDict = translations[language] || translations["en"];
         Object.entries(tDict).forEach(([key, value]) => {
           const regex = new RegExp(`{${key}}`, "g");
@@ -117,26 +136,29 @@ const FAQ = () => {
           newAnswer = newAnswer.replace(regex, value);
         });
 
-        // 4. Inject Logistics Truth (Meeting Times)
+        // 5. Inject logistics truth (meeting times)
         Object.entries(logisticsMap).forEach(([key, value]) => {
           const regex = new RegExp(`{${key}}`, "g");
           newAnswer = newAnswer.replace(regex, value);
         });
 
-        // 🛡️ SAFE FALLBACK: Only shows if the map keys themselves are missing
+        // 6. Safe fallback for any remaining unresolved time placeholders
         const fallbackText =
-          language === "pt" ? "consulte o calendário" : "check the booking calendar";
-
-        newAnswer = newAnswer.replace(/{[a-z0-9_]+_meeting_time}/g, fallbackText);
+          language === "pt"
+            ? "consulte o calendário"
+            : "check the booking calendar";
+        newAnswer = newAnswer.replace(
+          /{[a-z0-9_]+_meeting_time}/g,
+          fallbackText
+        );
 
         return { ...item, q: newQuestion, a: newAnswer };
       });
 
       return { ...cat, items: updatedItems };
     });
-  }, [language, templates]);
+  }, [language, templates, systemSettings]);
 
-  // Filter Logic
   const filteredFaq = useMemo(() => {
     return currentFaqData
       .filter((cat) => activeCategory === "all" || cat.id === activeCategory)
@@ -154,7 +176,6 @@ const FAQ = () => {
   return (
     <div className="min-h-screen pt-32 pb-20 bg-slate-50">
       <div className="container max-w-4xl px-6 mx-auto">
-        {/* Header Section */}
         <div className="mb-12 text-center">
           <h1 className="mb-4 text-4xl font-black md:text-5xl text-slate-900 font-lora">
             {t("faqSectionTitle")}
@@ -164,7 +185,6 @@ const FAQ = () => {
           </p>
         </div>
 
-        {/* Search Bar Component */}
         <div className="relative max-w-2xl mx-auto mb-10">
           <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 pointer-events-none">
             <Search size={20} />
@@ -186,7 +206,6 @@ const FAQ = () => {
           )}
         </div>
 
-        {/* Category Filter Chips */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
           <button
             onClick={() => setActiveCategory("all")}
@@ -214,7 +233,6 @@ const FAQ = () => {
           ))}
         </div>
 
-        {/* Content Area */}
         <div className="space-y-10">
           {filteredFaq.length > 0 ? (
             filteredFaq.map((category) => (
