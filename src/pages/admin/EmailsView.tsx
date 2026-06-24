@@ -331,16 +331,16 @@ const EmailsView: React.FC = () => {
               <div className="relative">
                 <input
                   type="time"
-                  value={systemSettings.sunset_meeting_time || ""}
+                  value={systemSettings.sunset_tour_time || ""}
                   onChange={(e) =>
                     setSystemSettings((prev) => ({
                       ...prev,
-                      sunset_meeting_time: e.target.value,
+                      sunset_tour_time: e.target.value,
                     }))
                   }
                   onBlur={(e) =>
                     handleSystemTimeChange(
-                      "sunset_meeting_time",
+                      "sunset_tour_time",
                       e.target.value
                     )
                   }
@@ -361,16 +361,16 @@ const EmailsView: React.FC = () => {
               <div className="relative">
                 <input
                   type="time"
-                  value={systemSettings.full_moon_meeting_time || ""}
+                  value={systemSettings.full_moon_tour_time || ""}
                   onChange={(e) =>
                     setSystemSettings((prev) => ({
                       ...prev,
-                      full_moon_meeting_time: e.target.value,
+                      full_moon_tour_time: e.target.value,
                     }))
                   }
                   onBlur={(e) =>
                     handleSystemTimeChange(
-                      "full_moon_meeting_time",
+                      "full_moon_tour_time",
                       e.target.value
                     )
                   }
