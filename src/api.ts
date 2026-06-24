@@ -216,6 +216,24 @@ async function request<T>(
   }
 }
 
+export async function createTourInstance(
+  tourDate: string,
+  templateName: string,
+  options: { signal?: AbortSignal } = {}
+): Promise<unknown> {
+  try {
+    return await request("/admin/tours", {
+      method: "POST",
+      body: { tour_date: tourDate, template_name: templateName },
+      includeAuth: true,
+      signal: options.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return null;
+    throw error;
+  }
+}
+
 /**
  * Public endpoint to fetch high-level tour template metadata for dynamic UI injection (e.g. FAQ).
  */
