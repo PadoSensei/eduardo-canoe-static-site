@@ -301,6 +301,8 @@ export const translations = {
     admin_cc_toast_error: "Error saving change.",
     admin_cc_toast_time_success: "Time updated",
     admin_cc_toast_time_error: "Error updating time",
+    admin_cc_toast_settings_updated:
+      "Settings updated. Event logged in Activity Feed.",
     admin_cc_timezone_warning:
       "TIMEZONE: PIPA/BR (GMT-3). All automated events are triggered based on local operations time.",
     admin_cc_tpl_guest_ticket: "Guest Ticket",
@@ -318,9 +320,13 @@ export const translations = {
       "You are about to {{action}} the '{{name}}' setting. This will affect all future automated communications.",
     admin_cc_confirm_toggle_confirm: "Yes, Change It",
     admin_cc_confirm_toggle_cancel: "No, Keep It",
-    admin_cc_toast_settings_updated:
-      "Settings updated. Event logged in Activity Feed.",
     "admin.notes_label": "Notes:",
+    admin_cc_logistics_title: "Global Tour Logistics",
+    admin_cc_sunset_time: "Standard Meeting Time",
+    admin_cc_full_moon_time: "Full Moon Meeting Time",
+    faq_tour_start_q: "What time do the tours start?",
+    faq_tour_start_a:
+      "Standard Sunset tours meet at {sunset_meeting_time}. Full Moon celebrations meet at {full_moon_meeting_time}.",
   },
 
   pt: {
@@ -609,6 +615,8 @@ export const translations = {
     admin_cc_toast_error: "Erro ao salvar alteração.",
     admin_cc_toast_time_success: "Horário atualizado",
     admin_cc_toast_time_error: "Erro ao atualizar horário",
+    admin_cc_toast_settings_updated:
+      "Configurações atualizadas. Evento registrado no Feed de Atividade.",
     admin_cc_timezone_warning:
       "FUSO HORÁRIO: PIPA/BR (GMT-3). Todos os eventos automáticos são disparados com base no horário local da operação.",
     admin_cc_tpl_guest_ticket: "Ticket do Hóspede",
@@ -626,9 +634,13 @@ export const translations = {
       "Você está prestes a {{action}} a configuração '{{name}}'. Isso afetará todas as futuras comunicações automatizadas.",
     admin_cc_confirm_toggle_confirm: "Sim, Alterar",
     admin_cc_confirm_toggle_cancel: "Não, Manter",
-    admin_cc_toast_settings_updated:
-      "Configurações atualizadas. Evento registrado no Feed de Atividade.",
     "admin.notes_label": "Notas:",
+    admin_cc_logistics_title: "Logística de Encontro (Global)",
+    admin_cc_sunset_time: "Horário de Encontro Padrão",
+    admin_cc_full_moon_time: "Horário de Encontro Lua Cheia",
+    faq_tour_start_q: "A que horas começam os passeios?",
+    faq_tour_start_a:
+      "Os passeios padrão ao Pôr do Sol se encontram às {sunset_meeting_time}. As celebrações da Lua Cheia se encontram às {full_moon_meeting_time}.",
   },
 
   es: {
@@ -919,6 +931,8 @@ export const translations = {
     admin_cc_toast_error: "Error al guardar el cambio.",
     admin_cc_toast_time_success: "Horario actualizado",
     admin_cc_toast_time_error: "Error al actualizar el horario",
+    admin_cc_toast_settings_updated:
+      "Configuraciones actualizadas. Evento registrado en el Feed de Atividad.",
     admin_cc_timezone_warning:
       "ZONA HORARIA: PIPA/BR (GMT-3). Todos los eventos automáticos se activan según la hora local de operación.",
     admin_cc_tpl_guest_ticket: "Ticket de Huésped",
@@ -936,9 +950,13 @@ export const translations = {
       "Está a punto de {{action}} la configuración '{{name}}'. Esto afectará a todas las comunicaciones automatizadas futuras.",
     admin_cc_confirm_toggle_confirm: "Sí, Cambiar",
     admin_cc_confirm_toggle_cancel: "No, Mantener",
-    admin_cc_toast_settings_updated:
-      "Configuraciones actualizadas. Evento registrado en el Feed de Atividad.",
     "admin.notes_label": "Notas:",
+    admin_cc_logistics_title: "Logística de Encuentro (Global)",
+    admin_cc_sunset_time: "Horario de Encuentro Estándar",
+    admin_cc_full_moon_time: "Horario de Encuentro Luna Llena",
+    faq_tour_start_q: "¿A qué hora comienzan los tours?",
+    faq_tour_start_a:
+      "Los tours estándar al Atardecer se encuentran a las {sunset_meeting_time}. Las celebraciones de Luna Llena se encuentran a las {full_moon_meeting_time}.",
   },
   fr: {
     // --- SEO ---
@@ -1233,6 +1251,8 @@ export const translations = {
     admin_cc_toast_error: "Erreur lors de l'enregistrement de la modification.",
     admin_cc_toast_time_success: "Horaire mis à jour",
     admin_cc_toast_time_error: "Erreur lors de la mise à jour de l'horaire",
+    admin_cc_toast_settings_updated:
+      "Paramètres mis à jour. Événement enregistré dans le flux d'activité.",
     admin_cc_timezone_warning:
       "FUSEAU HORAIRE : PIPA/BR (GMT-3). Tous les événements automatisés sont déclenchés en fonction de l'heure locale des opérations.",
     admin_cc_tpl_guest_ticket: "Ticket Client",
@@ -1250,8 +1270,12 @@ export const translations = {
       "Vous êtes sur le point de {{action}} le paramètre '{{name}}'. Cela affectera toutes les communications automatisées futures.",
     admin_cc_confirm_toggle_confirm: "Oui, Modifier",
     admin_cc_confirm_toggle_cancel: "Non, Garder",
-    admin_cc_toast_settings_updated:
-      "Paramètres mis à jour. Événement enregistré dans le flux d'activité.",
     "admin.notes_label": "Notes :",
+    admin_cc_logistics_title: "Logistique de Rencontre (Global)",
+    admin_cc_sunset_time: "Heure de Rendez-vous Standard",
+    admin_cc_full_moon_time: "Heure de Rendez-vous Pleine Lune",
+    faq_tour_start_q: "À quelle heure commencent les excursions ?",
+    faq_tour_start_a:
+      "Les excursions standard au Coucher du Soleil se rejoignent à {sunset_meeting_time}. Les célébrations de la Pleine Lune se rejoignent à {full_moon_meeting_time}.",
   },
 };
