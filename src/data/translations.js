@@ -180,9 +180,9 @@ export const translations = {
     faqSectionTitle: "Your Questions Answered",
     faqSubtitle:
       "Everything you need to know about our canoe adventures in Pipa.",
-    mapTitle: "Find Your Starting Point",
+    mapTitle: "Find Your Meeting Point",
     mapSubtitle:
-      "Our main departure is from Tibau do Sul, next to the Guaraíras Lagoon.",
+      "We meet in Tibau do Sul, next to the Guaraíras Lagoon.",
     footer_developed_by: "Developed by",
     footer_powered_by: "Powered by Innovation & Human Spirit",
 
@@ -488,9 +488,9 @@ export const translations = {
     footerText: "Reme com paixão.",
     faqSectionTitle: "Perguntas Frequentes",
     faqSubtitle: "Tudo o que você precisa saber sobre nossos passeios em Pipa.",
-    mapTitle: "Encontre Seu Ponto de Partida",
+    mapTitle: "Encontre Seu Ponto de Encontro",
     mapSubtitle:
-      "Nossa principal saída é de Tibau do Sul, ao lado da Lagoa de Guaraíras.",
+      "Nosso ponto de encontro principal é em Tibau do Sul, ao lado da Lagoa de Guaraíras.",
     footer_developed_by: "Desenvolvido por",
     footer_powered_by: "Impulsionado por Inovação e Espírito Humano",
 
@@ -797,9 +797,9 @@ export const translations = {
     faqSectionTitle: "Preguntas Frecuentes",
     faqSubtitle:
       "Todo lo que necesitas saber sobre nuestras aventuras en Pipa.",
-    mapTitle: "Encuentra Tu Punto de Partida",
+    mapTitle: "Encuentra Tu Punto de Encuentro",
     mapSubtitle:
-      "Nuestra salida principal es desde Tibau do Sul, al lado de la Laguna de Guaraíras.",
+      "Nuestro punto de encuentro principal es en Tibau do Sul, al lado de la Laguna de Guaraíras.",
     footer_developed_by: "Desarrollado por",
     footer_powered_by: "Impulsado por Innovación y Espíritu Humano",
 
@@ -1110,9 +1110,9 @@ export const translations = {
     faqSectionTitle: "Vos Questions, nos Réponses",
     faqSubtitle:
       "Tout ce que vous devez savoir sur nos aventures en pirogue à Pipa.",
-    mapTitle: "Trouvez votre point de départ",
+    mapTitle: "Trouvez votre point de rendez-vous",
     mapSubtitle:
-      "Notre départ principal se fait depuis Tibau do Sul, à côté de la lagune de Guaraíras.",
+      "Notre point de rendez-vous principal se situe à Tibau do Sul, à côté de la lagune de Guaraïras.",
     footer_developed_by: "Développé par",
     footer_powered_by: "Propulsé par l'Innovation et l'Esprit Humain",
 

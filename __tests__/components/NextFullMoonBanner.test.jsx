@@ -27,22 +27,15 @@ describe("NextFullMoonBanner", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  test("renders validation anchor when nextDate equals selectedDate", () => {
-    renderWithProvider(
+  test("renders nothing when nextDate equals selectedDate (discovery mode only)", () => {
+    const { container } = renderWithProvider(
       <NextFullMoonBanner
         nextDate={nextMoonDate}
         selectedDate={nextMoonDate}
         onDateSelect={mockOnDateSelect}
       />
     );
-    expect(
-      screen.getByText(
-        /You have selected the Full Moon party|Você selecionou o lual de Lua Cheia/i
-      )
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Confirmed Selection|Seleção Confirmada/i)
-    ).toBeInTheDocument();
+    expect(container.firstChild).toBeNull();
   });
 
   test("renders banner when nextDate is different from selectedDate", () => {

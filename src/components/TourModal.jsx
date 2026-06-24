@@ -81,7 +81,7 @@ const TourModal = ({ tour, onClose }) => {
                   : "Daily Tour"}
               </p>
               <h2 className="text-3xl font-bold md:text-4xl text-teal-950 font-lora">
-                {tour.name || tour.tour_name}
+                {tour.name}
               </h2>
             </div>
             <div className="px-4 py-2 border bg-teal-50 rounded-2xl border-teal-100/50">

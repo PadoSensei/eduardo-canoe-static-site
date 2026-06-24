@@ -125,12 +125,12 @@ const FAQ = () => {
         // replace them with a generic localized hint.
         const fallbackText =
           language === "pt"
-            ? "consulte o calendário de reservas"
+            ? "consulte o calendário de reservas para horários específicos"
             : language === "es"
-              ? "consulte el calendario de reservas"
+              ? "consulte el calendario de reservas para horarios específicos"
               : language === "fr"
-                ? "consultez le calendrier de réservation"
-                : "check the booking calendar";
+                ? "consultez le calendrier de réservation pour les horaires spécifiques"
+                : "check the booking calendar for specific tour times";
 
         newAnswer = newAnswer.replace(
           /{[a-z0-9_]+_meeting_time}/g,

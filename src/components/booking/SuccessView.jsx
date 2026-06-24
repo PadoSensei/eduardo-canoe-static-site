@@ -87,7 +87,7 @@ export function SuccessView({
       </h3>
 
       <p className="mb-6 text-xs font-bold tracking-widest uppercase text-emerald-600">
-        {tourName || booking?.tour_name || t("card3Title")}
+        {tourName || booking?.tour_name}
       </p>
 
       {/* Prominent Tour Date & Meeting Time for Quick Verification */}

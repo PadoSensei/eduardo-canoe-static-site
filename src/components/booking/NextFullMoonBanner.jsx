@@ -12,6 +12,8 @@ export function NextFullMoonBanner({ nextDate, selectedDate, onDateSelect }) {
   if (!normalizedNext) return null;
   const isSelected = normalizedNext === normalizedSelected;
 
+  if (isSelected) return null;
+
   const formattedDate = new Intl.DateTimeFormat(
     language === "en" ? "en-US" : language === "pt" ? "pt-BR" : language,
     { day: "numeric", month: "long" }
