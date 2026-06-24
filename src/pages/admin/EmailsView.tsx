@@ -339,10 +339,7 @@ const EmailsView: React.FC = () => {
                     }))
                   }
                   onBlur={(e) =>
-                    handleSystemTimeChange(
-                      "sunset_tour_time",
-                      e.target.value
-                    )
+                    handleSystemTimeChange("sunset_tour_time", e.target.value)
                   }
                   className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white font-bold focus:ring-2 focus:ring-teal-500 outline-none transition-all"
                 />
