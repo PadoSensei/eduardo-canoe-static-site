@@ -4,31 +4,14 @@ import Clock from "lucide-react/dist/esm/icons/clock";
 import Star from "lucide-react/dist/esm/icons/star";
 import ShieldedButton from "../common/ShieldedButton";
 import { useLanguage } from "../../context/LanguageContext";
-import { getTourTemplates } from "../../api";
 
 const LogisticsModal = ({ isOpen, tour, onClose, onConfirm, isSubmitting }) => {
   const { t: _t } = useLanguage();
-  const [startTime, setStartTime] = useState("");
-  const [meetingTime, setMeetingTime] = useState("");
   const [isSpecialEvent, setIsSpecialEvent] = useState(false);
-  const [template, setTemplate] = useState(null);
 
   useEffect(() => {
     if (isOpen && tour) {
-      setStartTime(tour.start_time || "");
-      setMeetingTime(tour.meeting_time || "");
       setIsSpecialEvent(!!tour.is_special_event);
-
-      // Fetch template for "Default" indicator context
-      getTourTemplates().then((templates) => {
-        if (templates) {
-          const tourType = tour.tour_type || tour.tourType;
-          const tpl = templates.find(
-            (t) => t.tourType === tourType || t.name === tourType
-          );
-          setTemplate(tpl);
-        }
-      });
     }
   }, [isOpen, tour]);
 
@@ -36,10 +19,7 @@ const LogisticsModal = ({ isOpen, tour, onClose, onConfirm, isSubmitting }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 🛡️ IRON SHIELD: Explicitly wiring all fields to the PATCH request payload
     onConfirm({
-      start_time: startTime || null,
-      meeting_time: meetingTime || null,
       is_special_event: isSpecialEvent,
     });
   };
@@ -70,42 +50,6 @@ const LogisticsModal = ({ isOpen, tour, onClose, onConfirm, isSubmitting }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">
-                Start Time
-              </label>
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-950 font-bold focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 outline-none transition-all"
-              />
-              {template && !startTime && (
-                <p className="text-[10px] text-slate-400 font-bold italic">
-                  Default: {template.startTime || template.start_time || "N/A"}
-                </p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">
-                Meeting Time
-              </label>
-              <input
-                type="time"
-                value={meetingTime}
-                onChange={(e) => setMeetingTime(e.target.value)}
-                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-950 font-bold focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 outline-none transition-all"
-              />
-              {template && !meetingTime && (
-                <p className="text-[10px] text-slate-400 font-bold italic">
-                  Default:{" "}
-                  {template.meetingTime || template.meeting_time || "N/A"}
-                </p>
-              )}
-            </div>
-          </div>
-
           <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-amber-100 text-amber-600 rounded-lg">

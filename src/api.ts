@@ -357,9 +357,7 @@ export async function getEmailSettings(
 
 export async function updateEmailSetting(
   slug: string,
-  data: Partial<
-    Pick<EmailSetting, "is_enabled" | "scheduled_time" | "scheduled_time">
-  >,
+  data: Partial<Pick<EmailSetting, "is_enabled" | "scheduled_time">>,
   options: { signal?: AbortSignal } = {}
 ): Promise<EmailSetting | null> {
   try {
@@ -369,6 +367,37 @@ export async function updateEmailSetting(
       includeAuth: true,
       signal: options.signal,
       schema: EmailSettingSchema,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return null;
+    throw error;
+  }
+}
+
+export async function getSystemSettings(
+  options: { signal?: AbortSignal } = {}
+): Promise<Record<string, any> | null> {
+  try {
+    return await request<Record<string, any>>("/admin/settings/system", {
+      includeAuth: true,
+      signal: options.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return null;
+    throw error;
+  }
+}
+
+export async function updateSystemSettings(
+  data: Record<string, any>,
+  options: { signal?: AbortSignal } = {}
+): Promise<Record<string, any> | null> {
+  try {
+    return await request<Record<string, any>>("/admin/settings/system", {
+      method: "PATCH",
+      body: data,
+      includeAuth: true,
+      signal: options.signal,
     });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") return null;
