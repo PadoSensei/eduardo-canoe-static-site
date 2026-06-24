@@ -87,12 +87,12 @@ export function SuccessView({
       </h3>
 
       <p className="mb-6 text-xs font-bold tracking-widest uppercase text-emerald-600">
-        {tourName || booking?.tour_name || t("card3Title")}
+        {tourName || booking?.tour_name}
       </p>
 
       {/* Prominent Tour Date & Meeting Time for Quick Verification */}
       {(formattedDate || booking?.meeting_time) && (
-        <div className="mb-4 animate-fadeInUp flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-2 mb-4 animate-fadeInUp">
           {formattedDate && (
             <div className="inline-flex flex-col items-center px-6 py-2 border-2 border-emerald-100 rounded-2xl bg-emerald-50/50 w-full max-w-[240px]">
               <div className="flex items-center gap-2 mb-0.5">
@@ -115,7 +115,7 @@ export function SuccessView({
           {booking?.meeting_time && (
             <div className="inline-flex flex-col items-center px-6 py-4 border-2 border-amber-100 rounded-2xl bg-amber-50/50 w-full max-w-[240px] shadow-sm">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-amber-600 text-sm">🕒</span>
+                <span className="text-sm text-amber-600">🕒</span>
                 <span className="text-[10px] font-black uppercase tracking-widest text-amber-600">
                   {t("logistics_meeting")}
                 </span>
