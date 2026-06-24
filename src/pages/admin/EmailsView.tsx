@@ -6,7 +6,13 @@ import ShieldCheck from "lucide-react/dist/esm/icons/shield-check";
 import Loader2 from "lucide-react/dist/esm/icons/loader-2";
 import Eye from "lucide-react/dist/esm/icons/eye";
 import LayoutDashboard from "lucide-react/dist/esm/icons/layout-dashboard";
-import { getEmailSettings, updateEmailSetting, getEmailPreview } from "@/api";
+import {
+  getEmailSettings,
+  updateEmailSetting,
+  getEmailPreview,
+  getSystemSettings,
+  updateSystemSettings,
+} from "@/api";
 import type { EmailSetting } from "@/api/schemas";
 import { useLanguage } from "@/context/LanguageContext";
 import EmailPreviewModal from "@/components/admin/EmailPreviewModal";
@@ -96,8 +102,10 @@ const SettingCard: React.FC<SettingCardProps> = ({
 const EmailsView: React.FC = () => {
   const { t } = useLanguage();
   const [settings, setSettings] = useState<EmailSetting[]>([]);
+  const [systemSettings, setSystemSettings] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [updatingSlugs, setUpdatingSlugs] = useState<Set<string>>(new Set());
+  const [updatingSystem, setUpdatingSystem] = useState(false);
 
   // Confirmation Modal State
   const [confirmModal, setConfirmModal] = useState<{
@@ -121,9 +129,15 @@ const EmailsView: React.FC = () => {
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
-      const data = await getEmailSettings();
-      if (Array.isArray(data)) {
-        setSettings(data);
+      const [emailData, sysData] = await Promise.all([
+        getEmailSettings(),
+        getSystemSettings(),
+      ]);
+      if (Array.isArray(emailData)) {
+        setSettings(emailData);
+      }
+      if (sysData) {
+        setSystemSettings(sysData);
       }
     } catch (err) {
       // Errors are handled by request wrapper
@@ -170,6 +184,25 @@ const EmailsView: React.FC = () => {
         next.delete(slug);
         return next;
       });
+    }
+  };
+
+  const handleSystemTimeChange = async (key: string, newTime: string) => {
+    if (!newTime) return;
+    // 🛡️ Standardize to HH:mm:ss for backend consistency
+    const formattedTime = newTime.length === 5 ? `${newTime}:00` : newTime;
+
+    setUpdatingSystem(true);
+    try {
+      const updated = await updateSystemSettings({ [key]: formattedTime });
+      if (updated) {
+        setSystemSettings((prev) => ({ ...prev, ...updated }));
+        toast.success(t("admin_cc_toast_time_success"));
+      }
+    } catch (_err: unknown) {
+      toast.error(t("admin_cc_toast_time_error"));
+    } finally {
+      setUpdatingSystem(false);
     }
   };
 
@@ -281,6 +314,78 @@ const EmailsView: React.FC = () => {
       </header>
 
       <div className="space-y-8">
+        {/* Global Logistics Section */}
+        <section className="bg-slate-950 border border-slate-800 rounded-3xl p-6 shadow-xl">
+          <div className="flex items-center gap-2 mb-6">
+            <Clock className="text-teal-400" size={18} />
+            <h2 className="font-bold text-white text-lg">
+              {t("admin_cc_logistics_title")}
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">
+                {t("admin_cc_sunset_time")}
+              </label>
+              <div className="relative">
+                <input
+                  type="time"
+                  value={systemSettings.sunset_meeting_time || ""}
+                  onChange={(e) =>
+                    setSystemSettings((prev) => ({
+                      ...prev,
+                      sunset_meeting_time: e.target.value,
+                    }))
+                  }
+                  onBlur={(e) =>
+                    handleSystemTimeChange(
+                      "sunset_meeting_time",
+                      e.target.value
+                    )
+                  }
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white font-bold focus:ring-2 focus:ring-teal-500 outline-none transition-all"
+                />
+                {updatingSystem && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <Loader2 size={16} className="animate-spin text-teal-400" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">
+                {t("admin_cc_full_moon_time")}
+              </label>
+              <div className="relative">
+                <input
+                  type="time"
+                  value={systemSettings.full_moon_meeting_time || ""}
+                  onChange={(e) =>
+                    setSystemSettings((prev) => ({
+                      ...prev,
+                      full_moon_meeting_time: e.target.value,
+                    }))
+                  }
+                  onBlur={(e) =>
+                    handleSystemTimeChange(
+                      "full_moon_meeting_time",
+                      e.target.value
+                    )
+                  }
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white font-bold focus:ring-2 focus:ring-teal-500 outline-none transition-all"
+                />
+                {updatingSystem && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <Loader2 size={16} className="animate-spin text-teal-400" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Email Settings Section */}
         <section className="bg-slate-50 border border-slate-100 rounded-3xl p-6">
           <div className="flex items-center gap-2 mb-6">

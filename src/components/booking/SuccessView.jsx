@@ -112,7 +112,7 @@ export function SuccessView({
             </div>
           )}
 
-          {booking?.meeting_time && (
+          {(booking?.meeting_time || booking?.meetingTime) && (
             <div className="inline-flex flex-col items-center px-6 py-4 border-2 border-amber-100 rounded-2xl bg-amber-50/50 w-full max-w-[240px] shadow-sm">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-sm text-amber-600">🕒</span>
@@ -121,7 +121,7 @@ export function SuccessView({
                 </span>
               </div>
               <span className="text-3xl font-black leading-tight text-slate-950">
-                {booking.meeting_time}
+                {booking.meeting_time || booking.meetingTime}
               </span>
             </div>
           )}

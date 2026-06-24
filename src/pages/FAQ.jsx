@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { faqData } from "../data/faqData";
+import { translations } from "../data/translations";
 import { fetchLogisticsMetadata } from "../api";
 import ChevronDown from "lucide-react/dist/esm/icons/chevron-down";
 import Search from "lucide-react/dist/esm/icons/search";
@@ -90,7 +91,20 @@ const FAQ = () => {
     // Dynamically update times in FAQ if templates are available
     return baseData.map((cat) => {
       const updatedItems = cat.items.map((item) => {
+        let newQuestion = item.q;
         let newAnswer = item.a;
+
+        // 🛡️ TRANSLATION INJECTION: Replace placeholders like {faq_tour_start_q}
+        const tDict = translations[language] || translations["en"];
+        Object.entries(tDict).forEach(([key, value]) => {
+          const regex = new RegExp(`{${key}}`, "g");
+          newQuestion = newQuestion.replace(regex, value);
+          newAnswer = newAnswer.replace(regex, value);
+
+          // Support double braces for voucher-style placeholders
+          const doubleRegex = new RegExp(`{{${key}}}`, "g");
+          newAnswer = newAnswer.replace(doubleRegex, value);
+        });
 
         if (templates.length > 0) {
           templates.forEach((tpl) => {
@@ -102,6 +116,14 @@ const FAQ = () => {
               new RegExp(`{${tpl.name}_meeting_time}`, "g"),
               meetingTime
             );
+
+            // 🛡️ CENTRALIZED TRUTH: Explicitly handle sunset_meeting_time placeholder
+            if (tpl.name === "sunset") {
+              newAnswer = newAnswer.replace(
+                /{sunset_meeting_time}/g,
+                meetingTime
+              );
+            }
 
             // Full Moon specific placeholder support
             if (tpl.name === "full_moon" || tpl.name === "full_moon_party") {
@@ -137,7 +159,7 @@ const FAQ = () => {
           fallbackText
         );
 
-        return { ...item, a: newAnswer };
+        return { ...item, q: newQuestion, a: newAnswer };
       });
 
       return { ...cat, items: updatedItems };

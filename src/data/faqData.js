@@ -88,6 +88,10 @@ export const faqData = {
       icon: "📍",
       items: [
         {
+          q: "{faq_tour_start_q}",
+          a: "{faq_tour_start_a}",
+        },
+        {
           q: "Where is the meeting point?",
           a: "All tours depart from Tibau do Sul. The specific meeting point is the Sunset Stairs (Escadaria do Pôr do Sol), located in front of the Lagoa Flat Condominium. ...See the exact location at the button below:",
           isMeetingPoint: true,
@@ -189,6 +193,10 @@ export const faqData = {
       title: "Logística",
       icon: "📍",
       items: [
+        {
+          q: "{faq_tour_start_q}",
+          a: "{faq_tour_start_a}",
+        },
         {
           q: "Onde é o ponto de encontro?",
           a: "Todos os passeios partem de Tibau do Sul. O ponto de encontro específico é a Escadaria do Pôr do Sol, localizada em frente ao Condomínio Lagoa Flat. ...Veja a localização exata no botão abaixo:",
@@ -292,6 +300,10 @@ export const faqData = {
       icon: "📍",
       items: [
         {
+          q: "{faq_tour_start_q}",
+          a: "{faq_tour_start_a}",
+        },
+        {
           q: "¿Dónde está el punto de encuentro?",
           a: "Todos los tours salen de Tibau do Sul. El punto de encuentro específico es la Escalera del Atardecer (Escadaria do Pôr do Sol), ubicada frente al Condominio Lagoa Flat. ...Vea la ubicación exacta en el botón de abajo:",
           isMeetingPoint: true,
@@ -393,6 +405,10 @@ export const faqData = {
       title: "Logistique",
       icon: "📍",
       items: [
+        {
+          q: "{faq_tour_start_q}",
+          a: "{faq_tour_start_a}",
+        },
         {
           q: "Où est le point de rendez-vous ?",
           a: "Toutes les excursions partent de Tibau do Sul. Le point de rendez-vous spécifique est l'Escalier du Coucher de Soleil (Escadaria do Pôr do Sol), situé devant le Condominium Lagoa Flat. ...Voir l'emplacement exact sur le bouton ci-dessous :",
