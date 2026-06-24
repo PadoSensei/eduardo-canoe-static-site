@@ -21,6 +21,7 @@ import {
   cancelTourForWeather,
   patchCheckIn,
   cancelBooking,
+  createTourInstance,
 } from "../../api";
 
 // --- BUSINESS LOGIC CONSTANTS ---
@@ -59,6 +60,7 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
   const [tourToCancel, setTourToCancel] = useState(null);
   const [tourForLogistics, setTourForLogistics] = useState(null);
   const [showInactive, setShowInactive] = useState(false);
+  const [isCreatingTour, setIsCreatingTour] = useState(false);
 
   // Local UI state for check-ins (visual only for Eduardo's use at the lagoon)
   const [checkedIn, setCheckedIn] = useState({});
@@ -297,6 +299,21 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
     }
   };
 
+  const handleCreateTour = async (templateName) => {
+    setIsCreatingTour(templateName);
+    try {
+      const dateString = format(date, "yyyy-MM-dd");
+      await createTourInstance(dateString, templateName);
+      toast.success("Tour created successfully", { icon: "✅" });
+      if (onActionSuccess) onActionSuccess();
+      await loadManifest();
+    } catch (err) {
+      toast.error(`Failed to create tour: ${err.message}`);
+    } finally {
+      setIsCreatingTour(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full bg-white shadow-2xl">
@@ -517,9 +534,37 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
             />
           ))
         ) : (
-          <p className="py-10 italic text-center text-gray-400">
-            No tours scheduled for this date.
-          </p>
+          <div className="flex flex-col items-center justify-center py-10 gap-4">
+            <p className="text-sm font-medium italic text-gray-400">
+              No tours scheduled for this date.
+            </p>
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={() => handleCreateTour("sunset")}
+                disabled={!!isCreatingTour}
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all disabled:opacity-50"
+              >
+                {isCreatingTour === "sunset" ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  "🌅"
+                )}
+                Sunset Tour
+              </button>
+              <button
+                onClick={() => handleCreateTour("full_moon_party")}
+                disabled={!!isCreatingTour}
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all disabled:opacity-50"
+              >
+                {isCreatingTour === "full_moon_party" ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  "🌕"
+                )}
+                Full Moon Tour
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
