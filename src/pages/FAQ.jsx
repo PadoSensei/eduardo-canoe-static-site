@@ -88,76 +88,46 @@ const FAQ = () => {
   const currentFaqData = useMemo(() => {
     const baseData = faqData[language] || faqData["en"];
 
-    // Dynamically update times in FAQ if templates are available
+    // 1. IRON SHIELD: Establish the "Absolute Truth" for logistics
+    // These are the defaults you requested: 3pm and 4pm.
+    const logisticsMap = {
+      sunset_meeting_time: "16:00",     // 4:00 PM
+      full_moon_meeting_time: "15:00",  // 3:00 PM
+    };
+
+    // 2. Overlay with API data if available ( Eduardo's live settings)
+    if (templates.length > 0) {
+      templates.forEach((tpl) => {
+        const time = (tpl.default_meeting_time || "").slice(0, 5); // Format HH:mm
+        if (tpl.name === "sunset") logisticsMap.sunset_meeting_time = time;
+        if (tpl.name.includes("full_moon")) logisticsMap.full_moon_meeting_time = time;
+      });
+    }
+
     return baseData.map((cat) => {
       const updatedItems = cat.items.map((item) => {
         let newQuestion = item.q;
         let newAnswer = item.a;
 
-        // 🛡️ TRANSLATION INJECTION: Replace placeholders like {faq_tour_start_q}
+        // 3. Inject Translation keys (SEO/Static strings)
         const tDict = translations[language] || translations["en"];
         Object.entries(tDict).forEach(([key, value]) => {
           const regex = new RegExp(`{${key}}`, "g");
           newQuestion = newQuestion.replace(regex, value);
           newAnswer = newAnswer.replace(regex, value);
-
-          // Support double braces for voucher-style placeholders
-          const doubleRegex = new RegExp(`{{${key}}}`, "g");
-          newAnswer = newAnswer.replace(doubleRegex, value);
         });
 
-        if (templates.length > 0) {
-          templates.forEach((tpl) => {
-            const meetingTime = tpl.default_meeting_time || "16:00";
+        // 4. Inject Logistics Truth (Meeting Times)
+        Object.entries(logisticsMap).forEach(([key, value]) => {
+          const regex = new RegExp(`{${key}}`, "g");
+          newAnswer = newAnswer.replace(regex, value);
+        });
 
-            // Injecting using explicit placeholders
-            // 🛡️ LATENNESS SHIELD: We only inject meeting_time now.
-            newAnswer = newAnswer.replace(
-              new RegExp(`{${tpl.name}_meeting_time}`, "g"),
-              meetingTime
-            );
-
-            // 🛡️ CENTRALIZED TRUTH: Explicitly handle sunset_meeting_time placeholder
-            if (tpl.name === "sunset") {
-              newAnswer = newAnswer.replace(
-                /{sunset_meeting_time}/g,
-                meetingTime
-              );
-            }
-
-            // Full Moon specific placeholder support
-            if (tpl.name === "full_moon" || tpl.name === "full_moon_party") {
-              newAnswer = newAnswer.replace(
-                /{full_moon_meeting_time}/g,
-                meetingTime
-              );
-            }
-
-            // Fallback legacy replacement for hardcoded strings
-            if (tpl.name === "sunset") {
-              newAnswer = newAnswer.replace(/15:00/g, meetingTime);
-              newAnswer = newAnswer.replace(/3:00 PM/g, meetingTime);
-              newAnswer = newAnswer.replace(/2:40 PM/g, meetingTime);
-              newAnswer = newAnswer.replace(/14:40/g, meetingTime);
-            }
-          });
-        }
-
-        // 🛡️ SAFE FALLBACK: If placeholders still exist after template injection (or if templates failed),
-        // replace them with a generic localized hint.
+        // 🛡️ SAFE FALLBACK: Only shows if the map keys themselves are missing
         const fallbackText =
-          language === "pt"
-            ? "consulte o calendário de reservas"
-            : language === "es"
-              ? "consulte el calendario de reservas"
-              : language === "fr"
-                ? "consultez le calendrier de réservation"
-                : "check the booking calendar";
+          language === "pt" ? "consulte o calendário" : "check the booking calendar";
 
-        newAnswer = newAnswer.replace(
-          /{[a-z0-9_]+_meeting_time}/g,
-          fallbackText
-        );
+        newAnswer = newAnswer.replace(/{[a-z0-9_]+_meeting_time}/g, fallbackText);
 
         return { ...item, q: newQuestion, a: newAnswer };
       });
