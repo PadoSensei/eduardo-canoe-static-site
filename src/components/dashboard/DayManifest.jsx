@@ -248,23 +248,14 @@ const DayManifest = ({ date, onClose, onActionSuccess }) => {
     try {
       setIsSubmitting(true);
       const tourId = tourForLogistics.tour_id || tourForLogistics.id;
-      const updatedTour = await patchTourLogistics(tourId, logisticsData);
-
-      toast.success("Logistics updated successfully", { icon: "🕒" });
-      setTourForLogistics(null);
-
-      // If backend returns the updated tour, we can update it locally to flip the name/icon immediately
-      if (updatedTour && typeof updatedTour === "object") {
-        setTours((prev) =>
-          prev.map((t) =>
-            (t.tour_id || t.id) === tourId ? { ...t, ...updatedTour } : t
-          )
-        );
-      }
+      await patchTourLogistics(tourId, logisticsData);
 
       // Also refresh the full manifest to ensure everything is in sync
       if (onActionSuccess) onActionSuccess();
       await loadManifest();
+
+      setTourForLogistics(null);
+      toast.success("Logistics updated successfully", { icon: "🕒" });
     } catch (err) {
       toast.error(`Failed to update logistics: ${err.message}`);
     } finally {
