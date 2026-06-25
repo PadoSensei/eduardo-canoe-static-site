@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import X from "lucide-react/dist/esm/icons/x";
 import Clock from "lucide-react/dist/esm/icons/clock";
 import Star from "lucide-react/dist/esm/icons/star";
-import ShieldedButton from "../common/ShieldedButton";
 import { useLanguage } from "../../context/LanguageContext";
 
 const LogisticsModal = ({ isOpen, tour, onClose, onConfirm, isSubmitting }) => {
@@ -66,6 +65,7 @@ const LogisticsModal = ({ isOpen, tour, onClose, onConfirm, isSubmitting }) => {
             </div>
             <button
               type="button"
+              aria-label="Toggle special event"
               onClick={() => setIsSpecialEvent(!isSpecialEvent)}
               className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2 ${
                 isSpecialEvent ? "bg-teal-600" : "bg-slate-200"
@@ -87,13 +87,13 @@ const LogisticsModal = ({ isOpen, tour, onClose, onConfirm, isSubmitting }) => {
             >
               Cancel
             </button>
-            <ShieldedButton
+            <button
               type="submit"
-              isLoading={isSubmitting}
-              className="flex-1 py-4 bg-slate-950 text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 active:scale-95"
+              disabled={isSubmitting}
+              className="flex-1 py-4 bg-slate-950 text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Save Logistics
-            </ShieldedButton>
+              {isSubmitting ? "Saving..." : "Save Logistics"}
+            </button>
           </div>
         </form>
       </div>
