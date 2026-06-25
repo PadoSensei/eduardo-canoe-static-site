@@ -320,9 +320,8 @@ export async function getActivityLog(
 export async function patchTourLogistics(
   tourId: number,
   data: {
-    start_time: string | null;
-    meeting_time: string | null;
-    is_special_event: boolean | null;
+    is_special_event?: boolean | null;
+    status?: string | null;
   },
   options: { signal?: AbortSignal } = {}
 ): Promise<unknown> {
