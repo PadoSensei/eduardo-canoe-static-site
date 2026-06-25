@@ -10,15 +10,21 @@ jest.mock("../../src/context/LanguageContext", () => ({
 }));
 
 // Mock Lucide icons to avoid SVGR issues in tests
-jest.mock("lucide-react/dist/esm/icons/x", () => () => (
-  <div data-testid="icon-x" />
-));
-jest.mock("lucide-react/dist/esm/icons/clock", () => () => (
-  <div data-testid="icon-clock" />
-));
-jest.mock("lucide-react/dist/esm/icons/star", () => () => (
-  <div data-testid="icon-star" />
-));
+jest.mock("lucide-react/dist/esm/icons/x", () => {
+  const X = () => <div data-testid="icon-x" />;
+  X.displayName = "X";
+  return X;
+});
+jest.mock("lucide-react/dist/esm/icons/clock", () => {
+  const Clock = () => <div data-testid="icon-clock" />;
+  Clock.displayName = "Clock";
+  return Clock;
+});
+jest.mock("lucide-react/dist/esm/icons/star", () => {
+  const Star = () => <div data-testid="icon-star" />;
+  Star.displayName = "Star";
+  return Star;
+});
 
 describe("LogisticsModal", () => {
   const mockTour = {
