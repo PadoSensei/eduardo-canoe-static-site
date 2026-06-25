@@ -1,8 +1,11 @@
 # Frontend Capability Audit
+
 Generated: 2025-05-14
 
 ## 1. Tourist-Facing UI Capabilities
+
 As a tourist, I can:
+
 - **View Home Page**: Experience a high-impact cinematic video background with brand messaging and direct calls to action [src/pages/Home.jsx].
 - **Switch Language**: Toggle between English, Portuguese, Spanish, and French via the persistent header [src/components/Header.jsx, src/context/LanguageContext.jsx].
 - **Explore Tours**: Browse a gallery of tour templates (Sunrise, Sunset, Full Moon) with short descriptions and starting prices [src/pages/Tours.tsx].
@@ -16,7 +19,9 @@ As a tourist, I can:
 - **Verify Legal Compliance**: Read localized Terms of Service and Privacy Policy pages [src/pages/Terms.jsx, src/pages/Privacy.jsx].
 
 ## 2. Admin-Facing UI Capabilities
+
 As an admin (Eduardo), I can:
+
 - **Secure Authentication**: Log in via Magic Link or use an environment-specific Bypass Mode for rapid field access [src/components/admin/AdminLayout.tsx, src/pages/Dashboard.jsx].
 - **Monitor Operations**: View a monthly calendar with occupancy heatmaps (Empty/Low/Busy/Full) and real-time revenue tallies [src/components/dashboard/DashboardCalendar.jsx].
 - **Manage Day Manifests**: View a list of all tour instances for a specific day, including headcount progress (Boarded / Total) [src/components/dashboard/DayManifest.jsx].
@@ -32,75 +37,80 @@ As an admin (Eduardo), I can:
 
 ## 3. API Surface Coverage
 
-| Function Name | HTTP Method + Endpoint | Component(s) Using It | Working UI? |
-|---------------|------------------------|-----------------------|------------|
-| `createTourInstance` | POST `/admin/tours` | `DayManifest.jsx` | Yes |
-| `fetchLogisticsMetadata` | GET `/tours/templates` | `FAQ.jsx` | Yes |
-| `getNextSpecialtyTour` | GET `/tours/specialty/next` | `BookingSystem.tsx`, `TourModal.jsx` | Yes |
-| `getActivityLog` | GET `/admin/activity-log` | `ActivityView.tsx` | Yes |
-| `patchTourLogistics` | PATCH `/admin/tours/{id}/logistics` | `DayManifest.jsx` | Yes |
-| `getEmailPreview` | GET `/admin/emails/preview/{slug}` | `EmailsView.tsx` | Yes |
-| `getEmailSettings` | GET `/admin/settings/emails` | `EmailsView.tsx` | Yes |
-| `updateEmailSetting` | PATCH `/admin/settings/emails/{slug}` | `EmailsView.tsx` | Yes |
-| `getSystemSettings` | GET `/admin/settings/system` | `EmailsView.tsx`, `FAQ.jsx` | Yes |
-| `updateSystemSettings` | PATCH `/admin/settings/system` | `EmailsView.tsx` | Yes |
-| `getAvailableTours` | GET `/tours/available` | `BookingSystem.tsx`, `useBooking.js` | Yes |
-| `createBooking` | POST `/bookings` | `BookingSystem.tsx` | Yes |
-| `getBookingStatus` | GET `/bookings/status/{uuid}` | `useBooking.js` | Yes |
-| `getTourTemplates` | GET `/tour-templates` | `Tours.tsx` | Yes |
-| `fetchMonthlySchedule` | GET `/admin/schedule` | `DashboardCalendar.jsx` | Yes |
-| `fetchDayManifest` | GET `/admin/manifest/{date}` | `DayManifest.jsx` | Yes |
-| `patchCheckIn` | PATCH `/admin/bookings/{id}/check-in` | `DayManifest.jsx` | Yes |
-| `cancelBooking` | POST `/admin/bookings/{id}/cancel` | `DayManifest.jsx` | Yes |
-| `adminCreateBooking` | POST `/admin/bookings` | `ManualBookingForm.jsx` | Yes |
-| `cancelTourForWeather` | POST `/admin/tours/{id}/weather-cancel` | `DayManifest.jsx` | Yes |
+| Function Name            | HTTP Method + Endpoint                  | Component(s) Using It                | Working UI? |
+| ------------------------ | --------------------------------------- | ------------------------------------ | ----------- |
+| `createTourInstance`     | POST `/admin/tours`                     | `DayManifest.jsx`                    | Yes         |
+| `fetchLogisticsMetadata` | GET `/tours/templates`                  | `FAQ.jsx`                            | Yes         |
+| `getNextSpecialtyTour`   | GET `/tours/specialty/next`             | `BookingSystem.tsx`, `TourModal.jsx` | Yes         |
+| `getActivityLog`         | GET `/admin/activity-log`               | `ActivityView.tsx`                   | Yes         |
+| `patchTourLogistics`     | PATCH `/admin/tours/{id}/logistics`     | `DayManifest.jsx`                    | Yes         |
+| `getEmailPreview`        | GET `/admin/emails/preview/{slug}`      | `EmailsView.tsx`                     | Yes         |
+| `getEmailSettings`       | GET `/admin/settings/emails`            | `EmailsView.tsx`                     | Yes         |
+| `updateEmailSetting`     | PATCH `/admin/settings/emails/{slug}`   | `EmailsView.tsx`                     | Yes         |
+| `getSystemSettings`      | GET `/admin/settings/system`            | `EmailsView.tsx`, `FAQ.jsx`          | Yes         |
+| `updateSystemSettings`   | PATCH `/admin/settings/system`          | `EmailsView.tsx`                     | Yes         |
+| `getAvailableTours`      | GET `/tours/available`                  | `BookingSystem.tsx`, `useBooking.js` | Yes         |
+| `createBooking`          | POST `/bookings`                        | `BookingSystem.tsx`                  | Yes         |
+| `getBookingStatus`       | GET `/bookings/status/{uuid}`           | `useBooking.js`                      | Yes         |
+| `getTourTemplates`       | GET `/tour-templates`                   | `Tours.tsx`                          | Yes         |
+| `fetchMonthlySchedule`   | GET `/admin/schedule`                   | `DashboardCalendar.jsx`              | Yes         |
+| `fetchDayManifest`       | GET `/admin/manifest/{date}`            | `DayManifest.jsx`                    | Yes         |
+| `patchCheckIn`           | PATCH `/admin/bookings/{id}/check-in`   | `DayManifest.jsx`                    | Yes         |
+| `cancelBooking`          | POST `/admin/bookings/{id}/cancel`      | `DayManifest.jsx`                    | Yes         |
+| `adminCreateBooking`     | POST `/admin/bookings`                  | `ManualBookingForm.jsx`              | Yes         |
+| `cancelTourForWeather`   | POST `/admin/tours/{id}/weather-cancel` | `DayManifest.jsx`                    | Yes         |
 
 ## 4. Translation Coverage (i18n Gaps)
+
 The following hardcoded strings bypass the `t()` translation function and will not respond to language switching:
 
 ### Guest-Facing Gaps
+
 - **`src/components/BookingSystem.tsx`**:
-    - `"Monthly Special Event"` (Line 282) — Specialty badge label.
-    - `"Total"` (Line 315) — Price breakdown header (should use `label_total`).
+  - `"Monthly Special Event"` (Line 282) — Specialty badge label.
+  - `"Total"` (Line 315) — Price breakdown header (should use `label_total`).
 - **`src/components/booking/BookingForm.jsx`**:
-    - `(Max {tour.remaining})` (Line 131) — Capacity hint.
+  - `(Max {tour.remaining})` (Line 131) — Capacity hint.
 - **`src/components/Header.jsx`**:
-    - `"Select Language"` (Line 160) — Mobile menu section header.
+  - `"Select Language"` (Line 160) — Mobile menu section header.
 - **`src/components/Footer.jsx`**:
-    - `"Aloha Spirit"` (Line 168) — Brand tagline at the bottom.
+  - `"Aloha Spirit"` (Line 168) — Brand tagline at the bottom.
 - **`src/pages/FAQ.jsx`**:
-    - `"Search for questions (e.g. 'swim', 'price', 'moon')..."` (Line 169) — Search placeholder.
-    - `"All Questions"` (Line 182) — Category filter button.
-    - `"No questions found matching"` (Line 213) — Empty search state.
-    - `"Clear all filters"` (Line 222) — Search reset button.
+  - `"Search for questions (e.g. 'swim', 'price', 'moon')..."` (Line 169) — Search placeholder.
+  - `"All Questions"` (Line 182) — Category filter button.
+  - `"No questions found matching"` (Line 213) — Empty search state.
+  - `"Clear all filters"` (Line 222) — Search reset button.
 
 ### Admin-Facing Gaps (Entirely unlocalized)
+
 - **`src/pages/Dashboard.jsx`**:
-    - `"LOCAL DEV"` (Line 192) — Environment indicator.
-    - `"Operations"` (Line 203) — Page title.
-    - `"Logged in as"` (Line 206) — Session info.
-    - `"Admin Access"`, `"Send Magic Link"`, `"Check your email!"` (Lines 168-185) — Legacy login form.
+  - `"LOCAL DEV"` (Line 192) — Environment indicator.
+  - `"Operations"` (Line 203) — Page title.
+  - `"Logged in as"` (Line 206) — Session info.
+  - `"Admin Access"`, `"Send Magic Link"`, `"Check your email!"` (Lines 168-185) — Legacy login form.
 - **`src/components/dashboard/DayManifest.jsx`**:
-    - `"Loading Manifest..."` (Line 253) — Loading state.
-    - `"Boarding Status"`, `"Operational Manifest"`, `"Cancelled / Inactive"` (Lines 294, 347, 375) — Section headers.
-    - `"is on board"`, `"passengers are on board"` (Lines 131-133) — Check-in toasts.
-    - `"Daily Schedule"`, `"No tours scheduled for this date."` (Lines 408, 418).
+  - `"Loading Manifest..."` (Line 253) — Loading state.
+  - `"Boarding Status"`, `"Operational Manifest"`, `"Cancelled / Inactive"` (Lines 294, 347, 375) — Section headers.
+  - `"is on board"`, `"passengers are on board"` (Lines 131-133) — Check-in toasts.
+  - `"Daily Schedule"`, `"No tours scheduled for this date."` (Lines 408, 418).
 - **`src/pages/admin/EmailsView.tsx`**:
-    - `"Configuração"` (Line 104) — Fallback toggle label.
-    - `"Customer"`, `"Internal"` (Lines 183, 197) — Setting group headers.
-    - `"Global Tour Logistics"`, `"Standard Meeting Time"`, `"Full Moon Meeting Time"` (Lines 245-276).
+  - `"Configuração"` (Line 104) — Fallback toggle label.
+  - `"Customer"`, `"Internal"` (Lines 183, 197) — Setting group headers.
+  - `"Global Tour Logistics"`, `"Standard Meeting Time"`, `"Full Moon Meeting Time"` (Lines 245-276).
 - **`src/pages/admin/ActivityView.tsx`**:
-    - `"Live Monitoring"` (Line 206) — Status indicator.
-    - `"Events"` (Line 203) — Feed counter.
-    - `"Synchronizing..."` (Line 217) — Loading state.
+  - `"Live Monitoring"` (Line 206) — Status indicator.
+  - `"Events"` (Line 203) — Feed counter.
+  - `"Synchronizing..."` (Line 217) — Loading state.
 - **`src/components/dashboard/LogisticsModal.jsx`**:
-    - `"Set Logistics"`, `"Special Event"`, `"Enable Full Moon UI/Banner"`, `"Save Logistics"` (Lines 52-94).
+  - `"Set Logistics"`, `"Special Event"`, `"Enable Full Moon UI/Banner"`, `"Save Logistics"` (Lines 52-94).
 
 ## 5. Frontend-Backend Sync Gaps
+
 - **Dead code**: None. Every exported function in `src/api.ts` is imported and used in at least one component.
 - **Broken call**: None identified. All UI flows correctly target existing `api.ts` wrappers. However, `patchCheckIn` in `DayManifest.jsx` includes a defensive check for `typeof bookingId === 'number'`, suggesting a potential type mismatch between local UUIDs and expected backend primary keys.
 
 ## 6. State & Session Edge Cases
+
 - **LocalStorage Keys**:
   - `pending_booking`: Stores current booking and payment metadata. Properly cleaned up on successful payment, timeout, or manual "Clear Booking" action.
   - `language`: Persists user language preference.
@@ -115,6 +125,7 @@ The following hardcoded strings bypass the `t()` translation function and will n
   - **Language Switch mid-booking**: Form state is held in `BookingSystem.tsx` level; switching languages re-renders children but preserves the values in the parent state.
 
 ## 7. Missing or Incomplete UI
+
 - **Commented-out Features**:
   - `src/components/booking/BookingForm.jsx`: Special Notes input field is commented out (Lines 216-235).
   - `src/components/dashboard/manifest/ManualBookingForm.jsx`: Special Notes input is commented out (Lines 118-132).
