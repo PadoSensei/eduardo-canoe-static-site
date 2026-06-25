@@ -194,7 +194,9 @@ describe("LogisticsModal", () => {
     );
 
     // Toggle the special event switch
-    fireEvent.click(screen.getByRole("button", { name: /toggle special event/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /toggle special event/i })
+    );
 
     // Submit the form
     fireEvent.click(screen.getByRole("button", { name: /save logistics/i }));
