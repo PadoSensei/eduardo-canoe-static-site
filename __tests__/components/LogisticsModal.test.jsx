@@ -10,9 +10,15 @@ jest.mock("../../src/context/LanguageContext", () => ({
 }));
 
 // Mock Lucide icons to avoid SVGR issues in tests
-jest.mock("lucide-react/dist/esm/icons/x", () => () => <div data-testid="icon-x" />);
-jest.mock("lucide-react/dist/esm/icons/clock", () => () => <div data-testid="icon-clock" />);
-jest.mock("lucide-react/dist/esm/icons/star", () => () => <div data-testid="icon-star" />);
+jest.mock("lucide-react/dist/esm/icons/x", () => () => (
+  <div data-testid="icon-x" />
+));
+jest.mock("lucide-react/dist/esm/icons/clock", () => () => (
+  <div data-testid="icon-clock" />
+));
+jest.mock("lucide-react/dist/esm/icons/star", () => () => (
+  <div data-testid="icon-star" />
+));
 
 describe("LogisticsModal", () => {
   const mockTour = {
@@ -34,9 +40,9 @@ describe("LogisticsModal", () => {
   const getToggleButton = () => {
     // Find the toggle button. It's the one after the "Special Event" text.
     // In the DOM, it's a button with classes like "relative inline-flex..."
-    return screen.getAllByRole("button").find(btn =>
-      btn.className.includes("relative inline-flex")
-    );
+    return screen
+      .getAllByRole("button")
+      .find((btn) => btn.className.includes("relative inline-flex"));
   };
 
   test("renders with correct initial toggle state from tour.is_special_event", () => {
