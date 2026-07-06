@@ -384,7 +384,7 @@ function BookingSystem() {
               ) : (
                 <span className="text-orange-500">⏳</span>
               )}{" "}
-              {tour.duration || "2h"}
+              {tour.duration || "2 Hours"}
             </span>
 
             {(tour.meetingTime || tour.meeting_time) && (
