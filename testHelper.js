@@ -32,7 +32,10 @@ export const defaultHandlers = [
         is_bookable: true,
         tour_date: "2026-01-19",
         capacity: 10,
-        duration: "2h",
+        duration: "2 Hours",
+        start_time: "07:30",
+        meeting_time: "07:00",
+        is_special_event: false,
       },
     ])
   ),
